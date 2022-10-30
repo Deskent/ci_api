@@ -1,34 +1,12 @@
-version: '3.8'
+version: '3.9'
 
 services:
-  web:
-    build: .
-    env_file:
-      - ./.env
-#    command: >
-#      sh -c "
-#        alembic revision --autogenerate -m "auto" &&
-#        alembic upgrade head &&
-#        uvicorn app.main:app --workers 1 --host 0.0.0.0 --port 8000
-#      "
-    command:
-      - uvicorn main:app --workers 1 --host 0.0.0.0 --port 8000
-    ports:
-      - "8000:8000"
-    environment:
-      POSTGRES_HOST: "ci_postgres"
-    volumes:
-      - ./migrations:/app/migrations
-#    depends_on:
-#      - db
   ci_postgres:
     env_file:
       - ./.env
     container_name: ci_postgres
     hostname: ci_postgres
     image: postgres:14.4-alpine
-    ports:
-      - "5432:5432"
     command:
       - "postgres"
       - "-c"
@@ -55,13 +33,18 @@ services:
       timeout: 5s
       retries: 3
       start_period: 5s
-#  pgadmin:
-#    container_name: ci_pgadmin
-#    image: dpage/pgadmin4
-#    environment:
-#      - PGADMIN_DEFAULT_EMAIL=pgadmin4@pgadmin.org
-#      - PGADMIN_DEFAULT_PASSWORD=admin
-#    ports:
-#      - "5050:80"
-#    links:
-#      - ci_postgres
+  web:
+    build: .
+    env_file:
+      - ./.env
+    command: >
+      sh -c "uvicorn main:app --workers 1 --host 0.0.0.0 --port 8000"
+    ports:
+      - "8000:8000"
+    environment:
+      POSTGRES_HOST: "ci_postgres"
+    volumes:
+      - ./migrations:/app/migrations
+      - ./media:/app/media
+    links:
+      - ci_postgres

@@ -4,3 +4,4 @@ docker-compose.yml
 *.sh
 /postgres_db
 README.md
+media

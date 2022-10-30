@@ -1,8 +1,8 @@
-name: cryptopayments_api
+name: ci_api
 env:
   DOCKER_USER: "deskent"
   DOCKER_REPOSITORY_NAME: "deskent"
-  PROJECT_NAME: "cryptopayments_api"
+  PROJECT_NAME: "ci_api"
   STAGE: "prod"
   VERSION: "ver-${{ github.sha }}"
   COUNT: "1.0-prod"
@@ -26,18 +26,18 @@ jobs:
       - name: Docker push
         run: |
           docker push ${{ env.DOCKER_USER }}/${{ env.DOCKER_REPOSITORY_NAME }}:${{ env.PROJECT_NAME}}-${{ env.COUNT }}
-  deploy:
-    runs-on: ubuntu-latest
-    needs: [create_docker_build]
-    steps:
-      - name: Executing remote ssh commands using ssh key
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.HOST_PROD }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_KEY_PROD }}
-          script: |
-            cd "/home/${{ secrets.USERNAME }}/deploy/${{ env.PROJECT_NAME }}/${{ env.STAGE }}"
-            docker-compose -f docker-compose-${{ env.PROJECT_NAME}}-${{ env.STAGE }}.yml down
-            docker rmi ${{ env.DOCKER_USER }}/${{ env.DOCKER_REPOSITORY_NAME }}:${{ env.PROJECT_NAME}}-${{ env.COUNT }}
-            docker-compose -f docker-compose-${{ env.PROJECT_NAME}}-${{ env.STAGE }}.yml up -d --build
+#  deploy:
+#    runs-on: ubuntu-latest
+#    needs: [create_docker_build]
+#    steps:
+#      - name: Executing remote ssh commands using ssh key
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.HOST_PROD }}
+#          username: ${{ secrets.USERNAME }}
+#          key: ${{ secrets.SSH_KEY_PROD }}
+#          script: |
+#            cd "/home/${{ secrets.USERNAME }}/deploy/${{ env.PROJECT_NAME }}/${{ env.STAGE }}"
+#            docker-compose -f docker-compose-${{ env.PROJECT_NAME}}-${{ env.STAGE }}.yml down
+#            docker rmi ${{ env.DOCKER_USER }}/${{ env.DOCKER_REPOSITORY_NAME }}:${{ env.PROJECT_NAME}}-${{ env.COUNT }}
+#            docker-compose -f docker-compose-${{ env.PROJECT_NAME}}-${{ env.STAGE }}.yml up -d --build

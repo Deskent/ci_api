@@ -1,49 +1,79 @@
-from datetime import datetime
-from typing import Optional
+from datetime import datetime, time
+from typing import Optional, List
 
-from sqlalchemy import Integer, String, Column, Text, DateTime, Time, ForeignKey, Boolean
-from sqlalchemy.orm import relationship
-
-
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import SQLModel, Field, Relationship
 
 
-class AlertBase(SQLModel):
-    time: datetime
-    description: str
+class BaseSQLModel(SQLModel):
+    async def update_data(
+            self,
+            session: AsyncSession,
+            data: SQLModel,
+            exclude_unset: bool = True
+    ) -> SQLModel:
+        data_dict: dict = data.dict(exclude_unset=exclude_unset)
+        print(data_dict)
+
+        for key, value in data_dict.items():
+            if value:
+                setattr(self, key, value)
+        session.add(self)
+        await session.commit()
+
+        return self
 
 
-class Alert(AlertBase, table=True):
-    __tablename__ = 'alerts'
+class AlarmBase(BaseSQLModel):
+    alarm_time: time
+    text: str
+
+
+class AlarmCreate(AlarmBase):
+    user_id: Optional[int] = Field(default=None, foreign_key="users.id")
+
+
+class Alarm(AlarmCreate, table=True):
+    __tablename__ = 'alarms'
+
     id: int = Field(default=None, primary_key=True)
+    users: List['User'] = Relationship(back_populates="alarms")
 
 
-class AlertCreate(AlertBase):
+class AlarmUpdate(AlarmBase):
     pass
 
 
-class NotificationBase(SQLModel):
-    time: datetime
-    description: str
-
-
-class Notification(NotificationBase, table=True):
-    __tablename__ = 'notifications'
-    id: int = Field(default=None, primary_key=True)
+class NotificationBase(BaseSQLModel):
+    notification_time: time
+    text: str
 
 
 class NotificationCreate(NotificationBase):
+    user_id: Optional[int] = Field(default=None, foreign_key="users.id")
+
+
+class Notification(NotificationCreate, table=True):
+    __tablename__ = 'notifications'
+
+    id: int = Field(default=None, primary_key=True)
+    users: List['User'] = Relationship(back_populates="notifications")
+
+
+class NotificationUpdate(NotificationBase):
     pass
 
 
-class VideoBase(SQLModel):
-    filename: str
+class VideoBase(BaseSQLModel):
+    path: str
+    name: str
     description: str
-    #     user = Column(Integer, ForeignKey("users.id"))
+    next_id: int
 
 
 class Video(VideoBase, table=True):
     __tablename__ = 'videos'
+
     id: int = Field(default=None, primary_key=True)
 
 
@@ -51,23 +81,38 @@ class VideoCreate(VideoBase):
     pass
 
 
-class UserBase(SQLModel):
+class UserBase(BaseSQLModel):
     username: str = Field(unique=True, nullable=False)
     email: str = Field(unique=True, nullable=False)
     password: str = Field(nullable=False)
-    created_at: datetime = Field(nullable=False, default=datetime.utcnow())
-    expired_at: datetime = Field(nullable=False, default=datetime.utcnow())
+
+
+class UserFullData(UserBase):
+    expired_at: datetime = Field()
     is_admin: bool = Field(default=False)
     is_active: bool = Field(default=False)
-    alerts: list[Alert] = Relationship(back_populates="users")
-    notifications: list[Notification] = Relationship(back_populates="users")
-    current_video: Optional[Video] = Relationship(back_populates="users")
+    current_video: Optional[int] = Field(nullable=True, default=None, foreign_key='videos.id')
 
 
-class User(UserBase, table=True):
+class User(UserFullData, table=True):
     __tablename__ = 'users'
-    id: int = Field(default=None, primary_key=True)
+
+    id: int = Field(default=None, primary_key=True, exclude=True)
+    created_at: datetime = Field(default=datetime.utcnow())
+    alarms: List[Alarm] = Relationship(back_populates="users")
+    notifications: List[Notification] = Relationship(back_populates="users")
 
 
 class UserCreate(UserBase):
+    username: str = None
+    email: str = None
+    password: str = None
+    expired_at: datetime = None
+    is_admin: bool = None
+    is_active: bool = None
+    current_video: int = None
+
+
+class UserUpdate(UserFullData):
     pass
+

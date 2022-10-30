@@ -1,18 +1,24 @@
+import os
+
 import uvicorn
 from fastapi import FastAPI
 
 from routers import main_router
-from core.db import drop_db, create_db
-
+from create_data import recreate
 
 app = FastAPI()
 app.include_router(main_router)
 
 
+def migrate():
+    os.system('. ./migrations.sh')
+
+
 @app.on_event("startup")
 async def on_startup():
-    # await drop_db()
-    await create_db()
+    await recreate()
+    if not os.path.exists('media'):
+        os.mkdir('media')
 
 
 if __name__ == '__main__':
