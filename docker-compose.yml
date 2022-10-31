@@ -43,7 +43,6 @@ services:
       - "8000:8000"
     environment:
       POSTGRES_HOST: "ci_postgres"
-      RECREATE_DB: 0
     volumes:
       - ./migrations:/app/migrations
       - ./media:/app/media
