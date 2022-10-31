@@ -4,8 +4,8 @@ import shutil
 from fastapi import APIRouter, Depends, UploadFile, BackgroundTasks, HTTPException, status, File
 from sqlalchemy.future import select
 
-from core.db import get_session
-from app.models import *
+from database.db import get_session
+from models.models import *
 
 
 videos_router = APIRouter()
