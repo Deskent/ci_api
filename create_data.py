@@ -3,9 +3,9 @@ from datetime import datetime, timedelta
 import asyncio
 
 from sqlalchemy.orm import sessionmaker
-from core.db import engine, drop_db, create_db, db
+from database.db import engine, drop_db, create_db, db
 
-from app.models import *
+from models.models import *
 
 
 async def recreate() -> None:

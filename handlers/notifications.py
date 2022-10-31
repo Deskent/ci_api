@@ -3,8 +3,8 @@ from sqlalchemy.engine import Row
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-from core.db import get_session
-from app.models import Notification, NotificationCreate, NotificationUpdate, User
+from database.db import get_session
+from models.models import Notification, NotificationCreate, NotificationUpdate, User
 
 
 notifications_router = APIRouter()

@@ -1,27 +1,41 @@
-import datetime
-
-from fastapi import APIRouter, Request, Depends, HTTPException, status
-from sqlalchemy import update
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.engine import Row
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy import update
 
-from core.db import get_session
-from app.models import User, UserCreate, UserBase, UserUpdate, UserFullData, Alarm, Notification
+from database.db import get_session
+from models.models import User, UserCreate, UserUpdate, Alarm, Notification
 
 users_router = APIRouter()
 TAGS = ['Users']
 
 
-@users_router.get("/", response_model=list[UserBase], tags=TAGS)
+@users_router.get("/", response_model=list[User], tags=TAGS)
 async def get_users(session: AsyncSession = Depends(get_session)):
     """
     Get all users from database
 
     :return: List of users
     """
-    result = await session.execute(select(User))
-    return result.scalars().all()
+
+    users = await session.execute(select(User))
+    return users.scalars().all()
+
+
+@users_router.get("/<int: user_id>", response_model=User, tags=TAGS)
+async def get_user(user_id: int, session: AsyncSession = Depends(get_session)):
+    """Get user by user_id
+
+    :param user_id: ID user in database
+
+    :return: User information
+    """
+
+    if not (user := await session.get(User, user_id)):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    return user
 
 
 @users_router.post("/", response_model=User, tags=TAGS)
@@ -29,11 +43,11 @@ async def create_user(data: UserCreate, session: AsyncSession = Depends(get_sess
     """
     Create new user in database if not exists
 
-    "username": "string" - Username
+    :param username: Username
 
-    "email": "string" - E-mail
+    :param email: E-mail
 
-    "password": "string", - Password
+    :param password: Password
 
     :return: User created information
     """
@@ -47,11 +61,49 @@ async def create_user(data: UserCreate, session: AsyncSession = Depends(get_sess
 
 @users_router.put("/<int: user_id>", response_model=User, tags=TAGS)
 async def update_user(user_id: int, data: UserUpdate, session: AsyncSession = Depends(get_session)):
-    user: User = await session.get(User, user_id)
-    if not user:
+    """
+    Update user in database from data
+
+    :param username: Username
+
+    :param email: E-mail
+
+    :param password: Password
+
+    :param expired_at: Date subscribe expiration in format "2022-11-30[T]09:20[:31.777132]"
+
+    :param is_admin: Flag is user admin
+
+    :param is_active: Flag is user have active subscibe
+
+    :param current_video: ID next video in database
+
+    :return: User updated information
+    """
+
+    if not (user := await session.get(User, user_id)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
-    return await user.update_data(session, data)
+    await user.update_data(session, data, user_id)
+
+    return user
+
+
+@users_router.delete("/<int: user_id>", status_code=status.HTTP_204_NO_CONTENT, tags=TAGS)
+async def delete_user(user_id: int, session: AsyncSession = Depends(get_session)):
+    """Delete user by user_id
+
+    :param user_id: ID user in database
+
+    :return: None
+    """
+
+    if not (user := await session.get(User, user_id)):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    await session.delete(user)
+    await session.commit()
+
+    return None
 
 
 @users_router.get("/<int: user_id>/alarms", response_model=list[Alarm], tags=TAGS)

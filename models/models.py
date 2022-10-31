@@ -1,7 +1,8 @@
-from datetime import datetime, time, timezone
+from datetime import datetime, time
 from typing import Optional, List
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import update
 from sqlmodel import SQLModel, Field, Relationship
 
 
@@ -10,23 +11,25 @@ class BaseSQLModel(SQLModel):
             self,
             session: AsyncSession,
             data: SQLModel,
-            exclude_unset: bool = True
+            pk: int,
     ) -> SQLModel:
-        data_dict: dict = data.dict(exclude_unset=exclude_unset)
-        print(data_dict)
 
-        for key, value in data_dict.items():
-            if value:
-                setattr(self, key, value)
-        session.add(self)
-        await session.commit()
+        new_data = {
+            key: value
+            for key, value in data.dict().items()
+            if value is not None
+        }
+        if new_data.get('expired_at'):
+            new_data['expired_at'] = new_data['expired_at'].replace(tzinfo=None)
+
+        await session.execute(update(User).where(User.id == pk).values(**new_data))
 
         return self
 
 
 class AlarmBase(BaseSQLModel):
     alarm_time: time
-    text: str
+    text: Optional[str] = Field(nullable=True, default='')
 
 
 class AlarmCreate(AlarmBase):
@@ -46,7 +49,7 @@ class AlarmUpdate(AlarmBase):
 
 class NotificationBase(BaseSQLModel):
     notification_time: time
-    text: str
+    text: Optional[str] = Field(nullable=True, default='')
 
 
 class NotificationCreate(NotificationBase):
@@ -66,8 +69,8 @@ class NotificationUpdate(NotificationBase):
 
 class VideoBase(BaseSQLModel):
     path: str
-    name: str
-    description: str
+    name: Optional[str] = Field(nullable=True, default='')
+    description: Optional[str] = Field(nullable=True, default='')
     next_id: int
 
 
@@ -82,9 +85,9 @@ class VideoCreate(VideoBase):
 
 
 class UserBase(BaseSQLModel):
-    username: str = Field(unique=True, nullable=False)
-    email: str = Field(unique=True, nullable=False)
-    password: str = Field(nullable=False)
+    username: Optional[str] = Field(unique=True, nullable=False)
+    email: Optional[str] = Field(unique=True, nullable=False)
+    password: Optional[str] = Field(nullable=False)
 
 
 class UserFullData(UserBase):
@@ -107,6 +110,8 @@ class UserCreate(UserBase):
     pass
 
 
-class UserUpdate(UserFullData):
-    pass
-
+class UserUpdate(UserBase):
+    expired_at: Optional[datetime] = Field(default=None)
+    is_admin: Optional[bool] = Field(default=None)
+    is_active: Optional[bool] = Field(default=None)
+    current_video: Optional[int] = Field(nullable=True, default=None, foreign_key='videos.id')

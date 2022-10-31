@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.db import get_session
-from app.models import Alarm, AlarmCreate, AlarmUpdate
+from database.db import get_session
+from models.models import Alarm, AlarmCreate, AlarmUpdate
 
 
 alarms_router = APIRouter()
