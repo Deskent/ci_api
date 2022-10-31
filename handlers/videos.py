@@ -17,15 +17,6 @@ def save_video(path: str, file: UploadFile):
         shutil.copyfileobj(file.file, buffer)
 
 
-@videos_router.get("/<int: user_id>/get", response_model=Video, tags=TAGS)
-async def get_user_current_video(user_id: int, session: AsyncSession = Depends(get_session)):
-    user: User = await session.get(User, user_id)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-
-    return user.current_video
-
-
 @videos_router.get("/", response_model=list[VideoBase], tags=TAGS)
 async def get_videos(session: AsyncSession = Depends(get_session)):
     """Get all videos"""

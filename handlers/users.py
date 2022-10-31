@@ -5,7 +5,7 @@ from sqlalchemy.future import select
 from sqlalchemy import update
 
 from database.db import get_session
-from models.models import User, UserCreate, UserUpdate, Alarm, Notification
+from models.models import User, UserCreate, UserUpdate, Alarm, Notification, Video
 
 users_router = APIRouter()
 TAGS = ['Users']
@@ -122,3 +122,18 @@ async def get_user_notifications(user_id: int, session: AsyncSession = Depends(g
     notifications: Row = await session.execute(select(Notification).join(User).where(User.id == user_id))
 
     return notifications.scalars().all()
+#
+#
+# @users_router.get("/<int: user_id>/get_current_video", response_model=Video, tags=TAGS)
+# async def get_user_current_video(user_id: int, session: AsyncSession = Depends(get_session)):
+#     """
+#
+#     :param user_id: User id in database
+#     :return: Current user video
+#     """
+#
+#     user: User = await session.get(User, user_id)
+#     if not user:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+#
+#     return user.current_video
