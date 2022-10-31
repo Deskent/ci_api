@@ -1,12 +1,13 @@
 import datetime
 
 from fastapi import APIRouter, Request, Depends, HTTPException, status
+from sqlalchemy import update
 from sqlalchemy.engine import Row
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from core.db import get_session
-from app.models import *
+from app.models import User, UserCreate, UserBase, UserUpdate, UserFullData, Alarm, Notification
 
 users_router = APIRouter()
 TAGS = ['Users']
@@ -27,6 +28,7 @@ async def get_users(session: AsyncSession = Depends(get_session)):
 async def create_user(data: UserCreate, session: AsyncSession = Depends(get_session)):
     """
     Create new user in database if not exists
+
     "username": "string" - Username
 
     "email": "string" - E-mail
@@ -36,8 +38,7 @@ async def create_user(data: UserCreate, session: AsyncSession = Depends(get_sess
     :return: User created information
     """
 
-    expired_at = datetime.datetime.utcnow() + datetime.timedelta(days=30)
-    user = User(**data.dict(), expired_at=expired_at)
+    user = User(**data.dict())
     session.add(user)
     await session.commit()
 
@@ -45,7 +46,7 @@ async def create_user(data: UserCreate, session: AsyncSession = Depends(get_sess
 
 
 @users_router.put("/<int: user_id>", response_model=User, tags=TAGS)
-async def update_notification(user_id: int, data: UserUpdate, session: AsyncSession = Depends(get_session)):
+async def update_user(user_id: int, data: UserUpdate, session: AsyncSession = Depends(get_session)):
     user: User = await session.get(User, user_id)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")

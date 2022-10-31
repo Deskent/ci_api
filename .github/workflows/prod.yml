@@ -6,26 +6,26 @@ env:
   STAGE: "prod"
   VERSION: "ver-${{ github.sha }}"
   COUNT: "1.0-prod"
-on:
-  push:
-    branches: [ main ]
-jobs:
-  create_docker_build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Docker login
-        run: |
-          echo "${{ secrets.DOCKER_ACCESS_TOKEN }}" | docker login -u $DOCKER_USER --password-stdin
-      - name: Docker build
-        run: |
-          docker build --no-cache . -t ${{ env.PROJECT_NAME }}:${{ env.VERSION }}
-      - name: Docker tagging
-        run: |
-          docker tag ${{ env.PROJECT_NAME }}:${{ env.VERSION}} ${{ env.DOCKER_USER }}/${{ env.DOCKER_REPOSITORY_NAME }}:${{ env.PROJECT_NAME}}-${{ env.COUNT }}
-      - name: Docker push
-        run: |
-          docker push ${{ env.DOCKER_USER }}/${{ env.DOCKER_REPOSITORY_NAME }}:${{ env.PROJECT_NAME}}-${{ env.COUNT }}
+#on:
+#  push:
+#    branches: [ main ]
+#jobs:
+#  create_docker_build:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v2
+#      - name: Docker login
+#        run: |
+#          echo "${{ secrets.DOCKER_ACCESS_TOKEN }}" | docker login -u $DOCKER_USER --password-stdin
+#      - name: Docker build
+#        run: |
+#          docker build --no-cache . -t ${{ env.PROJECT_NAME }}:${{ env.VERSION }}
+#      - name: Docker tagging
+#        run: |
+#          docker tag ${{ env.PROJECT_NAME }}:${{ env.VERSION}} ${{ env.DOCKER_USER }}/${{ env.DOCKER_REPOSITORY_NAME }}:${{ env.PROJECT_NAME}}-${{ env.COUNT }}
+#      - name: Docker push
+#        run: |
+#          docker push ${{ env.DOCKER_USER }}/${{ env.DOCKER_REPOSITORY_NAME }}:${{ env.PROJECT_NAME}}-${{ env.COUNT }}
 #  deploy:
 #    runs-on: ubuntu-latest
 #    needs: [create_docker_build]

@@ -1,4 +1,4 @@
-from datetime import datetime, time
+from datetime import datetime, time, timezone
 from typing import Optional, List
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -88,9 +88,9 @@ class UserBase(BaseSQLModel):
 
 
 class UserFullData(UserBase):
-    expired_at: datetime = Field()
-    is_admin: bool = Field(default=False)
-    is_active: bool = Field(default=False)
+    expired_at: Optional[datetime] = Field(default=None)
+    is_admin: Optional[bool] = Field(default=False)
+    is_active: Optional[bool] = Field(default=False)
     current_video: Optional[int] = Field(nullable=True, default=None, foreign_key='videos.id')
 
 
@@ -98,19 +98,13 @@ class User(UserFullData, table=True):
     __tablename__ = 'users'
 
     id: int = Field(default=None, primary_key=True, exclude=True)
-    created_at: datetime = Field(default=datetime.utcnow())
+    created_at: datetime = Field(default=datetime.now(tz=None))
     alarms: List[Alarm] = Relationship(back_populates="users")
     notifications: List[Notification] = Relationship(back_populates="users")
 
 
 class UserCreate(UserBase):
-    username: str = None
-    email: str = None
-    password: str = None
-    expired_at: datetime = None
-    is_admin: bool = None
-    is_active: bool = None
-    current_video: int = None
+    pass
 
 
 class UserUpdate(UserFullData):

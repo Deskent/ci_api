@@ -38,7 +38,7 @@ services:
     env_file:
       - ./.env
     command: >
-      sh -c "uvicorn main:app --workers 1 --host 0.0.0.0 --port 8000"
+      sh -c "uvicorn main:app --workers 1 --host 0.0.0.0 --port 8000 --reload"
     ports:
       - "8000:8000"
     environment:
@@ -46,5 +46,5 @@ services:
     volumes:
       - ./migrations:/app/migrations
       - ./media:/app/media
-    links:
+    depends_on:
       - ci_postgres
