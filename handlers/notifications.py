@@ -3,7 +3,7 @@ from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.db import get_session
-from models.models import Notification, NotificationCreate, NotificationUpdate, User
+from models.models import Notification, NotificationCreate, NotificationUpdate
 from services.utils import get_data_for_update
 
 notifications_router = APIRouter()
@@ -12,6 +12,17 @@ TAGS = ['Notifications']
 
 @notifications_router.post("/", response_model=Notification, tags=TAGS)
 async def create_notification(data: NotificationCreate, session: AsyncSession = Depends(get_session)):
+    """Create notification for user by user database id
+
+    :param notification_time: string - Time in format HH:MM[:SS[.ffffff]][Z or [±]HH[:]MM]]]
+
+    :param text: string - Description text
+
+    :param user_id: integer - user id in database
+
+    :return: Notification created information as JSON
+    """
+
     notification: Notification = Notification(**data.dict())
     session.add(notification)
     await session.commit()
@@ -21,6 +32,18 @@ async def create_notification(data: NotificationCreate, session: AsyncSession = 
 
 @notifications_router.put("/{notification_id}", response_model=Notification, tags=TAGS)
 async def update_notification(notification_id: int, data: NotificationUpdate, session: AsyncSession = Depends(get_session)):
+    """
+    Update notification by id
+
+    :param notification_id: integer Notification id in database
+
+    :param notification_time: string - Time in format HH:MM[:SS[.ffffff]][Z or [±]HH[:]MM]]]
+
+    :param text: string - Description text
+
+    :return: Notification updated information as JSON
+    """
+
     notification: Notification = await session.get(Notification, notification_id)
     if not notification:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found")
@@ -34,6 +57,12 @@ async def update_notification(notification_id: int, data: NotificationUpdate, se
 
 @notifications_router.delete("/{notification_id}", status_code=status.HTTP_204_NO_CONTENT, tags=TAGS)
 async def delete_notification(notification_id: int, session: AsyncSession = Depends(get_session)):
+    """Delete notification by its id
+
+    :param notification_id: integer - Notification id in database
+
+    :return: None
+    """
     notification: Notification = await session.get(Notification, notification_id)
     if not notification:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found")

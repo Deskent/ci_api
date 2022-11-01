@@ -17,24 +17,27 @@ async def recreate() -> None:
     async_session = sessionmaker(
         engine, class_=AsyncSession, expire_on_commit=False
     )
-    user_data = [
+    videos_data = [
         {
-            'username': "test1",
-            'password': "test1pass",
-            'email': 'test1@email'
-
+            'path': 'media/hello.mp4',
+            'description': 'some video',
+            'name': 'v1',
+            'previous_id': None,
+            'next_id': 2
         },
         {
-            'username': "test2",
-            'password': "test2pass",
-            'email': 'test2@email'
-
+            'path': 'media/hello.mp4',
+            'name': 'v2',
+            'description': 'some video',
+            'previous_id': 1,
+            'next_id': 3
         },
         {
-            'username': "test3",
-            'password': "test3pass",
-            'email': 'test3@email'
-
+            'path': 'media/hello.mp4',
+            'name': 'v3',
+            'description': 'some video',
+            'previous_id': 2,
+            'next_id': 4
         },
     ]
     alarm_data = [
@@ -51,7 +54,7 @@ async def recreate() -> None:
         {
             'alarm_time': '13:00',
             'text': 'alarm3',
-            'user_id': 1
+            'user_id': 2
         },
     ]
     notifications_data = [
@@ -68,47 +71,60 @@ async def recreate() -> None:
         {
             'notification_time': '12:00',
             'text': 'notification3',
-            'user_id': 1
+            'user_id': 2
+        },
+    ]
+    user_data = [
+        {
+            'username': "test1",
+            'password': "test1pass",
+            'email': 'test1@email',
+            'current_video': 1,
+            'is_admin': True,
+            'is_active': True
+        },
+        {
+            'username': "test2",
+            'password': "test2pass",
+            'email': 'test2@email',
+            'current_video': 1,
+            'is_admin': False,
+            'is_active': True
+
+        },
+        {
+            'username': "test3",
+            'password': "test3pass",
+            'email': 'test3@email',
+            'current_video': 1,
+            'is_admin': False,
+            'is_active': False
         },
     ]
 
-    videos_data = [
-        {
-            'path': 'media/hello.mp4',
-            'description': 'some video',
-            'name': 'v1',
-            'next_id': 0
-        },
-        {
-            'path': 'media/hello.mp4',
-            'name': 'v2',
-            'description': 'some video',
-            'next_id': 0
-        },
-        {
-            'path': 'media/hello.mp4',
-            'name': 'v3',
-            'description': 'some video',
-            'next_id': 0
-        },
-    ]
     async with async_session() as session:
+
+        for video in videos_data:
+            elem = Video(**video)
+            session.add(elem)
+
+        await session.commit()
 
         for user in user_data:
             expired_at = datetime.utcnow() + timedelta(days=30)
             user = User(**user, expired_at=expired_at)
             session.add(user)
 
+        await session.commit()
+
         for alarm in alarm_data:
             alarm_instance = Alarm(**alarm)
             session.add(alarm_instance)
 
+        await session.commit()
+
         for notification in notifications_data:
             elem = Notification(**notification)
-            session.add(elem)
-
-        for video in videos_data:
-            elem = Video(**video)
             session.add(elem)
 
         await session.commit()
