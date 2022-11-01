@@ -14,13 +14,13 @@ TAGS = ['Alarms']
 async def create_alarm(data: AlarmCreate, session: AsyncSession = Depends(get_session)):
     """Create alarm for user by user database id
 
-    :param alarm_time: string, in format HH:MM[:SS[.ffffff]][Z or [±]HH[:]MM]]]
+    :param alarm_time: string - Time in format HH:MM[:SS[.ffffff]][Z or [±]HH[:]MM]]]
 
-    :param text: String, Description text
+    :param text: string - Description text
 
-    :param user_id: Integer, user id in database
+    :param user_id: integer - user id in database
 
-    :return: Alarm created information.
+    :return: Alarm created information as JSON
     """
 
     alarm: Alarm = Alarm(**data.dict())
@@ -35,13 +35,13 @@ async def update_alarm(alarm_id: int, data: AlarmUpdate, session: AsyncSession =
     """
     Update alarm by id
 
-    :param alarm_id: Alarm id in database
+    :param alarm_id: integer Alarm id in database
 
-    :param alarm_time: string, in format HH:MM[:SS[.ffffff]][Z or [±]HH[:]MM]]]
+    :param alarm_time: string - Time in format HH:MM[:SS[.ffffff]][Z or [±]HH[:]MM]]]
 
     :param text: string - Description text
 
-    :return: Alarm updated information.
+    :return: Alarm updated information as JSON
     """
 
     alarm: Alarm = await session.get(Alarm, alarm_id)
@@ -59,7 +59,7 @@ async def update_alarm(alarm_id: int, data: AlarmUpdate, session: AsyncSession =
 async def delete_alarm(alarm_id: int, session: AsyncSession = Depends(get_session)):
     """Delete alarm by its id
 
-    :param alarm_id: Alarm id in database
+    :param alarm_id: integer - Alarm id in database
 
     :return: None
     """
