@@ -19,7 +19,10 @@ def save_video(path: str, file: UploadFile):
 
 @videos_router.get("/", response_model=list[Video], tags=TAGS)
 async def get_videos(session: AsyncSession = Depends(get_session)):
-    """Get all videos"""
+    """Get all videos
+
+    :return: List of Videos
+    """
 
     result = await session.execute(select(Video))
     return result.scalars().all()
@@ -33,6 +36,16 @@ async def add_video(
         file: UploadFile = File(...),
         session: AsyncSession = Depends(get_session)
 ):
+    """
+    Upload video file in format mp4
+
+    :param name: Name for file
+
+    :param description: Description for video
+
+    :return: Video created data as JSON
+    """
+
     if file.content_type != 'video/mp4':
         raise HTTPException(
             status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
