@@ -20,7 +20,7 @@ async def get_users(session: AsyncSession = Depends(get_session)):
     :return: List of users
     """
 
-    users = await session.execute(select(User))
+    users = await session.execute(select(User).order_by(User.id))
 
     return users.scalars().all()
 
