@@ -2,6 +2,7 @@ import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import FileResponse
+from pydantic import EmailStr
 
 from sqlalchemy.engine import Row
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,19 +10,20 @@ from sqlalchemy.future import select
 from sqlalchemy import update
 
 from database.db import get_session
-from models.models import User, UserCreate, UserUpdate, Alarm, Notification, Video
+from models.models import User, UserUpdate, Alarm, Notification, Video, UserInput, UserLogin
+from services.depends import check_access, auth_handler, check_user_is_admin
 from services.utils import get_data_for_update
 
 users_router = APIRouter()
 TAGS = ['Users']
 
 
-@users_router.get("/", response_model=list[User], tags=TAGS)
+@users_router.get("/", response_model=list[User], tags=TAGS, dependencies=[Depends(check_user_is_admin)])
 async def get_users(session: AsyncSession = Depends(get_session)):
     """
-    Get all users from database
+    Get all users from database. For admin only.
 
-    :return: List of users
+    :return: List of users as JSON
     """
 
     users = await session.execute(select(User).order_by(User.id))
@@ -35,44 +37,101 @@ async def get_user(user_id: int, session: AsyncSession = Depends(get_session)):
 
     :param user_id: int - User database ID
 
-    :return: User information
+    :return: User information as JSON
     """
 
-    if not (user := await session.get(User, user_id)):
+    if not (user := await User.get_user_by_id(session, user_id)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
     return user
 
 
-@users_router.post("/", response_model=User, tags=TAGS)
-async def create_user(data: UserCreate, session: AsyncSession = Depends(get_session)):
+@users_router.post("/get_id", tags=TAGS)
+async def get_user_id_by_email(email: EmailStr, session: AsyncSession = Depends(get_session)):
+    """Get user_id by email
+
+    :param email: string - User email
+
+    :return: User id
+    """
+
+    if not (user := await User.get_user_by_email(session, email)):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    return user.id
+
+
+@users_router.post("/", response_model=User, tags=['Users', 'Authentication'])
+async def create_user(user: UserInput, session: AsyncSession = Depends(get_session)):
     """
     Create new user in database if not exists
 
-    :param username: Username
+    :param username: string - Username
 
-    :param email: E-mail
+    :param email: string - E-mail
 
-    :param password: Password
+    :param password: string - Password
 
-    :return: User created information
+    :param password2: string - Repeat Password
+
+    :return: User created information as JSON
     """
+
+    if await User.get_user_by_email(session, user.email):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='User exists')
+
+    user.password = auth_handler.get_password_hash(user.password)
     expired_at = datetime.datetime.now(tz=None) + datetime.timedelta(days=30)
-    user = User(**data.dict(), current_video=1, is_admin=False, is_active=True, expired_at=expired_at)
+    verified_user: dict = user.dict()
+    del verified_user['password2']
+    user = User(**verified_user, current_video=1, is_admin=False, is_active=True, expired_at=expired_at)
     session.add(user)
     await session.commit()
 
     return user
 
 
-@users_router.put("/{user_id}", response_model=User, tags=TAGS)
-async def update_user(user_id: int, data: UserUpdate, session: AsyncSession = Depends(get_session)):
+@users_router.post("/get_token", response_model=dict, tags=['Authentication'])
+async def get_token(user: UserLogin, session: AsyncSession = Depends(get_session)):
+    """Get user authorization token
+
+    :param email: string - E-mail
+
+    :param password: string - Password
+
+     :return: Authorization token as JSON
     """
-    Update user in database from data
+
+    user_found: User = await User.get_user_by_email(session, user.email)
+    if not user_found:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid username or password')
+
+    if not auth_handler.verify_password(user.password, user_found.password):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid username or password')
+
+    token: str = auth_handler.encode_token(user_found.id)
+
+    return {"token": token}
+
+
+@users_router.put(
+    path="/{user_id}",
+    response_model=User,
+    dependencies=[Depends(check_access), Depends(check_user_is_admin)],
+    tags=TAGS
+)
+async def update_user(
+        user_id: int,
+        data: UserUpdate,
+        session: AsyncSession = Depends(get_session),
+):
+    """
+    Update user in database from optional parameters.
+    For user self and admins only.
 
     :param username: string - Username
 
-    :param email: string - E-mail
+    :param email: string - E-mail (Unique)
 
     :param password: string - Password
 
@@ -90,8 +149,21 @@ async def update_user(user_id: int, data: UserUpdate, session: AsyncSession = De
     if not (user := await session.get(User, user_id)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     updated_data: dict = await get_data_for_update(data.dict())
+
     if updated_data.get('expired_at'):
         updated_data['expired_at'] = updated_data['expired_at'].replace(tzinfo=None)
+
+    password: str = updated_data.get('password')
+    if password:
+        updated_data['password'] = auth_handler.get_password_hash(password)
+
+    email: EmailStr = updated_data.get('email')
+    if email:
+        if await User.get_user_by_email(session, email):
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already exists")
+
+    if updated_data.get('current_video') == 0:
+        updated_data['current_video'] = user.current_video
 
     await session.execute(update(User).where(User.id == user_id).values(**updated_data))
     session.add(user)
@@ -121,7 +193,7 @@ async def delete_user(user_id: int, session: AsyncSession = Depends(get_session)
 async def get_user_alarms(user_id: int, session: AsyncSession = Depends(get_session)):
     """Get all user alarms
 
-    :return List of alarms
+    :return List of alarms as JSON
     """
 
     alarms: Row = await session.execute(select(Alarm).join(User).where(User.id == user_id))
@@ -159,4 +231,3 @@ async def get_user_current_video(user_id: int, session: AsyncSession = Depends(g
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Video not found")
 
     return FileResponse(path=video.path, media_type='video/mp4')
-

@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 import asyncio
 
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
 from database.db import engine, drop_db, create_db, db
 
@@ -78,7 +79,7 @@ async def recreate() -> None:
         {
             'username': "test1",
             'password': "test1pass",
-            'email': 'test1@email',
+            'email': 'test1@email.com',
             'current_video': 1,
             'is_admin': True,
             'is_active': True
@@ -86,7 +87,7 @@ async def recreate() -> None:
         {
             'username': "test2",
             'password': "test2pass",
-            'email': 'test2@email',
+            'email': 'test2@email.com',
             'current_video': 1,
             'is_admin': False,
             'is_active': True
@@ -95,7 +96,7 @@ async def recreate() -> None:
         {
             'username': "test3",
             'password': "test3pass",
-            'email': 'test3@email',
+            'email': 'test3@email.com',
             'current_video': 1,
             'is_admin': False,
             'is_active': False
