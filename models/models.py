@@ -6,28 +6,7 @@ from sqlalchemy import update
 from sqlmodel import SQLModel, Field, Relationship
 
 
-class BaseSQLModel(SQLModel):
-    async def update_data(
-            self,
-            session: AsyncSession,
-            data: SQLModel,
-            pk: int,
-    ) -> SQLModel:
-
-        new_data = {
-            key: value
-            for key, value in data.dict().items()
-            if value is not None
-        }
-        if new_data.get('expired_at'):
-            new_data['expired_at'] = new_data['expired_at'].replace(tzinfo=None)
-
-        await session.execute(update(User).where(User.id == pk).values(**new_data))
-
-        return self
-
-
-class AlarmBase(BaseSQLModel):
+class AlarmBase(SQLModel):
     alarm_time: time
     text: Optional[str] = Field(nullable=True, default='')
 
@@ -43,11 +22,11 @@ class Alarm(AlarmCreate, table=True):
     users: List['User'] = Relationship(back_populates="alarms")
 
 
-class AlarmUpdate(AlarmBase):
+class AlarmUpdate(AlarmCreate):
     pass
 
 
-class NotificationBase(BaseSQLModel):
+class NotificationBase(SQLModel):
     notification_time: time
     text: Optional[str] = Field(nullable=True, default='')
 
@@ -63,11 +42,11 @@ class Notification(NotificationCreate, table=True):
     users: List['User'] = Relationship(back_populates="notifications")
 
 
-class NotificationUpdate(NotificationBase):
+class NotificationUpdate(NotificationCreate):
     pass
 
 
-class VideoBase(BaseSQLModel):
+class VideoBase(SQLModel):
     path: str
     name: Optional[str] = Field(nullable=True, default='')
     description: Optional[str] = Field(nullable=True, default='')
@@ -84,7 +63,7 @@ class VideoCreate(VideoBase):
     pass
 
 
-class UserBase(BaseSQLModel):
+class UserBase(SQLModel):
     username: Optional[str] = Field(unique=True, nullable=False)
     email: Optional[str] = Field(unique=True, nullable=False)
     password: Optional[str] = Field(nullable=False)
@@ -100,7 +79,7 @@ class UserFullData(UserBase):
 class User(UserFullData, table=True):
     __tablename__ = 'users'
 
-    id: int = Field(default=None, primary_key=True, exclude=True)
+    id: int = Field(default=None, primary_key=True)
     created_at: datetime = Field(default=datetime.now(tz=None))
     alarms: List[Alarm] = Relationship(back_populates="users")
     notifications: List[Notification] = Relationship(back_populates="users")
