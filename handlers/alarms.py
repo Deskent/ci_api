@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, status, HTTPException
+from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.db import get_session
 from models.models import Alarm, AlarmCreate, AlarmUpdate
-
+from services.utils import get_data_for_update
 
 alarms_router = APIRouter()
 TAGS = ['Alarms']
@@ -13,9 +14,9 @@ TAGS = ['Alarms']
 async def create_alarm(data: AlarmCreate, session: AsyncSession = Depends(get_session)):
     """Create alarm for user by user database id
 
-    :param alarm_time: String, in HH:MM[:SS[.ffffff]][Z or [±]HH[:]MM]]] format
+    :param alarm_time: string, in format HH:MM[:SS[.ffffff]][Z or [±]HH[:]MM]]]
 
-    :param text: String, some text
+    :param text: String, Description text
 
     :param user_id: Integer, user id in database
 
@@ -36,7 +37,9 @@ async def update_alarm(alarm_id: int, data: AlarmUpdate, session: AsyncSession =
 
     :param alarm_id: Alarm id in database
 
-    :param data: Data which will be updated
+    :param alarm_time: string, in format HH:MM[:SS[.ffffff]][Z or [±]HH[:]MM]]]
+
+    :param text: string - Description text
 
     :return: Alarm updated information.
     """
@@ -44,8 +47,12 @@ async def update_alarm(alarm_id: int, data: AlarmUpdate, session: AsyncSession =
     alarm: Alarm = await session.get(Alarm, alarm_id)
     if not alarm:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Alarm not found")
+    updated_data: dict = await get_data_for_update(data.dict())
+    await session.execute(update(Alarm).where(Alarm.id == alarm_id).values(**updated_data))
+    session.add(alarm)
+    await session.commit()
 
-    return await alarm.update_data(session, data)
+    return alarm
 
 
 @alarms_router.delete("/<int: alarm_id>", status_code=status.HTTP_204_NO_CONTENT, tags=TAGS)

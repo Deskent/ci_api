@@ -6,6 +6,7 @@ from sqlalchemy import update
 
 from database.db import get_session
 from models.models import User, UserCreate, UserUpdate, Alarm, Notification, Video
+from services.utils import get_data_for_update
 
 users_router = APIRouter()
 TAGS = ['Users']
@@ -20,6 +21,7 @@ async def get_users(session: AsyncSession = Depends(get_session)):
     """
 
     users = await session.execute(select(User))
+
     return users.scalars().all()
 
 
@@ -64,27 +66,32 @@ async def update_user(user_id: int, data: UserUpdate, session: AsyncSession = De
     """
     Update user in database from data
 
-    :param username: Username
+    :param username: string - Username
 
-    :param email: E-mail
+    :param email: string - E-mail
 
-    :param password: Password
+    :param password: string - Password
 
-    :param expired_at: Date subscribe expiration in format "2022-11-30[T]09:20[:31.777132]"
+    :param expired_at: string - Date subscribe expiration in format "2022-11-30[T]09:20[:31.777132]"
 
-    :param is_admin: Flag is user admin
+    :param is_admin: bool - Flag is user admin
 
-    :param is_active: Flag is user have active subscibe
+    :param is_active: bool - Flag is user have active subscibe
 
-    :param current_video: ID next video in database
+    :param current_video: int - ID next video in database
 
-    :return: User updated information
+    :return: User updated information as JSON
     """
 
     if not (user := await session.get(User, user_id)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    updated_data: dict = await get_data_for_update(data.dict())
+    if updated_data.get('expired_at'):
+        updated_data['expired_at'] = updated_data['expired_at'].replace(tzinfo=None)
 
-    await user.update_data(session, data, user_id)
+    await session.execute(update(User).where(User.id == user_id).values(**updated_data))
+    session.add(user)
+    await session.commit()
 
     return user
 
@@ -93,7 +100,7 @@ async def update_user(user_id: int, data: UserUpdate, session: AsyncSession = De
 async def delete_user(user_id: int, session: AsyncSession = Depends(get_session)):
     """Delete user by user_id
 
-    :param user_id: ID user in database
+    :param user_id: int - ID user in database
 
     :return: None
     """
@@ -108,7 +115,10 @@ async def delete_user(user_id: int, session: AsyncSession = Depends(get_session)
 
 @users_router.get("/<int: user_id>/alarms", response_model=list[Alarm], tags=TAGS)
 async def get_user_alarms(user_id: int, session: AsyncSession = Depends(get_session)):
-    """Get all user alarms"""
+    """Get all user alarms
+
+    :return List of alarms
+    """
 
     alarms: Row = await session.execute(select(Alarm).join(User).where(User.id == user_id))
 
@@ -117,7 +127,10 @@ async def get_user_alarms(user_id: int, session: AsyncSession = Depends(get_sess
 
 @users_router.get("/<int: user_id>/notifications", response_model=list[Notification], tags=TAGS)
 async def get_user_notifications(user_id: int, session: AsyncSession = Depends(get_session)):
-    """Get all user notifications"""
+    """Get all user notifications
+
+    :return List of notifications
+    """
 
     notifications: Row = await session.execute(select(Notification).join(User).where(User.id == user_id))
 

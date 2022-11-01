@@ -1,11 +1,10 @@
 from fastapi import APIRouter, Request, Depends, status, HTTPException
-from sqlalchemy.engine import Row
+from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
 
 from database.db import get_session
 from models.models import Notification, NotificationCreate, NotificationUpdate, User
-
+from services.utils import get_data_for_update
 
 notifications_router = APIRouter()
 TAGS = ['Notifications']
@@ -25,8 +24,12 @@ async def update_notification(notification_id: int, data: NotificationUpdate, se
     notification: Notification = await session.get(Notification, notification_id)
     if not notification:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found")
+    updated_data: dict = await get_data_for_update(data.dict())
+    await session.execute(update(Notification).where(Notification.id == notification_id).values(**updated_data))
+    session.add(notification)
+    await session.commit()
 
-    return await notification.update_data(session, data)
+    return notification
 
 
 @notifications_router.delete("/<int: notification_id>", status_code=status.HTTP_204_NO_CONTENT, tags=TAGS)
