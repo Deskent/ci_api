@@ -1,11 +1,11 @@
-name: ci_api
-env:
-  DOCKER_USER: "deskent"
-  DOCKER_REPOSITORY_NAME: "deskent"
-  PROJECT_NAME: "ci_api"
-  STAGE: "prod"
-  VERSION: "ver-${{ github.sha }}"
-  COUNT: "1.0-prod"
+#name: ci_api
+#env:
+#  DOCKER_USER: "deskent"
+#  DOCKER_REPOSITORY_NAME: "deskent"
+#  PROJECT_NAME: "ci_api"
+#  STAGE: "prod"
+#  VERSION: "ver-${{ github.sha }}"
+#  COUNT: "1.0-prod"
 #on:
 #  push:
 #    branches: [ main ]
