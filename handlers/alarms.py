@@ -30,7 +30,7 @@ async def create_alarm(data: AlarmCreate, session: AsyncSession = Depends(get_se
     return alarm
 
 
-@alarms_router.put("/<int: alarm_id>", response_model=Alarm, tags=TAGS)
+@alarms_router.put("/{alarm_id}", response_model=Alarm, tags=TAGS)
 async def update_alarm(alarm_id: int, data: AlarmUpdate, session: AsyncSession = Depends(get_session)):
     """
     Update alarm by id
@@ -55,7 +55,7 @@ async def update_alarm(alarm_id: int, data: AlarmUpdate, session: AsyncSession =
     return alarm
 
 
-@alarms_router.delete("/<int: alarm_id>", status_code=status.HTTP_204_NO_CONTENT, tags=TAGS)
+@alarms_router.delete("/{alarm_id}", status_code=status.HTTP_204_NO_CONTENT, tags=TAGS)
 async def delete_alarm(alarm_id: int, session: AsyncSession = Depends(get_session)):
     """Delete alarm by its id
 

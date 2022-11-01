@@ -17,7 +17,7 @@ def save_video(path: str, file: UploadFile):
         shutil.copyfileobj(file.file, buffer)
 
 
-@videos_router.get("/", response_model=list[VideoBase], tags=TAGS)
+@videos_router.get("/", response_model=list[Video], tags=TAGS)
 async def get_videos(session: AsyncSession = Depends(get_session)):
     """Get all videos"""
 

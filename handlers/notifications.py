@@ -19,7 +19,7 @@ async def create_notification(data: NotificationCreate, session: AsyncSession = 
     return notification
 
 
-@notifications_router.put("/<int: notification_id>", response_model=Notification, tags=TAGS)
+@notifications_router.put("/{notification_id}", response_model=Notification, tags=TAGS)
 async def update_notification(notification_id: int, data: NotificationUpdate, session: AsyncSession = Depends(get_session)):
     notification: Notification = await session.get(Notification, notification_id)
     if not notification:
@@ -32,7 +32,7 @@ async def update_notification(notification_id: int, data: NotificationUpdate, se
     return notification
 
 
-@notifications_router.delete("/<int: notification_id>", status_code=status.HTTP_204_NO_CONTENT, tags=TAGS)
+@notifications_router.delete("/{notification_id}", status_code=status.HTTP_204_NO_CONTENT, tags=TAGS)
 async def delete_notification(notification_id: int, session: AsyncSession = Depends(get_session)):
     notification: Notification = await session.get(Notification, notification_id)
     if not notification:
