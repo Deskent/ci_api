@@ -1,8 +1,6 @@
 from datetime import datetime, time
 from typing import Optional, List
 
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import update
 from sqlmodel import SQLModel, Field, Relationship
 
 

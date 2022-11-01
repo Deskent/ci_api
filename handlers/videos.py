@@ -2,6 +2,7 @@ import os.path
 import shutil
 
 from fastapi import APIRouter, Depends, UploadFile, BackgroundTasks, HTTPException, status, File
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from database.db import get_session

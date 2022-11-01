@@ -10,9 +10,11 @@ from sqlalchemy import update
 
 from database.db import get_session
 from models.models import User, UserCreate, UserUpdate, Alarm, Notification, Video
+from services.auth import AuthHandler
 from services.utils import get_data_for_update
 
 users_router = APIRouter()
+auth_handler = AuthHandler()
 TAGS = ['Users']
 
 
