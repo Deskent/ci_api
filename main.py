@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from routers import main_router
 from create_data import recreate
 
-app = FastAPI()
+app = FastAPI(docs_url="/ci", redoc_url=None)
 app.include_router(main_router)
 
 
