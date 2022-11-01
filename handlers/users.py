@@ -88,6 +88,7 @@ async def create_user(user: UserInput, session: AsyncSession = Depends(get_sessi
     session.add(user)
     await session.commit()
 
+    # TODO dont return password
     return user
 
 
@@ -168,6 +169,7 @@ async def update_user(
     await session.execute(update(User).where(User.id == user_id).values(**updated_data))
     session.add(user)
     await session.commit()
+    # TODO dont return password
 
     return user
 
