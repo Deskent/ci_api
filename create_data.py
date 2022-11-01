@@ -74,19 +74,19 @@ async def recreate() -> None:
 
     videos_data = [
         {
-            'path': './spam/videos/video1',
+            'path': 'media/hello.mp4',
             'description': 'some video',
             'name': 'v1',
             'next_id': 0
         },
         {
-            'path': './spam/videos/video2',
+            'path': 'media/hello.mp4',
             'name': 'v2',
             'description': 'some video',
             'next_id': 0
         },
         {
-            'path': './spam/videos/video3',
+            'path': 'media/hello.mp4',
             'name': 'v3',
             'description': 'some video',
             'next_id': 0
