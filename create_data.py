@@ -5,8 +5,12 @@ import asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
 from database.db import engine, drop_db, create_db, db
+from services.auth import AuthHandler
 
 from models.models import *
+
+
+auth_handler = AuthHandler()
 
 
 async def recreate() -> None:
@@ -78,8 +82,8 @@ async def recreate() -> None:
     user_data = [
         {
             'username': "test1",
-            'password': "test1pass",
-            'email': 'test1@email.com',
+            'password': "string",
+            'email': "user@example.com",
             'current_video': 1,
             'is_admin': True,
             'is_active': True
@@ -113,6 +117,7 @@ async def recreate() -> None:
 
         for user in user_data:
             expired_at = datetime.utcnow() + timedelta(days=30)
+            user['password'] = auth_handler.get_password_hash(user['password'])
             user = User(**user, expired_at=expired_at)
             session.add(user)
 

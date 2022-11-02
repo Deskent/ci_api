@@ -71,7 +71,6 @@ class UserCreate(SQLModel):
     password: str = Field(nullable=False, max_length=256, min_length=6)
 
 
-
 class UserInput(UserCreate):
     password2: str
 
@@ -98,6 +97,11 @@ class UserUpdate(UserFullData):
     username: Optional[str]
     email: Optional[EmailStr]
     password: Optional[str]
+
+
+class UserOutput(UserFullData):
+    username: Optional[str]
+    email: Optional[EmailStr]
 
 
 class User(UserCreate, UserFullData, table=True):

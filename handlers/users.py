@@ -10,7 +10,7 @@ from sqlalchemy.future import select
 from sqlalchemy import update
 
 from database.db import get_session
-from models.models import User, UserUpdate, Alarm, Notification, Video, UserInput, UserLogin
+from models.models import User, UserUpdate, Alarm, Notification, Video, UserInput, UserLogin, UserOutput
 from services.depends import check_access, auth_handler, check_user_is_admin
 from services.utils import get_data_for_update
 
@@ -30,8 +30,10 @@ async def get_users(session: AsyncSession = Depends(get_session)):
 
     return users.scalars().all()
 
+# TODO сделать GetMe endpoint
 
-@users_router.get("/{user_id}", response_model=User, tags=TAGS)
+
+@users_router.get("/{user_id}", response_model=UserOutput, tags=TAGS)
 async def get_user(user_id: int, session: AsyncSession = Depends(get_session)):
     """Get user by user_id
 
@@ -61,7 +63,7 @@ async def get_user_id_by_email(email: EmailStr, session: AsyncSession = Depends(
     return user.id
 
 
-@users_router.post("/", response_model=User, tags=['Users', 'Authentication'])
+@users_router.post("/", response_model=UserOutput, tags=['Users', 'Authentication'])
 async def create_user(user: UserInput, session: AsyncSession = Depends(get_session)):
     """
     Create new user in database if not exists
@@ -88,7 +90,6 @@ async def create_user(user: UserInput, session: AsyncSession = Depends(get_sessi
     session.add(user)
     await session.commit()
 
-    # TODO dont return password
     return user
 
 
@@ -117,7 +118,7 @@ async def get_token(user: UserLogin, session: AsyncSession = Depends(get_session
 
 @users_router.put(
     path="/{user_id}",
-    response_model=User,
+    response_model=UserOutput,
     dependencies=[Depends(check_access), Depends(check_user_is_admin)],
     tags=TAGS
 )
@@ -169,7 +170,6 @@ async def update_user(
     await session.execute(update(User).where(User.id == user_id).values(**updated_data))
     session.add(user)
     await session.commit()
-    # TODO dont return password
 
     return user
 
