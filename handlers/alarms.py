@@ -6,11 +6,10 @@ from database.db import get_session
 from models.models import Alarm, AlarmCreate, AlarmUpdate
 from services.utils import get_data_for_update
 
-alarms_router = APIRouter()
-TAGS = ['Alarms']
+router = APIRouter(prefix="/alarms", tags=['Alarms'])
 
 
-@alarms_router.post("/", response_model=Alarm, tags=TAGS)
+@router.post("/", response_model=Alarm)
 async def create_alarm(data: AlarmCreate, session: AsyncSession = Depends(get_session)):
     """Create alarm for user by user database id
 
@@ -30,7 +29,7 @@ async def create_alarm(data: AlarmCreate, session: AsyncSession = Depends(get_se
     return alarm
 
 
-@alarms_router.put("/{alarm_id}", response_model=Alarm, tags=TAGS)
+@router.put("/{alarm_id}", response_model=Alarm)
 async def update_alarm(alarm_id: int, data: AlarmUpdate, session: AsyncSession = Depends(get_session)):
     """
     Update alarm by id
@@ -55,7 +54,7 @@ async def update_alarm(alarm_id: int, data: AlarmUpdate, session: AsyncSession =
     return alarm
 
 
-@alarms_router.delete("/{alarm_id}", status_code=status.HTTP_204_NO_CONTENT, tags=TAGS)
+@router.delete("/{alarm_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_alarm(alarm_id: int, session: AsyncSession = Depends(get_session)):
     """Delete alarm by its id
 

@@ -1,10 +1,9 @@
 from fastapi import APIRouter
 
 
-admin_router = APIRouter()
-TAGS = ['admin']
+router = APIRouter(tags=['Admin'])
 
 
-@admin_router.get('/', tags=TAGS)
+@router.get('/')
 async def root():
     return {"root": "OK"}
