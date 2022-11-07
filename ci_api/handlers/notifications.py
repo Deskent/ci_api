@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Request, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.db import get_session
-from models.models import Notification, NotificationCreate, NotificationUpdate
-from services.utils import get_data_for_update
+from ci_api.database.db import get_session
+from ci_api.models.models import Notification, NotificationCreate, NotificationUpdate
+from ci_api.services.utils import get_data_for_update
 
 router = APIRouter(prefix="/notifications", tags=['Notifications'])
 

@@ -4,10 +4,10 @@ import asyncio
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
-from database.db import engine, drop_db, create_db, db
-from services.auth import AuthHandler
 
-from models.models import *
+from ci_api.database.db import engine, drop_db, create_db, db
+from ci_api.services.auth import AuthHandler
+from ci_api.models.models import *
 
 
 auth_handler = AuthHandler()
@@ -20,7 +20,7 @@ async def recreate() -> None:
     await drop_db()
     await create_db()
     async_session = sessionmaker(
-        engine, class_=AsyncSession, expire_on_commit=False
+        engine, class_=AsyncSession
     )
     videos_data = [
         {

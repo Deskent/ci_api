@@ -3,7 +3,7 @@ version: '3.9'
 services:
   ci_postgres:
     env_file:
-      - ./.env
+      - .env
     container_name: ci_postgres_test
     hostname: ci_postgres_test
     image: postgres:14.4-alpine
@@ -34,9 +34,9 @@ services:
       retries: 3
       start_period: 5s
   web:
-    build: .
+    build: ..
     env_file:
-      - ./.env
+      - .env
     command: >
       sh -c "uvicorn main:app --workers 1 --host 0.0.0.0 --port 8000 --reload"
     ports:
