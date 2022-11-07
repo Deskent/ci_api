@@ -14,11 +14,10 @@ from models.models import User, UserUpdate, Alarm, Notification, Video, UserInpu
 from services.depends import check_access, auth_handler, check_user_is_admin
 from services.utils import get_data_for_update
 
-users_router = APIRouter()
-TAGS = ['Users']
+router = APIRouter(prefix="/users", tags=['Users'])
 
 
-@users_router.get("/", response_model=list[User], tags=TAGS, dependencies=[Depends(check_user_is_admin)])
+@router.get("/", response_model=list[User], dependencies=[Depends(check_user_is_admin)])
 async def get_users(session: AsyncSession = Depends(get_session)):
     """
     Get all users from database. For admin only.
@@ -30,10 +29,10 @@ async def get_users(session: AsyncSession = Depends(get_session)):
 
     return users.scalars().all()
 
-# TODO сделать GetMe endpoint
+# TODO сделать GetMe endpoint ,
 
 
-@users_router.get("/{user_id}", response_model=UserOutput, tags=TAGS)
+@router.get("/{user_id}", response_model=UserOutput)
 async def get_user(user_id: int, session: AsyncSession = Depends(get_session)):
     """Get user by user_id
 
@@ -48,7 +47,7 @@ async def get_user(user_id: int, session: AsyncSession = Depends(get_session)):
     return user
 
 
-@users_router.post("/get_id", tags=TAGS)
+@router.post("/get_id")
 async def get_user_id_by_email(email: EmailStr, session: AsyncSession = Depends(get_session)):
     """Get user_id by email
 
@@ -63,7 +62,7 @@ async def get_user_id_by_email(email: EmailStr, session: AsyncSession = Depends(
     return user.id
 
 
-@users_router.post("/", response_model=UserOutput, tags=['Users', 'Authentication'])
+@router.post("/", response_model=UserOutput, tags=['Authentication'])
 async def create_user(user: UserInput, session: AsyncSession = Depends(get_session)):
     """
     Create new user in database if not exists
@@ -93,7 +92,7 @@ async def create_user(user: UserInput, session: AsyncSession = Depends(get_sessi
     return user
 
 
-@users_router.post("/get_token", response_model=dict, tags=['Authentication'])
+@router.post("/get_token", response_model=dict, tags=['Authentication'])
 async def get_token(user: UserLogin, session: AsyncSession = Depends(get_session)):
     """Get user authorization token
 
@@ -116,11 +115,10 @@ async def get_token(user: UserLogin, session: AsyncSession = Depends(get_session
     return {"token": token}
 
 
-@users_router.put(
+@router.put(
     path="/{user_id}",
     response_model=UserOutput,
-    dependencies=[Depends(check_access), Depends(check_user_is_admin)],
-    tags=TAGS
+    dependencies=[Depends(check_access), Depends(check_user_is_admin)]
 )
 async def update_user(
         user_id: int,
@@ -174,7 +172,7 @@ async def update_user(
     return user
 
 
-@users_router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT, tags=TAGS)
+@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user(user_id: int, session: AsyncSession = Depends(get_session)):
     """Delete user by user_id
 
@@ -191,7 +189,7 @@ async def delete_user(user_id: int, session: AsyncSession = Depends(get_session)
     return None
 
 
-@users_router.get("/{user_id}/alarms", response_model=list[Alarm], tags=TAGS)
+@router.get("/{user_id}/alarms", response_model=list[Alarm])
 async def get_user_alarms(user_id: int, session: AsyncSession = Depends(get_session)):
     """Get all user alarms
 
@@ -203,7 +201,7 @@ async def get_user_alarms(user_id: int, session: AsyncSession = Depends(get_sess
     return alarms.scalars().all()
 
 
-@users_router.get("/{user_id}/notifications", response_model=list[Notification], tags=TAGS)
+@router.get("/{user_id}/notifications", response_model=list[Notification])
 async def get_user_notifications(user_id: int, session: AsyncSession = Depends(get_session)):
     """Get all user notifications
 
@@ -215,7 +213,7 @@ async def get_user_notifications(user_id: int, session: AsyncSession = Depends(g
     return notifications.scalars().all()
 
 
-@users_router.get("/{user_id}/get_current_video", tags=TAGS)
+@router.get("/{user_id}/get_current_video")
 async def get_user_current_video(user_id: int, session: AsyncSession = Depends(get_session)):
     """
 

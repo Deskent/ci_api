@@ -6,11 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from database.db import get_session
-from models.models import *
+from models.models import Video
 
-
-videos_router = APIRouter()
-TAGS = ['Videos']
+router = APIRouter(prefix="/videos", tags=['Videos'])
 
 
 def save_video(path: str, file: UploadFile):
@@ -18,7 +16,7 @@ def save_video(path: str, file: UploadFile):
         shutil.copyfileobj(file.file, buffer)
 
 
-@videos_router.get("/", response_model=list[Video], tags=TAGS)
+@router.get("/", response_model=list[Video])
 async def get_videos(session: AsyncSession = Depends(get_session)):
     """Get all videos
 
@@ -29,7 +27,7 @@ async def get_videos(session: AsyncSession = Depends(get_session)):
     return result.scalars().all()
 
 
-@videos_router.post("/", response_model=Video, tags=TAGS)
+@router.post("/", response_model=Video, tags=['Admin'])
 async def add_video(
         tasks: BackgroundTasks,
         name: str,

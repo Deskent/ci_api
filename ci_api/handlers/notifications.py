@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -6,11 +6,10 @@ from database.db import get_session
 from models.models import Notification, NotificationCreate, NotificationUpdate
 from services.utils import get_data_for_update
 
-notifications_router = APIRouter()
-TAGS = ['Notifications']
+router = APIRouter(prefix="/notifications", tags=['Notifications'])
 
 
-@notifications_router.post("/", response_model=Notification, tags=TAGS)
+@router.post("/", response_model=Notification)
 async def create_notification(data: NotificationCreate, session: AsyncSession = Depends(get_session)):
     """Create notification for user by user database id
 
@@ -30,7 +29,7 @@ async def create_notification(data: NotificationCreate, session: AsyncSession = 
     return notification
 
 
-@notifications_router.put("/{notification_id}", response_model=Notification, tags=TAGS)
+@router.put("/{notification_id}", response_model=Notification)
 async def update_notification(notification_id: int, data: NotificationUpdate, session: AsyncSession = Depends(get_session)):
     """
     Update notification by id
@@ -55,7 +54,7 @@ async def update_notification(notification_id: int, data: NotificationUpdate, se
     return notification
 
 
-@notifications_router.delete("/{notification_id}", status_code=status.HTTP_204_NO_CONTENT, tags=TAGS)
+@router.delete("/{notification_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_notification(notification_id: int, session: AsyncSession = Depends(get_session)):
     """Delete notification by its id
 

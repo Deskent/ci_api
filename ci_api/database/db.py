@@ -1,4 +1,5 @@
 from typing import AsyncGenerator
+from pathlib import Path
 
 from sqlalchemy.orm import sessionmaker
 from pydantic import BaseSettings
@@ -18,7 +19,7 @@ class Database(BaseSettings):
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
 
 
-env_file = './.env'
+env_file = Path(__file__).parent.parent / '.env'
 db = Database(_env_file=env_file, _env_file_encoding='utf-8')
 DATABASE_URL: str = db.get_db_name()
 engine = create_async_engine(DATABASE_URL, echo=True, future=True)
