@@ -9,10 +9,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import update
 
-from ci_api.database.db import get_session
-from ci_api.models.models import User, UserUpdate, Alarm, Notification, Video, UserInput, UserLogin, UserOutput
-from ci_api.services.depends import check_access, auth_handler, check_user_is_admin
-from ci_api.services.utils import get_data_for_update
+from database.db import get_session
+from models.models import User, UserUpdate, Alarm, Notification, Video, UserInput, UserLogin, UserOutput
+from services.depends import check_access, auth_handler, check_user_is_admin
+from services.utils import get_data_for_update
 
 router = APIRouter(prefix="/users", tags=['Users'])
 

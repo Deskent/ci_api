@@ -1,9 +1,9 @@
 from fastapi import HTTPException, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ci_api.services.auth import AuthHandler
-from ci_api.database.db import get_session
-from ci_api.models.models import User
+from services.auth import AuthHandler
+from database.db import get_session
+from models.models import User
 
 auth_handler = AuthHandler()
 

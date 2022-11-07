@@ -2,6 +2,6 @@
 Dockerfile
 docker-compose.yml
 *.sh
-/ci_api/postgres_db
+/postgres_db
 README.md
 media

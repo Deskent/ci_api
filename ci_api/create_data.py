@@ -5,9 +5,9 @@ import asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
 
-from ci_api.database.db import engine, drop_db, create_db, db
-from ci_api.services.auth import AuthHandler
-from ci_api.models.models import *
+from database.db import engine, drop_db, create_db, db
+from services.auth import AuthHandler
+from models.models import *
 
 
 auth_handler = AuthHandler()

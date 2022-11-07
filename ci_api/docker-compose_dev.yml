@@ -34,7 +34,7 @@ services:
       retries: 3
       start_period: 5s
   web:
-    build: ..
+    build: .
     env_file:
       - .env
     command: >

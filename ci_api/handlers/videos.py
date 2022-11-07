@@ -5,8 +5,8 @@ from fastapi import APIRouter, Depends, UploadFile, BackgroundTasks, HTTPExcepti
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-from ci_api.database.db import get_session
-from ci_api.models.models import Video
+from database.db import get_session
+from models.models import Video
 
 router = APIRouter(prefix="/videos", tags=['Videos'])
 

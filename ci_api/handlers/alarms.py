@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ci_api.database.db import get_session
-from ci_api.models.models import Alarm, AlarmCreate, AlarmUpdate
-from ci_api.services.utils import get_data_for_update
+from database.db import get_session
+from models.models import Alarm, AlarmCreate, AlarmUpdate
+from services.utils import get_data_for_update
 
 router = APIRouter(prefix="/alarms", tags=['Alarms'])
 
