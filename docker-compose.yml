@@ -21,8 +21,8 @@ services:
       - "maintenance_work_mem=512MB"
     restart: on-failure
     volumes:
-      - ./postgres_db/postgres/postgresql-data:/var/lib/postgresql/data
-      - ./postgres_db/postgres/pginit/:/docker-entrypoint-initdb.d
+      - ./ci_api/postgres_db/postgres/postgresql-data:/var/lib/postgresql/data
+      - ./ci_api/postgres_db/postgres/pginit/:/docker-entrypoint-initdb.d
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
       interval: 10s
@@ -41,8 +41,8 @@ services:
     environment:
       POSTGRES_HOST: "ci_postgres"
     volumes:
-      - ./migrations:/app/migrations
-      - ./media:/app/media
+      - ./ci_api/migrations:/app/migrations
+      - ./ci_api/media:/app/media
     depends_on:
       - ci_postgres
 

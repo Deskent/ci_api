@@ -84,7 +84,6 @@ async def create_user(user: UserInput, session: AsyncSession = Depends(get_sessi
     user.password = auth_handler.get_password_hash(user.password)
     expired_at = datetime.datetime.now(tz=None) + datetime.timedelta(days=30)
     verified_user: dict = user.dict()
-    del verified_user['password2']
     user = User(**verified_user, current_video=1, is_admin=False, is_active=True, expired_at=expired_at)
     session.add(user)
     await session.commit()
@@ -107,7 +106,8 @@ async def get_token(user: UserLogin, session: AsyncSession = Depends(get_session
     if not user_found:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid username or password')
 
-    if not auth_handler.verify_password(user.password, user_found.password):
+    is_password_correct: bool = auth_handler.verify_password(user.password, user_found.password)
+    if not is_password_correct:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid username or password')
 
     token: str = auth_handler.encode_token(user_found.id)

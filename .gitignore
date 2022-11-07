@@ -5,6 +5,7 @@
 **/postgres_db
 **/media
 **.env
+.editorconfig
 
 
 # Byte-compiled / optimized / DLL files

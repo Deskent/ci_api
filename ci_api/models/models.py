@@ -26,6 +26,8 @@ class Alarm(AlarmCreate, table=True):
     id: int = Field(default=None, primary_key=True, index=True)
     user: Optional['User'] = Relationship(back_populates="alarms")
 
+    def __str__(self):
+        return f"{self.text}"
 
 class NotificationBase(SQLModel):
     notification_time: time
@@ -46,6 +48,9 @@ class Notification(NotificationCreate, table=True):
     id: int = Field(default=None, primary_key=True, index=True)
     users: List['User'] = Relationship(back_populates="notifications")
 
+    def __str__(self):
+        return f"{self.text}"
+
 
 class VideoBase(SQLModel):
     path: str
@@ -63,6 +68,9 @@ class Video(VideoBase, table=True):
     __tablename__ = 'videos'
 
     id: int = Field(default=None, primary_key=True, index=True)
+
+    def __str__(self):
+        return f"{self.name}"
 
 
 class UserCreate(SQLModel):
@@ -111,6 +119,9 @@ class User(UserCreate, UserFullData, table=True):
     created_at: datetime = Field(default=datetime.now(tz=None))
     alarms: List[Alarm] = Relationship(back_populates="user")
     notifications: List[Notification] = Relationship(back_populates="users")
+
+    def __str__(self):
+        return f"{self.username}"
 
     @classmethod
     async def get_user_by_id(cls, session: AsyncSession, user_id: int) -> 'User':
