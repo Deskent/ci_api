@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from sqladmin import Admin
 
 from admin.auth import authentication_backend
-from admin.views import AlarmView, NotificationView, UserView, VideoView
+from admin.views import AlarmView, NotificationView, UserView, VideoView, ComplexView
 from create_data import recreate
 from database.db import engine
 from routers import main_router
@@ -37,6 +37,7 @@ admin.add_view(UserView)
 admin.add_view(VideoView)
 admin.add_view(AlarmView)
 admin.add_view(NotificationView)
+admin.add_view(ComplexView)
 
 if __name__ == '__main__':
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)

@@ -1,123 +1,87 @@
 from datetime import datetime, time
 from typing import Optional, List
 
-from pydantic import EmailStr, validator
+from pydantic import EmailStr
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import SQLModel, Field, Relationship
 
 
-class AlarmBase(SQLModel):
-    alarm_time: time
-    text: Optional[str] = Field(nullable=True, default='')
-
-
-class AlarmCreate(AlarmBase):
-    user_id: Optional[int] = Field(default=None, foreign_key="users.id")
-
-
-class AlarmUpdate(AlarmCreate):
-    pass
-
-
-class Alarm(AlarmCreate, table=True):
+class Alarm(SQLModel, table=True):
     __tablename__ = 'alarms'
 
     id: int = Field(default=None, primary_key=True, index=True)
-    user: Optional['User'] = Relationship(back_populates="alarms")
+    alarm_time: time
+    text: Optional[str] = Field(nullable=True, default='')
+    user_id: Optional[int] = Field(default=None, foreign_key="users.id")
+    users: 'User' = Relationship(back_populates="alarms")
 
     def __str__(self):
         return f"{self.text}"
 
-class NotificationBase(SQLModel):
-    notification_time: time
-    text: Optional[str] = Field(nullable=True, default='')
 
-
-class NotificationCreate(NotificationBase):
-    user_id: Optional[int] = Field(default=None, foreign_key="users.id")
-
-
-class NotificationUpdate(NotificationCreate):
-    pass
-
-
-class Notification(NotificationCreate, table=True):
+class Notification(SQLModel, table=True):
     __tablename__ = 'notifications'
 
     id: int = Field(default=None, primary_key=True, index=True)
-    users: List['User'] = Relationship(back_populates="notifications")
+    notification_time: time
+    text: Optional[str] = Field(nullable=True, default='')
+
+    user_id: Optional[int] = Field(default=None, foreign_key="users.id")
+    users: 'User' = Relationship(back_populates="notifications")
 
     def __str__(self):
         return f"{self.text}"
 
 
-class VideoBase(SQLModel):
+class Complex(SQLModel, table=True):
+    __tablename__ = 'complexes'
+
+    id: int = Field(default=None, primary_key=True, index=True)
+    description: Optional[str] = Field(nullable=True, default='')
+
+    videos: List["Video"] = Relationship(back_populates="complexes")
+
+    def __str__(self):
+        return f"{self.id}-{self.description}"
+
+
+class Video(SQLModel, table=True):
+    __tablename__ = 'videos'
+
+    id: int = Field(default=None, primary_key=True, index=True)
     path: str
     name: Optional[str] = Field(nullable=True, default='')
     description: Optional[str] = Field(nullable=True, default='')
     previous_id: Optional[int]
-    next_id: int
+    next_id: Optional[int]
 
-
-class VideoCreate(VideoBase):
-    pass
-
-
-class Video(VideoBase, table=True):
-    __tablename__ = 'videos'
-
-    id: int = Field(default=None, primary_key=True, index=True)
+    complex_id: Optional[int] = Field(default=None, foreign_key="complexes.id")
+    complexes: Complex = Relationship(back_populates="videos")
 
     def __str__(self):
         return f"{self.name}"
 
 
-class UserCreate(SQLModel):
-    username: str = Field(nullable=False)
-    email: EmailStr = Field(unique=True, index=True)
-    password: str = Field(nullable=False, max_length=256, min_length=6)
-
-
-class UserInput(UserCreate):
-    password2: str
-
-    @validator('password2')
-    def password_match(cls, v, values, **kwargs):
-        if 'password' in values and v != values['password']:
-            raise ValueError('passwords don\'t match')
-        return v
-
-
-class UserLogin(SQLModel):
-    email: EmailStr
-    password: str
-
-
-class UserFullData(SQLModel):
-    is_admin: Optional[bool] = Field(default=False)
-    is_active: Optional[bool] = Field(default=False)
-    current_video: Optional[int] = Field(nullable=True, default=None, foreign_key='videos.id')
-    expired_at: Optional[datetime] = Field(default=None)
-
-
-class UserUpdate(UserFullData):
-    username: Optional[str]
-    email: Optional[EmailStr]
-    password: Optional[str]
-
-
-class UserOutput(UserFullData):
-    username: Optional[str]
-    email: Optional[EmailStr]
-
-
-class User(UserCreate, UserFullData, table=True):
+class User(SQLModel, table=True):
     __tablename__ = 'users'
 
     id: int = Field(default=None, primary_key=True, index=True)
+    username: str = Field(nullable=False)
+    email: EmailStr = Field(unique=True, index=True)
+    phone: str = Field(unique=True, nullable=False, min_length=10, max_length=13)
+    password: str = Field(nullable=False, max_length=256, min_length=6)
+    gender: bool = Field(nullable=False, description='Пол, 1 = муж, 0 - жен')
+    level: int = Field(nullable=False, default=1)
+    progress: float = Field(nullable=False, default=0)
+    is_admin: Optional[bool] = Field(default=False)
+    is_active: Optional[bool] = Field(default=False)
+    expired_at: Optional[datetime] = Field(default=None)
     created_at: datetime = Field(default=datetime.now(tz=None))
-    alarms: List[Alarm] = Relationship(back_populates="user")
+
+    current_complex: Optional[int] = Field(nullable=True, default=1, foreign_key='complexes.id')
+    current_video: Optional[int] = Field(nullable=True, default=1, foreign_key='videos.id')
+    alarms: List[Alarm] = Relationship(back_populates="users")
     notifications: List[Notification] = Relationship(back_populates="users")
 
     def __str__(self):
@@ -136,3 +100,5 @@ class User(UserCreate, UserFullData, table=True):
         user = await session.execute(query)
 
         return user.scalars().first()
+
+

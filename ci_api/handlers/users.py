@@ -10,7 +10,8 @@ from sqlalchemy.future import select
 from sqlalchemy import update
 
 from database.db import get_session
-from models.models import User, UserUpdate, Alarm, Notification, Video, UserInput, UserLogin, UserOutput
+from models.models import User, Alarm, Notification, Video
+from schemas.schemas import UserUpdate, UserInput, UserLogin, UserOutput
 from services.depends import check_access, auth_handler, check_user_is_admin
 from services.utils import get_data_for_update
 
