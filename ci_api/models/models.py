@@ -13,6 +13,7 @@ class Alarm(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True, index=True)
     alarm_time: time
     text: Optional[str] = Field(nullable=True, default='')
+
     user_id: Optional[int] = Field(default=None, foreign_key="users.id")
     users: 'User' = Relationship(back_populates="alarms")
 
@@ -39,6 +40,7 @@ class Complex(SQLModel, table=True):
 
     id: int = Field(default=None, primary_key=True, index=True)
     description: Optional[str] = Field(nullable=True, default='')
+    next_complex_id: int = Field(nullable=True, default=1)
 
     videos: List["Video"] = Relationship(back_populates="complexes")
 
@@ -100,5 +102,3 @@ class User(SQLModel, table=True):
         user = await session.execute(query)
 
         return user.scalars().first()
-
-
