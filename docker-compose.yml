@@ -45,14 +45,3 @@ services:
       - ./ci_api/media:/app/media
     depends_on:
       - ci_postgres
-
-  ci_admin:
-    build: ./ci_admin
-    env_file:
-      - ./ci_admin/.env
-    command: >
-      sh -c "uvicorn main:app --workers 1 --host 0.0.0.0 --port 8000"
-    ports:
-      - "8800:8000"
-    depends_on:
-      - ci_postgres

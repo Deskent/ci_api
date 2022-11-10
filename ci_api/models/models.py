@@ -11,14 +11,13 @@ from sqlmodel import SQLModel, Field, Relationship
 class Alarm(SQLModel, table=True):
     __tablename__ = 'alarms'
 
-
     id: int = Field(default=None, primary_key=True, index=True)
     alarm_time: time
-    sound_name: str = Field(nullable=True, default='')
-    volume: int = Field(nullable=True, default=50)
+    sound_name: str = Field(nullable=False, default='some sound')
+    volume: int = Field(nullable=False, default=50)
     vibration: bool = Field(default=False)
     text: Optional[str] = Field(nullable=True, default='')
-    weekdays: Optional[str] = Field(nullable=True, default='')
+    weekdays: Optional[str] = Field(nullable=False, default='all')
 
     user_id: Optional[int] = Field(default=None, foreign_key="users.id")
     users: 'User' = Relationship(back_populates="alarms")

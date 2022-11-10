@@ -17,7 +17,7 @@ async def current_progress(
         user: User = Depends(get_logged_user)
 ):
     """
-    Return current user wiews progress
+    Return current user views progress
     """
 
     return user
@@ -29,7 +29,7 @@ async def video_viewed(
         session: AsyncSession = Depends(get_session)
 ):
     """
-    Calculate and return current progress and level.
+    Calculate and return current progress and level after video viewed. Need authorization.
 
     :return: Current user view progress
     """

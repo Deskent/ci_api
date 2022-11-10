@@ -18,7 +18,7 @@ async def create_alarm(
     user: User = Depends(get_logged_user),
     session: AsyncSession = Depends(get_session)
 ):
-    """Create alarm for user by user database id
+    """Create alarm for user by user database id. Need authorization.
 
     :param alarm_time: string - Time in format HH:MM[:SS[.ffffff]][Z or [±]HH[:]MM]]]
 
@@ -26,6 +26,13 @@ async def create_alarm(
         ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
         or
         ['all']
+        default='all'
+
+    :param sound_name: string - Name of sound for current alarm
+
+    :param volume: int - Volume level 0 to 100 , default=50
+
+    :param vibration: bool - Vibration switcher, default=False
 
     :param text: string - Description text
 
@@ -43,35 +50,35 @@ async def create_alarm(
 
     return alarm
 
-
-@router.put("/{alarm_id}", response_model=Alarm)
-async def update_alarm(alarm_id: int, data: AlarmUpdate, session: AsyncSession = Depends(get_session)):
-    """
-    Update alarm by id
-
-    :param alarm_id: integer Alarm id in database
-
-    :param alarm_time: string - Time in format HH:MM[:SS[.ffffff]][Z or [±]HH[:]MM]]]
-
-    :param text: string - Description text
-
-    :return: Alarm updated information as JSON
-    """
-
-    alarm: Alarm = await session.get(Alarm, alarm_id)
-    if not alarm:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Alarm not found")
-    updated_data: dict = await get_data_for_update(data.dict())
-    await session.execute(update(Alarm).where(Alarm.id == alarm_id).values(**updated_data))
-    session.add(alarm)
-    await session.commit()
-
-    return alarm
+# TODO сделать
+# @router.put("/{alarm_id}", response_model=Alarm)
+# async def update_alarm(alarm_id: int, data: AlarmUpdate, session: AsyncSession = Depends(get_session)):
+#     """
+#     Update alarm by id
+#
+#     :param alarm_id: integer Alarm id in database
+#
+#     :param alarm_time: string - Time in format HH:MM[:SS[.ffffff]][Z or [±]HH[:]MM]]]
+#
+#     :param text: string - Description text
+#
+#     :return: Alarm updated information as JSON
+#     """
+#
+#     alarm: Alarm = await session.get(Alarm, alarm_id)
+#     if not alarm:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Alarm not found")
+#     updated_data: dict = await get_data_for_update(data.dict())
+#     await session.execute(update(Alarm).where(Alarm.id == alarm_id).values(**updated_data))
+#     session.add(alarm)
+#     await session.commit()
+#
+#     return alarm
 
 
 @router.delete("/{alarm_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_alarm(alarm_id: int, session: AsyncSession = Depends(get_session)):
-    """Delete alarm by its id
+    """Delete alarm by its id. Need authorization.
 
     :param alarm_id: integer - Alarm id in database
 

@@ -1,41 +1,15 @@
-import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import EmailStr
 
-from sqlalchemy.engine import Row
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
-from sqlalchemy import update
 
 from database.db import get_session
-from models.models import User, Alarm, Notification, Video
+from models.models import User, Alarm, Notification
 from schemas.alarms import AlarmBase
-from services.depends import check_access, auth_handler, check_user_is_admin, get_logged_user
-from services.utils import get_data_for_update
+from services.depends import get_logged_user
 from services.weekdays import WeekDay
 
 router = APIRouter(prefix="/users", tags=['Users'])
-
-
-@router.delete("/", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_user(
-        user: User = Depends(get_logged_user),
-        session: AsyncSession = Depends(get_session)
-):
-    """Delete user by user_id
-
-    :param user_id: int - User database ID
-
-    :return: None
-    """
-
-    if not (user := await session.get(User, user.id)):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    await session.delete(user)
-    await session.commit()
-
-    return None
 
 
 @router.get("/alarms", response_model=list[AlarmBase])
@@ -43,7 +17,7 @@ async def get_user_alarms(
         user: User = Depends(get_logged_user),
         session: AsyncSession = Depends(get_session)
 ):
-    """Get all user alarms
+    """Get all user alarms. Need authorization.
 
     :return List of alarms as JSON
     """
@@ -61,7 +35,7 @@ async def get_user_notifications(
         user: User = Depends(get_logged_user),
         session: AsyncSession = Depends(get_session)
 ):
-    """Get all user notifications
+    """Get all user notifications. Need authorization.
 
     :return List of notifications
     """
@@ -69,20 +43,26 @@ async def get_user_notifications(
     return await User.get_user_notifications(session, user.id)
 
 
+@router.delete("/", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user(
+        user: User = Depends(get_logged_user),
+        session: AsyncSession = Depends(get_session)
+):
+    """
+    Delete user by user_id. Need authorization.
 
+    :param user_id: int - User database ID
 
+    :return: None
+    """
 
-# @router.get("/", response_model=list[User], dependencies=[Depends(check_user_is_admin)])
-# async def get_users(session: AsyncSession = Depends(get_session)):
-#     """
-#     Get all users from database. For admin only.
-#
-#     :return: List of users as JSON
-#     """
-#
-#     users = await session.execute(select(User).order_by(User.id))
-#
-#     return users.scalars().all()
+    if not (user := await session.get(User, user.id)):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    await session.delete(user)
+    await session.commit()
+
+    return None
+
 #
 
 # @router.get("/{user_id}", response_model=UserOutput)

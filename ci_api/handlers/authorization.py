@@ -28,6 +28,8 @@ async def register(user_data: UserRegistration, session: AsyncSession = Depends(
 
     :param password2: string - Repeat Password
 
+    :param gender: bool - True = male, False - female
+
     :return: User created information as JSON
     """
 
@@ -78,6 +80,16 @@ async def change_password(
         user: User = Depends(get_logged_user),
         session: AsyncSession = Depends(get_session)
 ):
+    """
+    Change password
+
+    :param old_password: string - Old password
+
+    :param password: string - new password
+
+    :param password2: string - Repeat new password
+    """
+
     if not auth_handler.verify_password(data.old_password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid username or password')
