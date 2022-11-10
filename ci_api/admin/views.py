@@ -11,7 +11,7 @@ class UserView(ModelView, model=User):
         User.id, User.username, User.email, User.current_complex,
         User.level, User.progress, User.notifications, User.alarms, User.is_admin, User.is_active
     ]
-    column_searchable_list = [User.username]
+    column_searchable_list = [User.username, User.email]
     column_sortable_list = [User.username]
 
 
@@ -20,7 +20,7 @@ class VideoView(ModelView, model=Video):
 
 
 class AlarmView(ModelView, model=Alarm):
-    column_list = [Alarm.id, Alarm.alarm_time, Alarm.text, Alarm.users]
+    column_list = [Alarm.id, Alarm.alarm_time, Alarm.text, Alarm.users, Alarm.weekdays]
 
 
 class NotificationView(ModelView, model=Notification):

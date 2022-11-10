@@ -6,11 +6,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.db import get_session
 from models.models import User
-from schemas.schemas import UserRegistration, UserLogin, UserOutput, UserChangePassword
+from schemas.user import UserRegistration, UserLogin, UserChangePassword, UserOutput
 from services.depends import auth_handler, get_logged_user
 
 
-router = APIRouter(prefix="/auth", tags=['Authentication'])
+router = APIRouter(prefix="/auth", tags=['Authorization'])
 
 
 @router.post("/register", response_model=UserOutput)

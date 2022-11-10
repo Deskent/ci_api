@@ -10,9 +10,9 @@ from handlers.authorization import router as auth_router
 
 main_router = APIRouter(prefix="/api/v1")
 main_router.include_router(auth_router)
-main_router.include_router(complex_router)
 main_router.include_router(user_router)
 main_router.include_router(alarms_router)
-main_router.include_router(videos_router)
+main_router.include_router(complex_router)
 main_router.include_router(notifications_router)
+main_router.include_router(videos_router)
 main_router.include_router(admin_router)

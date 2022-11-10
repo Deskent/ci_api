@@ -1,50 +1,14 @@
-from datetime import datetime, time
+from datetime import datetime
 
-from pydantic import BaseModel, EmailStr, validator
-
-from models.models import Video
+from pydantic import BaseModel, validator, EmailStr
 
 
-class AlarmBase(BaseModel):
-    alarm_time: time
-    text: str = None
-
-
-class AlarmCreate(AlarmBase):
-    user_id: int = None
-
-
-class AlarmUpdate(AlarmCreate):
-    pass
-
-
-class NotificationBase(BaseModel):
-    notification_time: time
-    text: str = ''
-
-
-class NotificationCreate(NotificationBase):
-    user_id: int = None
-
-
-class NotificationUpdate(NotificationCreate):
-    pass
-
-
-class VideoBase(BaseModel):
-    path: str
-    name: str = ''
-    description: str = ''
-
-
-class VideoCreate(VideoBase):
-    pass
-
-
-class VideoInfo(BaseModel):
-    id: int
-    name: str = ''
-    description: str = ''
+#
+#
+# class UserUpdate(UserFullData):
+#     username: str = None
+#     email: EmailStr = None
+#     password: str = None
 
 
 class Password(BaseModel):
@@ -88,12 +52,6 @@ class UserFullData(BaseModel):
     is_active: bool = False
     current_complex: int = None
     expired_at: datetime = None
-#
-#
-# class UserUpdate(UserFullData):
-#     username: str = None
-#     email: EmailStr = None
-#     password: str = None
 
 
 class UserOutput(UserFullData):
@@ -106,8 +64,3 @@ class UserProgress(BaseModel):
     progress: float
     current_complex: int
     level_up: bool = False
-
-
-class ComplexData(BaseModel):
-    description: str
-    videos: list[VideoInfo] = []

@@ -4,7 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.db import get_session
 from models.models import User, Complex, Video
-from schemas.schemas import UserProgress, ComplexData
+from schemas.complexes_videos import ComplexData
+from schemas.user import UserProgress
 from services.depends import get_logged_user
 from config import LEVEL_UP
 

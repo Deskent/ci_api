@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.db import get_session
 from models.models import Alarm
-from schemas.schemas import AlarmCreate, AlarmUpdate
+from schemas.alarms import AlarmCreate, AlarmUpdate
 from services.utils import get_data_for_update
 
 router = APIRouter(prefix="/alarms", tags=['Alarms'])
