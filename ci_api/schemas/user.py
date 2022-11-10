@@ -22,7 +22,7 @@ class Password(BaseModel):
         return password2
 
 
-class UserRegistration(BaseModel):
+class UserRegistration(Password):
     username: str
     email: EmailStr
     phone: str

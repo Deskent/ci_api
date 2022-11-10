@@ -6,7 +6,7 @@
 **/media
 **.env
 .editorconfig
-
+.editorconfig
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
