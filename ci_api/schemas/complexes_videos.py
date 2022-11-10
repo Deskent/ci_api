@@ -1,3 +1,5 @@
+from datetime import time
+
 from pydantic import BaseModel
 
 
@@ -7,8 +9,12 @@ class VideoBase(BaseModel):
     description: str = ''
 
 
-class VideoCreate(VideoBase):
-    pass
+class VideoUpload(BaseModel):
+    file_name: str
+    name: str
+    description: str
+    complex_id: int
+    duration: time
 
 
 class VideoInfo(BaseModel):

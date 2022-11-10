@@ -11,6 +11,7 @@ from sqlmodel import SQLModel, Field, Relationship
 class Alarm(SQLModel, table=True):
     __tablename__ = 'alarms'
 
+
     id: int = Field(default=None, primary_key=True, index=True)
     alarm_time: time
     sound_name: str = Field(nullable=True, default='')
@@ -57,10 +58,10 @@ class Video(SQLModel, table=True):
     __tablename__ = 'videos'
 
     id: int = Field(default=None, primary_key=True, index=True)
-    path: str = Field(nullable=False, description="Путь к файлу видео")
+    file_name: str = Field(nullable=False, description="Путь к файлу видео")
     name: Optional[str] = Field(nullable=True, default='', description="Название видео")
     description: Optional[str] = Field(nullable=True, default='', description="Описание видео")
-    duration: float = Field(nullable=True, default=0, description="Длительность видео")
+    duration: time = Field(nullable=True, default=None, description="Длительность видео")
 
     complex_id: Optional[int] = Field(
         default=None, foreign_key="complexes.id",

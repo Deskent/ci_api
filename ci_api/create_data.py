@@ -43,19 +43,19 @@ async def create_videos(data: list[dict] = None):
         data = [
             {
                 "complex_id": 1,
-                'path': 'media/hello.mp4',
+                'file_name': 'hello.mp4',
                 'description': 'some video',
                 'name': 'v1',
             },
             {
                 "complex_id": 1,
-                'path': 'media/hello.mp4',
+                'file_name': 'hello.mp4',
                 'name': 'v2',
                 'description': 'some video',
             },
             {
                 "complex_id": 1,
-                'path': 'media/hello.mp4',
+                'file_name': 'hello.mp4',
                 'name': 'v3',
                 'description': 'some video',
             },

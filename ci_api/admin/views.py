@@ -16,7 +16,7 @@ class UserView(ModelView, model=User):
 
 
 class VideoView(ModelView, model=Video):
-    column_list = [Video.id, Video.name, Video.description, Video.path, Video.complexes]
+    column_list = [Video.id, Video.name, Video.description, Video.file_name, Video.complexes]
 
 
 class AlarmView(ModelView, model=Alarm):

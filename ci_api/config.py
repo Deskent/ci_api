@@ -15,6 +15,7 @@ class Database(BaseSettings):
 
 
 BASE_DIR = Path(__file__).parent
+MEDIA_DIR = BASE_DIR / 'media'
 env_file = BASE_DIR / '.env'
 db = Database(_env_file=env_file, _env_file_encoding='utf-8')
 

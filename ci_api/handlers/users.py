@@ -1,7 +1,6 @@
 import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.responses import FileResponse
 from pydantic import EmailStr
 
 from sqlalchemy.engine import Row
@@ -41,7 +40,7 @@ async def delete_user(
 
 @router.get("/alarms", response_model=list[AlarmBase])
 async def get_user_alarms(
-        # user: User = Depends(get_logged_user),
+        user: User = Depends(get_logged_user),
         session: AsyncSession = Depends(get_session)
 ):
     """Get all user alarms
@@ -49,7 +48,7 @@ async def get_user_alarms(
     :return List of alarms as JSON
     """
 
-    alarms: list[Alarm] = await User.get_user_alarms(session, 1)
+    alarms: list[Alarm] = await User.get_user_alarms(session, user.id)
     results: list[dict] = [elem.dict() for elem in alarms]
     for alarm in results:
         alarm['weekdays'] = WeekDay.to_list(alarm['weekdays'])
@@ -70,24 +69,7 @@ async def get_user_notifications(
     return await User.get_user_notifications(session, user.id)
 
 
-# @router.get("/{user_id}/get_current_video")
-# async def get_user_current_video(user_id: int, session: AsyncSession = Depends(get_session)):
-#     """
-#
-#     :param user_id: int - User database ID
-#
-#     :return: User video file
-#
-#     """
-#     user: User = await session.get(User, user_id)
-#     if not user:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-#
-#     video: Video = await session.get(Video, user.current_video)
-#     if not video:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Video not found")
-#
-#     return FileResponse(path=video.path, media_type='video/mp4')
+
 
 
 # @router.get("/", response_model=list[User], dependencies=[Depends(check_user_is_admin)])
