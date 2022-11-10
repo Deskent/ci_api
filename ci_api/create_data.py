@@ -114,8 +114,10 @@ async def create_users(data: list[dict] = None):
     async with async_session() as session:
 
         for user in data:
-            user_instance = User(**user)
-            session.add(user_instance)
+            expired_at = datetime.utcnow() + timedelta(days=30)
+            user['password'] = auth_handler.get_password_hash(user['password'])
+            user = User(**user, expired_at=expired_at)
+            session.add(user)
 
         await session.commit()
 
