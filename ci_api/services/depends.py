@@ -8,6 +8,19 @@ from models.models import User
 auth_handler = AuthHandler()
 
 
+async def get_logged_user(
+        logged_user: int = Depends(auth_handler.auth_wrapper),
+        session: AsyncSession = Depends(get_session)
+) -> User:
+
+    user: User = await session.get(User, logged_user)
+    if user:
+        return user
+
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                        detail='Incorrect username or password')
+
+
 async def check_access(
         user_id: int,
         logged_user: int = Depends(auth_handler.auth_wrapper),

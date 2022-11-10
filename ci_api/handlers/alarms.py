@@ -3,28 +3,43 @@ from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.db import get_session
-from models.models import Alarm, AlarmCreate, AlarmUpdate
+from models.models import Alarm, User
+from schemas.alarms import AlarmCreate, AlarmUpdate, AlarmBase
+from services.depends import get_logged_user
 from services.utils import get_data_for_update
+from services.weekdays import WeekDay
 
 router = APIRouter(prefix="/alarms", tags=['Alarms'])
 
 
-@router.post("/", response_model=Alarm)
-async def create_alarm(data: AlarmCreate, session: AsyncSession = Depends(get_session)):
+@router.post("/", response_model=AlarmBase)
+async def create_alarm(
+    data: AlarmCreate,
+    user: User = Depends(get_logged_user),
+    session: AsyncSession = Depends(get_session)
+):
     """Create alarm for user by user database id
 
     :param alarm_time: string - Time in format HH:MM[:SS[.ffffff]][Z or [±]HH[:]MM]]]
 
-    :param text: string - Description text
+    :param weekdays: list[string] - List of week days in format
+        ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+        or
+        ['all']
 
-    :param user_id: integer - user id in database
+    :param text: string - Description text
 
     :return: Alarm created information as JSON
     """
 
-    alarm: Alarm = Alarm(**data.dict())
+    payload: dict = data.dict()
+    payload.update({"user_id": user.id})
+    week_days_string: str = WeekDay.to_string(data.weekdays)
+    payload.update(weekdays=week_days_string)
+    alarm: Alarm = Alarm(**payload)
     session.add(alarm)
     await session.commit()
+    alarm.weekdays = WeekDay.to_list(week_days_string)
 
     return alarm
 
