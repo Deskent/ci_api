@@ -17,3 +17,5 @@ class Database(BaseSettings):
 BASE_DIR = Path(__file__).parent
 env_file = BASE_DIR / '.env'
 db = Database(_env_file=env_file, _env_file_encoding='utf-8')
+
+LEVEL_UP = 70

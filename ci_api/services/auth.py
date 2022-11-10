@@ -27,7 +27,9 @@ class AuthHandler:
 
     def decode_token(self, token) -> str:
         try:
-            payload = jwt.decode(token, self.secret, algorithms=['HS256'])
+            # TODO verify singnature ?
+            payload = jwt.decode(
+                token, self.secret, algorithms=['HS256'], options={"verify_signature": False})
             return payload['sub']
         except jwt.ExpiredSignatureError:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Expired signature')

@@ -20,8 +20,11 @@ async def create_complexes(data: list[dict] = None):
     if not data:
         data = [
             {
-                "description": "complex1",
-            }
+                "description": "complex1"
+            },
+            {
+                "description": "complex2",
+            },
         ]
     async with async_session() as session:
 
@@ -43,24 +46,18 @@ async def create_videos(data: list[dict] = None):
                 'path': 'media/hello.mp4',
                 'description': 'some video',
                 'name': 'v1',
-                'previous_id': None,
-                'next_id': 2
             },
             {
                 "complex_id": 1,
                 'path': 'media/hello.mp4',
                 'name': 'v2',
                 'description': 'some video',
-                'previous_id': 1,
-                'next_id': 3
             },
             {
                 "complex_id": 1,
                 'path': 'media/hello.mp4',
                 'name': 'v3',
                 'description': 'some video',
-                'previous_id': 2,
-                'next_id': 4
             },
         ]
 
@@ -85,7 +82,7 @@ async def create_users(data: list[dict] = None):
                 'gender': 1,
                 'password': "string",
                 'email': "user@example.com",
-                'current_video': 1,
+                'current_complex': 1,
                 'is_admin': True,
                 'is_active': True
             },
@@ -95,7 +92,7 @@ async def create_users(data: list[dict] = None):
                 'gender': 1,
                 'password': "test2pass",
                 'email': 'test2@email.com',
-                'current_video': 1,
+                'current_complex': 1,
                 'is_admin': False,
                 'is_active': True
 
@@ -106,7 +103,7 @@ async def create_users(data: list[dict] = None):
                 'password': "test3pass",
                 'gender': 0,
                 'email': 'test3@email.com',
-                'current_video': 1,
+                'current_complex': 1,
                 'is_admin': False,
                 'is_active': False
             },
@@ -191,8 +188,8 @@ async def create_fake_data():
     await create_notifications()
 
 
-async def recreate() -> None:
-    if not db.RECREATE_DB:
+async def recreate(flag: bool = False) -> None:
+    if not db.RECREATE_DB and not flag:
         return
 
     await drop_db()
@@ -201,4 +198,5 @@ async def recreate() -> None:
 
 
 if __name__ == '__main__':
-    asyncio.run(recreate())
+    flag = True
+    asyncio.run(recreate(flag))
