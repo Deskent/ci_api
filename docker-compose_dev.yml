@@ -4,8 +4,8 @@ services:
   ci_postgres:
     env_file:
       - ./ci_api/.env
-    container_name: ci_postgres
-    hostname: ci_postgres
+    container_name: ci_postgres_test
+    hostname: ci_postgres_test
     image: postgres:14.4-alpine
     command:
       - "postgres"
@@ -21,38 +21,26 @@ services:
       - "maintenance_work_mem=512MB"
     restart: on-failure
     volumes:
-      - ./ci_api/postgres_db/postgres/postgresql-data:/var/lib/postgresql/data
-      - ./ci_api/postgres_db/postgres/pginit/:/docker-entrypoint-initdb.d
+      - ./postgres_db/postgres/postgresql-data:/var/lib/postgresql/data
+      - ./postgres_db/postgres/pginit/:/docker-entrypoint-initdb.d
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
       interval: 10s
       timeout: 5s
       retries: 3
       start_period: 5s
-
-  ci_api:
+  web:
     build: ./ci_api
     env_file:
       - ./ci_api/.env
     command: >
       sh -c "uvicorn main:app --workers 1 --host 0.0.0.0 --port 8000"
     ports:
-      - "8000:8000"
+      - "8001:8000"
     environment:
       POSTGRES_HOST: "ci_postgres"
     volumes:
-      - ./ci_api/migrations:/app/migrations
-      - ./ci_api/media:/app/media
-    depends_on:
-      - ci_postgres
-
-  ci_admin:
-    build: ./ci_admin
-    env_file:
-      - ./ci_admin/.env
-    command: >
-      sh -c "uvicorn main:app --workers 1 --host 0.0.0.0 --port 8000"
-    ports:
-      - "8800:8000"
+      - ./migrations:/app/migrations
+      - ./media:/app/media
     depends_on:
       - ci_postgres

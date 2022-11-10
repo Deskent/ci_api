@@ -3,7 +3,9 @@
 **/spam
 **/logs
 **/postgres_db
-/media
+**/media
+**.env
+.editorconfig
 
 
 # Byte-compiled / optimized / DLL files
@@ -110,7 +112,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+../.env
 .venv
 env/
 venv/
@@ -135,4 +137,3 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-/.env
