@@ -77,14 +77,24 @@ async def create_users(data: list[dict] = None):
     if not data:
         data = [
             {
-                'username': "test1",
-                'phone': "1234567890",
+                'username': "admin",
+                'phone': "7777777777",
                 'gender': 1,
-                'password': "string",
+                'password': "admin",
                 'email': "user@example.com",
                 'current_complex': 1,
                 'is_admin': True,
                 'is_active': True
+            },
+            {
+                'username': "test1",
+                'phone': "1234567890",
+                'gender': 1,
+                'password': "string",
+                'email': "test1@example.com",
+                'current_complex': 1,
+                'is_admin': True,
+                'is_active': False
             },
             {
                 'username': "test2",
