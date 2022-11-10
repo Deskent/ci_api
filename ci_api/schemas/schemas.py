@@ -2,6 +2,8 @@ from datetime import datetime, time
 
 from pydantic import BaseModel, EmailStr, validator
 
+from models.models import Video
+
 
 class AlarmBase(BaseModel):
     alarm_time: time
@@ -33,28 +35,41 @@ class VideoBase(BaseModel):
     path: str
     name: str = ''
     description: str = ''
-    previous_id: int = None
-    next_id: int
 
 
 class VideoCreate(VideoBase):
     pass
 
 
-class UserCreate(BaseModel):
-    username: str
-    email: EmailStr
+class VideoInfo(BaseModel):
+    id: int
+    name: str = ''
+    description: str = ''
+
+
+class Password(BaseModel):
     password: str
-
-
-class UserInput(UserCreate):
     password2: str
 
     @validator('password2')
-    def password_match(cls, v, values, **kwargs):
-        if 'password' in values and v != values['password']:
+    def password_match(cls, password2, values, **kwargs):
+        if 'password' in values and password2 != values['password']:
             raise ValueError('passwords don\'t match')
-        return v
+        return password2
+
+
+class UserRegistration(BaseModel):
+    username: str
+    email: EmailStr
+    phone: str
+    gender: bool
+
+    @validator('phone')
+    def check_phone(cls, phone: str, values, **kwargs):
+        is_phone_valid: bool = len(phone) == 10
+        if not is_phone_valid:
+            raise ValueError('phone should be in format 9214442233')
+        return phone
 
 
 class UserLogin(BaseModel):
@@ -62,19 +77,37 @@ class UserLogin(BaseModel):
     password: str
 
 
+class UserChangePassword(Password):
+    old_password: str
+
+
 class UserFullData(BaseModel):
+    gender: bool
+    phone: str
     is_admin: bool = False
     is_active: bool = False
-    current_video: int = None
+    current_complex: int = None
     expired_at: datetime = None
-
-
-class UserUpdate(UserFullData):
-    username: str = None
-    email: EmailStr = None
-    password: str = None
+#
+#
+# class UserUpdate(UserFullData):
+#     username: str = None
+#     email: EmailStr = None
+#     password: str = None
 
 
 class UserOutput(UserFullData):
     username: str = None
     email: EmailStr = None
+
+
+class UserProgress(BaseModel):
+    level: int
+    progress: float
+    current_complex: int
+    level_up: bool = False
+
+
+class ComplexData(BaseModel):
+    description: str
+    videos: list[VideoInfo] = []

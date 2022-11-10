@@ -8,7 +8,7 @@ class UserView(ModelView, model=User):
     name_plural = "Users"
     column_details_exclude_list = [User.password]
     column_list = [
-        User.id, User.username, User.email, User.current_video, User.current_complex,
+        User.id, User.username, User.email, User.current_complex,
         User.level, User.progress, User.notifications, User.alarms, User.is_admin, User.is_active
     ]
     column_searchable_list = [User.username]
