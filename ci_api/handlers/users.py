@@ -11,8 +11,10 @@ from sqlalchemy import update
 
 from database.db import get_session
 from models.models import User, Alarm, Notification, Video
+from schemas.alarms import AlarmBase
 from services.depends import check_access, auth_handler, check_user_is_admin, get_logged_user
 from services.utils import get_data_for_update
+from services.weekdays import WeekDay
 
 router = APIRouter(prefix="/users", tags=['Users'])
 
@@ -37,9 +39,9 @@ async def delete_user(
     return None
 
 
-@router.get("/alarms", response_model=list[Alarm])
+@router.get("/alarms", response_model=list[AlarmBase])
 async def get_user_alarms(
-        user: User = Depends(get_logged_user),
+        # user: User = Depends(get_logged_user),
         session: AsyncSession = Depends(get_session)
 ):
     """Get all user alarms
@@ -47,7 +49,12 @@ async def get_user_alarms(
     :return List of alarms as JSON
     """
 
-    return await User.get_user_alarms(session, user.id)
+    alarms: list[Alarm] = await User.get_user_alarms(session, 1)
+    results: list[dict] = [elem.dict() for elem in alarms]
+    for alarm in results:
+        alarm['weekdays'] = WeekDay.to_list(alarm['weekdays'])
+
+    return results
 
 
 @router.get("/notifications", response_model=list[Notification])

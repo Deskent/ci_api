@@ -8,19 +8,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import SQLModel, Field, Relationship
 
 
-class WeekDay(SQLModel, table=True):
-    __tablename__ = 'weekdays'
-
-    id: int = Field(default=None, primary_key=True, index=True)
-    week_day: str = Field(nullable=True, default='')
-
-    alarm_id: Optional[int] = Field(default=None, foreign_key="alarms.id")
-    alarms: 'Alarm' = Relationship(back_populates="weekdays")
-
-    def __str__(self):
-        return f"{self.week_day}"
-
-
 class Alarm(SQLModel, table=True):
     __tablename__ = 'alarms'
 
@@ -30,10 +17,10 @@ class Alarm(SQLModel, table=True):
     volume: int = Field(nullable=True, default=50)
     vibration: bool = Field(default=False)
     text: Optional[str] = Field(nullable=True, default='')
+    weekdays: Optional[str] = Field(nullable=True, default='')
 
     user_id: Optional[int] = Field(default=None, foreign_key="users.id")
     users: 'User' = Relationship(back_populates="alarms")
-    weekdays: list[WeekDay] = Relationship(back_populates="alarms")
 
     def __str__(self):
         return f"{self.text}"

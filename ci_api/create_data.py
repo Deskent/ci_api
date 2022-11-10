@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 
 from database.db import engine, drop_db, create_db, db
 from services.auth import AuthHandler
-from models.models import User, Alarm, Notification, Video, Complex, WeekDay
+from models.models import User, Alarm, Notification, Video, Complex
 
 
 auth_handler = AuthHandler()
@@ -180,48 +180,11 @@ async def create_notifications(data: list[dict] = None):
         await session.commit()
 
 
-async def create_weekdays(data: list[dict] = None):
-    async_session = sessionmaker(
-        engine, class_=AsyncSession
-    )
-    if not data:
-        data = [
-            {
-                'week_day': 'monday'
-            },
-            {
-                'week_day': 'tuesday'
-            },
-            {
-                'week_day': 'wednesday'
-            },
-            {
-                'week_day': 'thursday'
-            },
-            {
-                'week_day': 'friday'
-            },
-            {
-                'week_day': 'saturday'
-            },
-            {
-                'week_day': 'sunday'
-            }
-        ]
-    async with async_session() as session:
-        for day in data:
-            weekday = WeekDay(**day)
-            session.add(weekday)
-
-        await session.commit()
-
-
 async def create_fake_data():
     await create_complexes()
     await create_videos()
     await create_users()
     await create_alarms()
-    await create_weekdays()
     await create_notifications()
 
 

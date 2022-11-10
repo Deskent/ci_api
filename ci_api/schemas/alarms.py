@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 class AlarmBase(BaseModel):
     alarm_time: time
-    week_days: str
+    weekdays: list[str]
     sound_name: str
     volume: int
     vibration: bool
@@ -13,7 +13,7 @@ class AlarmBase(BaseModel):
 
 
 class AlarmCreate(AlarmBase):
-    user_id: int
+    pass
 
 
 class AlarmUpdate(AlarmCreate):
