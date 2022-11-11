@@ -3,10 +3,11 @@ from pathlib import Path
 
 from fastapi import APIRouter, Depends, UploadFile, BackgroundTasks, HTTPException, status, File
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 
 from config import MEDIA_DIR
 from database.db import get_session
-from models.models import Video
+from models.models import Video, User
 from schemas.complexes_videos import VideoUpload
 from services.utils import save_video
 
@@ -25,7 +26,7 @@ async def add_video(
         session: AsyncSession = Depends(get_session)
 ):
     """
-    Upload video file in format mp4
+    Upload video file in format mp4. FOr admin only.
 
     :param file_name: string - Name for file without file extension
 
@@ -64,3 +65,16 @@ async def add_video(
     await session.commit()
 
     return video
+
+
+@router.get("/", response_model=list[User])
+async def get_users(session: AsyncSession = Depends(get_session)):
+    """
+    Get all users from database. For admin only.
+
+    :return: List of users as JSON
+    """
+
+    users = await session.execute(select(User).order_by(User.id))
+
+    return users.scalars().all()
