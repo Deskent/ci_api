@@ -1,3 +1,4 @@
+import datetime
 from datetime import time
 from pathlib import Path
 
@@ -9,7 +10,7 @@ from config import MEDIA_DIR
 from database.db import get_session
 from models.models import Video, User
 from schemas.complexes_videos import VideoUpload
-from services.utils import save_video
+from services.utils import save_video, get_video_duration
 
 router = APIRouter(tags=['Admin'])
 
@@ -20,8 +21,6 @@ async def add_video(
         name: str,
         description: str,
         complex_id: int,
-        duration: time,
-        tasks: BackgroundTasks,
         file: UploadFile = File(...),
         session: AsyncSession = Depends(get_session)
 ):
@@ -42,8 +41,7 @@ async def add_video(
     :return: Video created data as JSON
     """
     video_data: VideoUpload = VideoUpload(
-        file_name=file_name, name=name, description=description, complex_id=complex_id,
-        duration=duration)
+        file_name=file_name, name=name, description=description, complex_id=complex_id)
 
     if file.content_type != 'video/mp4':
         raise HTTPException(
@@ -57,10 +55,11 @@ async def add_video(
             status_code=status.HTTP_409_CONFLICT,
             detail=f'File with name {full_filename} exists.'
         )
-    tasks.add_task(save_video, str(file_path), file)
+    save_video(str(file_path), file)
+    duration: time = get_video_duration(str(file_path))
     video = Video(
         file_name=full_filename, description=video_data.description, name=video_data.name,
-        complex_id=video_data.complex_id, duration=video_data.duration)
+        complex_id=video_data.complex_id, duration=duration)
     session.add(video)
     await session.commit()
 
