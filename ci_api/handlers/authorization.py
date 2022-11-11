@@ -9,7 +9,7 @@ from database.db import get_session
 from models.models import User
 from schemas.user import UserRegistration, UserLogin, UserChangePassword, UserOutput
 from services.depends import auth_handler, get_logged_user
-from services.emails import send_verification_mail
+from services.emails import send_verification_mail, verify_token
 
 
 router = APIRouter(prefix="/auth", tags=['Authorization'])
@@ -53,6 +53,11 @@ async def register(
     tasks.add_task(send_verification_mail, user)
 
     return user
+
+
+@router.get("/verify", status_code=status.HTTP_202_ACCEPTED)
+async def verify(token: str, session: AsyncSession = Depends(get_session)):
+    await verify_token(session, token)
 
 
 @router.post("/login", response_model=dict)

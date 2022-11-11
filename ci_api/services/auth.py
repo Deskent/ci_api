@@ -24,6 +24,9 @@ class AuthHandler:
         }
         return jwt.encode(payload, self.secret, algorithm='HS256')
 
+    def verify_email_token(self, token: str) -> dict:
+        return jwt.decode(token, self.secret, algorithms=['HS256'])
+
     def verify_password(self, password, hashed_password) -> bool:
         return self.pwd_context.verify(password, hashed_password)
 

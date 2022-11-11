@@ -1,5 +1,7 @@
 import asyncio
 
+import jwt
+from fastapi import HTTPException, status
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
 from pydantic import EmailStr, BaseModel
 
@@ -42,6 +44,19 @@ async def send_verification_mail(user: User) -> None:
     token = {"token": AuthHandler().get_email_token(user)}
     data = EmailSchema(email=user.email, token=token)
     await _send_mail(data)
+
+
+async def verify_token(session, token: str) -> None:
+    try:
+        payload = AuthHandler().verify_email_token(token)
+        user: User = await session.get(User, payload["id"])
+        if user and not user.is_verified:
+            user.is_verified = True
+            session.add(user)
+            await session.commit()
+    except jwt.exceptions.DecodeError as err:
+        print(err)
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Invalid token")
 
 
 if __name__ == '__main__':
