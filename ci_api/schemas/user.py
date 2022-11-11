@@ -48,6 +48,7 @@ class UserChangePassword(Password):
 class UserFullData(BaseModel):
     gender: bool
     phone: str
+    is_verified: bool = False
     is_admin: bool = False
     is_active: bool = False
     current_complex: int = None
