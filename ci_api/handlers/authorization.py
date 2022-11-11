@@ -3,18 +3,24 @@ import datetime
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette.background import BackgroundTasks
 
 from database.db import get_session
 from models.models import User
 from schemas.user import UserRegistration, UserLogin, UserChangePassword, UserOutput
 from services.depends import auth_handler, get_logged_user
+from services.emails import send_verification_mail
 
 
 router = APIRouter(prefix="/auth", tags=['Authorization'])
 
 
 @router.post("/register", response_model=UserOutput)
-async def register(user_data: UserRegistration, session: AsyncSession = Depends(get_session)):
+async def register(
+        user_data: UserRegistration,
+        tasks: BackgroundTasks,
+        session: AsyncSession = Depends(get_session)
+):
     """
     Create new user in database if not exists
 
@@ -39,11 +45,12 @@ async def register(user_data: UserRegistration, session: AsyncSession = Depends(
     user_data.password = auth_handler.get_password_hash(user_data.password)
     expired_at = datetime.datetime.now(tz=None) + datetime.timedelta(days=30)
     user = User(
-        **user_data.dict(),
+        **user_data.dict(), is_verified=False,
         current_complex=1, is_admin=False, is_active=True, expired_at=expired_at
     )
     session.add(user)
     await session.commit()
+    tasks.add_task(send_verification_mail, user)
 
     return user
 
