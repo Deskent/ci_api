@@ -14,7 +14,6 @@ class VideoUpload(BaseModel):
     name: str
     description: str
     complex_id: int
-    duration: time
 
 
 class VideoInfo(BaseModel):
