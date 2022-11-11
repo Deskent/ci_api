@@ -5,14 +5,27 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from passlib.context import CryptContext
 import jwt
 
+from config import settings
+from models.models import User
+
 
 class AuthHandler:
     security = HTTPBearer()
     pwd_context = CryptContext(schemes=['bcrypt'])
-    secret = 'secret'
+    secret = settings.SECRET
 
     def get_password_hash(self, password) -> str:
         return self.pwd_context.hash(password)
+
+    def get_email_token(self, user: User) -> str:
+        payload = {
+            "id": user.id,
+            "username": user.username
+        }
+        return jwt.encode(payload, self.secret, algorithm='HS256')
+
+    def verify_email_token(self, token: str) -> dict:
+        return jwt.decode(token, self.secret, algorithms=['HS256'])
 
     def verify_password(self, password, hashed_password) -> bool:
         return self.pwd_context.verify(password, hashed_password)

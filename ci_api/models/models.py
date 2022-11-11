@@ -95,6 +95,7 @@ class User(SQLModel, table=True):
                           description="Процент прогресса просмотра текущего комплекса")
     created_at: datetime = Field(default=datetime.now(tz=None))
     expired_at: Optional[datetime] = Field(default=None)
+    is_verified: Optional[bool] = Field(default=False)
     is_admin: Optional[bool] = Field(default=False)
     is_active: Optional[bool] = Field(default=False)
 
