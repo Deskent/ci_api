@@ -7,6 +7,7 @@ from sqladmin import Admin
 
 from admin.auth import authentication_backend
 from admin.views import AlarmView, NotificationView, UserView, VideoView, ComplexView
+from config import settings
 from create_data import recreate
 from database.db import engine
 from routers import main_router
@@ -26,18 +27,19 @@ def migrate():
 @app.on_event("startup")
 async def on_startup():
     await recreate()
-    media_path = BASE_DIR / 'media'
-    if not media_path.exists():
-        Path.mkdir(media_path, exist_ok=True)
+    if not settings.MEDIA_DIR.exists():
+        Path.mkdir(settings.MEDIA_DIR, exist_ok=True)
 
 
-admin = Admin(app, engine, base_url='/ci_admin', authentication_backend=authentication_backend)
+admin = Admin(app, engine, base_url='/ci_admin', authentication_backend=authentication_backend,
+              templates_dir=settings.TEMPLATES_DIR)
 
 admin.add_view(UserView)
 admin.add_view(VideoView)
 admin.add_view(AlarmView)
 admin.add_view(NotificationView)
 admin.add_view(ComplexView)
+
 
 if __name__ == '__main__':
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)

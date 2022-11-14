@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Video</title>
+</head>
+<body>
+<form action="/api/v1/upload_file" method="post" enctype="multipart/form-data">
+    <p><label class="form-label" for="file_name">Имя файла: </label>
+        <input type="text" id="file_name" name="file_name"/></p>
+    <p><label class="form-label" for="name">Название видео: </label>
+        <input type="text" id="name" name="name"/></p>
+    <p><label class="form-label" for="description">Описание: </label>
+        <input type="text" id="description" name="description"/></p>
+    <p><label for="complex_id">Комплекс ID: </label>
+        <input type="number" id="complex_id" name="complex_id"/></p>
+
+    <label for="file">Выберите файл для загрузки</label>
+    <input type="file" id="file" name="file" multiple>
+    <input type="submit" value="submit">
+</form>
+</body>
+</html>

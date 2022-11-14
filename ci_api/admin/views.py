@@ -1,4 +1,5 @@
-from sqladmin import ModelView
+from fastapi import Request, UploadFile, File
+from sqladmin import ModelView, expose, BaseView
 
 from models.models import User, Video, Alarm, Notification, Complex
 
@@ -15,10 +16,6 @@ class UserView(ModelView, model=User):
     column_sortable_list = [User.username]
 
 
-class VideoView(ModelView, model=Video):
-    column_list = [Video.id, Video.name, Video.description, Video.file_name, Video.complexes]
-
-
 class AlarmView(ModelView, model=Alarm):
     column_list = [Alarm.id, Alarm.alarm_time, Alarm.text, Alarm.users, Alarm.weekdays]
 
@@ -32,3 +29,8 @@ class NotificationView(ModelView, model=Notification):
 
 class ComplexView(ModelView, model=Complex):
     column_list = [Complex.id, Complex.videos, Complex.description]
+
+
+class VideoView(ModelView, model=Video):
+    column_list = [Video.id, Video.name, Video.description, Video.file_name, Video.complexes]
+    create_template = "upload_video.html"

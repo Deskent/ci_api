@@ -1,8 +1,7 @@
-import datetime
 from datetime import time
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, UploadFile, BackgroundTasks, HTTPException, status, File
+from fastapi import APIRouter, Depends, UploadFile, HTTPException, status, File, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
@@ -15,17 +14,17 @@ from services.utils import save_video, get_video_duration
 router = APIRouter(tags=['Admin'])
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("/upload_file")
 async def add_video(
-        file_name: str,
-        name: str,
-        description: str,
-        complex_id: int,
+        file_name: str = Form(),
+        name: str = Form(),
+        description: str = Form(),
+        complex_id: int = Form(),
         file: UploadFile = File(...),
         session: AsyncSession = Depends(get_session)
 ):
     """
-    Upload video file in format mp4. FOr admin only.
+    Upload video file in format mp4. For admins only.
 
     :param file_name: string - Name for file without file extension
 
@@ -35,11 +34,8 @@ async def add_video(
 
     :param complex_id: int - Video complex id
 
-    :param duration: string - Video duration in minutes in time
-        format: HH:MM[:SS[.ffffff]][Z or [±]HH[:]MM]]]
-
     :return: Video created data as JSON
-    """
+    # """
     video_data: VideoUpload = VideoUpload(
         file_name=file_name, name=name, description=description, complex_id=complex_id)
 
@@ -69,7 +65,7 @@ async def add_video(
 @router.get("/", response_model=list[User])
 async def get_users(session: AsyncSession = Depends(get_session)):
     """
-    Get all users from database. For admin only.
+    Get all users from database. For admins only.
 
     :return: List of users as JSON
     """
