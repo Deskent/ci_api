@@ -81,7 +81,7 @@ async def create_users(data: list[dict] = None):
                 'phone': "7777777777",
                 'gender': 1,
                 'password': "admin",
-                'email': "user@example.com",
+                'email': "admin@bk.ru",
                 'current_complex': 1,
                 'is_admin': True,
                 'is_active': True
