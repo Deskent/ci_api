@@ -1,7 +1,7 @@
 from datetime import time
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, UploadFile, HTTPException, status, File, Form
+from fastapi import APIRouter, Depends, UploadFile, HTTPException, status, File, Form, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
@@ -10,11 +10,15 @@ from database.db import get_session
 from models.models import Video, User
 from schemas.complexes_videos import VideoUpload
 from services.utils import save_video, get_video_duration
+from services.depends import check_user_is_admin
 
-router = APIRouter(tags=['Admin'])
+router = APIRouter(tags=['Admin'], dependencies=[Depends(check_user_is_admin)])
 
 
-@router.post("/upload_file")
+@router.post(
+    "/upload_file",
+    status_code=status.HTTP_201_CREATED,
+)
 async def add_video(
         file_name: str = Form(),
         name: str = Form(),

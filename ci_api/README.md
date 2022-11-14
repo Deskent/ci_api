@@ -10,7 +10,8 @@
 5. Линтеры
 6. Логирование
 
-
+max video = 10
+нумерация комплексов - ручная
 
 https://docs.google.com/document/d/1vr_iqdYd2VVZNK5KCUwzN26a1Iz4SrtI6K7vxEfHNmM/edit#
 

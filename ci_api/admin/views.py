@@ -10,7 +10,8 @@ class UserView(ModelView, model=User):
     column_details_exclude_list = [User.password]
     column_list = [
         User.id, User.username, User.email, User.current_complex,
-        User.level, User.progress, User.notifications, User.alarms, User.is_admin, User.is_active
+        User.level, User.progress, User.notifications, User.alarms, User.is_admin, User.is_active,
+        User.is_verified
     ]
     column_searchable_list = [User.username, User.email]
     column_sortable_list = [User.username]
@@ -28,7 +29,7 @@ class NotificationView(ModelView, model=Notification):
 
 
 class ComplexView(ModelView, model=Complex):
-    column_list = [Complex.id, Complex.videos, Complex.description]
+    column_list = [Complex.id, Complex.name, Complex.videos, Complex.description]
 
 
 class VideoView(ModelView, model=Video):

@@ -1,5 +1,4 @@
-import asyncio
-
+from fastapi_mail.errors import ConnectionErrors
 import jwt
 from fastapi import HTTPException, status
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
@@ -19,10 +18,10 @@ conf = ConnectionConfig(
     MAIL_USERNAME=settings.EMAIL_LOGIN,
     MAIL_PASSWORD=settings.EMAIL_PASSWORD,
     MAIL_FROM=settings.EMAIL_LOGIN,
-    MAIL_PORT=465,
-    MAIL_SERVER="smtp.mail.ru",
-    MAIL_STARTTLS=False,
-    MAIL_SSL_TLS=True,
+    MAIL_PORT=settings.MAIL_PORT,
+    MAIL_SERVER=settings.MAIL_SERVER,
+    MAIL_STARTTLS=settings.MAIL_STARTTLS,
+    MAIL_SSL_TLS=settings.MAIL_SSL_TLS,
     USE_CREDENTIALS=True,
     TEMPLATE_FOLDER=settings.TEMPLATES_DIR
 )
@@ -31,13 +30,17 @@ conf = ConnectionConfig(
 async def _send_mail(data: EmailSchema) -> None:
 
     message = MessageSchema(
-        subject="Fastapi-Mail module",
+        subject="Ci service mailing",
         recipients=[data.email],
         template_body=data.token,
         subtype=MessageType.html
     )
-
-    await FastMail(conf).send_message(message, template_name="email_template.html")
+    try:
+        await FastMail(conf).send_message(message, template_name="email_template.html")
+    except ConnectionErrors as err:
+        print(err)
+        raise HTTPException(status_code=status.HTTP_511_NETWORK_AUTHENTICATION_REQUIRED,
+                            detail="Invalid mailing credentials")
 
 
 async def send_verification_mail(user: User) -> None:
@@ -46,20 +49,12 @@ async def send_verification_mail(user: User) -> None:
     await _send_mail(data)
 
 
-async def verify_token(session, token: str) -> None:
+async def verify_token_from_email(session, token: str) -> User:
     try:
         payload = AuthHandler().verify_email_token(token)
         user: User = await session.get(User, payload["id"])
-        if user and not user.is_verified:
-            user.is_verified = True
-            session.add(user)
-            await session.commit()
+        if user:
+            return user
     except jwt.exceptions.DecodeError as err:
         print(err)
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Invalid token")
-
-
-if __name__ == '__main__':
-    test_email = 'battenetciz@gmail.com'
-    email = EmailSchema(email=[test_email])
-    asyncio.run(_send_mail(email))

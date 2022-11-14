@@ -44,6 +44,7 @@ class Complex(SQLModel, table=True):
     __tablename__ = 'complexes'
 
     id: int = Field(default=None, primary_key=True, index=True)
+    name: Optional[str] = Field(nullable=True, default='', description="Название комплекса")
     description: Optional[str] = Field(nullable=True, default='')
     next_complex_id: int = Field(nullable=True, default=1)
 

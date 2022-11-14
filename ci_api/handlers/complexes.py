@@ -36,21 +36,20 @@ async def video_viewed(
 
     current_complex: Complex = await session.get(Complex, user.current_complex)
     videos: list[Video] = await Video.get_all_complex_videos(session, user.current_complex)
-    level_up: bool = False
+    # TODO сделать поле с количеством видео, сделать ограничение в 10 видео на комплекс
     if not videos:
-        return UserProgress(**user.dict(), level_up=level_up)
-    percent = round(1 / len(videos), 1) * 100
+        return UserProgress(**user.dict())
+    percent: float = round(1 / len(videos), 1) * 100
     user.progress = user.progress + percent
     if user.progress >= LEVEL_UP:
         if user.level < 10:
             user.level = user.level + 1
         user.progress = 0
-        level_up = True
         user.current_complex = current_complex.next_complex_id
     session.add(user)
     await session.commit()
 
-    return UserProgress(**user.dict(), level_up=level_up)
+    return user
 
 
 @router.get("/{complex_id}", response_model=ComplexData)
