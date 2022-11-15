@@ -90,7 +90,7 @@ async def login(user: UserLogin, session: AsyncSession = Depends(get_session)):
     return {"token": token}
 
 
-@router.put("/change_password", status_code=201)
+@router.put("/change_password", status_code=status.HTTP_202_ACCEPTED)
 async def change_password(
         data: UserChangePassword,
         user: User = Depends(get_logged_user),
@@ -104,6 +104,8 @@ async def change_password(
     :param password: string - new password
 
     :param password2: string - Repeat new password
+
+    :return: None
     """
 
     if not auth_handler.verify_password(data.old_password, user.password):

@@ -4,9 +4,10 @@ from pathlib import Path
 import uvicorn
 from fastapi import FastAPI
 from sqladmin import Admin
+from starlette.middleware.sessions import SessionMiddleware
 
 from admin.auth import authentication_backend
-from admin.views import AlarmView, NotificationView, UserView, VideoView, ComplexView
+from admin.views import AlarmView, NotificationView, UserView, VideoView, ComplexView, UploadVideo
 from config import settings
 from create_data import recreate
 from database.db import engine
@@ -39,6 +40,8 @@ admin.add_view(VideoView)
 admin.add_view(AlarmView)
 admin.add_view(NotificationView)
 admin.add_view(ComplexView)
+admin.add_view(UploadVideo)
+app.add_middleware(SessionMiddleware, secret_key=settings.SECRET)
 
 
 if __name__ == '__main__':

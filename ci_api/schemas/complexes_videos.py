@@ -1,25 +1,26 @@
+from datetime import time
+
+from fastapi import UploadFile
 from pydantic import BaseModel
 
 
 class VideoBase(BaseModel):
-    path: str
     name: str = ''
     description: str = ''
 
 
-class VideoUpload(BaseModel):
+class VideoUpload(VideoBase):
     file_name: str
-    name: str
-    description: str
     complex_id: int
+    file: UploadFile
 
 
-class VideoInfo(BaseModel):
+class VideoInfo(VideoBase):
     id: int
-    name: str = ''
-    description: str = ''
+    duration: time
 
 
 class ComplexData(BaseModel):
+    name: str
     description: str
     videos: list[VideoInfo] = []

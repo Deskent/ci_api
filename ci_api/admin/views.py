@@ -1,7 +1,10 @@
 from fastapi import Request, UploadFile, File
 from sqladmin import ModelView, expose, BaseView
+from starlette.datastructures import FormData
 
 from models.models import User, Video, Alarm, Notification, Complex
+from services.utils import upload_file
+from schemas.complexes_videos import VideoUpload
 
 
 class UserView(ModelView, model=User):
@@ -32,6 +35,30 @@ class ComplexView(ModelView, model=Complex):
     column_list = [Complex.id, Complex.name, Complex.videos, Complex.description]
 
 
-class VideoView(ModelView, model=Video):
+class VideoView(ModelView, BaseView, model=Video):
+    can_create = False
     column_list = [Video.id, Video.name, Video.description, Video.file_name, Video.complexes]
-    create_template = "upload_video.html"
+
+
+class UploadVideo(BaseView):
+    name = "Upload Video"
+
+    @expose("/upload", methods=["GET", "POST"])
+    async def upload_file(self, request: Request):
+        if request.method == "GET":
+            return self.templates.TemplateResponse(
+                "upload_video.html",
+                context={"request": request},
+            )
+        form: FormData = await request.form()
+        data = VideoUpload(**{k: v for k, v in form.items()})
+        if await upload_file(**data.dict()):
+            # TODO сделать темплейт что удачно загружено.
+            return self.templates.TemplateResponse(
+                "upload_video.html",
+                context={"request": request},
+            )
+        return self.templates.TemplateResponse(
+                "upload_video.html",
+                context={"request": request},
+            )
