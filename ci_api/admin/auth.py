@@ -1,32 +1,42 @@
+from pydantic import EmailStr
 from sqladmin.authentication import AuthenticationBackend
 
 from fastapi import Request
+
+from config import settings
+from database.db import sessionmaker, engine, AsyncSession
+from services.depends import check_user_credentials
+from services.auth import AuthHandler
+
+auth_handler = AuthHandler()
 
 
 class MyBackend(AuthenticationBackend):
     async def login(self, request: Request) -> bool:
         form = await request.form()
-        username, password = form["username"], form["password"]
-        # TODO validate user
-        # Validate username/password credentials
-        # And update session
-        request.session.update({"token": "..."})
+        username: EmailStr = form["username"]
+        password: str = form["password"]
+        async_session = sessionmaker(
+            engine, class_=AsyncSession
+        )
+        async with async_session() as session:
+            user = await check_user_credentials(username, password, session)
+            if user.is_admin:
+                token: str = auth_handler.encode_token(user.id)
+                request.session.update({"token": token})
 
-        return True
+                return True
+
+        return False
 
     async def logout(self, request: Request) -> bool:
-        # Usually you'd want to just clear the session
         request.session.clear()
         return True
 
     async def authenticate(self, request: Request) -> bool:
-        token = request.session.get("token")
+        token: str = request.session.get("token", None)
 
-        if not token:
-            return False
-
-        # Check the token
-        return True
+        return token is not None
 
 
-authentication_backend = MyBackend(secret_key="hello_world")
+authentication_backend = MyBackend(secret_key=settings.SECRET)

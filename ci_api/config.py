@@ -17,6 +17,10 @@ class Database(BaseSettings):
 class Settings(BaseSettings):
     EMAIL_LOGIN: EmailStr
     EMAIL_PASSWORD: str
+    MAIL_PORT: int
+    MAIL_SERVER: str
+    MAIL_STARTTLS: bool
+    MAIL_SSL_TLS: bool
     SECRET: str
     DEBUG: bool = False
     BASE_DIR: str = ''

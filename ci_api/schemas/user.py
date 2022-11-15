@@ -3,14 +3,6 @@ from datetime import datetime
 from pydantic import BaseModel, validator, EmailStr
 
 
-#
-#
-# class UserUpdate(UserFullData):
-#     username: str = None
-#     email: EmailStr = None
-#     password: str = None
-
-
 class Password(BaseModel):
     password: str
     password2: str
@@ -62,6 +54,4 @@ class UserOutput(UserFullData):
 
 class UserProgress(BaseModel):
     level: int
-    progress: float
     current_complex: int
-    level_up: bool = False
