@@ -32,7 +32,8 @@ class NotificationView(ModelView, model=Notification):
 
 
 class ComplexView(ModelView, model=Complex):
-    column_list = [Complex.id, Complex.name, Complex.videos, Complex.description]
+    column_list = [Complex.id, Complex.name, Complex.videos, Complex.description,
+                   Complex.next_complex_id]
 
 
 class VideoView(ModelView, BaseView, model=Video):
