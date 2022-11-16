@@ -6,7 +6,7 @@ from pathlib import Path
 from fastapi import UploadFile, status, HTTPException
 
 from config import settings, logger, MAX_VIDEO
-from database.db import engine, sessionmaker, AsyncSession
+from database.db import engine, sessionmaker, AsyncSession, get_session
 from models.models import Video, Complex
 
 
@@ -82,7 +82,7 @@ async def upload_file(
     async_session = sessionmaker(
         engine, class_=AsyncSession
     )
-    async with async_session() as session:
+    async for session in get_session():
         current_complex: Complex = await session.get(Complex, complex_id)
         if not current_complex:
             logger.warning(f"Complex {complex_id} not found")
@@ -115,6 +115,11 @@ async def upload_file(
             complex_id=complex_id, duration=duration)
         session.add(video)
         await session.commit()
+
+        current_complex.video_count += 1
+        session.add(current_complex)
+        await session.commit()
+
         logger.info(f"Video {file_name} for complex {current_complex.id} uploaded.")
 
         return video

@@ -7,8 +7,28 @@ from sqlalchemy.engine import Row
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import SQLModel, Field, Relationship
 
+from database.db import get_session
 
-class Alarm(SQLModel, table=True):
+
+class BaseSQLModel(SQLModel):
+
+    @classmethod
+    async def _exec_in_session(cls, query):
+        async for session in get_session():
+            return await session.execute(query)
+
+    async def save(self, session=None):
+        if session:
+            session.add(self)
+            await session.commit()
+        else:
+            async for session in get_session():
+                session.add(self)
+                await session.commit()
+        return self
+
+
+class Alarm(BaseSQLModel, table=True):
     __tablename__ = 'alarms'
 
     id: int = Field(default=None, primary_key=True, index=True)
@@ -26,7 +46,7 @@ class Alarm(SQLModel, table=True):
         return f"{self.text}"
 
 
-class Notification(SQLModel, table=True):
+class Notification(BaseSQLModel, table=True):
     __tablename__ = 'notifications'
 
     id: int = Field(default=None, primary_key=True, index=True)
@@ -40,13 +60,15 @@ class Notification(SQLModel, table=True):
         return f"{self.text}"
 
 
-class Complex(SQLModel, table=True):
+class Complex(BaseSQLModel, table=True):
     __tablename__ = 'complexes'
 
     id: int = Field(default=None, primary_key=True, index=True)
     name: Optional[str] = Field(nullable=True, default='', description="Название комплекса")
-    description: Optional[str] = Field(nullable=True, default='')
-    next_complex_id: int = Field(nullable=True, default=1)
+    description: Optional[str] = Field(nullable=True, default='', description="Описание комплекса")
+    next_complex_id: int = Field(nullable=True, default=1, description="ИД следующего комплекса")
+    duration: time = Field(nullable=True, default=None, description="Длительность комплекса")
+    video_count: int = Field(nullable=True, default=0, description="Количество видео в комплексе")
 
     videos: List["Video"] = Relationship(back_populates="complexes")
 
@@ -54,7 +76,7 @@ class Complex(SQLModel, table=True):
         return f"{self.id}-{self.description}"
 
 
-class Video(SQLModel, table=True):
+class Video(BaseSQLModel, table=True):
     __tablename__ = 'videos'
 
     id: int = Field(default=None, primary_key=True, index=True)
@@ -76,12 +98,12 @@ class Video(SQLModel, table=True):
             cls: 'Video', session: AsyncSession, complex_id: int
     ) -> list['Video']:
         query = select(Video).where(Video.complex_id == complex_id)
-        videos_row: Row = await session.execute(query)
+        videos_row = await session.execute(query)
 
         return videos_row.scalars().all()
 
 
-class User(SQLModel, table=True):
+class User(BaseSQLModel, table=True):
     __tablename__ = 'users'
 
     id: int = Field(default=None, primary_key=True, index=True)
@@ -108,30 +130,31 @@ class User(SQLModel, table=True):
         return f"{self.username}"
 
     @classmethod
-    async def get_user_by_id(cls, session: AsyncSession, user_id: int) -> 'User':
+    async def get_user_by_id(cls, user_id: int) -> 'User':
         query = select(cls).where(cls.id == user_id)
-        user = await session.execute(query)
+        user = await cls._exec_in_session(query)
 
         return user.scalars().first()
 
     @classmethod
-    async def get_user_by_email(cls, session: AsyncSession, email: EmailStr) -> 'User':
+    async def get_user_by_email(cls, email: EmailStr) -> 'User':
         query = select(cls).where(cls.email == email)
-        user = await session.execute(query)
+        user = await cls._exec_in_session(query)
 
         return user.scalars().first()
 
     @classmethod
-    async def get_user_alarms(cls, session: AsyncSession, user_id: int) -> list[Alarm]:
+    async def get_user_alarms(cls, user_id: int) -> list[Alarm]:
         query = select(Alarm).join(User).where(User.id == user_id)
-        alarms = await session.execute(query)
+        alarms = await cls._exec_in_session(query)
 
         return alarms.scalars().all()
 
     @classmethod
-    async def get_user_notifications(cls, session: AsyncSession, user_id: int) -> list[Notification]:
+    async def get_user_notifications(cls, user_id: int) -> list[Notification]:
         query = select(Notification).join(User).where(User.id == user_id)
-        notifications: Row = await session.execute(query)
+        notifications: Row = await cls._exec_in_session(query)
 
         return notifications.scalars().all()
+
 

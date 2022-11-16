@@ -58,3 +58,6 @@ class AuthHandler:
     @logger.catch
     def verify_email_token(self, token: str) -> dict:
         return jwt.decode(token, self.secret, algorithms=['HS256'])
+
+
+auth_handler = AuthHandler()
