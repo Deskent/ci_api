@@ -1,10 +1,11 @@
-from fastapi import Request, UploadFile, File
+from fastapi import Request
 from sqladmin import ModelView, expose, BaseView
 from starlette.datastructures import FormData
 
 from models.models import User, Video, Alarm, Notification, Complex
 from services.utils import upload_file
 from schemas.complexes_videos import VideoUpload
+from config import logger
 
 
 class UserView(ModelView, model=User):
@@ -53,13 +54,16 @@ class UploadVideo(BaseView):
             )
         form: FormData = await request.form()
         data = VideoUpload(**{k: v for k, v in form.items()})
+        logger.debug(f"Load file with data: {data}")
         if await upload_file(**data.dict()):
-            # TODO сделать темплейт что удачно загружено.
+            logger.debug(f"Load file with data: OK")
             return self.templates.TemplateResponse(
                 "upload_video.html",
-                context={"request": request},
+                context={"request": request, "result": "ok"},
             )
+
+        logger.debug(f"Load file with data: FAIL")
         return self.templates.TemplateResponse(
                 "upload_video.html",
-                context={"request": request},
+                context={"request": request, "result": "fail"},
             )
