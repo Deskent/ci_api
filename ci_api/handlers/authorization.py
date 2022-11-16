@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.background import BackgroundTasks
 
+from config import logger
 from database.db import get_session
 from models.models import User
 from schemas.user import UserRegistration, UserLogin, UserChangePassword, UserOutput
@@ -51,6 +52,7 @@ async def register(
     session.add(user)
     await session.commit()
     tasks.add_task(send_verification_mail, user)
+    logger.info(f"User with id {user.id} created")
 
     return user
 
@@ -62,6 +64,7 @@ async def verify_email(token: str, session: AsyncSession = Depends(get_session))
         user.is_verified = True
         session.add(user)
         await session.commit()
+        logger.info(f"User with id {user.id} verified")
 
 
 @router.post("/login", response_model=dict)
@@ -82,10 +85,12 @@ async def login(user: UserLogin, session: AsyncSession = Depends(get_session)):
 
     is_password_correct: bool = auth_handler.verify_password(user.password, user_found.password)
     if not is_password_correct:
+        logger.info(f"User with email {user.email} type wrong password")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid username or password')
 
     token: str = auth_handler.encode_token(user_found.id)
+    logger.info(f"User with id {user_found.id} got Bearer token")
 
     return {"token": token}
 
@@ -115,3 +120,4 @@ async def change_password(
 
     session.add(user)
     await session.commit()
+    logger.info(f"User with id {user.id} change password")

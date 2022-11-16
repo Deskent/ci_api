@@ -1,4 +1,7 @@
+import datetime
 from pathlib import Path
+
+from loguru import logger
 from pydantic import BaseSettings, EmailStr
 
 
@@ -26,6 +29,7 @@ class Settings(BaseSettings):
     BASE_DIR: str = ''
     MEDIA_DIR: str = ''
     TEMPLATES_DIR: str = ''
+    LOGS_DIR: str = ''
 
 
 BASE_DIR = Path(__file__).parent
@@ -40,4 +44,10 @@ settings.BASE_DIR = BASE_DIR
 settings.MEDIA_DIR = MEDIA_DIR
 settings.TEMPLATES_DIR = TEMPLATES_DIR
 
+current_date = str(datetime.datetime.today().date())
+settings.LOGS_DIR = BASE_DIR / 'logs' / current_date
+
 LEVEL_UP = 70
+MAX_VIDEO = 10
+log_level = 1 if settings.DEBUG else 20
+logger.add(level=log_level, sink=settings.LOGS_DIR / 'ci_api.log')

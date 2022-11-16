@@ -1,8 +1,8 @@
-
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from config import logger
 from database.db import get_session
 from models.models import User, Alarm, Notification
 from schemas.alarms import AlarmBase
@@ -60,6 +60,7 @@ async def delete_user(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     await session.delete(user)
     await session.commit()
+    logger.info(f"User with id {user.id} deleted")
 
     return None
 

@@ -5,11 +5,12 @@ from pathlib import Path
 
 from fastapi import UploadFile, status, HTTPException
 
-from config import settings
+from config import settings, logger, MAX_VIDEO
 from database.db import engine, sessionmaker, AsyncSession
-from models.models import Video
+from models.models import Video, Complex
 
 
+@logger.catch
 async def get_data_for_update(data: dict) -> dict:
     """Returns dictionary excluded None values"""
 
@@ -20,16 +21,19 @@ async def get_data_for_update(data: dict) -> dict:
     }
 
 
+@logger.catch
 def save_video(path: str, file: UploadFile):
     """Save video by path"""
 
     with open(path, 'wb') as buffer:
         shutil.copyfileobj(file.file, buffer)
-    print(f'File saved to {path}')
+    logger.info(f'Video file saved to {path}')
 
 
+@logger.catch
 def _convert_string_to_time(data: str) -> time:
     """Convert string like xx.xxxxxx to time format"""
+
     datalist: list[int] = [int(elem) for elem in data.strip().split('.')]
     microsecond: int = datalist[1]
     second: int = datalist[0]
@@ -79,11 +83,18 @@ async def upload_file(
         engine, class_=AsyncSession
     )
     async with async_session() as session:
-        videos: list[Video] = await Video.get_all_complex_videos(session, complex_id)
-        if len(videos) >= 10:
+        current_complex: Complex = await session.get(Complex, complex_id)
+        if not current_complex:
+            logger.warning(f"Complex {complex_id} not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"Complex with id {complex_id} not found")
+        videos: list[Video] = await Video.get_all_complex_videos(session, current_complex.id)
+        if len(videos) >= MAX_VIDEO:
+            logger.warning(f"For complex {complex_id} exists {MAX_VIDEO} videos")
             raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE,
                                 detail="There is maximum video in this complex")
         if file.content_type != 'video/mp4':
+            logger.warning(f'Unsupported type {file.content_type}')
             raise HTTPException(
                 status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
                 detail=f'Unsupported type {file.content_type}. Must be mp4.'
@@ -91,9 +102,11 @@ async def upload_file(
         full_filename: str = f'{file_name}.mp4'
         file_path: Path = settings.MEDIA_DIR / full_filename
         if file_path.exists():
+            error_text = f'File with name {full_filename} exists.'
+            logger.warning(error_text)
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail=f'File with name {full_filename} exists.'
+                detail=error_text
             )
         save_video(str(file_path), file)
         duration: time = get_video_duration(str(file_path))
@@ -102,5 +115,6 @@ async def upload_file(
             complex_id=complex_id, duration=duration)
         session.add(video)
         await session.commit()
+        logger.info(f"Video {file_name} for complex {current_complex.id} uploaded.")
 
         return video

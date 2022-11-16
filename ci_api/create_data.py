@@ -5,6 +5,7 @@ import asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
 
+from config import logger
 from database.db import engine, drop_db, create_db, db
 from services.auth import AuthHandler
 from models.models import User, Alarm, Notification, Video, Complex
@@ -191,6 +192,7 @@ async def create_notifications(data: list[dict] = None):
 
 
 async def create_fake_data():
+    logger.debug("Create fake data to DB")
     await create_complexes()
     await create_videos()
     await create_users()
