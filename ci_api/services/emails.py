@@ -4,7 +4,7 @@ from fastapi import HTTPException, status
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
 from pydantic import EmailStr, BaseModel
 
-from config import settings
+from config import settings, logger
 from models.models import User
 from services.auth import AuthHandler
 
@@ -28,6 +28,7 @@ conf = ConnectionConfig(
 
 
 async def _send_mail(data: EmailSchema) -> None:
+    logger.debug(f"Sending email for {data.email}")
 
     message = MessageSchema(
         subject="Ci service mailing",
@@ -38,7 +39,7 @@ async def _send_mail(data: EmailSchema) -> None:
     try:
         await FastMail(conf).send_message(message, template_name="email_template.html")
     except ConnectionErrors as err:
-        print(err)
+        logger.error(f"Email sending error: {str(err)}")
         raise HTTPException(status_code=status.HTTP_511_NETWORK_AUTHENTICATION_REQUIRED,
                             detail="Invalid mailing credentials")
 
@@ -50,11 +51,14 @@ async def send_verification_mail(user: User) -> None:
 
 
 async def verify_token_from_email(session, token: str) -> User:
+    logger.debug(f"Verify email token...")
+
     try:
         payload = AuthHandler().verify_email_token(token)
         user: User = await session.get(User, payload["id"])
         if user:
+            logger.debug(f"Verify email token: OK")
             return user
     except jwt.exceptions.DecodeError as err:
-        print(err)
+        logger.error(f"Email token verify: {str(err)}")
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Invalid token")

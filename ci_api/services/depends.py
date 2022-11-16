@@ -2,11 +2,9 @@ from fastapi import HTTPException, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import EmailStr
 
-from services.auth import AuthHandler
 from database.db import get_session
+from services.auth import auth_handler
 from models.models import User
-
-auth_handler = AuthHandler()
 
 
 async def get_logged_user(
@@ -25,12 +23,11 @@ async def get_logged_user(
 
 async def check_user_credentials(
         email: EmailStr,
-        password: str,
-        session: AsyncSession = Depends(get_session)
+        password: str
 ) -> User:
     """Check user and password is correct. Return user instance"""
 
-    user: User = await User.get_user_by_email(session, email)
+    user: User = await User.get_user_by_email(email)
     if not user:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                             detail='Incorrect username or password')

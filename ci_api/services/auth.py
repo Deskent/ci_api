@@ -5,7 +5,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from passlib.context import CryptContext
 import jwt
 
-from config import settings
+from config import settings, logger
 from models.models import User
 
 
@@ -14,12 +14,15 @@ class AuthHandler:
     pwd_context = CryptContext(schemes=['bcrypt'])
     secret = settings.SECRET
 
+    @logger.catch
     def get_password_hash(self, password) -> str:
         return self.pwd_context.hash(password)
 
+    @logger.catch
     def verify_password(self, password, hashed_password) -> bool:
         return self.pwd_context.verify(password, hashed_password)
 
+    @logger.catch
     def encode_token(self, user_id) -> str:
         payload = {
             'exp': datetime.datetime.now() + datetime.timedelta(hours=8),
@@ -28,6 +31,7 @@ class AuthHandler:
         }
         return jwt.encode(payload, self.secret, algorithm='HS256')
 
+    @logger.catch
     def decode_token(self, token) -> str:
         try:
             # TODO verify singnature ?
@@ -39,9 +43,11 @@ class AuthHandler:
         except jwt.InvalidTokenError:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid token')
 
+    @logger.catch
     def auth_wrapper(self, auth: HTTPAuthorizationCredentials = Security(security)) -> str:
         return self.decode_token(auth.credentials)
 
+    @logger.catch
     def get_email_token(self, user: User) -> str:
         payload = {
             "id": user.id,
@@ -49,5 +55,9 @@ class AuthHandler:
         }
         return jwt.encode(payload, self.secret, algorithm='HS256')
 
+    @logger.catch
     def verify_email_token(self, token: str) -> dict:
         return jwt.decode(token, self.secret, algorithms=['HS256'])
+
+
+auth_handler = AuthHandler()

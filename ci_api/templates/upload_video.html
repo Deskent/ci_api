@@ -2,9 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Create Video</title>
+    <title>Upload Video</title>
 </head>
 <body>
+{%  if result == "ok" %}
+<h3>Загрузка {{ video.file_name }} завершена.</h3>
+{%  elif result == "fail" %}
+<h3>Ошибка загрузки файла.</h3>
+{%  endif %}
+
 <form action="/ci_admin/upload" method="post" enctype="multipart/form-data">
     <p><label class="form-label" for="file_name">Имя файла: </label>
         <input type="text" id="file_name" name="file_name"/></p>
@@ -21,3 +27,4 @@
 </form>
 </body>
 </html>
+

@@ -5,18 +5,13 @@ import asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
 
-from database.db import engine, drop_db, create_db, db
-from services.auth import AuthHandler
+from config import logger
+from database.db import engine, drop_db, create_db, db, get_session
+from services.auth import auth_handler
 from models.models import User, Alarm, Notification, Video, Complex
 
 
-auth_handler = AuthHandler()
-
-
 async def create_complexes(data: list[dict] = None):
-    async_session = sessionmaker(
-        engine, class_=AsyncSession
-    )
     if not data:
         data = [
             {
@@ -26,19 +21,12 @@ async def create_complexes(data: list[dict] = None):
                 "description": "complex2"
             }
         ]
-    async with async_session() as session:
 
-        for compl in data:
-            elem = Complex(**compl)
-            session.add(elem)
-
-        await session.commit()
+    for compl in data:
+        await Complex(**compl).save()
 
 
 async def create_videos(data: list[dict] = None):
-    async_session = sessionmaker(
-        engine, class_=AsyncSession
-    )
     if not data:
         data = [
             {
@@ -61,19 +49,11 @@ async def create_videos(data: list[dict] = None):
             },
         ]
 
-    async with async_session() as session:
-
-        for video in data:
-            elem = Video(**video)
-            session.add(elem)
-
-        await session.commit()
+    for video in data:
+        await Video(**video).save()
 
 
 async def create_users(data: list[dict] = None):
-    async_session = sessionmaker(
-        engine, class_=AsyncSession
-    )
     if not data:
         data = [
             {
@@ -118,21 +98,14 @@ async def create_users(data: list[dict] = None):
                 'is_active': False
             },
         ]
-    async with async_session() as session:
-
-        for user in data:
-            expired_at = datetime.utcnow() + timedelta(days=30)
-            user['password'] = auth_handler.get_password_hash(user['password'])
-            user = User(**user, expired_at=expired_at)
-            session.add(user)
-
-        await session.commit()
+    for user in data:
+        expired_at = datetime.utcnow() + timedelta(days=30)
+        user['password'] = auth_handler.get_password_hash(user['password'])
+        user = User(**user, expired_at=expired_at)
+        await user.save()
 
 
 async def create_alarms(data: list[dict] = None):
-    async_session = sessionmaker(
-        engine, class_=AsyncSession
-    )
     if not data:
         data = [
             {
@@ -151,19 +124,11 @@ async def create_alarms(data: list[dict] = None):
                 'user_id': 2
             },
         ]
-    async with async_session() as session:
-
-        for alarm in data:
-            alarm_instance = Alarm(**alarm)
-            session.add(alarm_instance)
-
-        await session.commit()
+    for alarm in data:
+        await Alarm(**alarm).save()
 
 
 async def create_notifications(data: list[dict] = None):
-    async_session = sessionmaker(
-        engine, class_=AsyncSession
-    )
     if not data:
         data = [
             {
@@ -182,29 +147,35 @@ async def create_notifications(data: list[dict] = None):
                 'user_id': 2
             },
         ]
-    async with async_session() as session:
-        for notification in data:
-            elem = Notification(**notification)
-            session.add(elem)
+    for notification in data:
+        await Notification(**notification).save()
 
-        await session.commit()
+
+async def create_test():
+    userdata = {
+                'notification_time': '18:00',
+                'text': 'notification8',
+                'user_id': 1
+            }
+    notif = Notification(**userdata)
+    await notif.save()
 
 
 async def create_fake_data():
+    logger.debug("Create fake data to DB")
     await create_complexes()
     await create_videos()
     await create_users()
     await create_alarms()
     await create_notifications()
+    await create_test()
 
 
 async def recreate(flag: bool = False) -> None:
-    if not db.RECREATE_DB and not flag:
-        return
-
-    await drop_db()
-    await create_db()
-    await create_fake_data()
+    if db.RECREATE_DB or flag:
+        await drop_db()
+        await create_db()
+        await create_fake_data()
 
 
 if __name__ == '__main__':

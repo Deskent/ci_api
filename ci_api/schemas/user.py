@@ -2,6 +2,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, validator, EmailStr
 
+from config import logger
+
 
 class Password(BaseModel):
     password: str
@@ -10,6 +12,7 @@ class Password(BaseModel):
     @validator('password2')
     def password_match(cls, password2, values, **kwargs):
         if 'password' in values and password2 != values['password']:
+            logger.warning("Passwords dont match")
             raise ValueError('passwords don\'t match')
         return password2
 
@@ -24,6 +27,7 @@ class UserRegistration(Password):
     def check_phone(cls, phone: str, values, **kwargs):
         is_phone_valid: bool = len(phone) == 10
         if not is_phone_valid:
+            logger.warning(f"Invalid phone number: {phone}")
             raise ValueError('phone should be in format 9214442233')
         return phone
 

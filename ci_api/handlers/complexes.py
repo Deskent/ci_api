@@ -7,7 +7,7 @@ from models.models import User, Complex, Video
 from schemas.complexes_videos import ComplexData
 from schemas.user import UserProgress
 from services.depends import get_logged_user
-from config import LEVEL_UP
+from config import LEVEL_UP, logger
 
 router = APIRouter(prefix="/complex", tags=['Complexes'])
 
@@ -36,7 +36,6 @@ async def video_viewed(
 
     current_complex: Complex = await session.get(Complex, user.current_complex)
     videos: list[Video] = await Video.get_all_complex_videos(session, user.current_complex)
-    # TODO сделать поле с количеством видео, сделать ограничение в 10 видео на комплекс
     if not videos:
         return UserProgress(**user.dict())
     percent: float = round(1 / len(videos), 1) * 100
@@ -48,6 +47,7 @@ async def video_viewed(
         user.current_complex = current_complex.next_complex_id
     session.add(user)
     await session.commit()
+    logger.debug(f"User with id {user.id} viewed video in complex {current_complex.id}")
 
     return user
 

@@ -8,6 +8,7 @@ from schemas.alarms import AlarmCreate, AlarmUpdate, AlarmBase
 from services.depends import get_logged_user
 from services.utils import get_data_for_update
 from services.weekdays import WeekDay
+from config import logger
 
 router = APIRouter(prefix="/alarms", tags=['Alarms'])
 
@@ -41,12 +42,13 @@ async def create_alarm(
 
     payload: dict = data.dict()
     payload.update({"user_id": user.id})
-    week_days_string: str = WeekDay.to_string(data.weekdays)
-    payload.update(weekdays=week_days_string)
+    week_days: WeekDay = WeekDay(data.weekdays)
+    payload.update(weekdays=week_days.as_string)
     alarm: Alarm = Alarm(**payload)
     session.add(alarm)
     await session.commit()
-    alarm.weekdays = WeekDay.to_list(week_days_string)
+    alarm.weekdays = week_days.as_list
+    logger.info(f"Alarm with id {alarm.id} created")
 
     return alarm
 
@@ -77,7 +79,10 @@ async def create_alarm(
 
 
 @router.delete("/{alarm_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_alarm(alarm_id: int, session: AsyncSession = Depends(get_session)):
+async def delete_alarm(
+        alarm_id: int,
+        session: AsyncSession = Depends(get_session)
+):
     """Delete alarm by its id. Need authorization.
 
     :param alarm_id: integer - Alarm id in database
@@ -90,3 +95,4 @@ async def delete_alarm(alarm_id: int, session: AsyncSession = Depends(get_sessio
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Alarm not found")
     await session.delete(alarm)
     await session.commit()
+    logger.info(f"Alarm with id {alarm_id} deleted")

@@ -1,8 +1,8 @@
-
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from config import logger
 from database.db import get_session
 from models.models import User, Alarm, Notification
 from schemas.alarms import AlarmBase
@@ -14,33 +14,31 @@ router = APIRouter(prefix="/users", tags=['Users'])
 
 @router.get("/alarms", response_model=list[AlarmBase])
 async def get_user_alarms(
-        user: User = Depends(get_logged_user),
-        session: AsyncSession = Depends(get_session)
+        user: User = Depends(get_logged_user)
 ):
     """Get all user alarms. Need authorization.
 
     :return List of alarms as JSON
     """
 
-    alarms: list[Alarm] = await User.get_user_alarms(session, user.id)
+    alarms: list[Alarm] = await User.get_user_alarms(user.id)
     results: list[dict] = [elem.dict() for elem in alarms]
     for alarm in results:
-        alarm['weekdays'] = WeekDay.to_list(alarm['weekdays'])
+        alarm['weekdays'] = WeekDay(alarm['weekdays']).as_list
 
     return results
 
 
 @router.get("/notifications", response_model=list[Notification])
 async def get_user_notifications(
-        user: User = Depends(get_logged_user),
-        session: AsyncSession = Depends(get_session)
+        user: User = Depends(get_logged_user)
 ):
     """Get all user notifications. Need authorization.
 
     :return List of notifications
     """
 
-    return await User.get_user_notifications(session, user.id)
+    return await User.get_user_notifications(user.id)
 
 
 @router.delete("/", status_code=status.HTTP_204_NO_CONTENT)
@@ -60,6 +58,7 @@ async def delete_user(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     await session.delete(user)
     await session.commit()
+    logger.info(f"User with id {user.id} deleted")
 
     return None
 

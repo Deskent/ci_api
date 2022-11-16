@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from config import logger
 from database.db import get_session
 from models.models import Notification, User
 from schemas.notifications import NotificationBase, NotificationUpdate
@@ -28,6 +29,7 @@ async def create_notification(
     notification: Notification = Notification(**data.dict(), user_id=user.id)
     session.add(notification)
     await session.commit()
+    logger.info(f"Notification with id {notification.id} created")
 
     return notification
 
@@ -57,9 +59,11 @@ async def update_notification(
     if not notification:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found")
     updated_data: dict = await get_data_for_update(data.dict())
-    await session.execute(update(Notification).where(Notification.id == notification_id).values(**updated_data))
+    query = update(Notification).where(Notification.id == notification_id).values(**updated_data)
+    await session.execute(query)
     session.add(notification)
     await session.commit()
+    logger.info(f"Notification with id {notification_id} updated")
 
     return notification
 
@@ -81,3 +85,4 @@ async def delete_notification(notification_id: int, session: AsyncSession = Depe
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found")
     await session.delete(notification)
     await session.commit()
+    logger.info(f"Notification with id {notification_id} deleted")
