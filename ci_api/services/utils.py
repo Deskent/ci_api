@@ -79,47 +79,41 @@ async def upload_file(
     """Check max videos in complex. Check video format. Save video file.
     Calculate video duration. Save row to database."""
 
-    async_session = sessionmaker(
-        engine, class_=AsyncSession
-    )
-    async for session in get_session():
-        current_complex: Complex = await session.get(Complex, complex_id)
-        if not current_complex:
-            logger.warning(f"Complex {complex_id} not found")
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                                detail=f"Complex with id {complex_id} not found")
-        videos: list[Video] = await Video.get_all_complex_videos(session, current_complex.id)
-        if len(videos) >= MAX_VIDEO:
-            logger.warning(f"For complex {complex_id} exists {MAX_VIDEO} videos")
-            raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE,
-                                detail="There is maximum video in this complex")
-        if file.content_type != 'video/mp4':
-            logger.warning(f'Unsupported type {file.content_type}')
-            raise HTTPException(
-                status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-                detail=f'Unsupported type {file.content_type}. Must be mp4.'
-            )
-        full_filename: str = f'{file_name}.mp4'
-        file_path: Path = settings.MEDIA_DIR / full_filename
-        if file_path.exists():
-            error_text = f'File with name {full_filename} exists.'
-            logger.warning(error_text)
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=error_text
-            )
-        save_video(str(file_path), file)
-        duration: time = get_video_duration(str(file_path))
-        video = Video(
-            file_name=full_filename, description=description, name=name,
-            complex_id=complex_id, duration=duration)
-        session.add(video)
-        await session.commit()
+    current_complex: Complex = await Complex.get_by_id(complex_id)
+    if not current_complex:
+        logger.warning(f"Complex {complex_id} not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"Complex with id {complex_id} not found")
+    videos: list[Video] = await Video.get_all_complex_videos(current_complex.id)
+    if len(videos) >= MAX_VIDEO:
+        logger.warning(f"For complex {complex_id} exists {MAX_VIDEO} videos")
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE,
+                            detail="There is maximum video in this complex")
+    if file.content_type != 'video/mp4':
+        logger.warning(f'Unsupported type {file.content_type}')
+        raise HTTPException(
+            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+            detail=f'Unsupported type {file.content_type}. Must be mp4.'
+        )
+    full_filename: str = f'{file_name}.mp4'
+    file_path: Path = settings.MEDIA_DIR / full_filename
+    if file_path.exists():
+        error_text = f'File with name {full_filename} exists.'
+        logger.warning(error_text)
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=error_text
+        )
+    save_video(str(file_path), file)
+    duration: time = get_video_duration(str(file_path))
+    video = Video(
+        file_name=full_filename, description=description, name=name,
+        complex_id=complex_id, duration=duration)
+    await video.save()
 
-        current_complex.video_count += 1
-        session.add(current_complex)
-        await session.commit()
+    current_complex.video_count += 1
+    await current_complex.save()
 
-        logger.info(f"Video {file_name} for complex {current_complex.id} uploaded.")
+    logger.info(f"Video {file_name} for complex {current_complex.id} uploaded.")
 
-        return video
+    return video

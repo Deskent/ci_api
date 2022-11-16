@@ -4,7 +4,6 @@ from typing import Optional, List
 from pydantic import EmailStr
 from sqlalchemy import select
 from sqlalchemy.engine import Row
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import SQLModel, Field, Relationship
 
 from database.db import get_session
@@ -26,6 +25,11 @@ class BaseSQLModel(SQLModel):
                 session.add(self)
                 await session.commit()
         return self
+
+    @classmethod
+    async def get_by_id(cls, id: int):
+        async for session in get_session():
+            return await session.get(cls, id)
 
 
 class Alarm(BaseSQLModel, table=True):
@@ -94,11 +98,9 @@ class Video(BaseSQLModel, table=True):
         return f"{self.name}"
 
     @classmethod
-    async def get_all_complex_videos(
-            cls: 'Video', session: AsyncSession, complex_id: int
-    ) -> list['Video']:
+    async def get_all_complex_videos(cls: 'Video', complex_id: int) -> list['Video']:
         query = select(Video).where(Video.complex_id == complex_id)
-        videos_row = await session.execute(query)
+        videos_row = await cls._exec_in_session(query)
 
         return videos_row.scalars().all()
 

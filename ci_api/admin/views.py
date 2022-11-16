@@ -65,11 +65,11 @@ class UploadVideo(BaseView):
         form: FormData = await request.form()
         data = VideoUpload(**{k: v for k, v in form.items()})
         logger.debug(f"Load file with data: {data}")
-        if await upload_file(**data.dict()):
+        if video := await upload_file(**data.dict()):
             logger.debug(f"Load file with data: OK")
             return self.templates.TemplateResponse(
                 "upload_video.html",
-                context={"request": request, "result": "ok"},
+                context={"request": request, "result": "ok", "video": video},
             )
 
         logger.debug(f"Load file with data: FAIL")

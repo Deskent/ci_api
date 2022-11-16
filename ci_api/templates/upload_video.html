@@ -6,7 +6,7 @@
 </head>
 <body>
 {%  if result == "ok" %}
-<h3>Загрузка завершена.</h3>
+<h3>Загрузка {{ video.file_name }} завершена.</h3>
 {%  elif result == "fail" %}
 <h3>Ошибка загрузки файла.</h3>
 {%  endif %}
