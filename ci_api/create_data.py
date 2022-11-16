@@ -172,12 +172,10 @@ async def create_fake_data():
 
 
 async def recreate(flag: bool = False) -> None:
-    if not db.RECREATE_DB and not flag:
-        return
-
-    await drop_db()
-    await create_db()
-    await create_fake_data()
+    if db.RECREATE_DB or flag:
+        await drop_db()
+        await create_db()
+        await create_fake_data()
 
 
 if __name__ == '__main__':
