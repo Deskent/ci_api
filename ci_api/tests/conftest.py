@@ -8,6 +8,8 @@ from pydantic import EmailStr, BaseSettings
 from pydantic.dataclasses import dataclass
 
 from services.auth import AuthHandler
+from main import app
+from fastapi.testclient import TestClient
 
 
 class Config(BaseSettings):
@@ -50,6 +52,8 @@ class TestUser(CreateUser):
 def test_app():
     with requests.Session() as session:
         yield session
+    # with TestClient(app) as session:
+    #     yield session
 
 
 @pytest.fixture
@@ -82,3 +86,15 @@ def token(base_url, get_bearer):
     response = requests.get(base_url + "/users/me", headers=get_bearer)
     user = TestUser(**response.json())
     return AuthHandler().get_email_token(user)
+
+
+@pytest.fixture
+def new_alarm():
+    return {
+        "alarm_time": "10:10",
+        "weekdays": ["monday", "friday"],
+        "sound_name": "some name",
+        "volume": 20,
+        "vibration": False,
+        "text": "test"
+    }

@@ -62,3 +62,19 @@ class TestUsers:
     def test_get_video_by_id(self, setUp):
         response = self.session.get(self.base_url + "/videos/1", headers=self.headers)
         assert response.status_code == 200
+
+    def test_get_notification_by_id(self, setUp):
+        response = self.session.get(self.base_url + "/notifications/1", headers=self.headers)
+        assert response.status_code == 200
+
+    def test_create_alarm(self, setUp, new_alarm):
+        response = self.session.post(self.base_url + "/alarms", headers=self.headers, json=new_alarm)
+        assert response.status_code == 200
+        alarm_id = response.json().get("id")
+        assert alarm_id
+
+        response = self.session.get(self.base_url + f"/alarms/{alarm_id}", headers=self.headers)
+        assert response.status_code == 200
+
+        response = self.session.delete(self.base_url + f"/alarms/{alarm_id}", headers=self.headers)
+        assert response.status_code == 204

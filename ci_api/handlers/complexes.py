@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import select
 
 from database.db import get_session
 from models.models import User, Complex, Video
@@ -35,7 +36,9 @@ async def video_viewed(
     """
 
     current_complex: Complex = await session.get(Complex, user.current_complex)
-    videos: list[Video] = await Video.get_all_complex_videos(session, user.current_complex)
+    query = select(Video).where(Video.complex_id == user.current_complex)
+    videos_row = await session.execute(query)
+    videos: list[Video] = videos_row.scalars().all()
     if not videos:
         return UserProgress(**user.dict())
     percent: float = round(1 / len(videos), 1) * 100
@@ -62,7 +65,9 @@ async def complex_data(
     complex_: Complex = await session.get(Complex, complex_id)
     if not complex_:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Complex not found")
-    videos: list[Video] = await Video.get_all_complex_videos(session, complex_id)
+    query = select(Video).where(Video.complex_id == complex_id)
+    videos_row = await session.execute(query)
+    videos: list[Video] = videos_row.scalars().all()
     result = ComplexData(**complex_.dict(), videos=videos)
 
     return result

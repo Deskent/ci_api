@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
 from config import logger
 from database.db import get_session
@@ -14,14 +15,18 @@ router = APIRouter(prefix="/users", tags=['Users'])
 
 @router.get("/alarms", response_model=list[AlarmBase])
 async def get_user_alarms(
-        user: User = Depends(get_logged_user)
+        user: User = Depends(get_logged_user),
+        session: AsyncSession = Depends(get_session)
 ):
     """Get all user alarms. Need authorization.
 
     :return List of alarms as JSON
     """
 
-    alarms: list[Alarm] = await User.get_user_alarms(user.id)
+    query = select(Alarm).join(User).where(User.id == user.id)
+    response = await session.execute(query)
+
+    alarms = response.scalars().all()
     results: list[dict] = [elem.dict() for elem in alarms]
     for alarm in results:
         alarm['weekdays'] = WeekDay(alarm['weekdays']).as_list
@@ -33,32 +38,30 @@ async def get_user_alarms(
 
 @router.get("/notifications", response_model=list[Notification])
 async def get_user_notifications(
-        user: User = Depends(get_logged_user)
+        user: User = Depends(get_logged_user),
+        session: AsyncSession = Depends(get_session)
 ):
     """Get all user notifications. Need authorization.
 
     :return List of notifications
     """
 
-    result = await User.get_user_notifications(user.id)
+    query = select(Notification).join(User).where(User.id == user.id)
+    notifications = await session.execute(query)
     logger.info(f"User with id {user.id} request notifications")
 
-    return result
+    return notifications.scalars().all()
 
 
-@router.get("/me")
+@router.get("/me", response_model=User)
 async def get_me(
-        user: User = Depends(get_logged_user),
-        session: AsyncSession = Depends(get_session)
+        user: User = Depends(get_logged_user)
 ):
     """
     Get user info. Need authorization.
 
     :return: User as JSON
     """
-
-    if not (user := await session.get(User, user.id)):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
     logger.info(f"User with id {user.id} request @me")
 
