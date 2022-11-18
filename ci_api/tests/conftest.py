@@ -1,17 +1,29 @@
 from datetime import datetime, timedelta
+from pathlib import Path
 
 import pytest
 import requests
-from pydantic import EmailStr
+
+from pydantic import EmailStr, BaseSettings
 from pydantic.dataclasses import dataclass
 
 from services.auth import AuthHandler
 
 
+class Config(BaseSettings):
+    SERVER_HOST: str = "127.0.0.1"
+    SERVER_PORT: int = 8000
+
+
+BASE_DIR = Path(__file__).parent.parent
+env_file = BASE_DIR / '.env'
+test_config = Config(_env_file=env_file, _env_file_encoding='utf-8')
+
+
 @dataclass
 class CreateUser:
     username: str = "test"
-    email: EmailStr = "test@test.ru"
+    email: EmailStr = "test@mail.ru"
     phone: str = "9998887711"
     password: str = "testpassword"
     password2: str = "testpassword"
@@ -35,8 +47,14 @@ class TestUser(CreateUser):
 
 
 @pytest.fixture
+def test_app():
+    with requests.Session() as session:
+        yield session
+
+
+@pytest.fixture
 def base_url():
-    return "http://127.0.0.1:8000/api/v1"
+    return f"http://{test_config.SERVER_HOST}:{test_config.SERVER_PORT}/api/v1"
 
 
 @pytest.fixture

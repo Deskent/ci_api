@@ -49,8 +49,8 @@ async def register(
         current_complex=1, is_admin=False, is_active=True, expired_at=expired_at
     )
     await user.save()
-    tasks.add_task(send_verification_mail, user)
-    logger.info(f"User with id {user.id} created")
+    # tasks.add_task(send_verification_mail, user)
+    # logger.info(f"User with id {user.id} created")
 
     return user
 
