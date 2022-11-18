@@ -26,6 +26,8 @@ async def get_user_alarms(
     for alarm in results:
         alarm['weekdays'] = WeekDay(alarm['weekdays']).as_list
 
+    logger.info(f"User with id {user.id} request alarms")
+
     return results
 
 
@@ -38,7 +40,29 @@ async def get_user_notifications(
     :return List of notifications
     """
 
-    return await User.get_user_notifications(user.id)
+    result = await User.get_user_notifications(user.id)
+    logger.info(f"User with id {user.id} request notifications")
+
+    return result
+
+
+@router.get("/me")
+async def get_me(
+        user: User = Depends(get_logged_user),
+        session: AsyncSession = Depends(get_session)
+):
+    """
+    Get user info. Need authorization.
+
+    :return: User as JSON
+    """
+
+    if not (user := await session.get(User, user.id)):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    logger.info(f"User with id {user.id} request @me")
+
+    return user
 
 
 @router.delete("/", status_code=status.HTTP_204_NO_CONTENT)
@@ -61,37 +85,6 @@ async def delete_user(
     logger.info(f"User with id {user.id} deleted")
 
     return None
-
-#
-
-# @router.get("/{user_id}", response_model=UserOutput)
-# async def get_user(user_id: int, session: AsyncSession = Depends(get_session)):
-#     """Get user by user_id
-#
-#     :param user_id: int - User database ID
-#
-#     :return: User information as JSON
-#     """
-#
-#     if not (user := await User.get_user_by_id(session, user_id)):
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-#
-#     return user
-
-
-# @router.post("/get_id")
-# async def get_user_id_by_email(email: EmailStr, session: AsyncSession = Depends(get_session)):
-#     """Get user_id by email
-#
-#     :param email: string - User email
-#
-#     :return: User id
-#     """
-#
-#     if not (user := await User.get_user_by_email(session, email)):
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-#
-#     return user.id
 
 
 # @router.put(

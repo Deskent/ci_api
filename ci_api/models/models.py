@@ -3,7 +3,6 @@ from typing import Optional, List
 
 from pydantic import EmailStr
 from sqlalchemy import select
-from sqlalchemy.engine import Row
 from sqlmodel import SQLModel, Field, Relationship
 
 from database.db import get_session
@@ -113,7 +112,7 @@ class User(BaseSQLModel, table=True):
     email: EmailStr = Field(unique=True, index=True)
     phone: str = Field(unique=True, nullable=False, min_length=10, max_length=13,
                        description="Телефон в формате 9998887766")
-    password: str = Field(nullable=False, max_length=256, min_length=6)
+    password: str = Field(nullable=False, max_length=256, min_length=6, exclude=True)
     gender: bool = Field(nullable=False, description='Пол, 1 - муж, 0 - жен')
     level: int = Field(nullable=False, default=1, description="Текущий уровень")
     progress: int = Field(nullable=False, default=0,
@@ -155,7 +154,7 @@ class User(BaseSQLModel, table=True):
     @classmethod
     async def get_user_notifications(cls, user_id: int) -> list[Notification]:
         query = select(Notification).join(User).where(User.id == user_id)
-        notifications: Row = await cls._exec_in_session(query)
+        notifications = await cls._exec_in_session(query)
 
         return notifications.scalars().all()
 
