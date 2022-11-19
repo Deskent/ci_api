@@ -1,26 +1,13 @@
 from datetime import datetime, timedelta
-from pathlib import Path
 
 import fastapi.testclient
-import httpx
 import pytest
-import requests
 
-from pydantic import EmailStr, BaseSettings
+from pydantic import EmailStr
 from pydantic.dataclasses import dataclass
 
 from services.auth import AuthHandler
 from main import app
-
-
-class Config(BaseSettings):
-    SERVER_HOST: str = "127.0.0.1"
-    SERVER_PORT: int = 8000
-
-
-BASE_DIR = Path(__file__).parent.parent
-env_file = BASE_DIR / '.env'
-test_config = Config(_env_file=env_file, _env_file_encoding='utf-8')
 
 
 @dataclass
@@ -56,23 +43,15 @@ def get_app():
 
 @pytest.fixture(scope='session')
 def get_test_app(get_app):
-    with fastapi.testclient.TestClient(app=get_app) as session:
+    client = fastapi.testclient.TestClient(app=get_app)
+    with client as session:
         yield session
-
-
-@pytest.fixture
-def test_app():
-    with requests.Session() as session:
-        yield session
-    # with TestClient(app) as session:
-    #     yield session
 
 
 @pytest.fixture
 def base_url():
-    # return f"http://{test_config.SERVER_HOST}:{test_config.SERVER_PORT}/api/v1"
     return "/api/v1"
-    # return ""
+
 
 @pytest.fixture
 def user_payload():
@@ -86,7 +65,7 @@ def user_create():
 
 
 @pytest.fixture
-def get_bearer(user_payload, base_url, get_test_app):
+def get_bearer(get_test_app, base_url, user_payload):
     url = base_url + "/auth/login"
     response = get_test_app.post(url, json=user_payload)
     token = response.json().get('token')
@@ -95,8 +74,8 @@ def get_bearer(user_payload, base_url, get_test_app):
 
 
 @pytest.fixture
-def token(base_url, get_bearer):
-    response = requests.get(base_url + "/users/me", headers=get_bearer)
+def token(get_test_app, base_url, get_bearer):
+    response = get_test_app.get(base_url + "/users/me", headers=get_bearer)
     user = TestUser(**response.json())
     return AuthHandler().get_email_token(user)
 
@@ -106,8 +85,8 @@ def new_alarm():
     return {
         "alarm_time": "10:10",
         "weekdays": ["monday", "friday"],
-        "sound_name": "some name",
+        "sound_name": "test name",
         "volume": 20,
         "vibration": False,
-        "text": "test"
+        "text": "test text"
     }

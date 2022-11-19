@@ -2,11 +2,8 @@ from datetime import datetime, timedelta
 
 import asyncio
 
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import sessionmaker
-
 from config import logger
-from database.db import engine, drop_db, create_db, db, get_session
+from database.db import drop_db, create_db, db
 from services.auth import auth_handler
 from models.models import User, Alarm, Notification, Video, Complex
 
