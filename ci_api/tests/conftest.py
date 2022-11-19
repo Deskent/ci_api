@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta
 from pathlib import Path
 
+import fastapi.testclient
+import httpx
 import pytest
 import requests
 
@@ -9,7 +11,6 @@ from pydantic.dataclasses import dataclass
 
 from services.auth import AuthHandler
 from main import app
-from fastapi.testclient import TestClient
 
 
 class Config(BaseSettings):
@@ -48,6 +49,17 @@ class TestUser(CreateUser):
     current_complex: int = 1
 
 
+@pytest.fixture(scope='session')
+def get_app():
+    return app
+
+
+@pytest.fixture(scope='session')
+def get_test_app(get_app):
+    with fastapi.testclient.TestClient(app=get_app) as session:
+        yield session
+
+
 @pytest.fixture
 def test_app():
     with requests.Session() as session:
@@ -58,8 +70,9 @@ def test_app():
 
 @pytest.fixture
 def base_url():
-    return f"http://{test_config.SERVER_HOST}:{test_config.SERVER_PORT}/api/v1"
-
+    # return f"http://{test_config.SERVER_HOST}:{test_config.SERVER_PORT}/api/v1"
+    return "/api/v1"
+    # return ""
 
 @pytest.fixture
 def user_payload():
@@ -73,9 +86,9 @@ def user_create():
 
 
 @pytest.fixture
-def get_bearer(user_payload, base_url):
+def get_bearer(user_payload, base_url, get_test_app):
     url = base_url + "/auth/login"
-    response = requests.post(url, json=user_payload)
+    response = get_test_app.post(url, json=user_payload)
     token = response.json().get('token')
 
     return {'Authorization': f"Bearer {token}"}

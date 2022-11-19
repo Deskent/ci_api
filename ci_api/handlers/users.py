@@ -87,8 +87,6 @@ async def delete_user(
     await session.commit()
     logger.info(f"User with id {user.id} deleted")
 
-    return None
-
 
 # @router.put(
 #     path="/{user_id}",

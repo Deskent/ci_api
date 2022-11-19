@@ -1,6 +1,7 @@
 import pytest
 
 
+@pytest.mark.skip
 class TestUsers:
 
     def create_user(self):
