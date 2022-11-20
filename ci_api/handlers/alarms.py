@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.db import get_session
 from models.models import Alarm, User
-from schemas.alarms import AlarmCreate, AlarmUpdate, AlarmBase
+from schemas.alarms import AlarmCreate, AlarmFull, AlarmBase
 from services.depends import get_logged_user
 from services.utils import get_data_for_update
 from services.weekdays import WeekDay
@@ -13,7 +13,10 @@ from config import logger
 router = APIRouter(prefix="/alarms", tags=['Alarms'])
 
 
-@router.post("/", response_model=AlarmBase)
+@router.post(
+    "/",
+    response_model=AlarmFull
+)
 async def create_alarm(
     data: AlarmCreate,
     user: User = Depends(get_logged_user),
@@ -52,6 +55,24 @@ async def create_alarm(
 
     return alarm
 
+
+@router.get(
+    "/{alarm_id}",
+    response_model=AlarmFull,
+    status_code=200
+)
+async def get_alarm(
+        alarm_id: int,
+        user: User = Depends(get_logged_user),
+        session: AsyncSession = Depends(get_session)
+):
+    alarm: Alarm = await session.get(Alarm, alarm_id)
+    if alarm and alarm.user_id == user.id:
+        alarm.weekdays = WeekDay(alarm.weekdays).as_list
+        return alarm
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Alarm not found")
+
+
 # TODO сделать
 # @router.put("/{alarm_id}", response_model=Alarm)
 # async def update_alarm(alarm_id: int, data: AlarmUpdate, session: AsyncSession = Depends(get_session)):
@@ -78,7 +99,11 @@ async def create_alarm(
 #     return alarm
 
 
-@router.delete("/{alarm_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{alarm_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(get_logged_user)]
+)
 async def delete_alarm(
         alarm_id: int,
         session: AsyncSession = Depends(get_session)

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
 from config import logger
 from database.db import get_session
@@ -14,31 +15,56 @@ router = APIRouter(prefix="/users", tags=['Users'])
 
 @router.get("/alarms", response_model=list[AlarmBase])
 async def get_user_alarms(
-        user: User = Depends(get_logged_user)
+        user: User = Depends(get_logged_user),
+        session: AsyncSession = Depends(get_session)
 ):
     """Get all user alarms. Need authorization.
 
     :return List of alarms as JSON
     """
 
-    alarms: list[Alarm] = await User.get_user_alarms(user.id)
-    results: list[dict] = [elem.dict() for elem in alarms]
-    for alarm in results:
+    query = select(Alarm).join(User).where(User.id == user.id)
+    response = await session.execute(query)
+    alarms: list[dict] = [elem.dict() for elem in response.scalars().all()]
+
+    for alarm in alarms:
         alarm['weekdays'] = WeekDay(alarm['weekdays']).as_list
 
-    return results
+    logger.info(f"User with id {user.id} request alarms")
+
+    return alarms
 
 
 @router.get("/notifications", response_model=list[Notification])
 async def get_user_notifications(
-        user: User = Depends(get_logged_user)
+        user: User = Depends(get_logged_user),
+        session: AsyncSession = Depends(get_session)
 ):
     """Get all user notifications. Need authorization.
 
     :return List of notifications
     """
 
-    return await User.get_user_notifications(user.id)
+    query = select(Notification).join(User).where(User.id == user.id)
+    notifications = await session.execute(query)
+    logger.info(f"User with id {user.id} request notifications")
+
+    return notifications.scalars().all()
+
+
+@router.get("/me", response_model=User)
+async def get_me(
+        user: User = Depends(get_logged_user)
+):
+    """
+    Get user info. Need authorization.
+
+    :return: User as JSON
+    """
+
+    logger.info(f"User with id {user.id} request @me")
+
+    return user
 
 
 @router.delete("/", status_code=status.HTTP_204_NO_CONTENT)
@@ -59,39 +85,6 @@ async def delete_user(
     await session.delete(user)
     await session.commit()
     logger.info(f"User with id {user.id} deleted")
-
-    return None
-
-#
-
-# @router.get("/{user_id}", response_model=UserOutput)
-# async def get_user(user_id: int, session: AsyncSession = Depends(get_session)):
-#     """Get user by user_id
-#
-#     :param user_id: int - User database ID
-#
-#     :return: User information as JSON
-#     """
-#
-#     if not (user := await User.get_user_by_id(session, user_id)):
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-#
-#     return user
-
-
-# @router.post("/get_id")
-# async def get_user_id_by_email(email: EmailStr, session: AsyncSession = Depends(get_session)):
-#     """Get user_id by email
-#
-#     :param email: string - User email
-#
-#     :return: User id
-#     """
-#
-#     if not (user := await User.get_user_by_email(session, email)):
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-#
-#     return user.id
 
 
 # @router.put(

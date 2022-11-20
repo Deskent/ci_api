@@ -1,6 +1,7 @@
 import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import select
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.background import BackgroundTasks
@@ -16,10 +17,11 @@ from models.models import User
 router = APIRouter(prefix="/auth", tags=['Authorization'])
 
 
-@router.post("/register", response_model=UserOutput)
+@router.post("/register", response_model=User)
 async def register(
+        tasks: BackgroundTasks,
         user_data: UserRegistration,
-        tasks: BackgroundTasks
+        session: AsyncSession = Depends(get_session)
 ):
     """
     Create new user in database if not exists
@@ -38,8 +40,10 @@ async def register(
 
     :return: User created information as JSON
     """
-
-    if await User.get_user_by_email(user_data.email):
+    query = select(User).where(User.email == user_data.email)
+    response = await session.execute(query)
+    user = response.scalars().first()
+    if user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='User exists')
 
     user_data.password = auth_handler.get_password_hash(user_data.password)
@@ -48,7 +52,8 @@ async def register(
         **user_data.dict(), is_verified=False,
         current_complex=1, is_admin=False, is_active=True, expired_at=expired_at
     )
-    await user.save()
+    session.add(user)
+    await session.commit()
     tasks.add_task(send_verification_mail, user)
     logger.info(f"User with id {user.id} created")
 
@@ -56,17 +61,27 @@ async def register(
 
 
 @router.get("/verify_email", status_code=status.HTTP_202_ACCEPTED)
-async def verify_email(token: str, session: AsyncSession = Depends(get_session)):
-    user: User = await verify_token_from_email(session, token)
-    if not user.is_verified:
+async def verify_email(
+        token: str,
+        session: AsyncSession = Depends(get_session)
+):
+    user_id: str = await verify_token_from_email(token=token)
+    user: User = await session.get(User, user_id)
+    if user and not user.is_verified:
         user.is_verified = True
         session.add(user)
         await session.commit()
         logger.info(f"User with id {user.id} verified")
+    logger.debug(f"Verify email token: OK")
+
+    return user
 
 
 @router.post("/login", response_model=dict)
-async def login(user: UserLogin):
+async def login(
+        user: UserLogin,
+        session: AsyncSession = Depends(get_session)
+):
     """Get user authorization token
 
     :param email: string - E-mail
@@ -76,7 +91,9 @@ async def login(user: UserLogin):
      :return: Authorization token as JSON
     """
 
-    user_found: User = await User.get_user_by_email(user.email)
+    query = select(User).where(User.email == user.email)
+    response = await session.execute(query)
+    user_found = response.scalars().first()
     if not user_found:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid username or password')
@@ -115,7 +132,6 @@ async def change_password(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid username or password')
     user.password = auth_handler.get_password_hash(data.password)
-
     session.add(user)
     await session.commit()
     logger.info(f"User with id {user.id} change password")

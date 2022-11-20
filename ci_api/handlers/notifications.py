@@ -16,7 +16,8 @@ router = APIRouter(prefix="/notifications", tags=['Notifications'])
 async def create_notification(
         data: NotificationBase,
         user: User = Depends(get_logged_user),
-        session: AsyncSession = Depends(get_session)):
+        session: AsyncSession = Depends(get_session)
+):
     """Create notification for user by user database id
 
     :param notification_time: string - Time in format HH:MM[:SS[.ffffff]][Z or [±]HH[:]MM]]]
@@ -34,6 +35,21 @@ async def create_notification(
     return notification
 
 
+@router.get(
+    "/{notification_id}",
+    response_model=NotificationUpdate
+)
+async def get_notification(
+        notification_id: int,
+        session: AsyncSession = Depends(get_session),
+        user: User = Depends(get_logged_user)
+):
+    notification = await session.get(Notification, notification_id)
+    if notification and notification.user_id == user.id:
+        return notification
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found")
+
+
 @router.put(
     "/{notification_id}",
     response_model=NotificationUpdate,
@@ -42,7 +58,8 @@ async def create_notification(
 async def update_notification(
         notification_id: int,
         data: NotificationBase,
-        session: AsyncSession = Depends(get_session)):
+        session: AsyncSession = Depends(get_session)
+):
     """
     Update notification by id. Need authorization.
 
@@ -58,6 +75,7 @@ async def update_notification(
     notification: Notification = await session.get(Notification, notification_id)
     if not notification:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found")
+
     updated_data: dict = await get_data_for_update(data.dict())
     query = update(Notification).where(Notification.id == notification_id).values(**updated_data)
     await session.execute(query)
@@ -73,7 +91,10 @@ async def update_notification(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(get_logged_user)]
 )
-async def delete_notification(notification_id: int, session: AsyncSession = Depends(get_session)):
+async def delete_notification(
+        notification_id: int,
+        session: AsyncSession = Depends(get_session)
+):
     """Delete notification by its id. Need authorization.
 
     :param notification_id: integer - Notification id in database
@@ -85,4 +106,5 @@ async def delete_notification(notification_id: int, session: AsyncSession = Depe
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found")
     await session.delete(notification)
     await session.commit()
+
     logger.info(f"Notification with id {notification_id} deleted")

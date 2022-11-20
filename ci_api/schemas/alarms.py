@@ -18,3 +18,7 @@ class AlarmCreate(AlarmBase):
 
 class AlarmUpdate(AlarmCreate):
     pass
+
+
+class AlarmFull(AlarmBase):
+    id: int

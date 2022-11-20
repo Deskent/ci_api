@@ -50,15 +50,12 @@ async def send_verification_mail(user: User) -> None:
     await _send_mail(data)
 
 
-async def verify_token_from_email(session, token: str) -> User:
+async def verify_token_from_email(token: str) -> str:
     logger.debug(f"Verify email token...")
 
     try:
         payload = AuthHandler().verify_email_token(token)
-        user: User = await session.get(User, payload["id"])
-        if user:
-            logger.debug(f"Verify email token: OK")
-            return user
+        return payload["id"]
     except jwt.exceptions.DecodeError as err:
         logger.error(f"Email token verify: {str(err)}")
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Invalid token")
