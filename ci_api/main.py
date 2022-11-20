@@ -58,7 +58,7 @@ def get_application():
     return app
 
 
-app = get_application()
+app: FastAPI = get_application()
 
 
 if __name__ == '__main__':
