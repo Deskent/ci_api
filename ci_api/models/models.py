@@ -47,7 +47,8 @@ class Complex(SQLModel, table=True):
     duration: time = Field(nullable=True, default=None, description="Длительность комплекса")
     video_count: int = Field(nullable=True, default=0, description="Количество видео в комплексе")
 
-    videos: List["Video"] = Relationship(back_populates="complexes")
+    videos: List["Video"] = Relationship(
+        back_populates="complexes", sa_relationship_kwargs={"cascade": "delete"})
 
     def __str__(self):
         return f"{self.id}-{self.description}"
@@ -91,8 +92,10 @@ class User(SQLModel, table=True):
     is_active: Optional[bool] = Field(default=False)
 
     current_complex: Optional[int] = Field(nullable=True, default=1, foreign_key='complexes.id')
-    alarms: List[Alarm] = Relationship(back_populates="users")
-    notifications: List[Notification] = Relationship(back_populates="users")
+    alarms: List[Alarm] = Relationship(
+        back_populates="users", sa_relationship_kwargs={"cascade": "delete"})
+    notifications: List[Notification] = Relationship(
+        back_populates="users", sa_relationship_kwargs={"cascade": "delete"})
 
     def __str__(self):
         return f"{self.username}"

@@ -65,8 +65,6 @@ class TestUsers:
         self.alarm_id = self.create_alarm(new_alarm)
         self.notification_id = self.create_notification(new_notification=new_notification)
         yield self.headers
-        self.delete_alarm()
-        self.delete_notification()
         self.delete_user()
 
     @pytest.mark.asyncio
