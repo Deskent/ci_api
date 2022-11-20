@@ -1,72 +1,20 @@
 import pytest
 
-from services.auth import AuthHandler
-
 
 class TestUsers:
 
-    def create_user(self):
-        response = self.session.post(self.base_url + "/auth/register", json=self.user_create)
-        assert response.status_code == 200
-
-        response = self.session.post(self.base_url + "/auth/login", json=self.user_payload)
-        assert response.status_code == 200
-        token = response.json().get('token')
-
-        return {'Authorization': f"Bearer {token}"}
-
-    def create_alarm(self, new_alarm):
-        response = self.session.post(
-            self.base_url + "/alarms", headers=self.headers, json=new_alarm,
-            allow_redirects=True
-        )
-        assert response.status_code == 200
-        alarm_id = response.json().get("id")
-        assert alarm_id
-        return alarm_id
-
-    def create_notification(self, new_notification):
-        response = self.session.post(
-            self.base_url + "/notifications", headers=self.headers, json=new_notification,
-            allow_redirects=True
-        )
-        assert response.status_code == 200
-        notification_id = response.json().get("id")
-        assert notification_id
-        return notification_id
-
-    def get_token(self):
-        response = self.session.get(
-            self.base_url + "/users/me", headers=self.headers)
-        assert response.status_code == 200
-        user_id = response.json().get('id')
-        assert user_id
-        user = self.test_user(id=user_id)
-        token = AuthHandler().get_email_token(user)
-
-        return token
-
-    def delete_user(self):
-        response = self.session.delete(self.base_url + "/users",
-            headers=self.headers, allow_redirects=True)
-        assert response.status_code == 204
-
     @pytest.fixture(autouse=True)
-    def setUp(
-            self, get_test_app, base_url, user_create, user_payload, new_alarm, new_notification,
-            test_user
-    ):
-        self.session = get_test_app
-        self.test_user = test_user
-        self.base_url = base_url
-        self.user_create = user_create
-        self.user_payload = user_payload
-        self.headers = self.create_user()
-        self.token = self.get_token()
-        self.alarm_id = self.create_alarm(new_alarm)
-        self.notification_id = self.create_notification(new_notification=new_notification)
+    def setUp(self, setup_class):
+        self.session = setup_class.session
+        self.test_user = setup_class.test_user
+        self.base_url = setup_class.base_url
+        self.user_create = setup_class.user_create
+        self.user_payload = setup_class.user_payload
+        self.headers = setup_class.headers
+        self.email_token = setup_class.email_token
+        self.alarm_id = setup_class.alarm_id
+        self.notification_id = setup_class.notification_id
         yield self.headers
-        self.delete_user()
 
     def test_get_me(self):
         response = self.session.get(self.base_url + "/users/me", headers=self.headers)
@@ -74,7 +22,7 @@ class TestUsers:
         assert response.json().get("id") is not None
 
     def test_verify_email(self):
-        url = self.base_url + "/auth/verify_email" + f"?token={self.token}"
+        url = self.base_url + "/auth/verify_email" + f"?token={self.email_token}"
         response = self.session.get(url)
         assert response.status_code == 202
 
@@ -98,7 +46,8 @@ class TestUsers:
             "password": self.user_payload["password"],
             "password2": self.user_payload["password"]
         }
-        response = self.session.put(self.base_url + "/auth/change_password", json=payload, headers=self.headers)
+        response = self.session.put(
+            self.base_url + "/auth/change_password", json=payload, headers=self.headers)
         assert response.status_code == 202
 
     def test_get_video_by_id(self):

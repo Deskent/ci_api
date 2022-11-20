@@ -17,7 +17,7 @@ from models.models import User
 router = APIRouter(prefix="/auth", tags=['Authorization'])
 
 
-@router.post("/register", response_model=UserOutput)
+@router.post("/register", response_model=User)
 async def register(
         tasks: BackgroundTasks,
         user_data: UserRegistration,
