@@ -11,6 +11,7 @@ class Database(BaseSettings):
     POSTGRES_PORT: int
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
+    DROP_TABLES: bool = False
     RECREATE_DB: bool = False
 
     def get_db_name(self):

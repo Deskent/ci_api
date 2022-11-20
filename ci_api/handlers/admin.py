@@ -6,7 +6,7 @@ from database.db import get_session
 from models.models import User
 from services.depends import is_user_admin
 
-router = APIRouter(tags=['Admin'], dependencies=[Depends(is_user_admin)])
+router = APIRouter(prefix='/admin', tags=['Admin'], dependencies=[Depends(is_user_admin)])
 
 
 @router.get("/", response_model=list[User], dependencies=[Depends(is_user_admin)])

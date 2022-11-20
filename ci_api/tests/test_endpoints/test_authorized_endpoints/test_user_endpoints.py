@@ -1,10 +1,10 @@
 import pytest
 
+from services.auth import AuthHandler
 
-# @pytest.mark.skip
+
 class TestUsers:
 
-    @pytest.mark.asyncio
     def create_user(self):
         response = self.session.post(self.base_url + "/auth/register", json=self.user_create)
         assert response.status_code == 200
@@ -15,7 +15,6 @@ class TestUsers:
 
         return {'Authorization': f"Bearer {token}"}
 
-    @pytest.mark.asyncio
     def create_alarm(self, new_alarm):
         response = self.session.post(
             self.base_url + "/alarms", headers=self.headers, json=new_alarm,
@@ -26,7 +25,6 @@ class TestUsers:
         assert alarm_id
         return alarm_id
 
-    @pytest.mark.asyncio
     def create_notification(self, new_notification):
         response = self.session.post(
             self.base_url + "/notifications", headers=self.headers, json=new_notification,
@@ -37,67 +35,64 @@ class TestUsers:
         assert notification_id
         return notification_id
 
-    @pytest.mark.asyncio
-    def delete_notification(self):
-        response = self.session.delete(self.base_url + f"/notifications/{self.notification_id}",
-            headers=self.headers, allow_redirects=True)
-        assert response.status_code == 204
+    def get_token(self):
+        response = self.session.get(
+            self.base_url + "/users/me", headers=self.headers)
+        assert response.status_code == 200
+        user_id = response.json().get('id')
+        assert user_id
+        user = self.test_user(id=user_id)
+        token = AuthHandler().get_email_token(user)
 
-    @pytest.mark.asyncio
-    def delete_alarm(self):
-        response = self.session.delete(self.base_url + f"/alarms/{self.alarm_id}",
-            headers=self.headers, allow_redirects=True)
-        assert response.status_code == 204
+        return token
 
-    @pytest.mark.asyncio
     def delete_user(self):
         response = self.session.delete(self.base_url + "/users",
             headers=self.headers, allow_redirects=True)
         assert response.status_code == 204
 
-    @pytest.fixture
-    def setUp(self, get_test_app, base_url, user_create, user_payload, new_alarm, new_notification):
+    @pytest.fixture(autouse=True)
+    def setUp(
+            self, get_test_app, base_url, user_create, user_payload, new_alarm, new_notification,
+            test_user
+    ):
         self.session = get_test_app
+        self.test_user = test_user
         self.base_url = base_url
         self.user_create = user_create
         self.user_payload = user_payload
         self.headers = self.create_user()
+        self.token = self.get_token()
         self.alarm_id = self.create_alarm(new_alarm)
         self.notification_id = self.create_notification(new_notification=new_notification)
         yield self.headers
         self.delete_user()
 
-    @pytest.mark.asyncio
-    def test_get_me(self, setUp):
+    def test_get_me(self):
         response = self.session.get(self.base_url + "/users/me", headers=self.headers)
         assert response.status_code == 200
         assert response.json().get("id") is not None
 
-    @pytest.mark.asyncio
-    def test_verify_email(self, setUp, token):
-        url = self.base_url + "/auth/verify_email" + f"?token={token}"
+    def test_verify_email(self):
+        url = self.base_url + "/auth/verify_email" + f"?token={self.token}"
         response = self.session.get(url)
         assert response.status_code == 202
 
-    @pytest.mark.asyncio
-    async def test_login_endpoint(self, setUp):
+    def test_login_endpoint(self):
         response = self.session.post(self.base_url + "/auth/login", json=self.user_payload)
         assert response.status_code == 200
         token = response.json().get("token")
         assert token is not None
 
-    @pytest.mark.asyncio
-    async def test_get_user_alarms(self, setUp):
+    def test_get_user_alarms(self):
         response = self.session.get(self.base_url + "/users/alarms", headers=self.headers)
         assert response.status_code == 200
 
-    @pytest.mark.asyncio
-    async def test_get_user_notifications(self, setUp):
+    def test_get_user_notifications(self):
         response = self.session.get(self.base_url + "/users/notifications", headers=self.headers)
         assert response.status_code == 200
 
-    @pytest.mark.asyncio
-    async def test_change_password(self, setUp):
+    def test_change_password(self):
         payload = {
             "old_password": self.user_payload["password"],
             "password": self.user_payload["password"],
@@ -106,18 +101,15 @@ class TestUsers:
         response = self.session.put(self.base_url + "/auth/change_password", json=payload, headers=self.headers)
         assert response.status_code == 202
 
-    @pytest.mark.asyncio
-    async def test_get_video_by_id(self, setUp):
+    def test_get_video_by_id(self):
         response = self.session.get(self.base_url + "/videos/1", headers=self.headers)
         assert response.status_code == 200
 
-    @pytest.mark.asyncio
-    async def test_get_notification_by_id(self, setUp):
+    def test_get_notification_by_id(self):
         response = self.session.get(
             self.base_url + f"/notifications/{self.notification_id}", headers=self.headers)
         assert response.status_code == 200
 
-    @pytest.mark.asyncio
-    async def test_get_alarm(self, setUp, new_alarm):
+    def test_get_alarm(self):
         response = self.session.get(self.base_url + f"/alarms/{self.alarm_id}", headers=self.headers)
         assert response.status_code == 200

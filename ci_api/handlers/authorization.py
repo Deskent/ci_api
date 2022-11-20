@@ -54,7 +54,7 @@ async def register(
     )
     session.add(user)
     await session.commit()
-    # tasks.add_task(send_verification_mail, user)
+    tasks.add_task(send_verification_mail, user)
     logger.info(f"User with id {user.id} created")
 
     return user
@@ -67,14 +67,14 @@ async def verify_email(
 ):
     user_id: str = await verify_token_from_email(token=token)
     user: User = await session.get(User, user_id)
-    if user:
-        logger.debug(f"Verify email token: OK")
-        return user
-    if not user.is_verified:
+    if user and not user.is_verified:
         user.is_verified = True
         session.add(user)
         await session.commit()
         logger.info(f"User with id {user.id} verified")
+    logger.debug(f"Verify email token: OK")
+
+    return user
 
 
 @router.post("/login", response_model=dict)
