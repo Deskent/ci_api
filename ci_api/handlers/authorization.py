@@ -54,7 +54,7 @@ async def register(
     )
     session.add(user)
     await session.commit()
-    tasks.add_task(send_verification_mail, user)
+    # tasks.add_task(send_verification_mail, user)
     logger.info(f"User with id {user.id} created")
 
     return user
@@ -65,7 +65,11 @@ async def verify_email(
         token: str,
         session: AsyncSession = Depends(get_session)
 ):
-    user: User = await verify_token_from_email(session, token)
+    user_id: str = await verify_token_from_email(token=token)
+    user: User = await session.get(User, user_id)
+    if user:
+        logger.debug(f"Verify email token: OK")
+        return user
     if not user.is_verified:
         user.is_verified = True
         session.add(user)
@@ -86,9 +90,9 @@ async def login(
 
      :return: Authorization token as JSON
     """
+
     query = select(User).where(User.email == user.email)
     response = await session.execute(query)
-
     user_found = response.scalars().first()
     if not user_found:
         raise HTTPException(
@@ -128,7 +132,6 @@ async def change_password(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid username or password')
     user.password = auth_handler.get_password_hash(data.password)
-
     session.add(user)
     await session.commit()
     logger.info(f"User with id {user.id} change password")

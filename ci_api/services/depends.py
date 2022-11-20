@@ -26,20 +26,20 @@ async def check_user_credentials(
 ) -> User:
     """Check user and password is correct. Return user instance"""
 
-    async with get_session() as session:
+    async for session in get_session():
         query = select(User).where(User.email == email)
         response = await session.execute(query)
         user = response.scalars().first()
-    if not user:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                            detail='Incorrect username or password')
+        if not user:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                                detail='Incorrect username or password')
 
-    is_password_correct: bool = auth_handler.verify_password(password, user.password)
-    if not is_password_correct:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid username or password')
+        is_password_correct: bool = auth_handler.verify_password(password, user.password)
+        if not is_password_correct:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid username or password')
 
-    return user
+        return user
 
 
 async def is_user_active(

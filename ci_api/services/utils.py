@@ -79,7 +79,7 @@ async def upload_file(
 ) -> Video:
     """Check max videos in complex. Check video format. Save video file.
     Calculate video duration. Save row to database."""
-    async with get_session() as session:
+    async for session in get_session():
         current_complex: Complex = await session.get(Complex, complex_id)
         if not current_complex:
             logger.warning(f"Complex {complex_id} not found")

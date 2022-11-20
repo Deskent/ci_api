@@ -90,3 +90,11 @@ def new_alarm():
         "vibration": False,
         "text": "test text"
     }
+
+
+@pytest.fixture
+def new_notification():
+    return {
+        "notification_time": "11:10",
+        "text": "test notification text"
+    }

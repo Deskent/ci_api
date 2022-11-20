@@ -44,9 +44,9 @@ async def get_notification(
         session: AsyncSession = Depends(get_session),
         user: User = Depends(get_logged_user)
 ):
-    # TODO сделать проверку на то, что уведомление для этого пользователя
-    if result := await session.get(Notification, notification_id):
-        return result
+    notification = await session.get(Notification, notification_id)
+    if notification and notification.user_id == user.id:
+        return notification
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found")
 
 

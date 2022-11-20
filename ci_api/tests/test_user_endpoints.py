@@ -8,6 +8,7 @@ class TestUsers:
     def create_user(self):
         response = self.session.post(self.base_url + "/auth/register", json=self.user_create)
         assert response.status_code == 200
+
         response = self.session.post(self.base_url + "/auth/login", json=self.user_payload)
         assert response.status_code == 200
         token = response.json().get('token')
@@ -26,8 +27,19 @@ class TestUsers:
         return alarm_id
 
     @pytest.mark.asyncio
-    def delete_user(self):
-        response = self.session.delete(self.base_url + "/users",
+    def create_notification(self, new_notification):
+        response = self.session.post(
+            self.base_url + "/notifications", headers=self.headers, json=new_notification,
+            allow_redirects=True
+        )
+        assert response.status_code == 200
+        notification_id = response.json().get("id")
+        assert notification_id
+        return notification_id
+
+    @pytest.mark.asyncio
+    def delete_notification(self):
+        response = self.session.delete(self.base_url + f"/notifications/{self.notification_id}",
             headers=self.headers, allow_redirects=True)
         assert response.status_code == 204
 
@@ -37,16 +49,24 @@ class TestUsers:
             headers=self.headers, allow_redirects=True)
         assert response.status_code == 204
 
+    @pytest.mark.asyncio
+    def delete_user(self):
+        response = self.session.delete(self.base_url + "/users",
+            headers=self.headers, allow_redirects=True)
+        assert response.status_code == 204
+
     @pytest.fixture
-    def setUp(self, get_test_app, base_url, user_create, user_payload, new_alarm):
+    def setUp(self, get_test_app, base_url, user_create, user_payload, new_alarm, new_notification):
         self.session = get_test_app
         self.base_url = base_url
         self.user_create = user_create
         self.user_payload = user_payload
         self.headers = self.create_user()
         self.alarm_id = self.create_alarm(new_alarm)
+        self.notification_id = self.create_notification(new_notification=new_notification)
         yield self.headers
         self.delete_alarm()
+        self.delete_notification()
         self.delete_user()
 
     @pytest.mark.asyncio
@@ -95,7 +115,8 @@ class TestUsers:
 
     @pytest.mark.asyncio
     async def test_get_notification_by_id(self, setUp):
-        response = self.session.get(self.base_url + "/notifications/1", headers=self.headers)
+        response = self.session.get(
+            self.base_url + f"/notifications/{self.notification_id}", headers=self.headers)
         assert response.status_code == 200
 
     @pytest.mark.asyncio

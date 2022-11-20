@@ -6,7 +6,7 @@ pyjwt==2.6.0
 loguru==0.6.0
 passlib==1.7.4
 pydantic[email]
-pytest-aio==1.4.1
+pytest-asyncio==0.20.2
 python-dotenv==0.21.0
 python-multipart==0.0.5
 sqladmin==0.7.0

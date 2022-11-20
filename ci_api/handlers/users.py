@@ -25,15 +25,14 @@ async def get_user_alarms(
 
     query = select(Alarm).join(User).where(User.id == user.id)
     response = await session.execute(query)
+    alarms: list[dict] = [elem.dict() for elem in response.scalars().all()]
 
-    alarms = response.scalars().all()
-    results: list[dict] = [elem.dict() for elem in alarms]
-    for alarm in results:
+    for alarm in alarms:
         alarm['weekdays'] = WeekDay(alarm['weekdays']).as_list
 
     logger.info(f"User with id {user.id} request alarms")
 
-    return results
+    return alarms
 
 
 @router.get("/notifications", response_model=list[Notification])

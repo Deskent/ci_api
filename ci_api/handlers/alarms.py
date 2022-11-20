@@ -13,7 +13,10 @@ from config import logger
 router = APIRouter(prefix="/alarms", tags=['Alarms'])
 
 
-@router.post("/", response_model=AlarmFull)
+@router.post(
+    "/",
+    response_model=AlarmFull
+)
 async def create_alarm(
     data: AlarmCreate,
     user: User = Depends(get_logged_user),
@@ -54,17 +57,19 @@ async def create_alarm(
 
 
 @router.get(
-    "/{alarm_id}"
+    "/{alarm_id}",
+    response_model=AlarmFull,
+    status_code=200
 )
 async def get_alarm(
         alarm_id: int,
-        session: AsyncSession = Depends(get_session),
-        user: User = Depends(get_logged_user)
+        user: User = Depends(get_logged_user),
+        session: AsyncSession = Depends(get_session)
 ):
-    # TODO сделать проверку на то, что аларм для этого пользователя
-
-    if result := await session.get(Alarm, alarm_id):
-        return result
+    alarm: Alarm = await session.get(Alarm, alarm_id)
+    if alarm and alarm.user_id == user.id:
+        alarm.weekdays = WeekDay(alarm.weekdays).as_list
+        return alarm
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Alarm not found")
 
 
