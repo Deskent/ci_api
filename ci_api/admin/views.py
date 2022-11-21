@@ -8,22 +8,29 @@ from config import logger, settings
 from database.db import engine
 from models.models import User, Video, Alarm, Notification, Complex, Rate
 from schemas.complexes_videos import VideoUpload
-from services.utils import upload_file
+from services.utils import upload_file, convert_seconds_to_time
 
 ADMIN_URL = "/ci_admin"
 
 
+def date_format(value):
+    return value.strftime("%H:%M:%s")
+
+
 class ComplexView(ModelView, model=Complex):
+    name = "Комплекс упражнений"
     name_plural = "Комплексы упражнений"
     column_list = [Complex.id, Complex.videos, Complex.description,  Complex.duration,
                    Complex.next_complex_id]
     column_labels = {
+        Complex.next_complex_id: "Следующий комплекс",
+        Complex.name: "Название комплекса",
         Complex.videos: "Упражнения",
         Complex.description: "Описание комплекса",
         Complex.duration: "Длительность",
-        Complex.next_complex_id: "Следующий комплекс"
     }
-    form_excluded_columns = [Complex.video_count]
+    form_excluded_columns = [Complex.video_count, Complex.duration]
+    column_details_exclude_list = [Complex.video_count]
 
 
 class UserView(ModelView, model=User):
@@ -32,10 +39,27 @@ class UserView(ModelView, model=User):
     column_details_exclude_list = [User.password]
     form_excluded_columns = [User.password]
     column_list = [
-        User.id, User.username, User.email, User.current_complex,
-        User.level, User.progress, User.notifications, User.alarms, User.is_admin, User.is_active,
+        User.id, User.username, User.third_name, User.last_name, User.email, User.phone,
+        User.expired_at, User.level, User.created_at, User.is_admin, User.is_active,
         User.is_verified
     ]
+    column_labels = {
+        User.username: "Имя",
+        User.third_name: "Отчество",
+        User.last_name: "Фамилия",
+        User.email: "Е-мэйл",
+        User.phone: "Телефон",
+        User.expired_at: "Дата окончания подписки",
+        User.level: "Прогресс",
+        User.created_at: "Дата регистрации",
+        User.is_admin: "Админ",
+        User.is_active: "Подписан",
+        User.is_verified: "Подтвержден",
+    }
+    column_formatters = {
+        User.expired_at: lambda m, a: m.expired_at.strftime("%Y-%m-%d %H:%M"),
+        User.created_at: lambda m, a: m.created_at.strftime("%Y-%m-%d %H:%M")
+    }
     column_searchable_list = [User.username, User.email]
     column_sortable_list = [User.username]
     can_create = False
@@ -46,7 +70,9 @@ class UserView(ModelView, model=User):
 #     can_create = False
 #     can_edit = False
 #
-#
+#     column_type_formatters = dict(ModelView.column_type_formatters, alarm_time=date_format)
+
+
 # class NotificationView(ModelView, model=Notification):
 #     column_list = [
 #         Notification.id, Notification.notification_time, Notification.notification_time,
@@ -56,11 +82,25 @@ class UserView(ModelView, model=User):
 #     can_create = False
 #
 #
-# class VideoView(ModelView, BaseView, model=Video):
-#     can_create = False
-#     column_list = [
-#         Video.id, Video.name, Video.description, Video.file_name, Video.complexes, Video.duration
-#     ]
+class VideoView(ModelView, BaseView, model=Video):
+    name = "Упражнение"
+    name_plural = "Упражнения"
+
+    can_create = False
+    can_edit = False
+    column_list = [
+        Video.id, Video.name, Video.description, Video.file_name, Video.complexes, Video.duration
+    ]
+    column_labels = {
+        Video.name: "Название",
+        Video.description: "Описание",
+        Video.file_name: "Имя файла",
+        Video.complexes: "Комплекс",
+        Video.duration: "Длительность",
+    }
+    column_formatters = {
+        Video.duration: lambda m, a: convert_seconds_to_time(m.duration)
+    }
 
 
 class RateView(ModelView, model=Rate):
@@ -116,7 +156,7 @@ def get_admin(app: FastAPI) -> Admin:
     admin.add_view(UploadVideo)
     admin.add_view(RateView)
     admin.add_view(UserView)
-    # admin.add_view(VideoView)
+    admin.add_view(VideoView)
     # admin.add_view(AlarmView)
     # admin.add_view(NotificationView)
 
