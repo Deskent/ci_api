@@ -2,6 +2,7 @@ from fastapi import Request, FastAPI
 from sqladmin import Admin
 from sqladmin import ModelView, expose, BaseView
 from starlette.datastructures import FormData
+from wtforms import Form
 
 from admin.auth import authentication_backend
 from config import logger, settings
@@ -20,7 +21,7 @@ def date_format(value):
 class ComplexView(ModelView, model=Complex):
     name = "Комплекс упражнений"
     name_plural = "Комплексы упражнений"
-    column_list = [Complex.id, Complex.videos, Complex.description,  Complex.duration,
+    column_list = [Complex.id, Complex.videos, Complex.description, Complex.duration,
                    Complex.next_complex_id]
     column_labels = {
         Complex.next_complex_id: "Следующий комплекс",
@@ -122,6 +123,17 @@ class UploadVideo(BaseView):
     @expose("/upload", methods=["GET", "POST"])
     async def upload_file(self, request: Request):
         if request.method == "GET":
+            # TODO разобраться с формами
+            # data = dict(
+            #     filename={
+            #         "title": "Имя файла",
+            #         "value": "123.mp3"
+            #     },
+            #     name="namename",
+            #     description="descr1",
+            #     complex_id=1
+            # )
+            # form = FormData(data)
             return self.templates.TemplateResponse(
                 "upload_video.html",
                 context={"request": request},
@@ -138,9 +150,9 @@ class UploadVideo(BaseView):
 
         logger.debug(f"Load file with data: FAIL")
         return self.templates.TemplateResponse(
-                "upload_video.html",
-                context={"request": request, "result": "fail"},
-            )
+            "upload_video.html",
+            context={"request": request, "result": "fail"},
+        )
 
 
 def get_admin(app: FastAPI) -> Admin:

@@ -1,30 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Upload Video</title>
-</head>
-<body>
-{%  if result == "ok" %}
-<h3>Загрузка {{ video.file_name }} завершена.</h3>
-{%  elif result == "fail" %}
-<h3>Ошибка загрузки файла.</h3>
-{%  endif %}
+{% extends "layout.html" %}
+{% block content %}
 
-<form action="/ci_admin/upload" method="post" enctype="multipart/form-data">
-    <p><label class="form-label" for="file_name">Имя файла: </label>
-        <input type="text" id="file_name" name="file_name"/></p>
-    <p><label class="form-label" for="name">Название видео: </label>
-        <input type="text" id="name" name="name"/></p>
-    <p><label class="form-label" for="description">Описание: </label>
-        <input type="text" id="description" name="description"/></p>
-    <p><label for="complex_id">Комплекс ID: </label>
-        <input type="number" id="complex_id" name="complex_id"/></p>
-
-    <label for="file">Выберите файл для загрузки</label>
-    <input type="file" id="file" name="file" multiple>
-    <input type="submit" value="submit">
-</form>
-</body>
-</html>
-
+    {% if result == "ok" %}
+        <h3>Загрузка {{ video.file_name }} завершена.</h3>
+    {% elif result == "fail" %}
+        <h3>Ошибка загрузки файла.</h3>
+    {% endif %}
+    <form action="{{ request.url }}" method="post" enctype="multipart/form-data">
+        <div class="p-3 bm-3 pb-3 form-label col-sm-2 col-form-label">
+            <p><label class="form-label" for="file_name">Имя файла: </label>
+                <input type="text" id="file_name" name="file_name"/></p>
+            <p><label class="form-label" for="name">Название видео: </label>
+                <input type="text" id="name" name="name"/></p>
+            <p><label class="form-label" for="description">Описание: </label>
+                <input type="text" id="description" name="description"/></p>
+            <p><label for="complex_id">Комплекс ID: </label></p>
+            <input type="number" id="complex_id" name="complex_id"/>
+        </div>
+        <p><label for="file">Выберите файл для загрузки</label>
+            <input type="file" id="file" name="file" multiple></p>
+        <div class="col">
+            <input type="submit" value="Загрузить" class="btn btn-primary">
+        </div>
+    </form>
+{% endblock %}
