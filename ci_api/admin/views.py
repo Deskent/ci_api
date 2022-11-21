@@ -32,6 +32,7 @@ class ComplexView(ModelView, model=Complex):
     }
     form_excluded_columns = [Complex.video_count, Complex.duration]
     column_details_exclude_list = [Complex.video_count]
+    column_default_sort = [(Complex.next_complex_id, False), (Complex.id, False)]
 
 
 class UserView(ModelView, model=User):
@@ -71,7 +72,7 @@ class UserView(ModelView, model=User):
     column_searchable_list = [User.username, User.email]
     column_sortable_list = [User.username]
     column_default_sort = [(User.expired_at, True), (User.id, True)]
-    can_create = True
+    can_create = False
 
 
 # class AlarmView(ModelView, model=Alarm):
