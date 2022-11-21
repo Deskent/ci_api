@@ -1,13 +1,13 @@
+import pydantic
 from fastapi import Request, FastAPI
 from sqladmin import Admin
 from sqladmin import ModelView, expose, BaseView
 from starlette.datastructures import FormData
-from wtforms import Form
 
 from admin.auth import authentication_backend
 from config import logger, settings
 from database.db import engine
-from models.models import User, Video, Alarm, Notification, Complex, Rate
+from models.models import User, Video, Complex, Rate
 from schemas.complexes_videos import VideoUpload
 from services.utils import upload_file, convert_seconds_to_time
 
@@ -15,7 +15,7 @@ ADMIN_URL = "/ci_admin"
 
 
 def date_format(value):
-    return value.strftime("%H:%M:%s")
+    return value.strftime("%Y-%m-%d %H:%M:%S")
 
 
 class ComplexView(ModelView, model=Complex):
@@ -37,8 +37,7 @@ class ComplexView(ModelView, model=Complex):
 class UserView(ModelView, model=User):
     name = "Пользователь"
     name_plural = "Пользователи"
-    column_details_exclude_list = [User.password]
-    form_excluded_columns = [User.password]
+    column_details_exclude_list = [User.password, User.progress]
     column_list = [
         User.id, User.username, User.third_name, User.last_name, User.email, User.phone,
         User.expired_at, User.level, User.created_at, User.is_admin, User.is_active,
@@ -56,14 +55,23 @@ class UserView(ModelView, model=User):
         User.is_admin: "Админ",
         User.is_active: "Подписан",
         User.is_verified: "Подтвержден",
+        User.rate_id: "Тариф",
+        User.gender: "Пол",
+        User.alarms: "Будильники",
+        User.notifications: "Оповещения",
+        User.current_complex: "Текущий комплекс",
     }
     column_formatters = {
-        User.expired_at: lambda m, a: m.expired_at.strftime("%Y-%m-%d %H:%M"),
-        User.created_at: lambda m, a: m.created_at.strftime("%Y-%m-%d %H:%M")
+        User.expired_at: lambda m, a: date_format(m.expired_at),
+        User.created_at: lambda m, a: date_format(m.expired_at),
+        User.gender: lambda m, a: "Male" if m.gender else "Female"
     }
+    column_formatters_detail = column_formatters
+    form_columns = [*column_labels.keys(), User.gender]
     column_searchable_list = [User.username, User.email]
     column_sortable_list = [User.username]
-    can_create = False
+    column_default_sort = [(User.expired_at, True), (User.id, True)]
+    can_create = True
 
 
 # class AlarmView(ModelView, model=Alarm):
@@ -90,7 +98,8 @@ class VideoView(ModelView, BaseView, model=Video):
     can_create = False
     can_edit = False
     column_list = [
-        Video.id, Video.name, Video.description, Video.file_name, Video.complexes, Video.duration
+        Video.id, Video.name, Video.description, Video.file_name,
+        Video.complexes, Video.duration
     ]
     column_labels = {
         Video.name: "Название",
@@ -118,7 +127,7 @@ class RateView(ModelView, model=Rate):
 
 
 class UploadVideo(BaseView):
-    name = "Загрузить видео"
+    name = "Загрузить видео упражнения"
 
     @expose("/upload", methods=["GET", "POST"])
     async def upload_file(self, request: Request):
@@ -138,20 +147,22 @@ class UploadVideo(BaseView):
                 "upload_video.html",
                 context={"request": request},
             )
-        form: FormData = await request.form()
-        data = VideoUpload(**{k: v for k, v in form.items()})
-        logger.debug(f"Load file with data: {data}")
-        if video := await upload_file(**data.dict()):
-            logger.debug(f"Load file with data: OK")
-            return self.templates.TemplateResponse(
-                "upload_video.html",
-                context={"request": request, "result": "ok", "video": video},
-            )
+        context = {"request": request, "result": "fail"}
+        try:
+            form: FormData = await request.form()
+            data = VideoUpload(**{k: v for k, v in form.items()})
+            logger.debug(f"Load file with data: {data}")
+            if video := await upload_file(**data.dict()):
+                logger.debug(f"Load file with data: OK")
+                context.update(result="ok", video=video)
+
+        except pydantic.error_wrappers.ValidationError as err:
+            logger.error(err)
 
         logger.debug(f"Load file with data: FAIL")
         return self.templates.TemplateResponse(
             "upload_video.html",
-            context={"request": request, "result": "fail"},
+            context=context,
         )
 
 
