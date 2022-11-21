@@ -7,17 +7,23 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from config import logger
 from database.db import drop_db, create_db, db, get_session
 from services.auth import auth_handler
-from models.models import User, Alarm, Notification, Video, Complex
+from models.models import User, Alarm, Notification, Video, Complex, Rate
 
 
 async def create_complexes(session: AsyncSession, data: list[dict] = None):
     if not data:
         data = [
             {
-                "description": "complex1"
+                "description": "complex1",
+                "name": "комплекс 1",
+                "next_complex_id": 2,
+                "duration": 0
             },
             {
-                "description": "complex2"
+                "description": "complex2",
+                "name": "комплекс 2",
+                "next_complex_id": 3,
+                "duration": 0
             }
         ]
 
@@ -39,13 +45,13 @@ async def create_videos(session: AsyncSession, data: list[dict] = None):
                 "complex_id": 1,
                 'file_name': 'hello.mp4',
                 'name': 'v2',
-                'description': 'some video',
+                'description': 'some video2',
             },
             {
                 "complex_id": 1,
                 'file_name': 'hello.mp4',
                 'name': 'v3',
-                'description': 'some video',
+                'description': 'some video3',
             },
         ]
 
@@ -59,31 +65,39 @@ async def create_users(session: AsyncSession, data: list[dict] = None):
         data = [
             {
                 'username': "admin",
+                'last_name': "adminov",
+                'third_name': "adminovich",
                 'phone': "7777777777",
                 'gender': 1,
                 'password': "admin",
                 'email': "admin@bk.ru",
                 'current_complex': 1,
+                'rate_id': 1,
                 'is_admin': True,
                 'is_active': True
             },
             {
                 'username': "test1",
+                'last_name': "test1last",
+                'third_name': "test1third",
                 'phone': "1234567890",
                 'gender': 1,
                 'password': "string",
                 'email': "test1@example.com",
                 'current_complex': 1,
+                'rate_id': 1,
                 'is_admin': True,
                 'is_active': False
             },
             {
                 'username': "test2",
+                'last_name': "test2last",
                 'phone': "1234567892",
-                'gender': 1,
+                'gender': 0,
                 'password': "test2pass",
                 'email': 'test2@email.com',
                 'current_complex': 1,
+                'rate_id': 1,
                 'is_admin': False,
                 'is_active': True
 
@@ -95,6 +109,7 @@ async def create_users(session: AsyncSession, data: list[dict] = None):
                 'gender': 0,
                 'email': 'test3@email.com',
                 'current_complex': 1,
+                'rate_id': 2,
                 'is_admin': False,
                 'is_active': False
             },
@@ -155,9 +170,30 @@ async def create_notifications(session: AsyncSession, data: list[dict] = None):
     await session.commit()
 
 
+async def create_rates(session: AsyncSession, data: list[dict] = None):
+    if not data:
+        data = [
+            {
+                'name': '1 month rate',
+                'price': 100,
+                'duration': 30
+            },
+            {
+                'name': '6 month rate',
+                'price': 500,
+                'duration': 30 * 6
+            }
+        ]
+
+    for elem in data:
+        session.add(Rate(**elem))
+    await session.commit()
+
+
 async def create_fake_data():
     async for session in get_session():
         logger.debug("Create fake data to DB")
+        await create_rates(session)
         await create_complexes(session)
         await create_videos(session)
         await create_users(session)

@@ -32,20 +32,20 @@ def save_video(path: str, file: UploadFile):
 
 
 @logger.catch
-def _convert_string_to_time(data: str) -> time:
-    """Convert string like xx.xxxxxx to time format"""
+def convert_seconds_to_time(data: int) -> time:
+    """Convert integer seconds to datetime.time format"""
 
-    datalist: list[int] = [int(elem) for elem in data.strip().split('.')]
-    microsecond: int = datalist[1]
-    second: int = datalist[0]
-    hour: int = second // 3600
-    minute: int = second // 60
-    second %= 60
+    if not data:
+        return time(0, 0, 0)
 
-    return time(hour, minute, second, microsecond)
+    hour: int = data // 3600
+    minute: int = data // 60
+    second: int = data % 60
+
+    return time(hour, minute, second)
 
 
-def get_video_duration(video_path: str) -> time:
+def get_video_duration(video_path: str) -> int:
     """Calculate video file duration"""
 
     result = subprocess.run(
@@ -62,7 +62,7 @@ def get_video_duration(video_path: str) -> time:
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT)
     if result.returncode == 0:
-        return _convert_string_to_time(result.stdout.decode())
+        return int(float(result.stdout.decode()))
 
     raise HTTPException(
         status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
@@ -108,7 +108,7 @@ async def upload_file(
                 detail=error_text
             )
         save_video(str(file_path), file)
-        duration: time = get_video_duration(str(file_path))
+        duration: int = get_video_duration(str(file_path))
         video = Video(
             file_name=full_filename, description=description, name=name,
             complex_id=complex_id, duration=duration)

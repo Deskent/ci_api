@@ -44,7 +44,7 @@ class Complex(SQLModel, table=True):
     name: Optional[str] = Field(nullable=True, default='', description="Название комплекса")
     description: Optional[str] = Field(nullable=True, default='', description="Описание комплекса")
     next_complex_id: int = Field(nullable=True, default=1, description="ИД следующего комплекса")
-    duration: time = Field(nullable=True, default=None, description="Длительность комплекса")
+    duration: int = Field(nullable=True, default=None, description="Длительность комплекса")
     video_count: int = Field(nullable=True, default=0, description="Количество видео в комплексе")
 
     videos: List["Video"] = Relationship(
@@ -61,7 +61,7 @@ class Video(SQLModel, table=True):
     file_name: str = Field(nullable=False, description="Путь к файлу видео")
     name: Optional[str] = Field(nullable=True, default='', description="Название видео")
     description: Optional[str] = Field(nullable=True, default='', description="Описание видео")
-    duration: time = Field(nullable=True, default=None, description="Длительность видео")
+    duration: int = Field(nullable=True, default=None, description="Длительность видео")
 
     complex_id: Optional[int] = Field(
         default=None, foreign_key="complexes.id",
@@ -76,7 +76,9 @@ class User(SQLModel, table=True):
     __tablename__ = 'users'
 
     id: int = Field(default=None, primary_key=True, index=True)
-    username: str = Field(nullable=False)
+    username: str = Field(nullable=False, description="Имя")
+    last_name: str = Field(nullable=True, default='', description="Фамилия")
+    third_name: str = Field(nullable=True, default='', description="Отчество")
     email: EmailStr = Field(unique=True, index=True)
     phone: str = Field(unique=True, nullable=False, min_length=10, max_length=13,
                        description="Телефон в формате 9998887766")
@@ -91,6 +93,7 @@ class User(SQLModel, table=True):
     is_admin: Optional[bool] = Field(default=False)
     is_active: Optional[bool] = Field(default=False)
 
+    rate_id: int = Field(nullable=False, foreign_key='rates.id')
     current_complex: Optional[int] = Field(nullable=True, default=1, foreign_key='complexes.id')
     alarms: List[Alarm] = Relationship(
         back_populates="users", sa_relationship_kwargs={"cascade": "delete"})
@@ -99,3 +102,15 @@ class User(SQLModel, table=True):
 
     def __str__(self):
         return f"{self.username}"
+
+
+class Rate(SQLModel, table=True):
+    __tablename__ = 'rates'
+
+    id: int = Field(default=None, primary_key=True, index=True)
+    name: Optional[str] = Field(nullable=True, default='', description="Название тарифа")
+    price: int = Field(nullable=False, description="Цена")
+    duration: int = Field(nullable=True, default=None, description="Длительность тарифа в секундах")
+
+    def __str__(self):
+        return f"{self.id}: {self.name}"

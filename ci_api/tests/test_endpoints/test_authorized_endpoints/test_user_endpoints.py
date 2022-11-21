@@ -62,3 +62,7 @@ class TestUsers:
     def test_get_alarm(self):
         response = self.session.get(self.base_url + f"/alarms/{self.alarm_id}", headers=self.headers)
         assert response.status_code == 200
+
+    def test_get_rates(self):
+        response = self.session.get(self.base_url + "/users/rates")
+        assert response.status_code == 200
