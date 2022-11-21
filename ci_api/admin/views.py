@@ -1,11 +1,29 @@
-from fastapi import Request
+from fastapi import Request, FastAPI
+from sqladmin import Admin
 from sqladmin import ModelView, expose, BaseView
 from starlette.datastructures import FormData
 
-from models.models import User, Video, Alarm, Notification, Complex
-from services.utils import upload_file
+from admin.auth import authentication_backend
+from config import logger, settings
+from database.db import engine
+from models.models import User, Video, Alarm, Notification, Complex, Rate
 from schemas.complexes_videos import VideoUpload
-from config import logger
+from services.utils import upload_file
+
+ADMIN_URL = "/ci_admin"
+
+
+class ComplexView(ModelView, model=Complex):
+    name_plural = "Комплексы упражнений"
+    column_list = [Complex.id, Complex.videos, Complex.description,  Complex.duration,
+                   Complex.next_complex_id]
+    column_labels = {
+        Complex.videos: "Упражнения",
+        Complex.description: "Описание комплекса",
+        Complex.duration: "Длительность",
+        Complex.next_complex_id: "Следующий комплекс"
+    }
+    form_excluded_columns = [Complex.video_count]
 
 
 class UserView(ModelView, model=User):
@@ -23,37 +41,43 @@ class UserView(ModelView, model=User):
     can_create = False
 
 
-class AlarmView(ModelView, model=Alarm):
-    column_list = [Alarm.id, Alarm.alarm_time, Alarm.text, Alarm.users, Alarm.weekdays]
-    can_create = False
-    can_edit = False
+# class AlarmView(ModelView, model=Alarm):
+#     column_list = [Alarm.id, Alarm.alarm_time, Alarm.text, Alarm.users, Alarm.weekdays]
+#     can_create = False
+#     can_edit = False
+#
+#
+# class NotificationView(ModelView, model=Notification):
+#     column_list = [
+#         Notification.id, Notification.notification_time, Notification.notification_time,
+#         Notification.users
+#     ]
+#     can_edit = False
+#     can_create = False
+#
+#
+# class VideoView(ModelView, BaseView, model=Video):
+#     can_create = False
+#     column_list = [
+#         Video.id, Video.name, Video.description, Video.file_name, Video.complexes, Video.duration
+#     ]
 
 
-class NotificationView(ModelView, model=Notification):
+class RateView(ModelView, model=Rate):
+    name = "Тариф"
+    name_plural = "Тарифы"
     column_list = [
-        Notification.id, Notification.notification_time, Notification.notification_time,
-        Notification.users
+        Rate.id, Rate.name, Rate.price, Rate.duration
     ]
-    can_edit = False
-    can_create = False
-
-
-class ComplexView(ModelView, model=Complex):
-    name_plural = "Комплексы"
-    column_list = [Complex.id, Complex.name, Complex.videos, Complex.description,
-                   Complex.next_complex_id]
-    column_labels = {Complex.name: "Name"}
-
-
-class VideoView(ModelView, BaseView, model=Video):
-    can_create = False
-    column_list = [
-        Video.id, Video.name, Video.description, Video.file_name, Video.complexes, Video.duration
-    ]
+    column_labels = {
+        Rate.name: "Название тарифа",
+        Rate.price: "Цена",
+        Rate.duration: "Длительность (дней)",
+    }
 
 
 class UploadVideo(BaseView):
-    name = "Upload Video"
+    name = "Загрузить видео"
 
     @expose("/upload", methods=["GET", "POST"])
     async def upload_file(self, request: Request):
@@ -77,3 +101,23 @@ class UploadVideo(BaseView):
                 "upload_video.html",
                 context={"request": request, "result": "fail"},
             )
+
+
+def get_admin(app: FastAPI) -> Admin:
+    admin = Admin(
+        app,
+        engine,
+        base_url=ADMIN_URL,
+        authentication_backend=authentication_backend,
+        templates_dir=settings.TEMPLATES_DIR
+    )
+
+    admin.add_view(ComplexView)
+    admin.add_view(UploadVideo)
+    admin.add_view(RateView)
+    admin.add_view(UserView)
+    # admin.add_view(VideoView)
+    # admin.add_view(AlarmView)
+    # admin.add_view(NotificationView)
+
+    return admin

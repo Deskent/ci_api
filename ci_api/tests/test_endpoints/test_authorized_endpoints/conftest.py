@@ -11,11 +11,14 @@ from services.auth import AuthHandler
 @dataclass
 class CreateUser:
     username: str = "test"
+    last_name: str = "testov"
+    third_name: str = "testovich"
     email: EmailStr = "test@mail.ru"
     phone: str = "9998887711"
     password: str = "testpassword"
     password2: str = "testpassword"
     gender: bool = True
+    rate_id: int = 1
 
     def as_dict(self):
         return self.__dict__

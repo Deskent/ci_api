@@ -5,7 +5,7 @@ from sqlalchemy import select
 
 from config import logger
 from database.db import get_session
-from models.models import User, Alarm, Notification
+from models.models import User, Alarm, Notification, Rate
 from schemas.alarms import AlarmBase
 from services.depends import get_logged_user
 from services.weekdays import WeekDay
@@ -50,6 +50,21 @@ async def get_user_notifications(
     logger.info(f"User with id {user.id} request notifications")
 
     return notifications.scalars().all()
+
+
+@router.get("/rates", response_model=list[Rate])
+async def get_all_rates(
+        session: AsyncSession = Depends(get_session)
+):
+    """Get all rates.
+
+    :return List of rates
+    """
+
+    rates = await session.execute(select(Rate).order_by(Rate.id))
+    logger.info(f"Rates requested")
+
+    return rates.scalars().all()
 
 
 @router.get("/me", response_model=User)

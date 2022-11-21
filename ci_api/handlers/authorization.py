@@ -9,7 +9,7 @@ from starlette.background import BackgroundTasks
 from config import logger
 from database.db import get_session
 from services.auth import auth_handler
-from schemas.user import UserRegistration, UserLogin, UserChangePassword, UserOutput
+from schemas.user import UserRegistration, UserLogin, UserChangePassword
 from services.depends import get_logged_user
 from services.emails import send_verification_mail, verify_token_from_email
 from models.models import User
@@ -28,6 +28,10 @@ async def register(
 
     :param username: string - Username
 
+    :param last_name: Optional[string] - User last name
+
+    :param third_name: Optional[string] - User middle name (Отчество)
+
     :param email: string - E-mail
 
     :param phone: string - Phone number in format: 9998887766
@@ -35,6 +39,8 @@ async def register(
     :param password: string - Password
 
     :param password2: string - Repeat Password
+
+    :param rate_id: int - Rate id (тариф)
 
     :param gender: bool - True = male, False - female
 

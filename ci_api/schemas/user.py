@@ -19,6 +19,9 @@ class Password(BaseModel):
 
 class UserRegistration(Password):
     username: str
+    last_name: str = ''
+    third_name: str = ''
+    rate_id: int
     email: EmailStr
     phone: str
     gender: bool
