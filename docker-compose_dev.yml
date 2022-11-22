@@ -44,6 +44,6 @@ services:
       - ./ci_api/migrations:/app/migrations
       - ./ci_api/media:/app/media
       - ./ci_api/logs:/app/logs
+      - ./ci_api/static:/app/static
     depends_on:
       - ci_postgres
-    restart: on-failure

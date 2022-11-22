@@ -4,8 +4,10 @@
 **/logs
 **/postgres_db
 **/media
+**/front
 **.env
 .editorconfig
+*.zip
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

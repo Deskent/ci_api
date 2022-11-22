@@ -122,3 +122,4 @@ class Administrator(SQLModel, table=True):
     username: str = Field(nullable=False, description="Имя")
     email: EmailStr = Field(unique=True, index=True)
     password: str = Field(nullable=False, max_length=256, min_length=6, exclude=True)
+    name: str = Field(nullable=True, default=None)

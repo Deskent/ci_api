@@ -1,0 +1,323 @@
+{% extends 'base.html' %}
+
+{% block body_header %}
+    <header class="profile-header">
+        <div class="container">
+            <div class="profile-header__cover"></div>
+            <div class="profile-header__row">
+                <div class="profile-header__burger">
+                    <span></span>
+                </div>
+                <div class="profile-header__menu header-menu">
+                    <div class="header-menu__user">
+                        <a href="/profile">
+                            <div class="header-menu__icon">
+                                <picture>
+                                    <source srcset="/static/img/user-image.webp"
+                                            type="image/webp">
+                                    <img src="/static/img/user-image.png" alt=""></picture>
+                            </div>
+                            <div class="header-menu__name">
+                                {{ username }}
+                            </div>
+                        </a>
+                    </div>
+                    <div class="header-menu__main">
+                        <ul class="header-menu__list">
+                            <li>
+                                <a href="/profile" class="header-menu__link prof">
+                                    Профиль
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/notifications" class="header-menu__link not">
+                                    Уведомления
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ feedback_link }}" class="header-menu__link clbc">
+                                    Обратная связь
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ help_link }}" class="header-menu__link help">
+                                    Помощь
+                                </a>
+                            </li>
+                        </ul>
+                        <div class="header-menu__buttons">
+                            <a href="/index" class="header-menu__exit">
+                                Выйти
+                            </a>
+                            <div class="header-menu__social">
+                                <a href="#" class="header-menu__vk">
+                                </a>
+                                <a href="#" class="header-menu__youtube">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-header__acc">
+                    <div class="profile-header__logo">
+                        <img src="/static/img/icons/acc__home.svg" alt="">
+                    </div>
+                    <span class="profile-header__span">{{ head_title }}</span>
+                </div>
+                <div class="profile-header__main">
+                    <div class="profile-header__user header-user">
+                        <a href="/profile">
+                            <div class="header-user__icon">
+                                <picture>
+                                    <source srcset="/static/img/user-image.webp"
+                                            type="image/webp">
+                                    <img src="/static/img/user-image.png" alt=""></picture>
+                            </div>
+                            <div class="header-user__info">
+                                <div class="header-user__name">{{ username }}</div>
+                                <div class="header-user__phone">
+                                    {{ user_phone }}
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="profile-header__exit">
+                        <a href="/index">
+                            <img src="/static/img/icons/exit.svg" alt="">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+{% endblock body_header %}
+
+{% block main %}
+    <main class="main profile-main">
+        <menu class="profile-menu">
+            <div class="container">
+                <div class="profile-menu__grid">
+                    <a href="/charging" class="profile-menu__link fla">
+                        Зарядка
+                    </a>
+                    <a href="/profile" class="profile-menu__link prof">
+                        Профиль
+                    </a>
+                    <a href="/notifications" class="profile-menu__link not">
+                        Уведомления
+                    </a>
+                    <a href="/subscribe" class="profile-menu__link sub">
+                        Подписка
+                    </a>
+                    <a href="{{ feedback_link }}" class="profile-menu__link cal">
+                        Обратная связь
+                    </a>
+                    <a href="{{ help_link }}" class="profile-menu__link inf">
+                        Помощь
+                    </a>
+                </div>
+            </div>
+        </menu>
+        <section class="profile-content">
+            <div class="container">
+                <div class="profile-content__row">
+                    <div class="profile-content__profile user-profile">
+                        <div class="user-profile__info">
+                            <div class="user-profile__image">
+                                <picture>
+                                    <source srcset="/static/img/user-image.webp"
+                                            type="image/webp">
+                                    <img src="/static/img/user-image.png" alt=""></picture>
+                            </div>
+                            <div class="user-profile__contacts">
+                                <div class="user-profile__name">
+                                    <input id="userName" type="text" disabled
+                                           value="{{ username }}"
+                                           class="user-profile__name_input" maxlength="18">
+                                    <label for="userName" class="user-profile__name_label">
+                                        <img src="/static/img/icons/edit.svg" alt="">
+                                    </label>
+                                </div>
+                                <div class="user-profile__phone">
+                                    {{ user_phone }}
+                                </div>
+                            </div>
+                        </div>
+                        {# TODO Что за форма ????#}
+                        <form action="#" class="user-profile__form">
+                            <label for="profilePhone" class="registration__label active">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                            d="M8.91919 2.25C8.06717 2.24994 7.54819 2.2499 7.10051 2.3208C4.64013 2.71049 2.71049 4.64013 2.3208 7.10051C2.2499 7.54819 2.24994 8.06717 2.25 8.91919L2.25 15.0808C2.24994 15.9328 2.2499 16.4518 2.3208 16.8995C2.71049 19.3599 4.64013 21.2895 7.10051 21.6792C7.54819 21.7501 8.06718 21.7501 8.91921 21.75L10 21.75C11.2936 21.75 12.4894 21.3219 13.4504 20.6C13.7816 20.3513 13.8485 19.8811 13.5997 19.5499C13.3509 19.2188 12.8808 19.1519 12.5496 19.4007C11.8393 19.9342 10.9576 20.25 10 20.25H9.00001C8.04234 20.25 7.65083 20.2477 7.33516 20.1977C5.51662 19.9097 4.09036 18.4834 3.80233 16.6649C3.75234 16.3492 3.75001 15.9577 3.75001 15L3.75001 9.00001C3.75001 8.04234 3.75234 7.65083 3.80233 7.33516C4.09036 5.51662 5.51662 4.09036 7.33516 3.80233C7.65083 3.75234 8.04234 3.75001 9.00001 3.75001H10C10.9576 3.75001 11.8393 4.06583 12.5496 4.59932C12.8808 4.84808 13.3509 4.78127 13.5997 4.45008C13.8485 4.11888 13.7816 3.64874 13.4504 3.39997C12.4894 2.67807 11.2936 2.25001 10 2.25001L8.91919 2.25Z"
+                                            fill="url(#paint0_linear_3_2905)"/>
+                                    <path
+                                            d="M17.466 7.41232C17.1414 7.15498 16.6697 7.20947 16.4123 7.53404C16.155 7.85861 16.2095 8.33034 16.534 8.58769L18.297 9.98554C19.001 10.5438 19.483 10.9274 19.8105 11.25L7.00001 11.25C6.58579 11.25 6.25001 11.5858 6.25001 12C6.25001 12.4142 6.58579 12.75 7.00001 12.75L19.8105 12.75C19.483 13.0727 19.001 13.4563 18.297 14.0145L16.534 15.4123C16.2095 15.6697 16.155 16.1414 16.4123 16.466C16.6697 16.7905 17.1414 16.845 17.466 16.5877L19.2648 15.1615C19.9372 14.6283 20.4922 14.1883 20.8875 13.7945C21.2932 13.3904 21.6295 12.9419 21.7208 12.3687C21.7402 12.2466 21.75 12.1234 21.75 12C21.75 11.8766 21.7402 11.7534 21.7208 11.6313C21.6295 11.0582 21.2932 10.6096 20.8875 10.2055C20.4922 9.81173 19.9373 9.37176 19.2648 8.83858L17.466 7.41232Z"
+                                            fill="url(#paint1_linear_3_2905)"/>
+                                    <defs>
+                                        <linearGradient id="paint0_linear_3_2905" x1="21.75"
+                                                        y1="12.1773" x2="2.25"
+                                                        y2="12.1773"
+                                                        gradientUnits="userSpaceOnUse">
+                                            <stop stop-color="#D32A1E"/>
+                                            <stop offset="1" stop-color="#EB5E54"/>
+                                        </linearGradient>
+                                        <linearGradient id="paint1_linear_3_2905" x1="21.75"
+                                                        y1="12.1773" x2="2.25"
+                                                        y2="12.1773"
+                                                        gradientUnits="userSpaceOnUse">
+                                            <stop stop-color="#D32A1E"/>
+                                            <stop offset="1" stop-color="#EB5E54"/>
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                                <input value="Ivanova@yandex.ru" placeholder="Почта/Телефон"
+                                       type="text"
+                                       class="registration__input" id="profilePhone">
+                            </label>
+                            <label for="profilePassword" class="registration__label active">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                          d="M11.75 12C10.2312 12 9.00003 13.2312 9.00003 14.75C9.00003 16.2688 10.2312 17.5 11.75 17.5C13.2688 17.5 14.5 16.2688 14.5 14.75C14.5 13.2312 13.2688 12 11.75 12ZM10.5 14.75C10.5 14.0596 11.0597 13.5 11.75 13.5C12.4404 13.5 13 14.0596 13 14.75C13 15.4404 12.4404 16 11.75 16C11.0597 16 10.5 15.4404 10.5 14.75Z"
+                                          fill="url(#paint0_linear_3_2909)"/>
+                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                          d="M11.75 1C8.5744 1 6.00003 3.57436 6.00003 6.75V7.27281L5.97319 7.28142C4.22267 7.8502 2.85024 9.22263 2.28146 10.9732C1.99958 11.8407 1.99975 12.8819 2.00002 14.5882V14.9118C1.99975 16.6181 1.99958 17.6593 2.28146 18.5268C2.85024 20.2774 4.22267 21.6498 5.97319 22.2186C6.8407 22.5005 7.88191 22.5003 9.58817 22.5H13.9119C15.6182 22.5003 16.6594 22.5005 17.5269 22.2186C19.2774 21.6498 20.6498 20.2774 21.2186 18.5268C21.5005 17.6593 21.5003 16.6181 21.5 14.9119V14.5881C21.5003 12.8819 21.5005 11.8407 21.2186 10.9732C20.6498 9.22263 19.2774 7.8502 17.5269 7.28142L17.5 7.27281V6.75C17.5 3.57436 14.9257 1 11.75 1ZM9.66606 7C8.78686 6.99997 8.08514 6.99994 7.50003 7.03306V6.75C7.50003 4.40279 9.40282 2.5 11.75 2.5C14.0972 2.5 16 4.40279 16 6.75V7.03306C15.4149 6.99994 14.7132 6.99997 13.834 7H9.66606ZM6.87463 8.60329C7.47223 8.50262 8.27818 8.5 9.75003 8.5H13.75C15.2219 8.5 16.0278 8.50262 16.6254 8.60329C16.7907 8.63113 16.9332 8.66571 17.0634 8.70801C18.3572 9.12841 19.3716 10.1428 19.792 11.4367C19.9908 12.0484 20 12.8303 20 14.75C20 16.6697 19.9908 17.4516 19.792 18.0633C19.3716 19.3572 18.3572 20.3716 17.0634 20.792C16.4516 20.9907 15.6697 21 13.75 21H9.75003C7.83038 21 7.04842 20.9907 6.43671 20.792C5.14285 20.3716 4.12844 19.3572 3.70804 18.0633C3.50929 17.4516 3.50003 16.6697 3.50003 14.75C3.50003 12.8303 3.50929 12.0484 3.70804 11.4367C4.12844 10.1428 5.14285 9.12841 6.43671 8.70801C6.56688 8.66571 6.70938 8.63113 6.87463 8.60329Z"
+                                          fill="url(#paint1_linear_3_2909)"/>
+                                    <defs>
+                                        <linearGradient id="paint0_linear_3_2909"
+                                                        x1="21.5001"
+                                                        y1="11.9455" x2="2" y2="11.9455"
+                                                        gradientUnits="userSpaceOnUse">
+                                            <stop stop-color="#D32A1E"/>
+                                            <stop offset="1" stop-color="#EB5E54"/>
+                                        </linearGradient>
+                                        <linearGradient id="paint1_linear_3_2909"
+                                                        x1="21.5001"
+                                                        y1="11.9455" x2="2" y2="11.9455"
+                                                        gradientUnits="userSpaceOnUse">
+                                            <stop stop-color="#D32A1E"/>
+                                            <stop offset="1" stop-color="#EB5E54"/>
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                                <input value="1234" placeholder="password" type="password"
+                                       class="registration__input registration__input_password"
+                                       id="profilePassword">
+                                <svg class="registration__input_password_btn" width="22"
+                                     height="18"
+                                     viewBox="0 0 22 18"
+                                     fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                          d="M21.2185 1.33568C21.542 1.07692 21.5944 0.604953 21.3357 0.281506C21.0769 -0.0419401 20.605 -0.0943811 20.2815 0.164376L16.9562 2.82464C15.279 1.31835 13.1397 2.76135e-05 10.75 2.76135e-05C8.60907 2.76135e-05 6.67327 1.05902 5.10175 2.34574C3.52166 3.63949 2.22964 5.22868 1.36144 6.43804L1.28984 6.53762C0.767181 7.26385 0.33695 7.86166 0.336944 8.75C0.336937 9.63833 0.76709 10.2361 1.28964 10.9622L1.36121 11.0617C1.90751 11.8227 2.61909 12.7305 3.46226 13.6198L0.281506 16.1644C-0.0419401 16.4231 -0.0943812 16.8951 0.164376 17.2185C0.423133 17.542 0.895102 17.5944 1.21855 17.3357L21.2185 1.33568ZM10.75 1.50003C12.5277 1.50003 14.2524 2.45932 15.7673 3.77574L13.1506 5.86909C12.5006 5.32707 11.6634 5.00003 10.75 5.00003C8.67896 5.00003 7.00003 6.67896 7.00003 8.75003C7.00003 9.36541 7.14871 9.94707 7.41192 10.46L4.63803 12.6792C3.81702 11.8246 3.11802 10.9368 2.57974 10.1869C1.95595 9.31801 1.83694 9.10854 1.83694 8.75001C1.83695 8.39149 1.956 8.18195 2.57995 7.31281C3.40922 6.15768 4.61351 4.68417 6.05203 3.50634C7.49913 2.32149 9.10426 1.50003 10.75 1.50003ZM10.75 6.50003C11.1862 6.50003 11.5933 6.62383 11.9384 6.8389L8.62436 9.4901C8.54377 9.25853 8.50003 9.00964 8.50003 8.75003C8.50003 7.50739 9.50739 6.50003 10.75 6.50003Z"
+                                          fill="url(#paint0_linear_101_179)"/>
+                                    <path
+                                            d="M19.1454 5.14079C18.8832 4.82006 18.4108 4.77255 18.09 5.03467C17.7693 5.29679 17.7218 5.76928 17.9839 6.09001C18.3344 6.51888 18.6481 6.93396 18.92 7.31273C19.5441 8.18194 19.6631 8.3915 19.6631 8.75002C19.6631 9.10855 19.5441 9.31809 18.9201 10.1872C18.0908 11.3424 16.8865 12.8159 15.448 13.9937C14.0009 15.1786 12.3958 16 10.75 16C9.34522 16 7.96821 15.4021 6.68756 14.4822C6.35113 14.2406 5.88252 14.3174 5.64088 14.6538C5.39923 14.9903 5.47607 15.4589 5.8125 15.7005C7.23703 16.7237 8.91761 17.5 10.75 17.5C12.891 17.5 14.8268 16.441 16.3983 15.1543C17.9784 13.8606 19.2704 12.2714 20.1386 11.062L20.2102 10.9624C20.7329 10.2362 21.1631 9.63837 21.1631 8.75002C21.1631 7.86167 20.7329 7.26382 20.2102 6.53754L20.1386 6.43796C19.8509 6.03725 19.5182 5.59696 19.1454 5.14079Z"
+                                            fill="url(#paint1_linear_101_179)"/>
+                                    <path
+                                            d="M14.5 8.75003C14.5 8.33581 14.1642 8.00003 13.75 8.00003C13.3358 8.00003 13 8.33581 13 8.75003C13 9.99267 11.9927 11 10.75 11C10.3358 11 10 11.3358 10 11.75C10 12.1642 10.3358 12.5 10.75 12.5C12.8211 12.5 14.5 10.8211 14.5 8.75003Z"
+                                            fill="url(#paint2_linear_101_179)"/>
+                                    <defs>
+                                        <linearGradient id="paint0_linear_101_179"
+                                                        x1="21.5001"
+                                                        y1="8.90913" x2="-1.96027e-08"
+                                                        y2="8.90913"
+                                                        gradientUnits="userSpaceOnUse">
+                                            <stop stop-color="#D32A1E"/>
+                                            <stop offset="1" stop-color="#EB5E54"/>
+                                        </linearGradient>
+                                        <linearGradient id="paint1_linear_101_179"
+                                                        x1="21.5001"
+                                                        y1="8.90913" x2="-1.96027e-08"
+                                                        y2="8.90913"
+                                                        gradientUnits="userSpaceOnUse">
+                                            <stop stop-color="#D32A1E"/>
+                                            <stop offset="1" stop-color="#EB5E54"/>
+                                        </linearGradient>
+                                        <linearGradient id="paint2_linear_101_179"
+                                                        x1="21.5001"
+                                                        y1="8.90913" x2="-1.96027e-08"
+                                                        y2="8.90913"
+                                                        gradientUnits="userSpaceOnUse">
+                                            <stop stop-color="#D32A1E"/>
+                                            <stop offset="1" stop-color="#EB5E54"/>
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                            </label>
+                        </form>
+
+                        <div class="user-profile__card profile-card">
+                            <div class="profile-card__title">
+                                Подписка автоматически продлится {{ subscribe_day }} числа
+                            </div>
+                            <div class="profile-card__info">
+                                <div class="profile-card__icon"><img
+                                        src="/static/img/icons/credit-card.svg"
+                                        alt=""></div>
+                                <span></span>
+                                <span></span>
+                                <div class="profile-card__number">1234</div>
+                            </div>
+                            <a href="{{ subscribe_info }}" class="profile-card__link">Подробнее</a>
+                        </div>
+                    </div>
+                    <div class="profile-content__progress profile-progress">
+                        <div class="profile-progress__title">
+                            Ваш прогресс
+                        </div>
+                        <div class="profile-progress__circle_bg">
+                            <div class="profile-progress__circle">
+                                <div class="profile-progress__circle_info">
+                                    <span class="bigRed">{{ level }}</span><span>/10</span>
+                                    <span class="profile-progress__level">Уровень</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-card__adapt">
+                        <div class="profile-card__title">
+                            Подписка автоматически продлится {{ subscribe_day }} числа
+                        </div>
+                        <div class="profile-card__info">
+                            <span class="stars">**** **** ****</span>
+                            <div class="profile-card__number">1234</div>
+                        </div>
+                        <a href="{{ subscribe_info }}" class="profile-card__link_adapt">Подробнее</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+{% endblock main %}
+
+{% block profile_footer %}
+    <div class="profile-footer">
+        <div class="container">
+            <ul class="profile-footer__row">
+                <li>
+                    <a href="/profile" class="profile-footer__link home">
+                    </a>
+                </li>
+                <li>
+                    <a href="/subscribe" class="profile-footer__link card">
+                    </a>
+                </li>
+                <li>
+                    <a href="charging.html" class="profile-footer__link fla">
+                    </a>
+                </li>
+                <li>
+                    <a href="/profile" class="profile-footer__link prof">
+                    </a>
+                </li>
+                <li>
+                    <a href="/notifications" class="profile-footer__link not">
+
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endblock profile_footer %}
+
