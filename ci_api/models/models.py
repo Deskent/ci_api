@@ -90,7 +90,6 @@ class User(SQLModel, table=True):
     created_at: datetime = Field(default=datetime.now(tz=None))
     expired_at: Optional[datetime] = Field(default=None)
     is_verified: Optional[bool] = Field(default=False)
-    is_admin: Optional[bool] = Field(default=False)
     is_active: Optional[bool] = Field(default=False)
 
     rate_id: int = Field(nullable=False, foreign_key='rates.id')
@@ -114,3 +113,12 @@ class Rate(SQLModel, table=True):
 
     def __str__(self):
         return f"{self.id}: {self.name}"
+
+
+class Administrator(SQLModel, table=True):
+    __tablename__ = 'admins'
+
+    id: int = Field(default=None, primary_key=True, index=True)
+    username: str = Field(nullable=False, description="Имя")
+    email: EmailStr = Field(unique=True, index=True)
+    password: str = Field(nullable=False, max_length=256, min_length=6, exclude=True)

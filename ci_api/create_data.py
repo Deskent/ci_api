@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from config import logger
 from database.db import drop_db, create_db, db, get_session
 from services.auth import auth_handler
-from models.models import User, Alarm, Notification, Video, Complex, Rate
+from models.models import User, Alarm, Notification, Video, Complex, Rate, Administrator
 
 
 async def create_complexes(session: AsyncSession, data: list[dict] = None):
@@ -63,19 +63,6 @@ async def create_videos(session: AsyncSession, data: list[dict] = None):
 async def create_users(session: AsyncSession, data: list[dict] = None):
     if not data:
         data = [
-            {
-                'username': "admin",
-                'last_name': "adminov",
-                'third_name': "adminovich",
-                'phone': "7777777777",
-                'gender': 1,
-                'password': "admin",
-                'email': "admin@bk.ru",
-                'current_complex': 1,
-                'rate_id': 1,
-                'is_admin': True,
-                'is_active': True
-            },
             {
                 'username': "test1",
                 'last_name': "test1last",
@@ -190,6 +177,24 @@ async def create_rates(session: AsyncSession, data: list[dict] = None):
     await session.commit()
 
 
+async def create_admin(session: AsyncSession, data: list[dict] = None):
+    if not data:
+        data = [
+            {
+                'username': 'admin',
+                'email': 'admin@bk.ru',
+                'password': 'admin'
+            }
+        ]
+
+    for elem in data:
+        expired_at = datetime.utcnow() + timedelta(days=30)
+        elem['password'] = auth_handler.get_password_hash(elem['password'])
+        user = Administrator(**elem, expired_at=expired_at)
+        session.add(user)
+    await session.commit()
+
+
 async def create_fake_data():
     async for session in get_session():
         logger.debug("Create fake data to DB")
@@ -199,6 +204,7 @@ async def create_fake_data():
         await create_users(session)
         await create_alarms(session)
         await create_notifications(session)
+        await create_admin(session)
         logger.debug("Create fake data to DB: OK")
 
 
