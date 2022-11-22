@@ -1,6 +1,6 @@
 import shutil
 import subprocess
-from datetime import time
+from datetime import time, datetime, timedelta
 from pathlib import Path
 
 from fastapi import UploadFile, status, HTTPException
@@ -8,7 +8,8 @@ from sqlalchemy import select
 
 from config import settings, logger, MAX_VIDEO
 from database.db import get_session
-from models.models import Video, Complex
+from models.models import Video, Complex, Administrator
+from services.auth import auth_handler
 
 
 @logger.catch
@@ -122,3 +123,28 @@ async def upload_file(
         logger.info(f"Video {file_name} for complex {current_complex.id} uploaded.")
 
         return video
+
+
+async def create_default_admin():
+    async for session in get_session():
+        response = await session.execute(select(Administrator))
+        admins: list[Administrator] = response.scalars().all()
+
+        if not admins and settings.CREATE_ADMIN:
+            logger.warning("No admins found. Creating new admin.")
+
+            data = [
+                {
+                    'username': 'admin',
+                    'email': 'admin@bk.ru',
+                    'password': 'admin'
+                }
+            ]
+
+            for elem in data:
+                expired_at = datetime.utcnow() + timedelta(days=30)
+                elem['password'] = auth_handler.get_password_hash(elem['password'])
+                user = Administrator(**elem, expired_at=expired_at)
+                session.add(user)
+            await session.commit()
+            logger.info("Admin created.")

@@ -46,3 +46,4 @@ services:
       - ./ci_api/logs:/app/logs
     depends_on:
       - ci_postgres
+    restart: on-failure

@@ -11,8 +11,6 @@ class Database(BaseSettings):
     POSTGRES_PORT: int
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
-    DROP_TABLES: bool = False
-    RECREATE_DB: bool = False
 
     def get_db_name(self):
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
@@ -31,6 +29,8 @@ class Settings(BaseSettings):
     MEDIA_DIR: str = ''
     TEMPLATES_DIR: str = ''
     LOGS_DIR: str = ''
+    CREATE_FAKE_DATA: bool = False
+    CREATE_ADMIN: bool = False
 
 
 BASE_DIR = Path(__file__).parent
