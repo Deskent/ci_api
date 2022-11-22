@@ -8,14 +8,18 @@
     {% endif %}
     <form action="{{ request.url }}" method="post" enctype="multipart/form-data">
         <div class="p-3 bm-3 pb-3 form-label col-sm-2 col-form-label">
-            <p><label class="form-label" for="file_name">Имя файла: </label>
-                <input type="text" id="file_name" name="file_name"/></p>
-            <p><label class="form-label" for="name">Название упражнения: </label>
-                <input type="text" id="name" name="name"/></p>
-            <p><label class="form-label" for="description">Описание: </label>
-                <input type="text" id="description" name="description"/></p>
-            <p><label for="complex_id">Комплекс ID: </label></p>
-            <input type="number" id="complex_id" name="complex_id"/>
+            <label class="form-label" for="name">
+                <input placeholder="Имя файла" type="text" id="file_name" name="file_name"/>
+            </label>
+            <label class="form-label" for="name">
+                <input placeholder="Название упражнения" type="text" id="name"
+                       name="name"/></label>
+            <label class="form-label" for="description">
+                <input placeholder="Описание" type="text" id="description"
+                       name="description"/></label>
+            <label for="complex_id">
+                <input placeholder="Комплекс ID" type="number" id="complex_id"
+                       name="complex_id"/></label>
         </div>
         <p><label for="file">Выберите файл для загрузки</label>
             <input type="file" id="file" name="file" multiple></p>
