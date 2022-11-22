@@ -48,3 +48,5 @@ services:
       - ./ci_api/static:/app/static
     depends_on:
       - ci_postgres
+    restart: on-failure
+
