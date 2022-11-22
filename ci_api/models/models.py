@@ -2,10 +2,42 @@ from datetime import datetime, time
 from typing import Optional, List
 
 from pydantic import EmailStr
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import SQLModel, Field, Relationship, select
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 
-class Alarm(SQLModel, table=True):
+class MySQLModel(SQLModel):
+
+    async def save(self, session) -> None:
+        session.add(self)
+        await session.commit()
+
+    @classmethod
+    async def get_by_id(cls, session: AsyncSession, id_: int):
+        return await session.get(cls, id_)
+
+    @classmethod
+    async def get_all(cls, session: AsyncSession) -> list:
+        response = await session.execute(select(cls))
+
+        return response.scalars().all()
+
+    async def delete(self, session: AsyncSession):
+        await session.delete(self)
+        await session.commit()
+
+
+class UserDataModels(MySQLModel):
+
+    @classmethod
+    async def get_all_by_user_id(cls, session: AsyncSession, user_id: int):
+        query = select(cls).join(User).where(User.id == user_id)
+        response = await session.execute(query)
+
+        return response.scalars().all()
+
+
+class Alarm(UserDataModels, table=True):
     __tablename__ = 'alarms'
 
     id: int = Field(default=None, primary_key=True, index=True)
@@ -23,7 +55,7 @@ class Alarm(SQLModel, table=True):
         return f"{self.text}"
 
 
-class Notification(SQLModel, table=True):
+class Notification(UserDataModels, table=True):
     __tablename__ = 'notifications'
 
     id: int = Field(default=None, primary_key=True, index=True)
@@ -37,7 +69,7 @@ class Notification(SQLModel, table=True):
         return f"{self.text}"
 
 
-class Complex(SQLModel, table=True):
+class Complex(MySQLModel, table=True):
     __tablename__ = 'complexes'
 
     id: int = Field(default=None, primary_key=True, index=True)
@@ -54,7 +86,7 @@ class Complex(SQLModel, table=True):
         return f"{self.id}-{self.description}"
 
 
-class Video(SQLModel, table=True):
+class Video(MySQLModel, table=True):
     __tablename__ = 'videos'
 
     id: int = Field(default=None, primary_key=True, index=True)
@@ -71,8 +103,15 @@ class Video(SQLModel, table=True):
     def __str__(self):
         return f"{self.name}"
 
+    @classmethod
+    async def get_all_by_complex_id(cls, session: AsyncSession, complex_id: int):
+        query = select(cls).where(cls.complex_id == complex_id)
+        videos_row = await session.execute(query)
 
-class User(SQLModel, table=True):
+        return videos_row.scalars().all()
+
+
+class User(MySQLModel, table=True):
     __tablename__ = 'users'
 
     id: int = Field(default=None, primary_key=True, index=True)
@@ -102,8 +141,14 @@ class User(SQLModel, table=True):
     def __str__(self):
         return f"{self.username}"
 
+    @classmethod
+    async def get_by_email(cls, session: AsyncSession, email: EmailStr):
+        query = select(cls).where(cls.email == email)
+        response = await session.execute(query)
+        return response.scalars().first()
 
-class Rate(SQLModel, table=True):
+
+class Rate(MySQLModel, table=True):
     __tablename__ = 'rates'
 
     id: int = Field(default=None, primary_key=True, index=True)

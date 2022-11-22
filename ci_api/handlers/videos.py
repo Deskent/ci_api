@@ -25,7 +25,7 @@ async def get_video(
 
     """
     logger.debug(f"Video requested: {video_id}")
-    video: Video = await session.get(Video, video_id)
+    video: Video = await Video.get_by_id(session, video_id)
     if not video:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Video not found")
 

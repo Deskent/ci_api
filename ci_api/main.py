@@ -16,27 +16,17 @@ from handlers.web import router as web_router
 
 DOCS_URL = "/ci"
 BASE_DIR = Path(__file__).parent
-
-
-def _migrations():
-    command = 'alembic upgrade head'
-    result: 'subprocess.CompletedProcess' = subprocess.run(
-        [command],
-        shell=True
-    )
-    if result.returncode:
-        exit(f"Migration error: {result}: {result.stderr}")
+STATIC_DIR = BASE_DIR / 'static'
 
 
 def get_application():
     app = FastAPI(docs_url=DOCS_URL, redoc_url=DOCS_URL)
-    app.mount("/static", StaticFiles(directory="static"), name="static")
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
     app.include_router(main_router)
     app.include_router(web_router)
 
     @app.on_event("startup")
     async def on_startup():
-        _migrations()
         await create_default_admin()
         await create_fake_data()
         if not settings.MEDIA_DIR.exists():

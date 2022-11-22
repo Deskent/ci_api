@@ -28,8 +28,7 @@ async def create_notification(
     """
 
     notification: Notification = Notification(**data.dict(), user_id=user.id)
-    session.add(notification)
-    await session.commit()
+    await notification.save(session)
     logger.info(f"Notification with id {notification.id} created")
 
     return notification
@@ -44,7 +43,7 @@ async def get_notification(
         session: AsyncSession = Depends(get_session),
         user: User = Depends(get_logged_user)
 ):
-    notification = await session.get(Notification, notification_id)
+    notification = await Notification.get_by_id(session, notification_id)
     if notification and notification.user_id == user.id:
         return notification
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found")
@@ -79,8 +78,7 @@ async def update_notification(
     updated_data: dict = await get_data_for_update(data.dict())
     query = update(Notification).where(Notification.id == notification_id).values(**updated_data)
     await session.execute(query)
-    session.add(notification)
-    await session.commit()
+    await notification.save(session)
     logger.info(f"Notification with id {notification_id} updated")
 
     return notification
@@ -104,7 +102,6 @@ async def delete_notification(
     notification: Notification = await session.get(Notification, notification_id)
     if not notification:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found")
-    await session.delete(notification)
-    await session.commit()
+    await notification.delete(session)
 
     logger.info(f"Notification with id {notification_id} deleted")
