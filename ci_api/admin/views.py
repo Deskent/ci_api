@@ -7,7 +7,7 @@ from starlette.datastructures import FormData
 from admin.auth import authentication_backend
 from config import logger, settings
 from database.db import engine
-from models.models import User, Video, Complex, Rate
+from models.models import User, Video, Complex, Rate, Administrator
 from schemas.complexes_videos import VideoUpload
 from services.utils import upload_file, convert_seconds_to_time
 
@@ -41,7 +41,7 @@ class UserView(ModelView, model=User):
     column_details_exclude_list = [User.password, User.progress]
     column_list = [
         User.id, User.username, User.third_name, User.last_name, User.email, User.phone,
-        User.expired_at, User.level, User.created_at, User.is_admin, User.is_active,
+        User.expired_at, User.level, User.created_at, User.is_active,
         User.is_verified
     ]
     column_labels = {
@@ -53,7 +53,6 @@ class UserView(ModelView, model=User):
         User.expired_at: "Дата окончания подписки",
         User.level: "Прогресс",
         User.created_at: "Дата регистрации",
-        User.is_admin: "Админ",
         User.is_active: "Подписан",
         User.is_verified: "Подтвержден",
         User.rate_id: "Тариф",
@@ -70,29 +69,32 @@ class UserView(ModelView, model=User):
     column_formatters_detail = column_formatters
     form_columns = [*column_labels.keys(), User.gender]
     column_searchable_list = [User.username, User.email]
-    column_sortable_list = [User.username]
+    column_sortable_list = [User.id, User.username, User.expired_at]
     column_default_sort = [(User.expired_at, True), (User.id, True)]
     can_create = False
+    # TODO дописать функцию обработки пароля после создания
 
 
-# class AlarmView(ModelView, model=Alarm):
-#     column_list = [Alarm.id, Alarm.alarm_time, Alarm.text, Alarm.users, Alarm.weekdays]
-#     can_create = False
-#     can_edit = False
-#
-#     column_type_formatters = dict(ModelView.column_type_formatters, alarm_time=date_format)
+class AdminView(ModelView, model=Administrator):
+    name = "Администратор"
+    name_plural = "Администраторы"
+
+    column_details_exclude_list = [Administrator.password]
+    column_list = [
+        Administrator.id, Administrator.username, Administrator.email
+        ]
+
+    column_labels = {
+        User.username: "Имя",
+        User.email: "Е-мэйл",
+    }
+    column_sortable_list = [Administrator.id, Administrator.username, Administrator.email]
+    column_default_sort = [(Administrator.id, False)]
+    can_create = False
+    # TODO дописать функцию обработки пароля после создания
 
 
-# class NotificationView(ModelView, model=Notification):
-#     column_list = [
-#         Notification.id, Notification.notification_time, Notification.notification_time,
-#         Notification.users
-#     ]
-#     can_edit = False
-#     can_create = False
-#
-#
-class VideoView(ModelView, BaseView, model=Video):
+class VideoView(ModelView, model=Video):
     name = "Упражнение"
     name_plural = "Упражнения"
 
@@ -134,6 +136,8 @@ class UploadVideo(BaseView):
     async def upload_file(self, request: Request):
         if request.method == "GET":
             # TODO разобраться с формами
+            # TODO в выбор комплекс_ид вывести список всех комплексов
+
             # data = dict(
             #     filename={
             #         "title": "Имя файла",
@@ -176,6 +180,7 @@ def get_admin(app: FastAPI) -> Admin:
         templates_dir=settings.TEMPLATES_DIR
     )
 
+    admin.add_view(AdminView)
     admin.add_view(ComplexView)
     admin.add_view(UploadVideo)
     admin.add_view(RateView)
