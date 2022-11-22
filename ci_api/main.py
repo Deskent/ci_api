@@ -7,16 +7,13 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from admin.views import get_admin
 from config import settings
-from create_data import recreate
+from create_data import recreate_db_data
 from routers import main_router
+from services.utils import create_default_admin
 
 
 DOCS_URL = "/ci"
 BASE_DIR = Path(__file__).parent
-
-
-def migrate():
-    os.system('. ./migrations.sh')
 
 
 def get_application():
@@ -25,7 +22,8 @@ def get_application():
 
     @app.on_event("startup")
     async def on_startup():
-        await recreate()
+        await create_default_admin()
+        await recreate_db_data()
         if not settings.MEDIA_DIR.exists():
             Path.mkdir(settings.MEDIA_DIR, exist_ok=True)
 

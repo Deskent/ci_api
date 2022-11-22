@@ -4,7 +4,7 @@ import asyncio
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from config import logger
+from config import logger, settings
 from database.db import drop_db, create_db, db, get_session
 from services.auth import auth_handler
 from models.models import User, Alarm, Notification, Video, Complex, Rate, Administrator
@@ -177,24 +177,6 @@ async def create_rates(session: AsyncSession, data: list[dict] = None):
     await session.commit()
 
 
-async def create_admin(session: AsyncSession, data: list[dict] = None):
-    if not data:
-        data = [
-            {
-                'username': 'admin',
-                'email': 'admin@bk.ru',
-                'password': 'admin'
-            }
-        ]
-
-    for elem in data:
-        expired_at = datetime.utcnow() + timedelta(days=30)
-        elem['password'] = auth_handler.get_password_hash(elem['password'])
-        user = Administrator(**elem, expired_at=expired_at)
-        session.add(user)
-    await session.commit()
-
-
 async def create_fake_data():
     async for session in get_session():
         logger.debug("Create fake data to DB")
@@ -204,19 +186,18 @@ async def create_fake_data():
         await create_users(session)
         await create_alarms(session)
         await create_notifications(session)
-        await create_admin(session)
         logger.debug("Create fake data to DB: OK")
 
 
-async def recreate(flag: bool = False) -> None:
-    if db.DROP_TABLES or db.RECREATE_DB or flag:
+async def recreate_db_data(flag: bool = False) -> None:
+    if db.DROP_TABLES or settings.CREATE_FAKE_DATA or flag:
         await drop_db()
         await create_db()
 
-    if db.RECREATE_DB or flag:
+    if settings.CREATE_FAKE_DATA or flag:
         await create_fake_data()
 
 
 if __name__ == '__main__':
     flag = True
-    asyncio.run(recreate(flag))
+    asyncio.run(recreate_db_data(flag))

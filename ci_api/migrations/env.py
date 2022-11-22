@@ -1,4 +1,5 @@
 import asyncio
+import sys
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
@@ -8,8 +9,11 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from alembic import context
 from sqlmodel import SQLModel
 
-from ci_api.database.db import DATABASE_URL
+from database.db import DATABASE_URL
+from models.models import User
 
+
+sys.path = ['', '..'] + sys.path[1:]
 config = context.config
 config.set_main_option('sqlalchemy.url', DATABASE_URL)
 
