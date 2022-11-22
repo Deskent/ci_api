@@ -172,7 +172,6 @@ async def create_rates(session: AsyncSession, data: list[dict] = None):
                 'duration': 30 * 6
             }
         ]
-
     for elem in data:
         session.add(Rate(**elem))
     await session.commit()
@@ -182,6 +181,8 @@ async def create_fake_data(flag: bool = False):
     if settings.CREATE_FAKE_DATA or flag:
         async for session in get_session():
             logger.debug("Create fake data to DB")
+            if await session.get(User, 1):
+                return
             await create_rates(session)
             await create_complexes(session)
             await create_videos(session)
