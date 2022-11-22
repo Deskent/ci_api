@@ -17,13 +17,19 @@ BASE_DIR = Path(__file__).parent
 
 
 def _migrations():
-    command = 'alembic revision --autogenerate -m "auto" && alembic upgrade head'
+    command = 'alembic revision --autogenerate -m "auto" '
     result: 'subprocess.CompletedProcess' = subprocess.run(
         [command],
         shell=True
     )
+    if not result.returncode:
+        command = 'alembic upgrade head'
+        result: 'subprocess.CompletedProcess' = subprocess.run(
+            [command],
+            shell=True
+        )
     if result.returncode:
-        exit("Migration error")
+        exit(f"Migration error: {result}: {result.stderr}")
 
 
 def get_application():

@@ -192,7 +192,6 @@ async def create_fake_data(flag: bool = False):
             logger.debug("Create fake data to DB: OK")
 
 
-
 if __name__ == '__main__':
     flag = True
     asyncio.run(create_fake_data(flag))
