@@ -6,7 +6,7 @@ from fastapi import Request
 from config import settings, logger
 from services.depends import check_user_credentials
 from services.auth import auth_handler
-from models.models import User
+from models.models import Administrator
 
 
 class MyBackend(AuthenticationBackend):
@@ -15,11 +15,11 @@ class MyBackend(AuthenticationBackend):
         username: EmailStr = form["username"]
         password: str = form["password"]
         logger.debug(f'User: {username} try to login as admin.')
-        user: User = await check_user_credentials(username, password)
-        if user.is_admin:
+        user: Administrator = await check_user_credentials(username, password)
+        if user:
             token: str = auth_handler.encode_token(user.id)
             request.session.update({"token": token})
-            logger.debug(f'User: {username} logged as admin.')
+            logger.debug(f'Administrator: {username} logged as admin.')
 
             return True
 

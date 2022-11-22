@@ -4,7 +4,7 @@ from sqlalchemy import select
 
 from database.db import get_session, AsyncSession
 from services.auth import auth_handler
-from models.models import User
+from models.models import User, Administrator
 
 
 async def get_logged_user(
@@ -23,11 +23,11 @@ async def get_logged_user(
 async def check_user_credentials(
         email: EmailStr,
         password: str
-) -> User:
+) -> Administrator:
     """Check user and password is correct. Return user instance"""
 
     async for session in get_session():
-        query = select(User).where(User.email == email)
+        query = select(Administrator).where(Administrator.email == email)
         response = await session.execute(query)
         user = response.scalars().first()
         if not user:
