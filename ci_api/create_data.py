@@ -8,6 +8,7 @@ from config import logger, settings
 from database.db import drop_db, create_db, db, get_session
 from services.auth import auth_handler
 from models.models import User, Alarm, Notification, Video, Complex, Rate, Administrator
+from services.utils import create_default_admin
 
 
 async def create_complexes(session: AsyncSession, data: list[dict] = None):
@@ -177,27 +178,21 @@ async def create_rates(session: AsyncSession, data: list[dict] = None):
     await session.commit()
 
 
-async def create_fake_data():
-    async for session in get_session():
-        logger.debug("Create fake data to DB")
-        await create_rates(session)
-        await create_complexes(session)
-        await create_videos(session)
-        await create_users(session)
-        await create_alarms(session)
-        await create_notifications(session)
-        logger.debug("Create fake data to DB: OK")
-
-
-async def recreate_db_data(flag: bool = False) -> None:
-    if db.DROP_TABLES or settings.CREATE_FAKE_DATA or flag:
-        await drop_db()
-        await create_db()
-
+async def create_fake_data(flag: bool = False):
     if settings.CREATE_FAKE_DATA or flag:
-        await create_fake_data()
+        async for session in get_session():
+            logger.debug("Create fake data to DB")
+            await create_rates(session)
+            await create_complexes(session)
+            await create_videos(session)
+            await create_users(session)
+            await create_alarms(session)
+            await create_notifications(session)
+            await create_default_admin()
+            logger.debug("Create fake data to DB: OK")
+
 
 
 if __name__ == '__main__':
     flag = True
-    asyncio.run(recreate_db_data(flag))
+    asyncio.run(create_fake_data(flag))
