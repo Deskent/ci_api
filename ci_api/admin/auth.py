@@ -4,7 +4,7 @@ from sqladmin.authentication import AuthenticationBackend
 from fastapi import Request
 
 from config import settings, logger
-from services.depends import check_user_credentials
+from services.depends import check_admin_credentials
 from services.auth import auth_handler
 from models.models import Administrator
 
@@ -15,7 +15,7 @@ class MyBackend(AuthenticationBackend):
         username: EmailStr = form["username"]
         password: str = form["password"]
         logger.debug(f'User: {username} try to login as admin.')
-        user: Administrator = await check_user_credentials(username, password)
+        user: Administrator = await check_admin_credentials(username, password)
         if user:
             token: str = auth_handler.encode_token(user.id)
             request.session.update({"token": token})

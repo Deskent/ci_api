@@ -1,9 +1,9 @@
 import datetime
 
+import jwt
 from fastapi import Security, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from passlib.context import CryptContext
-import jwt
 
 from config import settings, logger
 from models.models import User
