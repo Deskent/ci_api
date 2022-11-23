@@ -55,7 +55,9 @@ async def web_register(request: Request):
     username = form['username']
     password = form['password']
     phone = form['phone']
+    gender = form['gender']
     # TODO Провалидировать данные
+    print(form)
 
     return RedirectResponse('/profile')
 
