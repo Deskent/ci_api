@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block body_header %}
+    <header class="profile-header">
+        <div class="container">
+            <div class="profile-header__cover"></div>
+            <div class="profile-header__row">
+                <div class="profile-header__burger">
+                    <span></span>
+                </div>
+                <div class="profile-header__menu header-menu">
+                    <div class="header-menu__user">
+                        <a href="/profile">
+                            <div class="header-menu__icon">
+                                <picture>
+                                    <source srcset="/static/img/user-image.webp"
+                                            type="image/webp">
+                                    <img src="/static/img/user-image.png" alt=""></picture>
+                            </div>
+                            <div class="header-menu__name">
+                                {{ username }}
+                            </div>
+                        </a>
+                    </div>
+                    <div class="header-menu__main">
+                        <ul class="header-menu__list">
+                            <li>
+                                <a href="/profile" class="header-menu__link prof">
+                                    Профиль
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/notifications" class="header-menu__link not">
+                                    Уведомления
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ feedback_link }}" class="header-menu__link clbc">
+                                    Обратная связь
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ help_link }}" class="header-menu__link help">
+                                    Помощь
+                                </a>
+                            </li>
+                        </ul>
+                        <div class="header-menu__buttons">
+                            <a href="/index" class="header-menu__exit">
+                                Выйти
+                            </a>
+                            <div class="header-menu__social">
+                                <a href="#" class="header-menu__vk">
+                                </a>
+                                <a href="#" class="header-menu__youtube">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-header__acc">
+                    <div class="profile-header__logo">
+                        <img src="/static/img/icons/acc__home.svg" alt="">
+                    </div>
+                    <span class="profile-header__span">{{ head_title }}</span>
+                </div>
+                <div class="profile-header__main">
+                    <div class="profile-header__user header-user">
+                        <a href="/profile">
+                            <div class="header-user__icon">
+                                <picture>
+                                    <source srcset="/static/img/user-image.webp"
+                                            type="image/webp">
+                                    <img src="/static/img/user-image.png" alt=""></picture>
+                            </div>
+                            <div class="header-user__info">
+                                <div class="header-user__name">{{ username }} {{ last_name }}</div>
+                                <div class="header-user__phone">
+                                    {{ user_phone }}
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="profile-header__exit">
+                        <a href="/index">
+                            <img src="/static/img/icons/exit.svg" alt="">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+{% endblock body_header %}
+
+
+{% block main %}
+    <main class="main profile-main">
+        {% block profile_menu %}
+            <menu class="profile-menu">
+                <div class="container">
+                    <div class="profile-menu__grid">
+                        <a href="/charging" class="profile-menu__link fla">
+                            Зарядка
+                        </a>
+                        <a href="/profile" class="profile-menu__link prof">
+                            Профиль
+                        </a>
+                        <a href="/notifications" class="profile-menu__link not">
+                            Уведомления
+                        </a>
+                        <a href="/subscribe" class="profile-menu__link sub">
+                            Подписка
+                        </a>
+                        <a href="{{ feedback_link }}" class="profile-menu__link cal">
+                            Обратная связь
+                        </a>
+                        <a href="{{ help_link }}" class="profile-menu__link inf">
+                            Помощь
+                        </a>
+                    </div>
+                </div>
+            </menu>
+        {% endblock profile_menu %}
+        {% block profile_content %}
+        {% endblock profile_content %}
+    </main>
+{% endblock main %}
+
+
+{% block profile_footer %}
+    <div class="profile-footer">
+        <div class="container">
+            <ul class="profile-footer__row">
+                <li>
+                    <a href="/profile" class="profile-footer__link home">
+                    </a>
+                </li>
+                <li>
+                    <a href="/subscribe" class="profile-footer__link card">
+                    </a>
+                </li>
+                <li>
+                    <a href="charging.html" class="profile-footer__link fla">
+                    </a>
+                </li>
+                <li>
+                    <a href="/profile" class="profile-footer__link prof">
+                    </a>
+                </li>
+                <li>
+                    <a href="/notifications" class="profile-footer__link not">
+
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endblock profile_footer %}
+

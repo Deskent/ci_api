@@ -111,7 +111,22 @@ class Video(MySQLModel, table=True):
         return videos_row.scalars().all()
 
 
-class User(MySQLModel, table=True):
+class UserModel(MySQLModel):
+
+    @classmethod
+    async def get_by_email(cls, session: AsyncSession, email: EmailStr):
+        query = select(cls).where(cls.email == email)
+        response = await session.execute(query)
+        return response.scalars().first()
+
+    @classmethod
+    async def get_by_phone(cls, session: AsyncSession, phone: str):
+        query = select(cls).where(cls.phone == phone)
+        response = await session.execute(query)
+        return response.scalars().first()
+
+
+class User(UserModel, table=True):
     __tablename__ = 'users'
 
     id: int = Field(default=None, primary_key=True, index=True)
@@ -141,12 +156,6 @@ class User(MySQLModel, table=True):
     def __str__(self):
         return f"{self.username}"
 
-    @classmethod
-    async def get_by_email(cls, session: AsyncSession, email: EmailStr):
-        query = select(cls).where(cls.email == email)
-        response = await session.execute(query)
-        return response.scalars().first()
-
 
 class Rate(MySQLModel, table=True):
     __tablename__ = 'rates'
@@ -160,7 +169,7 @@ class Rate(MySQLModel, table=True):
         return f"{self.id}: {self.name}"
 
 
-class Administrator(SQLModel, table=True):
+class Administrator(UserModel, table=True):
     __tablename__ = 'admins'
 
     id: int = Field(default=None, primary_key=True, index=True)

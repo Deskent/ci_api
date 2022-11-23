@@ -1,7 +1,4 @@
-import datetime
-
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.background import BackgroundTasks
@@ -11,8 +8,9 @@ from database.db import get_session
 from services.auth import auth_handler
 from schemas.user import UserRegistration, UserLogin, UserChangePassword
 from services.depends import get_logged_user
-from services.emails import send_verification_mail, verify_token_from_email
+from services.emails import verify_token_from_email
 from models.models import User
+from services.user import register_new_user, check_password_correct, get_login_token
 
 router = APIRouter(prefix="/auth", tags=['Authorization'])
 
@@ -46,27 +44,23 @@ async def register(
 
     :return: User created information as JSON
     """
-    query = select(User).where(User.email == user_data.email)
-    response = await session.execute(query)
-    user = response.scalars().first()
+
+    user, errors = await register_new_user(session, user_data, tasks)
     if user:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='User exists')
-
-    user_data.password = auth_handler.get_password_hash(user_data.password)
-    expired_at = datetime.datetime.now(tz=None) + datetime.timedelta(days=30)
-    user = User(
-        **user_data.dict(), is_verified=False,
-        current_complex=1, is_admin=False, is_active=True, expired_at=expired_at
+        return user
+    if errors:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=errors['error']
+        )
+    raise HTTPException(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        detail='New user registration unrecognized error'
     )
-    await user.save(session)
-    tasks.add_task(send_verification_mail, user)
-    logger.info(f"User with id {user.id} created")
-
-    return user
 
 
 @router.get("/verify_email", status_code=status.HTTP_202_ACCEPTED)
-async def verify_email(
+async def verify_email_token(
         token: str,
         session: AsyncSession = Depends(get_session)
 ):
@@ -95,18 +89,16 @@ async def login(
      :return: Authorization token as JSON
     """
 
-    user_found = await User.get_by_email(session, user.email)
-    if not user_found:
+    if not (user_found := await User.get_by_email(session, user.email)):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid username or password')
 
-    is_password_correct: bool = auth_handler.verify_password(user.password, user_found.password)
-    if not is_password_correct:
+    if not check_password_correct(user.password, user_found.password):
         logger.info(f"User with email {user.email} type wrong password")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid username or password')
 
-    token: str = auth_handler.encode_token(user_found.id)
+    token: str = get_login_token(user_found.id)
     logger.info(f"User with id {user_found.id} got Bearer token")
 
     return {"token": token}

@@ -61,3 +61,7 @@ class UserOutput(UserFullData):
 class UserProgress(BaseModel):
     level: int
     current_complex: int
+
+
+class EmailVerify(BaseModel):
+    email: EmailStr
