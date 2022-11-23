@@ -87,10 +87,9 @@ def check_password_correct(existing_password, entered_password) -> bool:
 
 
 async def user_login(session: AsyncSession, user_data: UserLogin) -> User:
-    user_found: User = await User.get_by_email(session, user_data.email)
-    password_correct: bool = check_password_correct(user_data.password, user_found.password)
-    if user_found and password_correct:
-        return user_found
+    if user_found := await User.get_by_email(session, user_data.email):
+        if check_password_correct(user_data.password, user_found.password):
+            return user_found
 
 
 async def check_email_exists(session: AsyncSession, email: EmailStr) -> bool:
