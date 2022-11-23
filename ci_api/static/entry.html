@@ -13,8 +13,11 @@
                 <div class="reg-banner__content">
                     <div class="registration__logo">
                     </div>
-                    <form action="#" class="registration__form">
-                        <label for="entryPhone" class="registration__label">
+                    {% if error %}
+                        <div class="entry__link_forget">{{ error }}</div>
+                    {% endif %}
+                    <form action="{{ request.url }}" method="POST" class="registration__form">
+                        <label for="entryEmail" class="registration__label">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                  xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -40,9 +43,9 @@
                                     </linearGradient>
                                 </defs>
                             </svg>
-                            <input placeholder="Почта/Телефон" type="text"
+                            <input placeholder="user@mail.ru" type="email"
                                    class="registration__input"
-                                   id="entryPhone">
+                                   id="entryEmail" name="user_email">
                         </label>
                         <label for="entryPassword" class="registration__label">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -70,9 +73,9 @@
                                     </linearGradient>
                                 </defs>
                             </svg>
-                            <input placeholder="password" type="password"
+                            <input placeholder="Пароль" type="password"
                                    class="registration__input registration__input_password"
-                                   id="entryPassword">
+                                   id="entryPassword" name="password">
                             <svg class="registration__input_password_btn" width="22" height="18"
                                  viewBox="0 0 22 18"
                                  fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -111,12 +114,15 @@
                             </svg>
 
                         </label>
+                        <button type="submit"
+                                class="registration__btn reg-banner__link_entry">
+                            Войти
+                        </button>
                     </form>
-                    <a href="forget1.html"
+                    <a href="/forget1"
                        class="entry__link_forget"><span>Забыли пароль?</span></a>
-                    <a href="profile.html"
-                       class="registration__btn reg-banner__link_entry">Войти</a>
-                    <a href="forget3.html"
+
+                    <a href="/forget3"
                        class="registration__btn reg-banner__link_reg entry__link_sms"><span>Войти по
                         sms/звонку</span></a>
                 </div>

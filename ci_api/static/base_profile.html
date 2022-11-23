@@ -60,7 +60,9 @@
                 </div>
                 <div class="profile-header__acc">
                     <div class="profile-header__logo">
-                        <img src="/static/img/icons/acc__home.svg" alt="">
+                        <a href="{{ icon_link }}" class="footer__logo">
+                            <img src="/static/img/icons/acc__home.svg" alt="">
+                        </a>
                     </div>
                     <span class="profile-header__span">{{ head_title }}</span>
                 </div>
@@ -82,7 +84,7 @@
                         </a>
                     </div>
                     <div class="profile-header__exit">
-                        <a href="/index">
+                        <a href="/logout">
                             <img src="/static/img/icons/exit.svg" alt="">
                         </a>
                     </div>

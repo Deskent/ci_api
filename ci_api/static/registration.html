@@ -15,7 +15,7 @@
                     <div class="registration__logo">
                     </div>
                     {% if error %}
-                        <div>{{ error }}</div>
+                        <div class="entry__link_forget">{{ error }}</div>
                     {% endif %}
 
                     <form action="{{ request.url }}" method="POST" class="registration__form">
