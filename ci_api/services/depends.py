@@ -20,7 +20,7 @@ async def get_logged_user(
                         detail='Incorrect username or password')
 
 
-async def check_user_credentials(
+async def check_admin_credentials(
         email: EmailStr,
         password: str
 ) -> Administrator:
