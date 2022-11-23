@@ -20,7 +20,7 @@ async def get_logged_user(
                         detail='Incorrect username or password')
 
 
-async def check_user_credentials(
+async def check_admin_credentials(
         email: EmailStr,
         password: str
 ) -> Administrator:
@@ -51,17 +51,6 @@ async def is_user_active(
         return user
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                         detail='User expired.')
-
-
-async def is_user_admin(
-        user: User = Depends(get_logged_user)
-) -> User:
-    """Check user is admin in database"""
-
-    if user.is_admin:
-        return user
-
-    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Access denied.')
 
 
 async def is_user_verified(

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+{% block head %}
+    <head>
+        <meta charset="UTF-8">
+        <link href="{{ url_for('static', path='css/style.css') }}" rel="stylesheet">
+        <link href="{{ url_for('static', path='js/app.js') }}" rel="stylesheet">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap&_v=20220828141206"
+              rel="stylesheet">
+        <link rel="stylesheet" href="/static/css/style.min.css?_v=20220828141206">
+        <title>{{ title }}</title>
+    </head>
+{% endblock head %}
+
+{% block body %}
+    <body>
+    {% block wrapper %}
+        <div class="wrapper">
+            {% block body_header %}
+                <header class="reg-header">
+                    <div class="container">
+                        <div class="reg-header__row">
+                            <div class="reg-header__acc">
+                                <div class="reg-header__logo">
+                                    <a href="{{ icon_link }}" class="footer__logo">
+                                        <img src="/static/img/icons/acc__home.svg" alt="">
+                                    </a>
+                                </div>
+                                <span class="reg-header__span">{{ head_title }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+            {% endblock body_header %}
+
+            {% block main %}
+            {% endblock main %}
+
+            {% block profile_footer %}
+            {% endblock profile_footer %}
+
+            {% block footer %}
+                <footer class="footer">
+                    <div class="container">
+                        <div class="footer__row">
+                            <div class="footer-info">
+                                <div class="footer-info__main">
+                                    <a href="{{ icon_link }}" class="footer__logo">
+                                        <img src="/static/img/logo-footer.svg" alt="">
+                                    </a>
+                                    <a href="{{ phone }}" class="footer__phone">
+                                        <span>{{ phone }}</span>
+                                    </a>
+                                    <a href="mailto:{{ company_email }}" class="footer__mail">
+                                        <span>{{ email }}</span>
+                                    </a>
+                                </div>
+                                <div class="footer-info__line"></div>
+                            </div>
+                            <div class="footer-links">
+                                <div class="footer-links__grid">
+                                    <a href="{{ google_play_link }}" class="footer-links__google">
+                                        <img src="/static/img/icons/googleplay.svg" alt="">
+                                    </a>
+                                    <a href="{{ app_store_link }}" class="footer-links__appstore">
+                                        <img src="/static/img/icons/appstore.svg" alt="">
+                                    </a>
+                                    <div class="footer-links__copy">
+                                        <a href="{{ conditions }}">Условия и положения</a>
+                                        <a href="{{ confidence }}">Политика конфиденциальности</a>
+                                    </div>
+                                    <div class="footer-links__social">
+                                        <a href="{{ vk_link }}" class="footer-links__vk">
+                                            <img src="/static/img/icons/vk.svg" alt="">
+                                        </a>
+                                        <a href="{{ youtube_link }}" class="footer-links__youtube">
+                                            <img src="/static/img/icons/youtube.svg" alt="">
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+            {% endblock footer %}
+        </div>
+    {% endblock wrapper %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js?_v=20220828141206"></script>
+    <!-- <script type="text/javascript" src="//cdn.jsdelivr.net/gh/kenwheeler/slick@1.8.1/slick/slick.min.js?_v=20220828141206"></script> -->
+
+    <script type="text/javascript"
+            src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.js?_v=20220828141206"></script>
+    <script src="/static/js/app.min.js?_v=20220828141206"></script>
+    </body>
+{% endblock body %}
+</html>

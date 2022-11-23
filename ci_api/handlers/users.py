@@ -1,7 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 
 from config import logger
 from database.db import get_session
@@ -23,10 +21,8 @@ async def get_user_alarms(
     :return List of alarms as JSON
     """
 
-    query = select(Alarm).join(User).where(User.id == user.id)
-    response = await session.execute(query)
-    alarms: list[dict] = [elem.dict() for elem in response.scalars().all()]
-
+    alarms_data: list[Alarm] = await Alarm.get_all_by_user_id(session, user.id)
+    alarms: list[dict] = [elem.dict() for elem in alarms_data]
     for alarm in alarms:
         alarm['weekdays'] = WeekDay(alarm['weekdays']).as_list
 
@@ -45,11 +41,10 @@ async def get_user_notifications(
     :return List of notifications
     """
 
-    query = select(Notification).join(User).where(User.id == user.id)
-    notifications = await session.execute(query)
+    notifications: list[Notification] = await Notification.get_all_by_user_id(session, user.id)
     logger.info(f"User with id {user.id} request notifications")
 
-    return notifications.scalars().all()
+    return notifications
 
 
 @router.get("/rates", response_model=list[Rate])
@@ -61,10 +56,29 @@ async def get_all_rates(
     :return List of rates
     """
 
-    rates = await session.execute(select(Rate).order_by(Rate.id))
+    rates: list[Rate] = await Rate.get_all(session)
     logger.info(f"Rates requested")
 
-    return rates.scalars().all()
+    return rates
+
+
+@router.delete("/", status_code=status.HTTP_204_NO_CONTENT, dependencies=[])
+async def delete_user(
+        logged_user: User = Depends(get_logged_user),
+        session: AsyncSession = Depends(get_session)
+):
+    """
+    Delete user by user_id. Need authorization.
+
+    :param user_id: int - User database ID
+
+    :return: None
+    """
+
+    if not (user := await session.get(User, logged_user.id)):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    await user.delete(session)
+    logger.info(f"User with id {user.id} deleted")
 
 
 @router.get("/me", response_model=User)
@@ -80,26 +94,6 @@ async def get_me(
     logger.info(f"User with id {user.id} request @me")
 
     return user
-
-
-@router.delete("/", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_user(
-        user: User = Depends(get_logged_user),
-        session: AsyncSession = Depends(get_session)
-):
-    """
-    Delete user by user_id. Need authorization.
-
-    :param user_id: int - User database ID
-
-    :return: None
-    """
-
-    if not (user := await session.get(User, user.id)):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    await session.delete(user)
-    await session.commit()
-    logger.info(f"User with id {user.id} deleted")
 
 
 # @router.put(

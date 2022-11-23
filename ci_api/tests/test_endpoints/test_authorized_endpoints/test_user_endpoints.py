@@ -14,7 +14,7 @@ class TestUsers:
         self.email_token = setup_class.email_token
         self.alarm_id = setup_class.alarm_id
         self.notification_id = setup_class.notification_id
-        yield self.headers
+        yield
 
     def test_get_me(self):
         response = self.session.get(self.base_url + "/users/me", headers=self.headers)

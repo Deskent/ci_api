@@ -35,7 +35,8 @@ services:
     env_file:
       - ./ci_api/.env
     command: >
-      sh -c "uvicorn main:app --workers 1 --host 0.0.0.0 --port 8000"
+      sh -c "alembic upgrade head &&
+             uvicorn main:app --workers 1 --host 0.0.0.0 --port 8000"
     ports:
       - "8000:8000"
     environment:
@@ -44,6 +45,8 @@ services:
       - ./ci_api/migrations:/app/migrations
       - ./ci_api/media:/app/media
       - ./ci_api/logs:/app/logs
+      - ./ci_api/static:/app/static
     depends_on:
       - ci_postgres
     restart: on-failure
+

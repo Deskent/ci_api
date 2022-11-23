@@ -36,9 +36,7 @@ async def video_viewed(
     """
 
     current_complex: Complex = await session.get(Complex, user.current_complex)
-    query = select(Video).where(Video.complex_id == user.current_complex)
-    videos_row = await session.execute(query)
-    videos: list[Video] = videos_row.scalars().all()
+    videos: list[Video] = await Video.get_all_by_complex_id(session, user.current_complex)
     if not videos:
         return UserProgress(**user.dict())
     percent: float = round(1 / len(videos), 1) * 100
@@ -48,8 +46,7 @@ async def video_viewed(
             user.level = user.level + 1
         user.progress = 0
         user.current_complex = current_complex.next_complex_id
-    session.add(user)
-    await session.commit()
+    await user.save(session)
     logger.debug(f"User with id {user.id} viewed video in complex {current_complex.id}")
 
     return user
@@ -62,12 +59,8 @@ async def complex_data(
 ):
     """Return complex info"""
 
-    complex_: Complex = await session.get(Complex, complex_id)
-    if not complex_:
+    if not (complex_ := await Complex.get_by_id(session, complex_id)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Complex not found")
-    query = select(Video).where(Video.complex_id == complex_id)
-    videos_row = await session.execute(query)
-    videos: list[Video] = videos_row.scalars().all()
-    result = ComplexData(**complex_.dict(), videos=videos)
+    videos: list[Video] = await Video.get_all_by_complex_id(session, complex_id)
 
-    return result
+    return ComplexData(**complex_.dict(), videos=videos)
