@@ -42,7 +42,6 @@ services:
     environment:
       POSTGRES_HOST: "ci_postgres"
     volumes:
-      - ./ci_api/media:/app/media
       - ./ci_api/logs:/app/logs
       - ./ci_api/static:/app/static
     depends_on:

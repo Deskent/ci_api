@@ -177,7 +177,7 @@ def get_admin(app: FastAPI) -> Admin:
         engine,
         base_url=ADMIN_URL,
         authentication_backend=authentication_backend,
-        templates_dir=settings.TEMPLATES_DIR
+        templates_dir=settings.STATIC_DIR / 'admin'
     )
 
     admin.add_view(AdminView)

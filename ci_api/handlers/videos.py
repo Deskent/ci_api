@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.responses import FileResponse
 
-from config import MEDIA_DIR, logger
+from config import settings, logger
 from database.db import get_session
 from models.models import Video
 from services.depends import is_user_active
@@ -29,7 +29,7 @@ async def get_video(
     if not video:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Video not found")
 
-    full_path: Path = MEDIA_DIR / video.file_name
+    full_path: Path = settings.MEDIA_DIR / video.file_name
     if not full_path.exists():
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"File {video.file_name} not found")

@@ -23,7 +23,7 @@ conf = ConnectionConfig(
     MAIL_STARTTLS=settings.MAIL_STARTTLS,
     MAIL_SSL_TLS=settings.MAIL_SSL_TLS,
     USE_CREDENTIALS=True,
-    TEMPLATE_FOLDER=settings.TEMPLATES_DIR
+    TEMPLATE_FOLDER=settings.STATIC_DIR / 'send_email'
 )
 
 
