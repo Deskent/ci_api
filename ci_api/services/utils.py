@@ -7,7 +7,7 @@ from fastapi import UploadFile, status, HTTPException
 from sqlalchemy import select
 
 from config import settings, logger, MAX_VIDEO
-from database.db import get_session
+from database.db import get_db_session
 from models.models import Video, Complex, Administrator
 from services.auth import auth_handler
 
@@ -80,7 +80,7 @@ async def upload_file(
 ) -> Video:
     """Check max videos in complex. Check video format. Save video file.
     Calculate video duration. Save row to database."""
-    async for session in get_session():
+    async for session in get_db_session():
         current_complex: Complex = await session.get(Complex, complex_id)
         if not current_complex:
             logger.warning(f"Complex {complex_id} not found")
@@ -126,7 +126,7 @@ async def upload_file(
 
 
 async def create_default_admin():
-    async for session in get_session():
+    async for session in get_db_session():
         response = await session.execute(select(Administrator))
         admins: list[Administrator] = response.scalars().all()
 

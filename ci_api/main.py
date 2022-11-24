@@ -1,4 +1,3 @@
-import subprocess
 from pathlib import Path
 
 import uvicorn
@@ -11,7 +10,7 @@ from config import settings
 from create_data import create_fake_data
 from routers import main_router
 from services.utils import create_default_admin
-from handlers.web import router as web_router
+from web_service.routs import router as web_router
 
 
 DOCS_URL = "/ci"

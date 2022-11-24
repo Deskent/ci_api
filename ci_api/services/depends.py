@@ -2,14 +2,14 @@ from fastapi import HTTPException, status, Depends
 from pydantic import EmailStr
 from sqlalchemy import select
 
-from database.db import get_session, AsyncSession
+from database.db import get_db_session, AsyncSession
 from services.auth import auth_handler
 from models.models import User, Administrator
 
 
 async def get_logged_user(
         logged_user: int = Depends(auth_handler.auth_wrapper),
-        session: AsyncSession = Depends(get_session)
+        session: AsyncSession = Depends(get_db_session)
 ) -> User:
     """Returns authenticated with Bearer user instance"""
 
@@ -26,7 +26,7 @@ async def check_admin_credentials(
 ) -> Administrator:
     """Check user and password is correct. Return user instance"""
 
-    async for session in get_session():
+    async for session in get_db_session():
         query = select(Administrator).where(Administrator.email == email)
         response = await session.execute(query)
         user = response.scalars().first()

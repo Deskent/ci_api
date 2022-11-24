@@ -3,7 +3,7 @@ from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from config import logger
-from database.db import get_session
+from database.db import get_db_session
 from models.models import Notification, User
 from schemas.notifications import NotificationBase, NotificationUpdate
 from services.depends import get_logged_user
@@ -16,7 +16,7 @@ router = APIRouter(prefix="/notifications", tags=['Notifications'])
 async def create_notification(
         data: NotificationBase,
         user: User = Depends(get_logged_user),
-        session: AsyncSession = Depends(get_session)
+        session: AsyncSession = Depends(get_db_session)
 ):
     """Create notification for user by user database id
 
@@ -40,7 +40,7 @@ async def create_notification(
 )
 async def get_notification(
         notification_id: int,
-        session: AsyncSession = Depends(get_session),
+        session: AsyncSession = Depends(get_db_session),
         user: User = Depends(get_logged_user)
 ):
     notification = await Notification.get_by_id(session, notification_id)
@@ -57,7 +57,7 @@ async def get_notification(
 async def update_notification(
         notification_id: int,
         data: NotificationBase,
-        session: AsyncSession = Depends(get_session)
+        session: AsyncSession = Depends(get_db_session)
 ):
     """
     Update notification by id. Need authorization.
@@ -91,7 +91,7 @@ async def update_notification(
 )
 async def delete_notification(
         notification_id: int,
-        session: AsyncSession = Depends(get_session)
+        session: AsyncSession = Depends(get_db_session)
 ):
     """Delete notification by its id. Need authorization.
 

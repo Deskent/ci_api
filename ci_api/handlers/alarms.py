@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.db import get_session
+from database.db import get_db_session
 from models.models import Alarm, User
 from schemas.alarms import AlarmCreate, AlarmFull
 from services.depends import get_logged_user
@@ -18,7 +18,7 @@ router = APIRouter(prefix="/alarms", tags=['Alarms'])
 async def create_alarm(
     data: AlarmCreate,
     user: User = Depends(get_logged_user),
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_db_session)
 ):
     """Create alarm for user by user database id. Need authorization.
 
@@ -61,7 +61,7 @@ async def create_alarm(
 async def get_alarm(
         alarm_id: int,
         user: User = Depends(get_logged_user),
-        session: AsyncSession = Depends(get_session)
+        session: AsyncSession = Depends(get_db_session)
 ):
     alarm: Alarm = await Alarm.get_by_id(session, alarm_id)
     if alarm and alarm.user_id == user.id:
@@ -103,7 +103,7 @@ async def get_alarm(
 )
 async def delete_alarm(
         alarm_id: int,
-        session: AsyncSession = Depends(get_session)
+        session: AsyncSession = Depends(get_db_session)
 ):
     """Delete alarm by its id. Need authorization.
 

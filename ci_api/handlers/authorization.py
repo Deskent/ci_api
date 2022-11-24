@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.background import BackgroundTasks
 
 from config import logger
-from database.db import get_session
+from database.db import get_db_session
 from services.auth import auth_handler
 from schemas.user import UserRegistration, UserLogin, UserChangePassword
 from services.depends import get_logged_user
@@ -19,7 +19,7 @@ router = APIRouter(prefix="/auth", tags=['Authorization'])
 async def register(
         tasks: BackgroundTasks,
         user_data: UserRegistration,
-        session: AsyncSession = Depends(get_session)
+        session: AsyncSession = Depends(get_db_session)
 ):
     """
     Create new user in database if not exists
@@ -62,7 +62,7 @@ async def register(
 @router.get("/verify_email", status_code=status.HTTP_202_ACCEPTED)
 async def verify_email_token(
         token: str,
-        session: AsyncSession = Depends(get_session)
+        session: AsyncSession = Depends(get_db_session)
 ):
     user_id: str = await verify_token_from_email(token=token)
     user: User = await session.get(User, user_id)
@@ -78,7 +78,7 @@ async def verify_email_token(
 @router.post("/login", response_model=dict)
 async def login(
         user: UserLogin,
-        session: AsyncSession = Depends(get_session)
+        session: AsyncSession = Depends(get_db_session)
 ):
     """Get user authorization token
 
@@ -108,7 +108,7 @@ async def login(
 async def change_password(
         data: UserChangePassword,
         user: User = Depends(get_logged_user),
-        session: AsyncSession = Depends(get_session)
+        session: AsyncSession = Depends(get_db_session)
 ):
     """
     Change password
