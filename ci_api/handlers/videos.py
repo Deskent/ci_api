@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.responses import FileResponse
 
 from config import settings, logger
-from database.db import get_session
+from database.db import get_db_session
 from models.models import Video
 from services.depends import is_user_active
 
@@ -15,7 +15,7 @@ router = APIRouter(prefix="/videos", tags=['Videos'])
 @router.get("/{video_id}", dependencies=[Depends(is_user_active)])
 async def get_video(
         video_id: int,
-        session: AsyncSession = Depends(get_session)):
+        session: AsyncSession = Depends(get_db_session)):
     """
     Return video by video id. Need active user.
 

@@ -5,10 +5,10 @@ import asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from config import logger, settings
-from database.db import drop_db, create_db, db, get_session
+from database.db import drop_db, create_db, db, get_db_session
 from services.auth import auth_handler
 from models.models import User, Alarm, Notification, Video, Complex, Rate, Administrator
-from services.utils import create_default_admin
+from admin.utils import create_default_admin
 
 
 async def create_complexes(session: AsyncSession, data: list[dict] = None):
@@ -179,7 +179,7 @@ async def create_rates(session: AsyncSession, data: list[dict] = None):
 
 async def create_fake_data(flag: bool = False):
     if settings.CREATE_FAKE_DATA or flag:
-        async for session in get_session():
+        async for session in get_db_session():
             logger.debug("Create fake data to DB")
             if await session.get(User, 1):
                 return

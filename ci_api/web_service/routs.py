@@ -5,11 +5,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.datastructures import FormData
 
 from config import logger
-from database.db import get_session
+from database.db import get_db_session
 from services.user import (
-    register_new_user, get_login_token, get_bearer_header, validate_register_form,
-    EntryProfile
+    register_new_user, get_login_token, get_bearer_header
 )
+from web_service.utils import EntryProfile, validate_register_form
 
 router = APIRouter()
 templates = Jinja2Templates(directory="static", auto_reload=True)
@@ -77,7 +77,7 @@ async def web_register(
         request: Request,
         tasks: BackgroundTasks,
         context: dict = Depends(get_context),
-        session: AsyncSession = Depends(get_session),
+        session: AsyncSession = Depends(get_db_session),
 ):
     context.update({'request': request})
     form: FormData = await request.form()
@@ -108,7 +108,7 @@ async def web_register(
 @router.get("/entry", response_class=HTMLResponse)
 async def entry(
         request: Request,
-        session: AsyncSession = Depends(get_session),
+        session: AsyncSession = Depends(get_db_session),
         context: dict = Depends(get_context),
 ):
     redirect = EntryProfile(request, context, session, templates)
@@ -118,7 +118,7 @@ async def entry(
 @router.post("/entry", response_class=HTMLResponse)
 async def entry(
         request: Request,
-        session: AsyncSession = Depends(get_session),
+        session: AsyncSession = Depends(get_db_session),
         context: dict = Depends(get_context),
 ):
     redirect = EntryProfile(request, context, session, templates)
@@ -139,7 +139,7 @@ def logout(request: Request):
 async def profile(
         request: Request,
         context: dict = Depends(get_profile_context),
-        session: AsyncSession = Depends(get_session),
+        session: AsyncSession = Depends(get_db_session),
 ):
     return await EntryProfile(request, context, session, templates).enter_profile()
 

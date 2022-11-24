@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
-from database.db import get_session
+from database.db import get_db_session
 from models.models import User, Complex, Video
 from schemas.complexes_videos import ComplexData
 from schemas.user import UserProgress
@@ -27,7 +27,7 @@ async def current_progress(
 @router.put("/", response_model=UserProgress)
 async def video_viewed(
         user: User = Depends(get_logged_user),
-        session: AsyncSession = Depends(get_session)
+        session: AsyncSession = Depends(get_db_session)
 ):
     """
     Calculate and return current progress and level after video viewed. Need authorization.
@@ -55,7 +55,7 @@ async def video_viewed(
 @router.get("/{complex_id}", response_model=ComplexData)
 async def complex_data(
     complex_id: int,
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_db_session)
 ):
     """Return complex info"""
 

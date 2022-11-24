@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     LOGS_DIR: str | Path = None
     CREATE_FAKE_DATA: bool = False
     CREATE_ADMIN: bool = False
+    DEFAULT_ADMIN: dict = {}
 
 
 BASE_DIR = Path(__file__).parent

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from config import logger
-from database.db import get_session
+from database.db import get_db_session
 from models.models import User, Alarm, Notification, Rate
 from schemas.alarms import AlarmBase
 from services.depends import get_logged_user
@@ -14,7 +14,7 @@ router = APIRouter(prefix="/users", tags=['Users'])
 @router.get("/alarms", response_model=list[AlarmBase])
 async def get_user_alarms(
         user: User = Depends(get_logged_user),
-        session: AsyncSession = Depends(get_session)
+        session: AsyncSession = Depends(get_db_session)
 ):
     """Get all user alarms. Need authorization.
 
@@ -34,7 +34,7 @@ async def get_user_alarms(
 @router.get("/notifications", response_model=list[Notification])
 async def get_user_notifications(
         user: User = Depends(get_logged_user),
-        session: AsyncSession = Depends(get_session)
+        session: AsyncSession = Depends(get_db_session)
 ):
     """Get all user notifications. Need authorization.
 
@@ -49,7 +49,7 @@ async def get_user_notifications(
 
 @router.get("/rates", response_model=list[Rate])
 async def get_all_rates(
-        session: AsyncSession = Depends(get_session)
+        session: AsyncSession = Depends(get_db_session)
 ):
     """Get all rates.
 
@@ -65,7 +65,7 @@ async def get_all_rates(
 @router.delete("/", status_code=status.HTTP_204_NO_CONTENT, dependencies=[])
 async def delete_user(
         logged_user: User = Depends(get_logged_user),
-        session: AsyncSession = Depends(get_session)
+        session: AsyncSession = Depends(get_db_session)
 ):
     """
     Delete user by user_id. Need authorization.

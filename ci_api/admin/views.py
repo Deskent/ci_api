@@ -9,7 +9,7 @@ from config import logger, settings
 from database.db import engine
 from models.models import User, Video, Complex, Rate, Administrator
 from schemas.complexes_videos import VideoUpload
-from services.utils import upload_file, convert_seconds_to_time
+from admin.utils import convert_seconds_to_time, upload_file
 
 ADMIN_URL = "/ci_admin"
 
