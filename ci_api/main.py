@@ -15,13 +15,11 @@ from handlers.web import router as web_router
 
 
 DOCS_URL = "/ci"
-BASE_DIR = Path(__file__).parent
-STATIC_DIR = BASE_DIR / 'static'
 
 
 def get_application():
-    app = FastAPI(docs_url=DOCS_URL, redoc_url=DOCS_URL)
-    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+    app = FastAPI(docs_url=DOCS_URL, redoc_url=DOCS_URL, debug=settings.DEBUG)
+    app.mount("/static", StaticFiles(directory=str(settings.STATIC_DIR)), name="static")
     app.include_router(main_router)
     app.include_router(web_router)
 

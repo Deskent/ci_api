@@ -25,28 +25,30 @@ class Settings(BaseSettings):
     MAIL_SSL_TLS: bool
     SECRET: str
     DEBUG: bool = False
-    BASE_DIR: str = ''
-    MEDIA_DIR: str = ''
-    TEMPLATES_DIR: str = ''
-    LOGS_DIR: str = ''
+    BASE_DIR: str | Path = None
+    MEDIA_DIR: str | Path = None
+    STATIC_DIR: str | Path = None
+    LOGS_DIR: str | Path = None
     CREATE_FAKE_DATA: bool = False
     CREATE_ADMIN: bool = False
 
 
 BASE_DIR = Path(__file__).parent
-MEDIA_DIR = BASE_DIR / 'media'
-TEMPLATES_DIR = BASE_DIR / 'templates'
+
 
 env_file = BASE_DIR / '.env'
 db = Database(_env_file=env_file, _env_file_encoding='utf-8')
 settings = Settings(_env_file=env_file, _env_file_encoding='utf-8')
 
-settings.BASE_DIR = BASE_DIR
-settings.MEDIA_DIR = MEDIA_DIR
-settings.TEMPLATES_DIR = TEMPLATES_DIR
-
-current_date = str(datetime.datetime.today().date())
-settings.LOGS_DIR = BASE_DIR / 'logs' / current_date
+if not settings.BASE_DIR:
+    settings.BASE_DIR = BASE_DIR
+if not settings.STATIC_DIR:
+    settings.STATIC_DIR = settings.BASE_DIR / 'static'
+if not settings.MEDIA_DIR:
+    settings.MEDIA_DIR = settings.STATIC_DIR / 'media'
+if not settings.LOGS_DIR:
+    current_date = str(datetime.datetime.today().date())
+    settings.LOGS_DIR = BASE_DIR / 'logs' / current_date
 
 LEVEL_UP = 70
 MAX_VIDEO = 10
