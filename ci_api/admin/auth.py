@@ -1,25 +1,23 @@
-from pydantic import EmailStr
+from fastapi import Request
 from sqladmin.authentication import AuthenticationBackend
 
-from fastapi import Request
-
 from config import settings, logger
-from services.depends import check_admin_credentials
-from services.auth import auth_handler
 from models.models import Administrator
+from services.auth import auth_handler
+from services.depends import check_admin_credentials
+from services.user import validate_logged_user_data
 
 
 class MyBackend(AuthenticationBackend):
     async def login(self, request: Request) -> bool:
         form = await request.form()
-        username: EmailStr = form["username"]
-        password: str = form["password"]
-        logger.debug(f'User: {username} try to login as admin.')
-        user: Administrator = await check_admin_credentials(username, password)
+        user_login, errors = await validate_logged_user_data(form)
+        logger.debug(f'User: {user_login.email} try to login as admin.')
+        user: Administrator = await check_admin_credentials(user_login)
         if user:
             token: str = auth_handler.encode_token(user.id)
             request.session.update({"token": token})
-            logger.debug(f'Administrator: {username} logged as admin.')
+            logger.debug(f'Administrator: {user.email} logged as admin.')
 
             return True
 

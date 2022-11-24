@@ -3,6 +3,7 @@ from pydantic import EmailStr
 from sqlalchemy import select
 
 from database.db import get_db_session, AsyncSession
+from schemas.user import UserLogin
 from services.auth import auth_handler
 from models.models import User, Administrator
 
@@ -20,21 +21,18 @@ async def get_logged_user(
                         detail='Incorrect username or password')
 
 
-async def check_admin_credentials(
-        email: EmailStr,
-        password: str
-) -> Administrator:
+async def check_admin_credentials(user_data: UserLogin) -> Administrator:
     """Check user and password is correct. Return user instance"""
 
     async for session in get_db_session():
-        query = select(Administrator).where(Administrator.email == email)
+        query = select(Administrator).where(Administrator.email == user_data.email)
         response = await session.execute(query)
         user = response.scalars().first()
         if not user:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                                 detail='Incorrect username or password')
 
-        is_password_correct: bool = auth_handler.verify_password(password, user.password)
+        is_password_correct: bool = auth_handler.verify_password(user_data.password, user.password)
         if not is_password_correct:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid username or password')

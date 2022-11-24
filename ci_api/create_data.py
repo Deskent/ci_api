@@ -8,7 +8,7 @@ from config import logger, settings
 from database.db import drop_db, create_db, db, get_db_session
 from services.auth import auth_handler
 from models.models import User, Alarm, Notification, Video, Complex, Rate, Administrator
-from services.utils import create_default_admin
+from admin.utils import create_default_admin
 
 
 async def create_complexes(session: AsyncSession, data: list[dict] = None):

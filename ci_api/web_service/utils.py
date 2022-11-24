@@ -8,8 +8,9 @@ from starlette.requests import Request
 from starlette.responses import RedirectResponse
 from starlette.templating import Jinja2Templates
 
-from schemas.user import UserRegistration, UserLogin
-from services.user import user_login, get_login_token, get_bearer_header, get_user_by_token
+from schemas.user import UserRegistration
+from services.user import user_login, get_login_token, get_bearer_header, get_user_by_token, \
+    validate_logged_user_data
 
 
 @dataclasses.dataclass
@@ -90,10 +91,3 @@ async def validate_register_form(form: FormData) -> tuple[UserRegistration | Non
         return None, {'error': text}
 
 
-async def validate_logged_user_data(form: FormData) -> tuple[UserLogin | None, dict]:
-    try:
-        user_data = UserLogin(email=form['user_email'], password=form['password'])
-        return user_data, {}
-    except pydantic.error_wrappers.ValidationError as err:
-        logger.debug(err)
-        return None, {'error': "Invalid email or password"}

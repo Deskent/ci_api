@@ -9,7 +9,7 @@ from admin.views import get_admin
 from config import settings
 from create_data import create_fake_data
 from routers import main_router
-from services.utils import create_default_admin
+from admin.utils import create_default_admin
 from web_service.routs import router as web_router
 
 
