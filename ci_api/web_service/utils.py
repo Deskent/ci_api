@@ -140,6 +140,7 @@ async def get_session_video_file_name(
         video: Video = Depends(get_session_video_by_id),
 ) -> str:
     file_path: Path = settings.MEDIA_DIR / video.file_name
+    print(file_path)
     if file_path.exists():
         return str(video.file_name)
     raise HTTPException(
