@@ -1,6 +1,7 @@
 import datetime
 from pathlib import Path
 
+from fastapi.templating import Jinja2Templates
 from loguru import logger
 from pydantic import BaseSettings, EmailStr
 
@@ -53,5 +54,8 @@ if not settings.LOGS_DIR:
 
 LEVEL_UP = 70
 MAX_VIDEO = 10
+MAX_LEVEL = 10
 log_level = 1 if settings.DEBUG else 20
 logger.add(level=log_level, sink=settings.LOGS_DIR / 'ci_api.log')
+
+templates = Jinja2Templates(directory="static", auto_reload=True)

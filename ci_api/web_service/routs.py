@@ -1,60 +1,22 @@
-import pydantic
-from fastapi import APIRouter, Request, Depends, BackgroundTasks, HTTPException, status, Body, Form
+from fastapi import APIRouter, Request, Depends, BackgroundTasks, HTTPException, status
 from fastapi.responses import HTMLResponse, RedirectResponse
-from fastapi.templating import Jinja2Templates
-from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.datastructures import FormData
 
-from config import logger
+from config import logger, templates
 from database.db import get_db_session
-from models.models import User, Complex, Video
+from models.models import Complex, Video
 from services.user import (
     register_new_user, get_login_token, get_bearer_header
 )
-from web_service.utils import EntryProfile, validate_register_form, get_session_context, \
-    get_session_user, get_complex_videos_list, get_current_user_complex, get_session_video_by_id
+from web_service.utils import validate_register_form, get_session_context, \
+    get_complex_videos_list, get_current_user_complex, get_context, get_profile_context, \
+    get_session_video_file_name, user_entry
 
 router = APIRouter()
-templates = Jinja2Templates(directory="static", auto_reload=True)
-
-MAX_LEVEL = 10
 
 
 # TODO Body and Forms
-
-
-def get_context(request: Request) -> dict:
-    return {
-        'request': request,
-        "title": "Добро пожаловать",
-        "head_title": "Добро пожаловать",
-        "icon_link": "/index",
-        "company_email": "company@email.com",
-        "phone": "tel:89999999998",
-        "google_play_link": "https://www.google.com",
-        "app_store_link": "https://www.apple.com",
-        "vk_link": "https://www.vk.com",
-        "youtube_link": "https://www.youtube.com",
-        "subscribe_info": "#",
-        "conditions": "#",
-        "confidence": "#",
-        "feedback_link": "#",
-        "help_link": "#"
-    }
-
-
-def get_profile_context(
-        common_context=Depends(get_context)
-) -> dict:
-    common_context.update(
-        {
-            "max_level": MAX_LEVEL,
-            "title": "Профиль",
-            "head_title": "Личный кабинет"
-        }
-    )
-    return common_context
 
 
 @router.get("/", response_class=HTMLResponse)
@@ -110,31 +72,11 @@ async def web_register(
     )
 
 
-async def get_token_from_session(request: Request):
-    return request.session.get('token')
-
-
-@router.get("/entry", response_class=HTMLResponse)
-async def entry(
-        request: Request,
-        token: str = Depends(get_token_from_session),
-        session: AsyncSession = Depends(get_db_session),
-        context: dict = Depends(get_profile_context),
-):
-    print(token)
-    redirect = EntryProfile(request, context, session, templates)
-    return await redirect.enter_profile()
-
-
 @router.post("/entry", response_class=HTMLResponse)
 async def entry(
-        request: Request,
-        session: AsyncSession = Depends(get_db_session),
-        context: dict = Depends(get_profile_context),
+        access_approved: templates.TemplateResponse = Depends(user_entry),
 ):
-    redirect = EntryProfile(request, context, session, templates)
-
-    return await redirect.user_entry()
+    return access_approved
 
 
 @router.get("/logout", response_class=HTMLResponse)
@@ -145,25 +87,17 @@ def logout(request: Request):
     return RedirectResponse('/entry')
 
 
+@router.get("/entry", response_class=HTMLResponse)
 @router.get("/profile", response_class=HTMLResponse)
 @router.post("/profile", response_class=HTMLResponse)
 async def profile(
-        request: Request,
-        context: dict = Depends(get_profile_context),
-        session: AsyncSession = Depends(get_db_session),
-):
-    return await EntryProfile(request, context, session, templates).enter_profile()
-
-
-@router.get("/notifications", response_class=HTMLResponse)
-async def notifications(
         session_context: dict = Depends(get_session_context),
         context: dict = Depends(get_profile_context),
 ):
     if not session_context:
         return templates.TemplateResponse("entry.html", context=context)
     context.update(**session_context)
-    return templates.TemplateResponse("notifications.html", context=context)
+    return templates.TemplateResponse("profile.html", context=context)
 
 
 @router.get("/charging", response_class=HTMLResponse)
@@ -175,11 +109,9 @@ async def charging(
 ):
     if not session_context:
         return templates.TemplateResponse("entry.html", context=context)
-    if current_complex:
-        context.update(current_complex=current_complex)
-    if videos:
-        context.update(videos=videos)
-    context.update(**session_context)
+    context.update(
+        current_complex=current_complex, videos=videos, **session_context
+    )
     return templates.TemplateResponse("charging.html", context=context)
 
 
@@ -196,13 +128,44 @@ async def subscribe(
 
 @router.get("/startCharging/{video_id}", response_class=HTMLResponse)
 async def start_charging(
-        video: Video = Depends(get_session_video_by_id),
+        file_name: Video = Depends(get_session_video_file_name),
         session_context: dict = Depends(get_session_context),
         context: dict = Depends(get_profile_context),
 ):
     if not session_context:
         return templates.TemplateResponse("entry.html", context=context)
-    if video:
-        context.update(file_name=video.file_name)
-    context.update(**session_context)
+    context.update(file_name=file_name, **session_context)
     return templates.TemplateResponse("startCharging.html", context=context)
+
+
+@router.get("/notifications", response_class=HTMLResponse)
+async def notifications(
+        session_context: dict = Depends(get_session_context),
+        context: dict = Depends(get_profile_context),
+):
+    if not session_context:
+        return templates.TemplateResponse("entry.html", context=context)
+    context.update(**session_context)
+    return templates.TemplateResponse("notifications.html", context=context)
+
+
+@router.get("/feedback", response_class=HTMLResponse)
+async def feedback(
+        session_context: dict = Depends(get_session_context),
+        context: dict = Depends(get_profile_context),
+):
+    if not session_context:
+        return templates.TemplateResponse("entry.html", context=context)
+    context.update(**session_context)
+    return templates.TemplateResponse("feedback.html", context=context)
+
+
+@router.get("/help_page", response_class=HTMLResponse)
+async def help_page(
+        session_context: dict = Depends(get_session_context),
+        context: dict = Depends(get_profile_context),
+):
+    if not session_context:
+        return templates.TemplateResponse("entry.html", context=context)
+    context.update(**session_context)
+    return templates.TemplateResponse("help_page.html", context=context)
