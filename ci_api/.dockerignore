@@ -4,4 +4,4 @@ Dockerfile
 *.sh
 /postgres_db
 README.md
-media
+*/static/*
