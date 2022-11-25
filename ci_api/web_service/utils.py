@@ -1,14 +1,13 @@
-import dataclasses
+from pathlib import Path
 
 import pydantic
-from fastapi import Depends
-from loguru import logger
+from fastapi import Depends, HTTPException, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 from starlette.datastructures import FormData
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
-from starlette.templating import Jinja2Templates
 
+from config import logger, MAX_LEVEL, settings, templates
 from database.db import get_db_session
 from models.models import User, Video, Complex
 from schemas.user import UserRegistration
@@ -16,62 +15,9 @@ from services.user import user_login, get_login_token, get_bearer_header, get_us
     validate_logged_user_data
 
 
-@dataclasses.dataclass
-class EntryProfile:
-    request: Request
-    context: dict
-    session: AsyncSession
-    templates: Jinja2Templates
-
-    async def user_entry(self):
-        self.context.update({
-            "request": self.request
-        })
-        form: FormData = await self.request.form()
-        user_data, errors = await validate_logged_user_data(form)
-        if not user_data and errors:
-            self.context.update(**errors)
-            logger.info(f'Login validation error: {errors["error"]}')
-
-            return self.templates.TemplateResponse("entry.html", context=self.context)
-
-        if user := await user_login(self.session, user_data):
-            login_token: str = get_login_token(user.id)
-            headers: dict[str, str] = get_bearer_header(login_token)
-            self.request.session.update(token=login_token)
-
-            return RedirectResponse('/profile', headers=headers)
-
-        errors = {'error': "Invalid user or password"}
-        self.context.update(**errors)
-
-        return self.templates.TemplateResponse("entry.html", context=self.context)
-
-    async def enter_profile(self):
-        self.context.update({
-            "request": self.request,
-        })
-        token = self.request.session.get('token')
-        if not token:
-            return self.templates.TemplateResponse("entry.html", context=self.context)
-
-        if not (user := await get_user_by_token(self.session, token)):
-            self.context.update(errors="User not found")
-
-            return self.templates.TemplateResponse("entry.html", context=self.context)
-
-        self.context.update({
-            "username": user.username,
-            "last_name": user.last_name,
-            "user_phone": user.phone,
-            "user_email": user.email,
-            "level": user.level,
-            "subscribe_day": user.expired_at
-        })
-        return self.templates.TemplateResponse("profile.html", context=self.context)
-
-
-async def validate_register_form(form: FormData) -> tuple[UserRegistration | None, dict]:
+async def validate_register_form(
+        form: FormData
+) -> tuple[UserRegistration | None, dict]:
     try:
         user_data = UserRegistration(
             username=form['username'],
@@ -91,6 +37,39 @@ async def validate_register_form(form: FormData) -> tuple[UserRegistration | Non
         error_text: str = err.errors()[0]['loc'][0]
         text = f'Invalid {error_text}'
         return None, {'error': text}
+
+
+def get_context(request: Request) -> dict:
+    return {
+        'request': request,
+        "title": "Добро пожаловать",
+        "head_title": "Добро пожаловать",
+        "icon_link": "/index",
+        "company_email": "company@email.com",
+        "phone": "tel:89999999998",
+        "google_play_link": "https://www.google.com",
+        "app_store_link": "https://www.apple.com",
+        "vk_link": "https://www.vk.com",
+        "youtube_link": "https://www.youtube.com",
+        "subscribe_info": "#",
+        "conditions": "#",
+        "confidence": "#",
+        "feedback_link": "/feedback",
+        "help_link": "/help_page"
+    }
+
+
+def get_profile_context(
+        common_context=Depends(get_context)
+) -> dict:
+    common_context.update(
+        {
+            "max_level": MAX_LEVEL,
+            "title": "Профиль",
+            "head_title": "Личный кабинет"
+        }
+    )
+    return common_context
 
 
 async def get_session_token(request: Request) -> str:
@@ -125,22 +104,76 @@ async def get_current_user_complex(
         user: User = Depends(get_session_user),
         session: AsyncSession = Depends(get_db_session),
 ) -> Complex:
-    return await Complex.get_by_id(session, user.current_complex)
+    if user:
+        return await Complex.get_by_id(session, user.current_complex)
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=f'Complex not found'
+    )
 
 
 async def get_complex_videos_list(
         user: User = Depends(get_session_user),
         session: AsyncSession = Depends(get_db_session),
 ):
-    return await Video.get_all_by_complex_id(session, user.current_complex)
+    if user:
+        return await Video.get_all_by_complex_id(session, user.current_complex)
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=f'User not found'
+    )
 
 
 async def get_session_video_by_id(
         video_id: int,
         session: AsyncSession = Depends(get_db_session),
 ) -> Video:
-    return await Video.get_by_id(session, video_id)
+    if video_id:
+        return await Video.get_by_id(session, video_id)
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=f'Video not found'
+    )
 
+
+async def get_session_video_file_name(
+        video: Video = Depends(get_session_video_by_id),
+) -> str:
+    file_path: Path = settings.MEDIA_DIR / video.file_name
+    if file_path.exists():
+        return str(video.file_name)
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=f'File {video.file_name} not found'
+    )
+
+
+async def user_entry(
+        request: Request,
+        session: AsyncSession = Depends(get_db_session),
+        context: dict = Depends(get_profile_context),
+
+) -> templates.TemplateResponse:
+
+    form: FormData = await request.form()
+    user_data, errors = await validate_logged_user_data(form)
+    if not user_data and errors:
+        context.update(**errors)
+        logger.info(f'Login validation error: {errors["error"]}')
+
+        return templates.TemplateResponse("entry.html", context=context)
+
+    if user := await user_login(session, user_data):
+        login_token: str = get_login_token(user.id)
+        headers: dict[str, str] = get_bearer_header(login_token)
+        request.session.update(token=login_token)
+
+        return RedirectResponse('/profile', headers=headers)
+
+    errors = {'error': "Invalid user or password"}
+    context.update(**errors)
+
+    return templates.TemplateResponse("entry.html", context=context)
 
 #
 # async def load_page(
