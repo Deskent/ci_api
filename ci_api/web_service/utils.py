@@ -140,7 +140,6 @@ async def get_session_video_file_name(
         video: Video = Depends(get_session_video_by_id),
 ) -> str:
     file_path: Path = settings.MEDIA_DIR / video.file_name
-    print(file_path)
     if file_path.exists():
         return str(video.file_name)
     raise HTTPException(
@@ -176,13 +175,14 @@ async def user_entry(
 
     return templates.TemplateResponse("entry.html", context=context)
 
-#
-# async def load_page(
-#         request: Request,
-#         session_context: dict = Depends(get_session_context)
-# ):
-#     page_name: str = str(request.url).split('/')[-1] + '.html'
-#     if not session_context:
-#         return templates.TemplateResponse("entry.html", context=context)
-#     context.update(**session_context)
-#     return templates.TemplateResponse(page_name, context=context)
+
+async def load_self_page(
+        request: Request,
+        session_context: dict = Depends(get_session_context),
+        context: dict = Depends(get_profile_context),
+):
+    page_name: str = str(request.url).split('/')[-1] + '.html'
+    if not session_context:
+        return templates.TemplateResponse("entry.html", context=context)
+    context.update(**session_context)
+    return templates.TemplateResponse(page_name, context=context)

@@ -11,7 +11,7 @@ from services.user import (
 )
 from web_service.utils import validate_register_form, get_session_context, \
     get_complex_videos_list, get_current_user_complex, get_context, get_profile_context, \
-    get_session_video_file_name, user_entry
+    get_session_video_file_name, user_entry, load_self_page
 
 router = APIRouter()
 
@@ -139,33 +139,9 @@ async def start_charging(
 
 
 @router.get("/notifications", response_class=HTMLResponse)
-async def notifications(
-        session_context: dict = Depends(get_session_context),
-        context: dict = Depends(get_profile_context),
-):
-    if not session_context:
-        return templates.TemplateResponse("entry.html", context=context)
-    context.update(**session_context)
-    return templates.TemplateResponse("notifications.html", context=context)
-
-
 @router.get("/feedback", response_class=HTMLResponse)
-async def feedback(
-        session_context: dict = Depends(get_session_context),
-        context: dict = Depends(get_profile_context),
-):
-    if not session_context:
-        return templates.TemplateResponse("entry.html", context=context)
-    context.update(**session_context)
-    return templates.TemplateResponse("feedback.html", context=context)
-
-
 @router.get("/help_page", response_class=HTMLResponse)
 async def help_page(
-        session_context: dict = Depends(get_session_context),
-        context: dict = Depends(get_profile_context),
+        self_page: dict = Depends(load_self_page),
 ):
-    if not session_context:
-        return templates.TemplateResponse("entry.html", context=context)
-    context.update(**session_context)
-    return templates.TemplateResponse("help_page.html", context=context)
+    return self_page
