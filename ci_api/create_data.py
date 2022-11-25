@@ -18,13 +18,13 @@ async def create_complexes(session: AsyncSession, data: list[dict] = None):
                 "description": "complex1",
                 "name": "комплекс 1",
                 "next_complex_id": 2,
-                "duration": 0
+                "duration": 10
             },
             {
                 "description": "complex2",
                 "name": "комплекс 2",
                 "next_complex_id": 3,
-                "duration": 0
+                "duration": 20
             }
         ]
 
@@ -38,19 +38,19 @@ async def create_videos(session: AsyncSession, data: list[dict] = None):
         data = [
             {
                 "complex_id": 1,
-                'file_name': 'hello.mp4',
+                'file_name': 'test.mp4',
                 'description': 'some video',
                 'name': 'v1',
             },
             {
                 "complex_id": 1,
-                'file_name': 'hello.mp4',
+                'file_name': 'test.mp4',
                 'name': 'v2',
                 'description': 'some video2',
             },
             {
                 "complex_id": 1,
-                'file_name': 'hello.mp4',
+                'file_name': 'test.mp4',
                 'name': 'v3',
                 'description': 'some video3',
             },
@@ -65,13 +65,13 @@ async def create_users(session: AsyncSession, data: list[dict] = None):
     if not data:
         data = [
             {
-                'username': "test1",
-                'last_name': "test1last",
-                'third_name': "test1third",
+                'username': "asd",
+                'last_name': "asdl",
+                'third_name': "asdt",
                 'phone': "1234567890",
                 'gender': 1,
-                'password': "string",
-                'email': "test1@example.com",
+                'password': "asd",
+                'email': "asd@asd.ru",
                 'current_complex': 1,
                 'rate_id': 1,
                 'is_admin': True,
@@ -193,6 +193,18 @@ async def create_fake_data(flag: bool = False):
             logger.debug("Create fake data to DB: OK")
 
 
+async def recreate_db(drop = False):
+    if drop:
+        await drop_db()
+        await create_db()
+
+
+async def make(flag, drop):
+    await recreate_db(drop)
+    await create_fake_data(flag)
+
+
 if __name__ == '__main__':
     flag = True
-    asyncio.run(create_fake_data(flag))
+    drop = False
+    asyncio.run(make(flag, drop))
