@@ -138,7 +138,7 @@
                             </svg>
                             <input placeholder="9215556677" type="tel" class="registration__input"
                                    pattern="[0-9]{10}"
-                                   id="registrationPhone" name="user_phone" required>
+                                   id="registrationPhone" name="phone" required>
                         </label>
 
                         <label for="registrationEmail" class="registration__label">
@@ -167,7 +167,8 @@
                             </svg>
                             <input placeholder="user@mail.ru" type="email"
                                    class="registration__input"
-                                   id="registrationEmail" name="user_email" required>
+                                   id="registrationEmail" name="email" required
+                                   pattern={{ email_pattern }}>
                         </label>
 
                         <label for="registrationPassword" class="registration__label">

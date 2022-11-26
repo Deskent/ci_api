@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from fastapi import Form
 from pydantic import BaseModel, validator, EmailStr
 
 from config import logger
@@ -21,10 +22,10 @@ class UserRegistration(Password):
     username: str
     last_name: str = ''
     third_name: str = ''
-    rate_id: int
+    rate_id: int = 1
     email: EmailStr
     phone: str
-    gender: bool
+    gender: bool = True
 
     @validator('phone')
     def check_phone(cls, phone: str, values, **kwargs):
@@ -34,10 +35,46 @@ class UserRegistration(Password):
             raise ValueError('phone should be in format 9214442233')
         return phone
 
+    @classmethod
+    def as_form(
+            cls,
+            username: str = Form(...),
+            last_name: str = Form(...),
+            third_name: str = Form(...),
+            phone: str = Form(...),
+            email: EmailStr = Form(...),
+            gender: str = Form(...),
+            password: str = Form(...),
+            password2: str = Form(...),
+    ):
+        if password != password2:
+            return
+        return cls(
+            username=username,
+            last_name=last_name,
+            third_name=third_name,
+            phone=phone,
+            rate_id=1,
+            email=email,
+            gender=True if gender == 'male' else False,
+            password=password,
+            password2=password2,
+        )
+
 
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
+    @classmethod
+    def as_form(
+            cls,
+            email: EmailStr = Form(...),
+            password: str = Form(...),
+    ):
+        return cls(
+            email=email,
+            password=password)
 
 
 class UserChangePassword(Password):
