@@ -8,12 +8,12 @@
                 <div class="mb-3">
                     <label class="form-label">Email</label>
                     {% if error %}
-                        <input name="email" type="text" class="form-control is-invalid"
+                        <input name="email" type="email" class="form-control is-invalid"
                                placeholder="email@email.com" autocomplete="off" required
                                pattern=".*@.*[\.].{2,}">
                         <div class="invalid-feedback">{{ error }}</div>
                     {% else %}
-                        <input name="email" type="text" class="form-control"
+                        <input name="email" type="email" class="form-control"
                                placeholder="email@email.com" autocomplete="off" required
                                pattern=".*@.*[\.].{2,}">
                     {% endif %}
