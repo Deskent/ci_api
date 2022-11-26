@@ -45,7 +45,9 @@
                             </svg>
                             <input placeholder="user@mail.ru" type="email"
                                    class="registration__input"
-                                   id="entryEmail" name="user_email">
+                                   id="entryEmail" name="email"
+                                   pattern={{ email_pattern }}
+                            >
                         </label>
                         <label for="entryPassword" class="registration__label">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
