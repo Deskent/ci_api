@@ -131,7 +131,7 @@ async def subscribe(
 async def start_charging(
         file_name: Video = Depends(get_session_video_file_name),
         session_context: dict = Depends(get_session_context),
-        context: dict = Depends(get_profile_context),
+        context: dict = Depends(get_profile_context)
 ):
     if not session_context:
         return templates.TemplateResponse("entry.html", context=context)
