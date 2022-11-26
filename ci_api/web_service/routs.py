@@ -1,17 +1,18 @@
 from fastapi import APIRouter, Request, Depends, BackgroundTasks, HTTPException, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from starlette.datastructures import FormData
 
 from config import logger, templates
 from database.db import get_db_session
 from models.models import Complex, Video
+from schemas.user import UserRegistration
 from services.user import (
     register_new_user, get_login_token, get_bearer_header
 )
-from web_service.utils import validate_register_form, get_session_context, \
-    get_complex_videos_list, get_current_user_complex, get_context, get_profile_context, \
-    get_session_video_file_name, user_entry, load_self_page
+from web_service.utils import (
+    get_session_context, get_complex_videos_list, get_current_user_complex, get_context,
+    get_profile_context, get_session_video_file_name, user_entry, load_self_page
+)
 
 router = APIRouter()
 
@@ -45,21 +46,21 @@ async def web_register(
         tasks: BackgroundTasks,
         context: dict = Depends(get_context),
         session: AsyncSession = Depends(get_db_session),
+        form_data: UserRegistration = Depends(UserRegistration.as_form)
 ):
-    context.update({'request': request})
-    form: FormData = await request.form()
-    user_data, errors = await validate_register_form(form)
-    if not user_data and errors:
+    if not form_data:
+        errors = {'error': 'Пароли не совпадают'}
         context.update(**errors)
-        logger.info(f'Email validation error: {errors["text"]}')
+        logger.info(f'Field validation error: {errors["error"]}')
 
         return templates.TemplateResponse("registration.html", context=context)
 
-    user, errors = await register_new_user(session, user_data, tasks)
+    user, errors = await register_new_user(session, form_data, tasks)
     if user:
         login_token: str = get_login_token(user.id)
         headers: dict[str, str] = get_bearer_header(login_token)
         request.session.update(token=login_token)
+
         return RedirectResponse('/profile', headers=headers)
 
     if errors:
@@ -84,7 +85,7 @@ def logout(request: Request):
     if 'token' in request.session:
         request.session.clear()
 
-    return RedirectResponse('/entry')
+    return RedirectResponse('/index')
 
 
 @router.get("/entry", response_class=HTMLResponse)

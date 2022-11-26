@@ -82,10 +82,15 @@ async def get_user_by_token(
     return await User.get_by_id(session, user_id)
 
 
-async def validate_logged_user_data(form: FormData) -> tuple[UserLogin | None, dict]:
+async def validate_logged_user_data(
+        form: FormData
+) -> tuple[UserLogin | None, dict]:
+
     try:
-        user_data = UserLogin(email=form['user_email'], password=form['password'])
+        user_data = UserLogin(email=form['email'], password=form['password'])
+
         return user_data, {}
     except pydantic.error_wrappers.ValidationError as err:
         logger.debug(err)
+
         return None, {'error': "Invalid email or password"}
