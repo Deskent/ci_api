@@ -76,9 +76,9 @@
                                     <img src="/static/img/user-image.png" alt=""></picture>
                             </div>
                             <div class="header-user__info">
-                                <div class="header-user__name">{{ username }} {{ last_name }}</div>
+                                <div class="header-user__name">{{ user.username }} {{ user.last_name }}</div>
                                 <div class="header-user__phone">
-                                    {{ phone }}
+                                    {{ user.phone }}
                                 </div>
                             </div>
                         </a>
@@ -127,7 +127,6 @@
         {% endblock profile_content %}
     </main>
 {% endblock main %}
-
 
 {% block profile_footer %}
     <div class="profile-footer">

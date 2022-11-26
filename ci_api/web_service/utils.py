@@ -24,7 +24,7 @@ def get_context(request: Request) -> dict:
         "head_title": "Добро пожаловать",
         "icon_link": "/index",
         "company_email": "company@email.com",
-        "phone": "tel:89999999998",
+        "company_phone": "tel:89999999998",
         "google_play_link": "https://www.google.com",
         "app_store_link": "https://www.apple.com",
         "vk_link": "https://www.vk.com",
@@ -68,12 +68,7 @@ async def get_session_context(
     context = {}
     if user:
         context.update({
-            "username": user.username,
-            "last_name": user.last_name,
-            "phone": user.phone,
-            "email": user.email,
-            "level": user.level,
-            "subscribe_day": user.expired_at
+            "user": user,
         })
 
     return context
@@ -159,6 +154,7 @@ async def load_self_page(
     page_name: str = str(request.url).split('/')[-1] + '.html'
     if not session_context:
         return templates.TemplateResponse("entry.html", context=context)
+
     context.update(**session_context)
 
     return templates.TemplateResponse(page_name, context=context)
@@ -188,3 +184,20 @@ async def restore_password(
     context.update(password_restored=f"Новый пароль выслан на почту {user.email}")
 
     return templates.TemplateResponse("forget1.html", context=context)
+
+
+async def set_new_password(
+        context: dict = Depends(get_profile_context),
+        session_context: dict = Depends(get_session_context),
+        new_password: str = Form(...),
+        session: AsyncSession = Depends(get_db_session),
+):
+    user: User = session_context.get('user')
+    if not user:
+        return templates.TemplateResponse("entry.html", context=context)
+
+    context.update(**session_context, password_chanded="Пароль успешно изменен.")
+    user.password = auth_handler.get_password_hash(new_password)
+    await user.save(session)
+
+    return templates.TemplateResponse("profile.html", context=context)

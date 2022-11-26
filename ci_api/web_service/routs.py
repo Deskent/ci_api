@@ -12,7 +12,7 @@ from services.user import (
 from web_service.utils import (
     get_session_context, get_complex_videos_list, get_current_user_complex, get_context,
     get_profile_context, get_session_video_file_name, user_entry, load_self_page,
-    restore_password
+    restore_password, set_new_password
 )
 
 router = APIRouter()
@@ -161,3 +161,17 @@ async def forget1(
         restore_password: dict = Depends(restore_password),
 ):
     return restore_password
+
+
+@router.get("/newPassword", response_class=HTMLResponse)
+async def newPassword(
+        context: dict = Depends(get_context),
+):
+    return templates.TemplateResponse("newPassword.html", context=context)
+
+
+@router.post("/newPassword", response_class=HTMLResponse)
+async def newPassword(
+        set_new_password: dict = Depends(set_new_password),
+):
+    return set_new_password
