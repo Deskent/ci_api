@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Body
 from sqlmodel.ext.asyncio.session import AsyncSession
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
@@ -105,6 +105,7 @@ async def get_session_video_by_id(
         video_id: int,
         session: AsyncSession = Depends(get_db_session),
 ) -> Video:
+
     if video_id:
         return await Video.get_by_id(session, video_id)
 
@@ -134,7 +135,6 @@ async def user_entry(
         form_data: UserLogin = Depends(UserLogin.as_form)
 
 ) -> templates.TemplateResponse:
-
     if user := await user_login(session, form_data):
         login_token: str = get_login_token(user.id)
         headers: dict[str, str] = get_bearer_header(login_token)
@@ -155,7 +155,6 @@ async def load_self_page(
 ):
     page_name: str = str(request.url).split('/')[-1] + '.html'
     if not session_context:
-
         return templates.TemplateResponse("entry.html", context=context)
     context.update(**session_context)
 
