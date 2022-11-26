@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block main %}
+
     <main class="main reg-main entry_main">
         <div class="reg-main__sketch reg-main__sketch_left reg-main__sketch_left_registration">
             <img src="/static/img/reg__bg.svg" alt="">
@@ -16,13 +17,13 @@
                         Введите проверочный код
                     </h2>
                     <p class="forget__text">
-                        Введите код из SMS отправленного
-                        на номер {{ user.phone }}
+                        Введите 4 последние цифры
+                        звонившего номера
                     </p>
                     {% if error %}
                         <div class="entry__link_forget">{{ error }}</div>
                     {% endif %}
-                    <form action="/forget2" method="POST" class="registration__form forget-form">
+                    <form action="/forget3" method="POST" class="registration__form forget-form">
                         <!-- <label class="forget-form__label" for="forgetInput1"></label> -->
                         <input class="forget-form__input" id="forgetInput1" maxlength="1"
                                type="text" name="sms_input_1" required pattern="[0-9]{1}">

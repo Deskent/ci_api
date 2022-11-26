@@ -153,17 +153,18 @@
                             </svg>
                             <input placeholder="9215556677" type="tel" class="registration__input"
                                    pattern="[0-9]{10}"
-                                   id="registrationPhone" name="phone" required>
+                                   id="registrationPhone" name="phone">
                         </label>
 
                         <div class="registration__gender registration-gender">
-                            <span>Пол</span>
-                            <input class="registration-gender__input" type="radio" name="sms_send_to"
+                            <input class="registration-gender__input" type="radio"
+                                   name="sms_send_to"
                                    id="femaleGender" value="sms" checked>
                             <label class="registration-gender__label" for="femaleGender">
                                 СМС
                             </label>
-                            <input class="registration-gender__input" type="radio" name="sms_send_to"
+                            <input class="registration-gender__input" type="radio"
+                                   name="sms_send_to"
                                    id="maleGender" value="call">
                             <label class="registration-gender__label" for="maleGender">
                                 Звонок
@@ -173,13 +174,13 @@
                                 class="registration__btn reg-banner__link_entry">
                             Войти
                         </button>
-{#                        <a href="/forget2"#}
-{#                           class="registration__btn reg-banner__link_reg entry__link_sms"><span>#}
-{#                        Войти по sms</span></a>#}
-{##}
-{#                        <a href="/forget3"#}
-{#                           class="registration__btn reg-banner__link_reg entry__link_sms"><span>#}
-{#                        Войти по звонку</span></a>#}
+                        {#                        <a href="/forget2"#}
+                        {#                           class="registration__btn reg-banner__link_reg entry__link_sms"><span>#}
+                        {#                        Войти по sms</span></a>#}
+                        {##}
+                        {#                        <a href="/forget3"#}
+                        {#                           class="registration__btn reg-banner__link_reg entry__link_sms"><span>#}
+                        {#                        Войти по звонку</span></a>#}
                     </form>
                 </div>
             </div>

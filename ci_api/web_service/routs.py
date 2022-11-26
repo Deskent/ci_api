@@ -59,13 +59,6 @@ async def web_register(
     )
 
 
-@router.post("/entry", response_class=HTMLResponse)
-async def entry(
-        access_approved: templates.TemplateResponse = Depends(user_entry),
-):
-    return access_approved
-
-
 @router.get("/logout", response_class=HTMLResponse)
 def logout(request: Request):
     if 'token' in request.session:
@@ -74,9 +67,9 @@ def logout(request: Request):
     return RedirectResponse('/index')
 
 
-@router.get("/entry", response_class=HTMLResponse)
 @router.get("/profile", response_class=HTMLResponse)
 @router.post("/profile", response_class=HTMLResponse)
+@router.get("/entry", response_class=HTMLResponse)
 async def profile(
         session_context: dict = Depends(get_session_context),
         context: dict = Depends(get_profile_context),
@@ -85,6 +78,13 @@ async def profile(
         return templates.TemplateResponse("entry.html", context=context)
     context.update(**session_context)
     return templates.TemplateResponse("profile.html", context=context)
+
+
+@router.post("/entry", response_class=HTMLResponse)
+async def entry(
+        access_approved: templates.TemplateResponse = Depends(user_entry),
+):
+    return access_approved
 
 
 @router.get("/charging", response_class=HTMLResponse)
@@ -177,11 +177,12 @@ async def forget2(
 
 
 @router.post("/forget2", response_class=HTMLResponse)
-async def forget2(
-        approve_sms_code: dict = Depends(approve_sms_code),
+@router.post("/forget3", response_class=HTMLResponse)
+async def login_with_sms(
+        check_sms_code: dict = Depends(approve_sms_code),
 ):
 
-    return approve_sms_code
+    return check_sms_code
 
 
 @router.get("/forget3", response_class=HTMLResponse)
