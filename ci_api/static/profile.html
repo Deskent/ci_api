@@ -16,18 +16,21 @@
                         <div class="user-profile__contacts">
                             <div class="user-profile__name">
                                 <input id="userName" type="text" disabled
-                                       value="{{ username }} {{ last_name }}"
+                                       value="{{ user.username }} {{ user.last_name }}"
                                        class="user-profile__name_input" maxlength="18">
                                 <label for="userName" class="user-profile__name_label">
                                     <img src="/static/img/icons/edit.svg" alt="">
                                 </label>
                             </div>
                             <div class="user-profile__phone">
-                                {{ phone }}
+                                {{ user.phone }}
                             </div>
                         </div>
                     </div>
-                    <form action="#" class="user-profile__form">
+                    {% if password_chanded %}
+                        <div class="entry__link_forget">{{ password_chanded }}</div>
+                    {% endif %}
+                    <form action="/newPassword" method="GET" class="user-profile__form">
                         <label for="profileEmail" class="registration__label active">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                  xmlns="http://www.w3.org/2000/svg">
@@ -54,9 +57,9 @@
                                     </linearGradient>
                                 </defs>
                             </svg>
-                            <input value="{{ email }}" placeholder="Почта"
-                                   type="email"
-                                   class="registration__input" id="profileEmail" name="user_email">
+                            <input value="{{ user.email }}" placeholder="Почта"
+                                   type="email" class="registration__input" id="profileEmail"
+                                   name="email" pattern={{ email_pattern }}>
                         </label>
                         <label for="profilePassword" class="registration__label active">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -86,7 +89,7 @@
                             </svg>
                             <input value="{{ password }}" placeholder="password" type="password"
                                    class="registration__input registration__input_password"
-                                   id="profilePassword" name="password">
+                                   id="profilePassword" name="password" required>
                             <svg class="registration__input_password_btn" width="22"
                                  height="18"
                                  viewBox="0 0 22 18"
@@ -128,11 +131,15 @@
                                 </defs>
                             </svg>
                         </label>
+                        <button type="submit"
+                                class="registration__btn reg-banner__link_entry">
+                            Изменить пароль
+                        </button>
                     </form>
 
                     <div class="user-profile__card profile-card">
                         <div class="profile-card__title">
-                            Подписка автоматически продлится {{ subscribe_day }} числа
+                            Подписка автоматически продлится {{ user.expired_at.day }} числа
                         </div>
                         <div class="profile-card__info">
                             <div class="profile-card__icon"><img
@@ -152,7 +159,7 @@
                     <div class="profile-progress__circle_bg">
                         <div class="profile-progress__circle">
                             <div class="profile-progress__circle_info">
-                                <span class="bigRed">{{ level }}</span><span>/{{ max_level }}</span>
+                                <span class="bigRed">{{ user.level }}</span><span>/{{ max_level }}</span>
                                 <span class="profile-progress__level">Уровень</span>
                             </div>
                         </div>
@@ -160,7 +167,7 @@
                 </div>
                 <div class="profile-card__adapt">
                     <div class="profile-card__title">
-                        Подписка автоматически продлится {{ subscribe_day }} числа
+                        Подписка автоматически продлится {{ user.expired_at }} числа
                     </div>
                     <div class="profile-card__info">
                         <span class="stars">**** **** ****</span>
