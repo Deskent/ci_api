@@ -1,3 +1,4 @@
+import random
 import secrets
 from pathlib import Path
 
@@ -7,13 +8,14 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
 
-from config import MAX_LEVEL, settings, templates
+from config import MAX_LEVEL, settings, templates, logger
 from database.db import get_db_session
 from models.models import User, Video, Complex
 from schemas.user import UserLogin
 from services.auth import auth_handler
 from services.emails import send_verification_mail
 from services.user import user_login, get_login_token, get_bearer_header, get_user_by_token
+from web_service.sms_utils import sms_service, SMSException
 
 
 def get_context(request: Request) -> dict:
@@ -176,7 +178,6 @@ async def restore_password(
         return templates.TemplateResponse("forget1.html", context=context)
 
     new_password: str = generate_random_password()
-    print(f"New password generated: {new_password} for user: {user.email}")
     user.password = auth_handler.get_password_hash(new_password)
     await user.save(session)
     tasks.add_task(send_verification_mail, user)
@@ -201,3 +202,87 @@ async def set_new_password(
     await user.save(session)
 
     return templates.TemplateResponse("profile.html", context=context)
+
+
+def generate_sms_message() -> str:
+    return "".join(
+        (str(random.randint(0, 9)) for _ in range(4))
+    )
+
+
+async def _send_sms(user, session, context):
+    message = generate_sms_message()
+    try:
+        sms_id: str = sms_service.send_sms(message)
+        if sms_id:
+            user.sms_message = message
+            await user.save(session)
+    except SMSException as err:
+        logger.error(err)
+        context.update(error=err)
+    return templates.TemplateResponse("forget2.html", context=context)
+
+
+async def _send_call(user, session, context):
+    try:
+        code: str = sms_service.send_call()
+        if code:
+            user.sms_call_code = code
+            await user.save(session)
+    except SMSException as err:
+        logger.error(err)
+        context.update(error=err)
+    return templates.TemplateResponse("forget3.html", context=context)
+
+
+async def enter_by_sms(
+        context: dict = Depends(get_context),
+        sms_send_to: str = Form(...),
+        phone: str = Form(...),
+        session: AsyncSession = Depends(get_db_session),
+):
+    user: User = await User.get_by_phone(session, phone)
+    if not user:
+        context.update(error="User with this phone number not found")
+        return templates.TemplateResponse("entry.html", context=context)
+
+    context.update(user=user)
+    if sms_send_to == "sms":
+        return await _send_sms(user, session, context)
+
+    elif sms_send_to == "call":
+        return await _send_call(user, session, context)
+
+
+async def login_user(user, request):
+    login_token: str = get_login_token(user.id)
+    headers: dict[str, str] = get_bearer_header(login_token)
+    request.session.update(token=login_token)
+
+    return RedirectResponse('/profile', headers=headers)
+
+
+async def approve_sms_code(
+        request: Request,
+        context: dict = Depends(get_context),
+        sms_input_1: str = Form(...),
+        sms_input_2: str = Form(...),
+        sms_input_3: str = Form(...),
+        sms_input_4: str = Form(...),
+        user_id: int = Form(...),
+        session: AsyncSession = Depends(get_db_session),
+):
+    code = ''.join((sms_input_1, sms_input_2, sms_input_3, sms_input_4))
+    user: User = await User.get_by_id(session, user_id)
+    if not user:
+        context.update(error="User with this phone number not found")
+        return templates.TemplateResponse("entry.html", context=context)
+
+    if code != user.sms_message:
+        context.update(error="Wrong sms message code")
+        return templates.TemplateResponse("forget2.html", context=context)
+
+    user.sms_message = None
+    await user.save(session)
+    return await login_user(user, request)
+

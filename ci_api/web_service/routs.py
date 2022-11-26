@@ -1,24 +1,13 @@
-from fastapi import APIRouter, Request, Depends, BackgroundTasks, HTTPException, status
-from fastapi.responses import HTMLResponse, RedirectResponse
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter
+from fastapi.responses import HTMLResponse
 
-from config import logger, templates
-from database.db import get_db_session
-from models.models import Complex, Video
 from schemas.user import UserRegistration
 from services.user import (
-    register_new_user, get_login_token, get_bearer_header
+    register_new_user
 )
-from web_service.utils import (
-    get_session_context, get_complex_videos_list, get_current_user_complex, get_context,
-    get_profile_context, get_session_video_file_name, user_entry, load_self_page,
-    restore_password, set_new_password
-)
+from web_service.utils import *
 
 router = APIRouter()
-
-
-# TODO Body and Forms
 
 
 @router.get("/", response_class=HTMLResponse)
@@ -58,11 +47,7 @@ async def web_register(
 
     user, errors = await register_new_user(session, form_data, tasks)
     if user:
-        login_token: str = get_login_token(user.id)
-        headers: dict[str, str] = get_bearer_header(login_token)
-        request.session.update(token=login_token)
-
-        return RedirectResponse('/profile', headers=headers)
+        return await login_user(user, request)
 
     if errors:
         context.update(**errors)
@@ -175,3 +160,32 @@ async def newPassword(
         set_new_password: dict = Depends(set_new_password),
 ):
     return set_new_password
+
+
+@router.post("/entry_sms", response_class=HTMLResponse)
+async def entry_sms(
+        enter_by_sms: templates.TemplateResponse = Depends(enter_by_sms),
+):
+    return enter_by_sms
+
+
+@router.get("/forget2", response_class=HTMLResponse)
+async def forget2(
+        context: dict = Depends(get_context),
+):
+    return templates.TemplateResponse("forget2.html", context=context)
+
+
+@router.post("/forget2", response_class=HTMLResponse)
+async def forget2(
+        approve_sms_code: dict = Depends(approve_sms_code),
+):
+
+    return approve_sms_code
+
+
+@router.get("/forget3", response_class=HTMLResponse)
+async def forget3(
+        context: dict = Depends(get_context),
+):
+    return templates.TemplateResponse("forget3.html", context=context)
