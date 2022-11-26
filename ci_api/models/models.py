@@ -145,6 +145,8 @@ class User(UserModel, table=True):
     expired_at: Optional[datetime] = Field(default=None)
     is_verified: Optional[bool] = Field(default=False)
     is_active: Optional[bool] = Field(default=False)
+    sms_message: Optional[str] = Field(nullable=True, default=None, description="Сообщение из смс")
+    sms_call_code: Optional[str] = Field(nullable=True, default=None, description="Код из звонка")
 
     rate_id: int = Field(nullable=False, foreign_key='rates.id')
     current_complex: Optional[int] = Field(nullable=True, default=1, foreign_key='complexes.id')

@@ -18,6 +18,7 @@ class Database(BaseSettings):
 
 
 class Settings(BaseSettings):
+    SMS_TOKEN: str
     EMAIL_LOGIN: EmailStr
     EMAIL_PASSWORD: str
     MAIL_PORT: int

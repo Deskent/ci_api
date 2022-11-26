@@ -176,7 +176,6 @@ async def restore_password(
         return templates.TemplateResponse("forget1.html", context=context)
 
     new_password: str = generate_random_password()
-    print(f"New password generated: {new_password} for user: {user.email}")
     user.password = auth_handler.get_password_hash(new_password)
     await user.save(session)
     tasks.add_task(send_verification_mail, user)
@@ -201,3 +200,13 @@ async def set_new_password(
     await user.save(session)
 
     return templates.TemplateResponse("profile.html", context=context)
+
+
+async def login_user(user, request):
+    login_token: str = get_login_token(user.id)
+    headers: dict[str, str] = get_bearer_header(login_token)
+    request.session.update(token=login_token)
+
+    return RedirectResponse('/profile', headers=headers)
+
+

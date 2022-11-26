@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block main %}
+    <main class="main reg-main entry_main">
+        <div class="reg-main__sketch reg-main__sketch_left reg-main__sketch_left_registration">
+            <img src="/static/img/reg__bg.svg" alt="">
+        </div>
+        <div class="reg-main__sketch reg-main__sketch_right reg-main__sketch_right_registration forget__sketch_right">
+            <img src="/static/img/reg__bg_rotate.svg" alt="">
+        </div>
+        <div class="container">
+            <div class="reg-content__banner reg-banner">
+                <div class="reg-banner__content forget__content">
+                    <div class="registration__logo">
+                    </div>
+                    <h2 class="forget__title">
+                        Введите проверочный код
+                    </h2>
+                    <p class="forget__text">
+                        Введите код из SMS отправленного
+                        на номер {{ user.phone }}
+                    </p>
+                    {% if error %}
+                        <div class="entry__link_forget">{{ error }}</div>
+                    {% endif %}
+                    <form action="/forget2" method="POST" class="registration__form forget-form">
+                        <!-- <label class="forget-form__label" for="forgetInput1"></label> -->
+                        <input class="forget-form__input" id="forgetInput1" maxlength="1"
+                               type="text" name="sms_input_1" required pattern="[0-9]{1}">
+                        <!-- <label class="forget-form__label" for="forgetInput2"></label> -->
+                        <input class="forget-form__input" id="forgetInput2" maxlength="1"
+                               type="text" name="sms_input_2" required pattern="[0-9]{1}">
+                        <!-- <label class="forget-form__label" for="forgetInput3"></label> -->
+                        <input class="forget-form__input" id="forgetInput3" maxlength="1"
+                               type="text" name="sms_input_3" required pattern="[0-9]{1}">
+                        <!-- <label class="forget-form__label" for="forgetInput4"></label> -->
+                        <input class="forget-form__input" id="forgetInput4" maxlength="1"
+                               type="text" name="sms_input_4" required pattern="[0-9]{1}">
+                        <input type="text" name="user_id" value="{{ user.id }}" hidden>
+                        <button type="submit"
+                                class="registration__btn reg-banner__link_entry">
+                            Подтвердить
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock main %}
