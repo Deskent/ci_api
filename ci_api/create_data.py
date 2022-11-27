@@ -37,23 +37,23 @@ async def create_videos(session: AsyncSession, data: list[dict] = None):
             {
                 "complex_id": 1,
                 'file_name': 'test.mp4',
-                'description': 'some video',
-                'name': 'v1',
-            },
-            {
-                "complex_id": 1,
-                'file_name': 'test.mp4',
-                'name': 'v2',
-                'description': 'some video2',
-            },
-            {
-                "complex_id": 1,
-                'file_name': 'test.mp4',
-                'name': 'v3',
-                'description': 'some video3',
-            },
+                'description': f'описание видео {i}',
+                'name': f'Видео № {i}',
+                'duration': i * 100
+            }
+            for i in range(1, 6)
         ]
-
+        data2 = [
+            {
+                "complex_id": 2,
+                'file_name': 'test.mp4',
+                'description': f'описание 2 видео {i}',
+                'name': f'Видео 2 № {i}',
+                'duration': i * 100
+            }
+            for i in range(1, 6)
+        ]
+    data.extend(data2)
     for video in data:
         session.add(Video(**video))
     await session.commit()
@@ -181,6 +181,7 @@ async def create_rates(session: AsyncSession, data: list[dict] = None):
 
 
 async def create_fake_data(flag: bool = False):
+    """Create fake data in database"""
     if settings.CREATE_FAKE_DATA or flag:
         async for session in get_db_session():
             logger.debug("Create fake data to DB")
@@ -196,18 +197,20 @@ async def create_fake_data(flag: bool = False):
             logger.debug("Create fake data to DB: OK")
 
 
-async def recreate_db(drop = False):
-    if drop:
+async def recreate_db(drop=False) -> None:
+    """Drop and create tables in database"""
+
+    if drop or settings.RECREATE_DB:
         await drop_db()
         await create_db()
 
 
-async def make(flag, drop):
-    await recreate_db(drop)
-    await create_fake_data(flag)
-
-
 if __name__ == '__main__':
+    async def make(flag, drop):
+        await recreate_db(drop)
+        await create_fake_data(flag)
+
+
     flag = True
     drop = True
     asyncio.run(make(flag, drop))

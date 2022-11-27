@@ -2,37 +2,35 @@
 
 {% block main %}
 
-      <main class="main profile-main">
-         <section>
+    <main class="main profile-main">
+        <section>
             <div class="startCharging-container">
-               <div class="charging-video__wrapper">
-                  <video class="charging-video" src="/static/media/test.mp4">
-                  </video>
-                  <button class="charging-video__play">
-                     <img src="/static/img/icons/charging-play-btn.svg" alt="">
-                  </button>
-                  <button class="charging-video__pause hidden">
-                     <img src="/static/img/icons/charging-pause-btn.svg" alt="">
-                  </button>
-               </div>
+                <div class="charging-video__wrapper">
+                    <video class="charging-video" src="/static/media/test.mp4">
+                    </video>
+                    <button class="charging-video__play">
+                        <img src="/static/img/icons/charging-play-btn.svg" alt="">
+                    </button>
+                    <button class="charging-video__pause hidden">
+                        <img src="/static/img/icons/charging-pause-btn.svg" alt="">
+                    </button>
+                </div>
             </div>
-         </section>
-         <div class="modal successCharge-modal" id="successCharge">
+        </section>
+        <div class="modal successCharge-modal" id="successCharge">
             <div class="successCharge-modal__content modal__content">
-               <div class="successCharge-modal__close modal__close red"></div>
-               <div class="successCharge-modal__column">
-                  <div class="successCharge-modal__title">
-                     Поздравляем! Вы перешли на 6-ой уровень!
-                  </div>
-                  <div class="successCharge-modal__level">
-                     <div><span class="bigred">4</span><span>/10</span></div>
-                  </div>
-                  <div class="successCharge-modal__remind">
-                     Завтрашний комплекс займет 10 минут
-                  </div>
-                  <div class="successCharge-modal__link modal__close">Понятно</div>
-               </div>
+                <div class="successCharge-modal__close modal__close red"></div>
+                <div class="successCharge-modal__column">
+                    <form action="/finishCharging" method="POST" class="registration__form">
+{#                        <input type="text" name="user_id" value={{ user.id }} hidden/>#}
+                        <button href="/finishCharging" type="submit"
+                                class="registration__btn reg-banner__link_entry">
+                            Готово
+                        </button>
+                    </form>
+                </div>
             </div>
-         </div>
-      </main>
+        </div>
+    </main>
+
 {% endblock main %}

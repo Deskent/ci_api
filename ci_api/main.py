@@ -8,7 +8,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from admin.utils import create_default_admin
 from admin.views import get_admin
 from config import settings
-from create_data import create_fake_data
+from create_data import create_fake_data, recreate_db
 from routers import main_router
 from web_service.routs import router as web_router
 
@@ -25,6 +25,7 @@ def get_application():
 
     @app.on_event("startup")
     async def on_startup():
+        await recreate_db()
         await create_default_admin()
         await create_fake_data()
         if not settings.MEDIA_DIR.exists():
