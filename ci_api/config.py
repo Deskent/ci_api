@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     BASE_DIR: str | Path = None
     MEDIA_DIR: str | Path = None
     STATIC_DIR: str | Path = None
+    TEMPLATES_DIR: str | Path = None
     LOGS_DIR: str | Path = None
     CREATE_FAKE_DATA: bool = False
     CREATE_ADMIN: bool = False
@@ -48,6 +49,11 @@ if not settings.BASE_DIR:
     settings.BASE_DIR = BASE_DIR
 if not settings.STATIC_DIR:
     settings.STATIC_DIR = settings.BASE_DIR / 'static'
+    if not settings.STATIC_DIR.exists():
+        logger.warning(f"Static directory {settings.STATIC_DIR} does not exists")
+        exit()
+if not settings.TEMPLATES_DIR:
+    settings.TEMPLATES_DIR = settings.BASE_DIR / 'templates'
 if not settings.MEDIA_DIR:
     settings.MEDIA_DIR = settings.STATIC_DIR / 'media'
 if not settings.LOGS_DIR:
@@ -60,4 +66,4 @@ MAX_LEVEL = 10
 log_level = 1 if settings.DEBUG else 20
 logger.add(level=log_level, sink=settings.LOGS_DIR / 'ci_api.log')
 
-templates = Jinja2Templates(directory="static", auto_reload=True)
+templates = Jinja2Templates(directory=settings.TEMPLATES_DIR, auto_reload=True)

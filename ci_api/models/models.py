@@ -136,7 +136,7 @@ class UserModel(MySQLModel):
         return await session.get(cls, user_id)
 
     async def is_password_valid(self, password: str) -> bool:
-        return auth_handler.verify_password(self.password, password)
+        return auth_handler.verify_password(password, self.password)
 
     async def get_user_token(self) -> str:
         return auth_handler.encode_token(self.id)

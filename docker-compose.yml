@@ -43,7 +43,7 @@ services:
       POSTGRES_HOST: "ci_postgres"
     volumes:
       - ./ci_api/logs:/app/logs
-      - ./ci_api/static:/app/static
+      - ./static:/app/static
     depends_on:
       - ci_postgres
     restart: on-failure
