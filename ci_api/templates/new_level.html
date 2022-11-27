@@ -1,0 +1,20 @@
+{% extends 'base_profile.html' %}
+
+{% block main %}
+    <main class="main profile-main">
+        <div class="successCharge-modal__title">
+            Поздравляем! Вы перешли на {{ user.level }}-ой уровень!
+        </div>
+        <div class="successCharge-modal__level">
+            <div>
+                <span class="bigred">{{ user.level }}</span><span>/{{ max_level }}</span>
+            </div>
+        </div>
+        <div class="successCharge-modal__remind">
+            Завтрашний комплекс займет {{ current_complex.duration }} минут
+        </div>
+        <a href="/charging" class="successCharge-modal__link modal__close">
+            Отлично
+        </a>
+    </main>
+{% endblock main %}
