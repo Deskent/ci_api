@@ -9,7 +9,6 @@ from web_service.utils import *
 
 router = APIRouter()
 
-# TODO бесплатный тариф
 # TODO оплата и сохранение истории платежей - нужен аккаунт
 # TODO сделать страницу для списка комплексов
 

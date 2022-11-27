@@ -28,11 +28,11 @@ class Settings(BaseSettings):
     SECRET: str
     HASH_ALGORITHM: str
     DEBUG: bool = False
-    BASE_DIR: str | Path = None
-    MEDIA_DIR: str | Path = None
-    STATIC_DIR: str | Path = None
-    TEMPLATES_DIR: str | Path = None
-    LOGS_DIR: str | Path = None
+    BASE_DIR: Path = None
+    MEDIA_DIR: Path = None
+    STATIC_DIR: Path = None
+    TEMPLATES_DIR: Path = None
+    LOGS_DIR: Path = None
     CREATE_FAKE_DATA: bool = False
     CREATE_ADMIN: bool = False
     DEFAULT_ADMIN: dict = {}

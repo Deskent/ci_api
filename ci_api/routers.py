@@ -1,10 +1,10 @@
 from fastapi import APIRouter
-from handlers.users import router as user_router
-from handlers.alarms import router as alarms_router
-from handlers.notifications import router as notifications_router
-from handlers.videos import router as videos_router
-from handlers.complexes import router as complex_router
-from handlers.authorization import router as auth_router
+from api.users import router as user_router
+from api.alarms import router as alarms_router
+from api.notifications import router as notifications_router
+from api.videos import router as videos_router
+from api.complexes import router as complex_router
+from api.authorization import router as auth_router
 
 
 main_router = APIRouter(prefix="/api/v1")

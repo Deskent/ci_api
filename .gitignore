@@ -1,6 +1,6 @@
 *.sh
 **/.idea
-**/spam
+spam
 **/logs
 **/postgres_db
 **/media
