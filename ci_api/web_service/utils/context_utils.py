@@ -12,13 +12,15 @@ from database.db import get_db_session
 from models.models import User, Video, Complex
 from schemas.user import UserLogin
 from services.auth import auth_handler
+from services.depends import get_context_with_request
 from services.emails import send_verification_mail
 from services.user import user_login, get_login_token, get_bearer_header, get_user_by_token
 
 
-def get_context(request: Request) -> dict:
-    return {
-        'request': request,
+def get_context(
+        context: dict = Depends(get_context_with_request)
+) -> dict:
+    context.update({
         'email_pattern': ".*@.*[\.].{2,}",
         "title": "Добро пожаловать",
         "head_title": "Добро пожаловать",
@@ -34,7 +36,9 @@ def get_context(request: Request) -> dict:
         "confidence": "#",
         "feedback_link": "/feedback",
         "help_link": "/help_page"
-    }
+    })
+
+    return context
 
 
 def get_profile_context(

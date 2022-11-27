@@ -1,11 +1,11 @@
 from fastapi import HTTPException, status, Depends
-from pydantic import EmailStr
+from fastapi import Request
 from sqlalchemy import select
 
 from database.db import get_db_session, AsyncSession
+from models.models import User, Administrator
 from schemas.user import UserLogin
 from services.auth import auth_handler
-from models.models import User, Administrator
 
 
 async def get_logged_user(
@@ -60,3 +60,9 @@ async def is_user_verified(
         return user
 
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='User is not verified yet.')
+
+
+async def get_context_with_request(
+        request: Request
+) -> dict:
+    return {"request": request}

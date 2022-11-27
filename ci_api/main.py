@@ -5,11 +5,11 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
+from admin.utils import create_default_admin
 from admin.views import get_admin
 from config import settings
 from create_data import create_fake_data
 from routers import main_router
-from admin.utils import create_default_admin
 from web_service.routs import router as web_router
 
 
@@ -29,7 +29,7 @@ def get_application():
         if not settings.MEDIA_DIR.exists():
             Path.mkdir(settings.MEDIA_DIR, exist_ok=True)
 
-    get_admin(app)
+    app: FastAPI = get_admin(app)
     app.add_middleware(SessionMiddleware, secret_key=settings.SECRET)
 
     return app

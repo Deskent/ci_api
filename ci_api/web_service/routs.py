@@ -9,6 +9,10 @@ from web_service.utils import *
 
 router = APIRouter()
 
+# TODO бесплатный тариф
+# TODO оплата и сохранение истории платежей
+# TODO вынести статику, оставить шаблоны
+
 
 @router.get("/", response_class=HTMLResponse)
 @router.get("/index", response_class=HTMLResponse)

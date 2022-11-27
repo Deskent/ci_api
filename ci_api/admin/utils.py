@@ -6,11 +6,13 @@ from pathlib import Path
 from fastapi import UploadFile, HTTPException
 from loguru import logger
 from sqlalchemy import select
+from sqlmodel.ext.asyncio.session import AsyncSession
 from starlette import status
 
 from config import MAX_VIDEO, settings
 from database.db import get_db_session
 from models.models import Video, Complex, Administrator
+from schemas.complexes_videos import VideoUpload
 from services.auth import auth_handler
 
 
@@ -63,34 +65,31 @@ def get_video_duration(video_path: str) -> int:
 
 
 async def upload_file(
-        file_name: str,
-        name: str,
-        description: str,
-        complex_id: int,
-        file: UploadFile
+        file_form: VideoUpload
 ) -> Video:
     """Check max videos in complex. Check video format. Save video file.
     Calculate video duration. Save row to database."""
+
     async for session in get_db_session():
-        current_complex: Complex = await session.get(Complex, complex_id)
+        current_complex: Complex = await session.get(Complex, file_form.complex_id)
         if not current_complex:
-            logger.warning(f"Complex {complex_id} not found")
+            logger.warning(f"Complex {file_form.complex_id} not found")
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                                detail=f"Complex with id {complex_id} not found")
+                detail=f"Complex with id {file_form.complex_id} not found")
         query = select(Video).where(Video.complex_id == current_complex.id)
         videos_row = await session.execute(query)
         videos: list[Video] = videos_row.scalars().all()
         if len(videos) >= MAX_VIDEO:
-            logger.warning(f"For complex {complex_id} exists {MAX_VIDEO} videos")
+            logger.warning(f"For complex {file_form.complex_id} exists {MAX_VIDEO} videos")
             raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE,
-                                detail="There is maximum video in this complex")
-        if file.content_type != 'video/mp4':
-            logger.warning(f'Unsupported type {file.content_type}')
+                detail="There is maximum video in this complex")
+        if file_form.file.content_type != 'video/mp4':
+            logger.warning(f'Unsupported type {file_form.file.content_type}')
             raise HTTPException(
                 status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-                detail=f'Unsupported type {file.content_type}. Must be mp4.'
+                detail=f'Unsupported type {file_form.file.content_type}. Must be mp4.'
             )
-        full_filename: str = f'{file_name}.mp4'
+        full_filename: str = f'{file_form.file_name}.mp4'
         file_path: Path = settings.MEDIA_DIR / full_filename
         if file_path.exists():
             error_text = f'File with name {full_filename} exists.'
@@ -99,11 +98,10 @@ async def upload_file(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=error_text
             )
-        save_video(str(file_path), file)
-        duration: int = get_video_duration(str(file_path))
-        video = Video(
-            file_name=full_filename, description=description, name=name,
-            complex_id=complex_id, duration=duration)
+        save_video(str(file_path), file_form.file)
+        file_form.duration = get_video_duration(str(file_path))
+        file_form.file_name = full_filename
+        video = Video(**file_form.dict())
         session.add(video)
         await session.commit()
 
@@ -111,7 +109,7 @@ async def upload_file(
         session.add(current_complex)
         await session.commit()
 
-        logger.info(f"Video {file_name} for complex {current_complex.id} uploaded.")
+        logger.info(f"Video {file_form.file_name} for complex {current_complex.id} uploaded.")
 
         return video
 
