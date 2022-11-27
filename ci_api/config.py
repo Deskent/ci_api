@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     MAIL_STARTTLS: bool
     MAIL_SSL_TLS: bool
     SECRET: str
+    HASH_ALGORITHM: str
     DEBUG: bool = False
     BASE_DIR: str | Path = None
     MEDIA_DIR: str | Path = None

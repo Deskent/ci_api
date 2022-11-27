@@ -2,7 +2,6 @@ import datetime
 
 import pydantic
 from fastapi.background import BackgroundTasks
-from loguru import logger
 from pydantic import EmailStr
 from sqlmodel.ext.asyncio.session import AsyncSession
 from starlette.datastructures import FormData
@@ -10,25 +9,24 @@ from starlette.datastructures import FormData
 from config import logger
 from models.models import User, Administrator
 from schemas.user import UserRegistration, UserLogin
-from services.auth import auth_handler
 from services.emails import send_verification_mail
 
 
-def get_login_token(user_id: int) -> str:
-    return auth_handler.encode_token(user_id)
+# def get_login_token(user_id: int) -> str:
+#     return auth_handler.encode_token(user_id)
 
 
 def get_bearer_header(token: str) -> dict[str, str]:
     return {'Authorization': f"Bearer {token}"}
 
 
-def check_password_correct(existing_password, entered_password) -> bool:
-    return auth_handler.verify_password(existing_password, entered_password)
+# def check_password_correct(existing_password, entered_password) -> bool:
+#     return auth_handler.verify_password(existing_password, entered_password)
 
 
 async def user_login(session: AsyncSession, user_data: UserLogin) -> User:
     if user_found := await User.get_by_email(session, user_data.email):
-        if check_password_correct(user_data.password, user_found.password):
+        if user_found.is_password_valid(user_data.password):
             return user_found
 
 
@@ -60,7 +58,7 @@ async def register_new_user(
         errors = {'error': 'User with this phone already exists'}
         return None, errors
 
-    user_data.password = auth_handler.get_password_hash(user_data.password)
+    user_data.password = await User.get_hashed_password(user_data.password)
     expired_at = datetime.datetime.now(tz=None) + datetime.timedelta(days=30)
     user = User(
         **user_data.dict(), is_verified=False,

@@ -1,14 +1,12 @@
-from datetime import datetime, timedelta
-
 import asyncio
+from datetime import datetime, timedelta
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from config import logger, settings
-from database.db import drop_db, create_db, db, get_db_session
-from services.auth import auth_handler
-from models.models import User, Alarm, Notification, Video, Complex, Rate, Administrator
 from admin.utils import create_default_admin
+from config import logger, settings
+from database.db import drop_db, create_db, get_db_session
+from models.models import User, Alarm, Notification, Video, Complex, Rate
 
 
 async def create_complexes(session: AsyncSession, data: list[dict] = None):
@@ -104,7 +102,7 @@ async def create_users(session: AsyncSession, data: list[dict] = None):
         ]
     for user in data:
         expired_at = datetime.utcnow() + timedelta(days=30)
-        user['password'] = auth_handler.get_password_hash(user['password'])
+        user['password'] = await User.get_hashed_password(user['password'])
         user = User(**user, expired_at=expired_at)
         session.add(user)
     await session.commit()

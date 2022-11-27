@@ -13,7 +13,6 @@ from config import MAX_VIDEO, settings
 from database.db import get_db_session
 from models.models import Video, Complex, Administrator
 from schemas.complexes_videos import VideoUpload
-from services.auth import auth_handler
 
 
 @logger.catch
@@ -128,7 +127,7 @@ async def create_default_admin():
 
             for elem in data:
                 expired_at = datetime.utcnow() + timedelta(days=30)
-                elem['password'] = auth_handler.get_password_hash(elem['password'])
+                elem['password'] = await Administrator.get_hashed_password(elem['password'])
                 user = Administrator(**elem, expired_at=expired_at)
                 session.add(user)
             await session.commit()

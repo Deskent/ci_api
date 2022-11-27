@@ -11,10 +11,9 @@ from config import MAX_LEVEL, settings, templates
 from database.db import get_db_session
 from models.models import User, Video, Complex
 from schemas.user import UserLogin
-from services.auth import auth_handler
 from services.depends import get_context_with_request
 from services.emails import send_verification_mail
-from services.user import user_login, get_login_token, get_bearer_header, get_user_by_token
+from services.user import user_login, get_bearer_header, get_user_by_token
 
 
 def get_context(
@@ -138,7 +137,7 @@ async def user_entry(
 
 ) -> templates.TemplateResponse:
     if user := await user_login(session, form_data):
-        login_token: str = get_login_token(user.id)
+        login_token: str = await user.get_user_token()
         headers: dict[str, str] = get_bearer_header(login_token)
         request.session.update(token=login_token)
 
@@ -180,7 +179,7 @@ async def restore_password(
         return templates.TemplateResponse("forget1.html", context=context)
 
     new_password: str = generate_random_password()
-    user.password = auth_handler.get_password_hash(new_password)
+    user.password = await user.get_hashed_password(new_password)
     await user.save(session)
     tasks.add_task(send_verification_mail, user)
 
@@ -200,14 +199,14 @@ async def set_new_password(
         return templates.TemplateResponse("entry.html", context=context)
 
     context.update(**session_context, password_chanded="Пароль успешно изменен.")
-    user.password = auth_handler.get_password_hash(new_password)
+    user.password = await user.get_hashed_password(new_password)
     await user.save(session)
 
     return templates.TemplateResponse("profile.html", context=context)
 
 
 async def login_user(user, request):
-    login_token: str = get_login_token(user.id)
+    login_token: str = await user.get_user_token()
     headers: dict[str, str] = get_bearer_header(login_token)
     request.session.update(token=login_token)
 

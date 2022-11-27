@@ -1,6 +1,5 @@
 from fastapi import HTTPException, status, Depends
 from fastapi import Request
-from sqlalchemy import select
 
 from database.db import get_db_session, AsyncSession
 from models.models import User, Administrator
@@ -18,26 +17,24 @@ async def get_logged_user(
         return user
 
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                        detail='Incorrect username or password')
+        detail='Incorrect username or password')
 
 
 async def check_admin_credentials(user_data: UserLogin) -> Administrator:
     """Check user and password is correct. Return user instance"""
 
     async for session in get_db_session():
-        query = select(Administrator).where(Administrator.email == user_data.email)
-        response = await session.execute(query)
-        user = response.scalars().first()
-        if not user:
+        admin: Administrator = await Administrator.get_by_email(session, user_data.email)
+        if not admin:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                                detail='Incorrect username or password')
+                detail='Incorrect username or password')
 
-        is_password_correct: bool = auth_handler.verify_password(user_data.password, user.password)
+        is_password_correct: bool = await admin.is_password_valid(user_data.password)
         if not is_password_correct:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid username or password')
 
-        return user
+        return admin
 
 
 async def is_user_active(
@@ -48,7 +45,7 @@ async def is_user_active(
     if user.is_active:
         return user
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                        detail='User expired.')
+        detail='User expired.')
 
 
 async def is_user_verified(
