@@ -160,12 +160,17 @@ async def create_rates(session: AsyncSession, data: list[dict] = None):
     if not data:
         data = [
             {
-                'name': '1 month rate',
+                'name': 'Бесплатный',
+                'price': 0,
+                'duration': 30
+            },
+            {
+                'name': '30 дней',
                 'price': 100,
                 'duration': 30
             },
             {
-                'name': '6 month rate',
+                'name': '6 месяцев',
                 'price': 500,
                 'duration': 30 * 6
             }
@@ -204,5 +209,5 @@ async def make(flag, drop):
 
 if __name__ == '__main__':
     flag = True
-    drop = False
+    drop = True
     asyncio.run(make(flag, drop))

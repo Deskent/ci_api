@@ -16,6 +16,13 @@ from services.emails import send_verification_mail
 from services.user import user_login, get_bearer_header
 
 
+COMPANY_PHONE = "9213336698"
+
+
+def represent_phone(phone: str) -> str:
+    return f"8 ({phone[:3]}) {phone[3:6]}-{phone[6:]}"
+
+
 def get_context(
         context: dict = Depends(get_context_with_request)
 ) -> dict:
@@ -25,7 +32,8 @@ def get_context(
         "head_title": "Добро пожаловать",
         "icon_link": "/index",
         "company_email": "company@email.com",
-        "company_phone": "tel:89999999998",
+        "company_phone": f"tel:{COMPANY_PHONE}",
+        "company_represent_phone": f"tel: {represent_phone(COMPANY_PHONE)}",
         "google_play_link": "https://www.google.com",
         "app_store_link": "https://www.apple.com",
         "vk_link": "https://www.vk.com",
@@ -72,6 +80,7 @@ async def get_session_context(
     if user:
         context.update({
             "user": user,
+            "user_present_phone": represent_phone(user.phone)
         })
 
     return context
