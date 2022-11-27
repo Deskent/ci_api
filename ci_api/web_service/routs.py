@@ -2,15 +2,17 @@ from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
 
 from schemas.user import UserRegistration
+from services.complexes_and_videos import check_level_up
 from services.user import (
     register_new_user
 )
 from web_service.utils import *
 
-router = APIRouter()
+router = APIRouter(tags=['web'])
 
 # TODO оплата и сохранение истории платежей - нужен аккаунт
-# TODO сделать страницу для списка комплексов
+# TODO Как вычислять сколько осталось до конца комплекса?
+# TODO get_logged_user or get_session_user
 
 
 @router.get("/", response_class=HTMLResponse)
@@ -91,6 +93,7 @@ async def entry(
 
 
 @router.get("/charging", response_class=HTMLResponse)
+@router.post("/charging", response_class=HTMLResponse)
 async def charging(
         current_complex: Complex = Depends(get_current_user_complex),
         videos: list = Depends(get_complex_videos_list),
@@ -99,10 +102,16 @@ async def charging(
 ):
     if not session_context:
         return templates.TemplateResponse("entry.html", context=context)
+    user: User = session_context['user']
+
+    # Calculate video number to next level for current complex
+    if videos:
+        to_next_level = int((100 - user.progress) / (100 / len(videos)))
+        context.update(to_next_level=to_next_level)
     context.update(
         current_complex=current_complex, videos=videos, **session_context
     )
-    return templates.TemplateResponse("charging.html", context=context)
+    return templates.TemplateResponse("videos_list.html", context=context)
 
 
 @router.get("/subscribe", response_class=HTMLResponse)
@@ -126,6 +135,7 @@ async def start_charging(
         return templates.TemplateResponse("entry.html", context=context)
     context.update(file_name=file_name, **session_context)
     return templates.TemplateResponse("startCharging.html", context=context)
+
 
 @router.get("/notifications", response_class=HTMLResponse)
 @router.get("/feedback", response_class=HTMLResponse)
@@ -199,3 +209,35 @@ async def forget3(
         context: dict = Depends(get_context),
 ):
     return templates.TemplateResponse("forget3.html", context=context)
+
+
+@router.get("/complexes_list", response_class=HTMLResponse)
+async def complexes_list(
+        current_complex: Complex = Depends(get_current_user_complex),
+        videos: list = Depends(get_complex_videos_list),
+        session_context: dict = Depends(get_session_context),
+        context: dict = Depends(get_profile_context),
+):
+    print(current_complex)
+    return templates.TemplateResponse("videos_list.html", context=context)
+
+
+@router.post("/finishCharging", response_class=HTMLResponse)
+async def finishCharging(
+        current_complex: Complex = Depends(get_current_user_complex),
+        session_context: dict = Depends(get_session_context),
+        context: dict = Depends(get_profile_context),
+        user: User = Depends(get_session_user),
+        session: AsyncSession = Depends(get_db_session)
+):
+    old_user_level = user.level
+    new_user: User = await check_level_up(user=user, session=session)
+    context.update(**session_context, current_complex=current_complex)
+    if new_user.level <= old_user_level:
+        return RedirectResponse("/charging")
+    current_complex: Complex = await Complex.get_by_id(session, user.current_complex)
+    context.update(user=new_user, current_complex=current_complex)
+    return templates.TemplateResponse("new_level.html", context=context)
+
+
+

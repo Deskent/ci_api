@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from config import LEVEL_UP, logger
 from database.db import get_db_session
 from models.models import User, Complex, Video
 from schemas.complexes_videos import ComplexData
 from schemas.user import UserProgress
+from services.complexes_and_videos import check_level_up
 from services.depends import get_logged_user
 
 router = APIRouter(prefix="/complex", tags=['Complexes'])
@@ -18,7 +18,6 @@ async def current_progress(
     """
     Return current user views progress
     """
-
     return user
 
 
@@ -33,27 +32,13 @@ async def video_viewed(
     :return: Current user view progress
     """
 
-    current_complex: Complex = await session.get(Complex, user.current_complex)
-    videos: list[Video] = await Video.get_all_by_complex_id(session, user.current_complex)
-    if not videos:
-        return UserProgress(**user.dict())
-    percent: float = round(1 / len(videos), 1) * 100
-    user.progress = user.progress + percent
-    if user.progress >= LEVEL_UP:
-        if user.level < 10:
-            user.level = user.level + 1
-        user.progress = 0
-        user.current_complex = current_complex.next_complex_id
-    await user.save(session)
-    logger.debug(f"User with id {user.id} viewed video in complex {current_complex.id}")
-
-    return user
+    return await check_level_up(user=user, session=session)
 
 
 @router.get("/{complex_id}", response_model=ComplexData)
 async def complex_data(
-    complex_id: int,
-    session: AsyncSession = Depends(get_db_session)
+        complex_id: int,
+        session: AsyncSession = Depends(get_db_session)
 ):
     """Return complex info"""
 

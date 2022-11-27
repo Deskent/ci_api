@@ -6,7 +6,6 @@ from pathlib import Path
 from fastapi import UploadFile, HTTPException
 from loguru import logger
 from sqlalchemy import select
-from sqlmodel.ext.asyncio.session import AsyncSession
 from starlette import status
 
 from config import MAX_VIDEO, settings
@@ -113,7 +112,7 @@ async def upload_file(
         return video
 
 
-async def create_default_admin():
+async def create_default_admin() -> None:
     async for session in get_db_session():
         response = await session.execute(select(Administrator))
         admins: list[Administrator] = response.scalars().all()

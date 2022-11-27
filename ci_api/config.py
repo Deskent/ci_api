@@ -36,6 +36,7 @@ class Settings(BaseSettings):
     CREATE_FAKE_DATA: bool = False
     CREATE_ADMIN: bool = False
     DEFAULT_ADMIN: dict = {}
+    RECREATE_DB: bool = False
 
 
 BASE_DIR = Path(__file__).parent
@@ -60,7 +61,7 @@ if not settings.LOGS_DIR:
     current_date = str(datetime.datetime.today().date())
     settings.LOGS_DIR = BASE_DIR / 'logs' / current_date
 
-LEVEL_UP = 70
+LEVEL_UP_PERCENTS = 70
 MAX_VIDEO = 10
 MAX_LEVEL = 10
 log_level = 1 if settings.DEBUG else 20
