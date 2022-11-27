@@ -1,0 +1,66 @@
+{% extends 'base_profile.html' %}
+
+{% block profile_content %}
+
+    <section class="charging__content">
+        <div class="charging-container">
+            <div class="charging__title">
+                Ваш текущий комплекс упражнений >> {{ current_complex.name }} <<
+            </div>
+            <div class="charging-slider">
+                {% for video in videos %}
+                    <div class="charging-slide {{ 'lock' if not video.id % 2 else 'unlock' }}">
+                        <div class="charging-slide__wrapper">
+                            <div class="charging-slide__image charging-image">
+                                <div class="charging-image__wrapper">
+                                    <picture>
+                                        <source srcset="/static/img/charging-image.webp"
+                                                type="image/webp">
+                                        <img src="/static/img/charging-image.png" alt=""></picture>
+                                </div>
+                                <div class="charging-image__time">{{ video.duration }} секунд
+                                </div>
+                                # TODO Как это вычислять?
+{#                                <div class="charging-image__remained">#}
+{#                                    Осталось 6 минут#}
+{#                                </div>#}
+                            </div>
+                            <a href="/startCharging/{{ video.id }}" class="charging-slide__btn">Нажмите
+                                чтобы
+                                начать</a>
+                            <div class="charging-slide__text">
+                                <div class="charging-slide__title">
+                                    {{ video.name }}
+                                </div>
+                                <div class="charging-slide__desc">
+                                    {{ video.description }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="charging-slide__lock">
+                            Станет доступно на {{ user.level + 1 }} уровне, до {{ user.level + 1 }}
+                            уровня осталось {{ to_next_level }} упражнений
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    <div class="modal modal-subOver" id="subOver">
+        <div class="modal__content modal-subOver__content">
+            <div class="modal__close white modal-subOver__close"></div>
+            <div class="modal-subOver__column">
+                <div class="modal-subOver__image">
+                    <img src="/static/img/icons/lock.svg" alt="">
+                </div>
+                <div class="modal-subOver__text">
+                    Подписка не продлена
+                </div>
+                <a href="/subscribe" class="modal-subOver__link">
+                    Управление подпиской
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock profile_content %}
