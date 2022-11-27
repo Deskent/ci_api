@@ -11,20 +11,29 @@ from config import MAX_LEVEL, settings, templates
 from database.db import get_db_session
 from models.models import User, Video, Complex
 from schemas.user import UserLogin
-from services.auth import auth_handler
+from services.depends import get_context_with_request
 from services.emails import send_verification_mail
-from services.user import user_login, get_login_token, get_bearer_header, get_user_by_token
+from services.user import user_login, get_bearer_header
 
 
-def get_context(request: Request) -> dict:
-    return {
-        'request': request,
+COMPANY_PHONE = "9213336698"
+
+
+def represent_phone(phone: str) -> str:
+    return f"8 ({phone[:3]}) {phone[3:6]}-{phone[6:]}"
+
+
+def get_context(
+        context: dict = Depends(get_context_with_request)
+) -> dict:
+    context.update({
         'email_pattern': ".*@.*[\.].{2,}",
         "title": "Добро пожаловать",
         "head_title": "Добро пожаловать",
         "icon_link": "/index",
         "company_email": "company@email.com",
-        "company_phone": "tel:89999999998",
+        "company_phone": f"tel:{COMPANY_PHONE}",
+        "company_represent_phone": f"tel: {represent_phone(COMPANY_PHONE)}",
         "google_play_link": "https://www.google.com",
         "app_store_link": "https://www.apple.com",
         "vk_link": "https://www.vk.com",
@@ -34,7 +43,9 @@ def get_context(request: Request) -> dict:
         "confidence": "#",
         "feedback_link": "/feedback",
         "help_link": "/help_page"
-    }
+    })
+
+    return context
 
 
 def get_profile_context(
@@ -59,7 +70,7 @@ async def get_session_user(
         session: AsyncSession = Depends(get_db_session)
 ) -> User:
     if token:
-        return await get_user_by_token(session, token)
+        return await User.get_by_token(session, token)
 
 
 async def get_session_context(
@@ -69,6 +80,7 @@ async def get_session_context(
     if user:
         context.update({
             "user": user,
+            "user_present_phone": represent_phone(user.phone)
         })
 
     return context
@@ -134,14 +146,14 @@ async def user_entry(
 
 ) -> templates.TemplateResponse:
     if user := await user_login(session, form_data):
-        login_token: str = get_login_token(user.id)
+        login_token: str = await user.get_user_token()
         headers: dict[str, str] = get_bearer_header(login_token)
         request.session.update(token=login_token)
 
         return RedirectResponse('/profile', headers=headers)
 
-    errors = {'error': "Invalid user or password"}
-    context.update(**errors)
+    errors = "Invalid user or password"
+    context.update(error=errors)
 
     return templates.TemplateResponse("entry.html", context=context)
 
@@ -151,7 +163,7 @@ async def load_self_page(
         session_context: dict = Depends(get_session_context),
         context: dict = Depends(get_profile_context),
 ) -> templates.TemplateResponse:
-    page_name: str = str(request.url).split('/')[-1] + '.html'
+    page_name: str = request.url.path[1:] + '.html'
     if not session_context:
         return templates.TemplateResponse("entry.html", context=context)
 
@@ -176,7 +188,7 @@ async def restore_password(
         return templates.TemplateResponse("forget1.html", context=context)
 
     new_password: str = generate_random_password()
-    user.password = auth_handler.get_password_hash(new_password)
+    user.password = await user.get_hashed_password(new_password)
     await user.save(session)
     tasks.add_task(send_verification_mail, user)
 
@@ -196,14 +208,14 @@ async def set_new_password(
         return templates.TemplateResponse("entry.html", context=context)
 
     context.update(**session_context, password_chanded="Пароль успешно изменен.")
-    user.password = auth_handler.get_password_hash(new_password)
+    user.password = await user.get_hashed_password(new_password)
     await user.save(session)
 
     return templates.TemplateResponse("profile.html", context=context)
 
 
 async def login_user(user, request):
-    login_token: str = get_login_token(user.id)
+    login_token: str = await user.get_user_token()
     headers: dict[str, str] = get_bearer_header(login_token)
     request.session.update(token=login_token)
 

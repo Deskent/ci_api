@@ -1,8 +1,8 @@
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.responses import FileResponse
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from config import settings, logger
 from database.db import get_db_session
@@ -36,17 +36,3 @@ async def get_video(
     logger.debug(f"Video requested: {video_id}:  OK")
 
     return FileResponse(path=str(full_path), media_type='video/mp4')
-
-
-# @router.get("/", response_model=list[Video])
-# async def get_videos(session: AsyncSession = Depends(get_session)):
-#     """Get all videos
-#
-#     :return: List of Videos
-#     """
-#
-#     result = await session.execute(select(Video))
-#     return result.scalars().all()
-
-
-

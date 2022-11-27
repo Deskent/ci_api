@@ -1,16 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.background import BackgroundTasks
 
 from config import logger
 from database.db import get_db_session
-from services.auth import auth_handler
+from models.models import User
 from schemas.user import UserRegistration, UserLogin, UserChangePassword
 from services.depends import get_logged_user
 from services.emails import verify_token_from_email
-from models.models import User
-from services.user import register_new_user, check_password_correct, get_login_token
+from services.user import register_new_user
 
 router = APIRouter(prefix="/auth", tags=['Authorization'])
 
@@ -88,17 +86,17 @@ async def login(
 
      :return: Authorization token as JSON
     """
-
-    if not (user_found := await User.get_by_email(session, user.email)):
+    user_found: User = await User.get_by_email(session, user.email)
+    if not user_found:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid username or password')
 
-    if not check_password_correct(user.password, user_found.password):
+    if not user_found.is_password_valid(user.password):
         logger.info(f"User with email {user.email} type wrong password")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid username or password')
 
-    token: str = get_login_token(user_found.id)
+    token: str = await user_found.get_user_token()
     logger.info(f"User with id {user_found.id} got Bearer token")
 
     return {"token": token}
@@ -121,9 +119,9 @@ async def change_password(
 
     :return: None
     """
-    if not auth_handler.verify_password(data.old_password, user.password):
+    if not user.is_password_valid(data.old_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid username or password')
-    user.password = auth_handler.get_password_hash(data.password)
+    user.password = await user.get_hashed_password(data.password)
     await user.save(session)
     logger.info(f"User with id {user.id} change password")

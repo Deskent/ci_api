@@ -6,13 +6,13 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from passlib.context import CryptContext
 
 from config import settings, logger
-from models.models import User
 
 
 class AuthHandler:
     security = HTTPBearer()
     pwd_context = CryptContext(schemes=['bcrypt'])
     secret = settings.SECRET
+    algorithm = settings.HASH_ALGORITHM
 
     @logger.catch
     def get_password_hash(self, password) -> str:
@@ -29,35 +29,38 @@ class AuthHandler:
             'iat': datetime.datetime.now(),
             'sub': user_id
         }
-        return jwt.encode(payload, self.secret, algorithm='HS256')
+        return jwt.encode(payload, self.secret, algorithm=self.algorithm)
 
     @logger.catch
     def decode_token(self, token) -> str:
         try:
             # TODO verify singnature ?
             payload = jwt.decode(
-                token, self.secret, algorithms=['HS256'], options={"verify_signature": False})
+                token, self.secret, algorithms=[self.algorithm],
+                options={"verify_signature": False})
             return payload['sub']
         except jwt.ExpiredSignatureError:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Expired signature')
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail='Expired signature')
         except jwt.InvalidTokenError:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid token')
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid token')
 
     @logger.catch
     def auth_wrapper(self, auth: HTTPAuthorizationCredentials = Security(security)) -> str:
         return self.decode_token(auth.credentials)
 
     @logger.catch
-    def get_email_token(self, user: User) -> str:
+    def get_email_token(self, user: 'User') -> str:
         payload = {
             "id": user.id,
             "username": user.username
         }
-        return jwt.encode(payload, self.secret, algorithm='HS256')
+        return jwt.encode(payload, self.secret, algorithm=self.algorithm)
 
     @logger.catch
     def verify_email_token(self, token: str) -> dict:
-        return jwt.decode(token, self.secret, algorithms=['HS256'])
+        return jwt.decode(token, self.secret, algorithms=[self.algorithm])
 
 
 auth_handler = AuthHandler()

@@ -1,14 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import select
 
+from config import LEVEL_UP, logger
 from database.db import get_db_session
 from models.models import User, Complex, Video
 from schemas.complexes_videos import ComplexData
 from schemas.user import UserProgress
 from services.depends import get_logged_user
-from config import LEVEL_UP, logger
 
 router = APIRouter(prefix="/complex", tags=['Complexes'])
 

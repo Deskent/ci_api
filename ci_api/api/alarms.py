@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from config import logger
 from database.db import get_db_session
 from models.models import Alarm, User
 from schemas.alarms import AlarmCreate, AlarmFull
 from services.depends import get_logged_user
 from services.weekdays import WeekDay
-from config import logger
 
 router = APIRouter(prefix="/alarms", tags=['Alarms'])
 
@@ -16,9 +16,9 @@ router = APIRouter(prefix="/alarms", tags=['Alarms'])
     response_model=AlarmFull
 )
 async def create_alarm(
-    data: AlarmCreate,
-    user: User = Depends(get_logged_user),
-    session: AsyncSession = Depends(get_db_session)
+        data: AlarmCreate,
+        user: User = Depends(get_logged_user),
+        session: AsyncSession = Depends(get_db_session)
 ):
     """Create alarm for user by user database id. Need authorization.
 
@@ -68,32 +68,6 @@ async def get_alarm(
         alarm.weekdays = WeekDay(alarm.weekdays).as_list
         return alarm
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Alarm not found")
-
-
-# TODO сделать
-# @router.put("/{alarm_id}", response_model=Alarm)
-# async def update_alarm(alarm_id: int, data: AlarmUpdate, session: AsyncSession = Depends(get_session)):
-#     """
-#     Update alarm by id
-#
-#     :param alarm_id: integer Alarm id in database
-#
-#     :param alarm_time: string - Time in format HH:MM[:SS[.ffffff]][Z or [±]HH[:]MM]]]
-#
-#     :param text: string - Description text
-#
-#     :return: Alarm updated information as JSON
-#     """
-#
-#     alarm: Alarm = await session.get(Alarm, alarm_id)
-#     if not alarm:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Alarm not found")
-#     updated_data: dict = await get_data_for_update(data.dict())
-#     await session.execute(update(Alarm).where(Alarm.id == alarm_id).values(**updated_data))
-#     session.add(alarm)
-#     await session.commit()
-#
-#     return alarm
 
 
 @router.delete(

@@ -1,8 +1,8 @@
 """auto
 
-Revision ID: b06017023126
+Revision ID: 6e0697620dfe
 Revises: 
-Create Date: 2022-11-22 20:06:25.441353
+Create Date: 2022-11-27 14:36:41.708939
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ import sqlmodel
 
 
 # revision identifiers, used by Alembic.
-revision = 'b06017023126'
+revision = '6e0697620dfe'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -62,6 +62,8 @@ def upgrade():
     sa.Column('expired_at', sa.DateTime(), nullable=True),
     sa.Column('is_verified', sa.Boolean(), nullable=True),
     sa.Column('is_active', sa.Boolean(), nullable=True),
+    sa.Column('sms_message', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
+    sa.Column('sms_call_code', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('rate_id', sa.Integer(), nullable=False),
     sa.Column('current_complex', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['current_complex'], ['complexes.id'], ),

@@ -1,23 +1,37 @@
-{% extends 'base.html' %}
-{% block main %}
+{% extends 'base_profile.html' %}
 
-    <main class="main reg-main entry_main">
-        <div class="reg-main__sketch reg-main__sketch_left reg-main__sketch_left_registration">
-            <img src="/static/img/reg__bg.svg" alt="">
-        </div>
-        <div class="reg-main__sketch reg-main__sketch_right reg-main__sketch_right_registration">
-            <img src="/static/img/reg__bg_rotate.svg" alt="">
-        </div>
+
+{% block profile_content %}
+    <section class="profile-content">
         <div class="container">
-            <div class="reg-content__banner reg-banner">
-                <div class="reg-banner__content">
-                    <div class="registration__logo">
+            <div class="profile-content__row">
+                <div class="profile-content__profile user-profile">
+                    <div class="user-profile__info">
+                        <div class="user-profile__image">
+                            <picture>
+                                <source srcset="/static/img/user-image.webp"
+                                        type="image/webp">
+                                <img src="/static/img/user-image.png" alt=""></picture>
+                        </div>
+                        <div class="user-profile__contacts">
+                            <div class="user-profile__name">
+                                <input id="userName" type="text" disabled
+                                       value="{{ user.username }} {{ user.last_name }}"
+                                       class="user-profile__name_input" maxlength="18">
+                                <label for="userName" class="user-profile__name_label">
+                                    <img src="/static/img/icons/edit.svg" alt="">
+                                </label>
+                            </div>
+                            <div class="user-profile__phone">
+                                {{ user_present_phone }}
+                            </div>
+                        </div>
                     </div>
-                    {% if error %}
-                        <div class="entry__link_forget">{{ error }}</div>
+                    {% if password_chanded %}
+                        <div class="entry__link_forget">{{ password_chanded }}</div>
                     {% endif %}
-                    <form action="{{ request.url }}" method="POST" class="registration__form">
-                        <label for="entryEmail" class="registration__label">
+                    <form action="/newPassword" method="GET" class="user-profile__form">
+                        <label for="profileEmail" class="registration__label active">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                  xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -28,28 +42,26 @@
                                         fill="url(#paint1_linear_3_2905)"/>
                                 <defs>
                                     <linearGradient id="paint0_linear_3_2905" x1="21.75"
-                                                    y1="12.1773"
-                                                    x2="2.25" y2="12.1773"
+                                                    y1="12.1773" x2="2.25"
+                                                    y2="12.1773"
                                                     gradientUnits="userSpaceOnUse">
                                         <stop stop-color="#D32A1E"/>
                                         <stop offset="1" stop-color="#EB5E54"/>
                                     </linearGradient>
                                     <linearGradient id="paint1_linear_3_2905" x1="21.75"
-                                                    y1="12.1773"
-                                                    x2="2.25" y2="12.1773"
+                                                    y1="12.1773" x2="2.25"
+                                                    y2="12.1773"
                                                     gradientUnits="userSpaceOnUse">
                                         <stop stop-color="#D32A1E"/>
                                         <stop offset="1" stop-color="#EB5E54"/>
                                     </linearGradient>
                                 </defs>
                             </svg>
-                            <input placeholder="user@mail.ru" type="email"
-                                   class="registration__input"
-                                   id="entryEmail" name="email"
-                                   pattern={{ email_pattern }}
-                            >
+                            <input value="{{ user.email }}" placeholder="Почта"
+                                   type="email" class="registration__input" id="profileEmail"
+                                   name="email" pattern={{ email_pattern }}>
                         </label>
-                        <label for="entryPassword" class="registration__label">
+                        <label for="profilePassword" class="registration__label active">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                  xmlns="http://www.w3.org/2000/svg">
                                 <path fill-rule="evenodd" clip-rule="evenodd"
@@ -59,26 +71,27 @@
                                       d="M11.75 1C8.5744 1 6.00003 3.57436 6.00003 6.75V7.27281L5.97319 7.28142C4.22267 7.8502 2.85024 9.22263 2.28146 10.9732C1.99958 11.8407 1.99975 12.8819 2.00002 14.5882V14.9118C1.99975 16.6181 1.99958 17.6593 2.28146 18.5268C2.85024 20.2774 4.22267 21.6498 5.97319 22.2186C6.8407 22.5005 7.88191 22.5003 9.58817 22.5H13.9119C15.6182 22.5003 16.6594 22.5005 17.5269 22.2186C19.2774 21.6498 20.6498 20.2774 21.2186 18.5268C21.5005 17.6593 21.5003 16.6181 21.5 14.9119V14.5881C21.5003 12.8819 21.5005 11.8407 21.2186 10.9732C20.6498 9.22263 19.2774 7.8502 17.5269 7.28142L17.5 7.27281V6.75C17.5 3.57436 14.9257 1 11.75 1ZM9.66606 7C8.78686 6.99997 8.08514 6.99994 7.50003 7.03306V6.75C7.50003 4.40279 9.40282 2.5 11.75 2.5C14.0972 2.5 16 4.40279 16 6.75V7.03306C15.4149 6.99994 14.7132 6.99997 13.834 7H9.66606ZM6.87463 8.60329C7.47223 8.50262 8.27818 8.5 9.75003 8.5H13.75C15.2219 8.5 16.0278 8.50262 16.6254 8.60329C16.7907 8.63113 16.9332 8.66571 17.0634 8.70801C18.3572 9.12841 19.3716 10.1428 19.792 11.4367C19.9908 12.0484 20 12.8303 20 14.75C20 16.6697 19.9908 17.4516 19.792 18.0633C19.3716 19.3572 18.3572 20.3716 17.0634 20.792C16.4516 20.9907 15.6697 21 13.75 21H9.75003C7.83038 21 7.04842 20.9907 6.43671 20.792C5.14285 20.3716 4.12844 19.3572 3.70804 18.0633C3.50929 17.4516 3.50003 16.6697 3.50003 14.75C3.50003 12.8303 3.50929 12.0484 3.70804 11.4367C4.12844 10.1428 5.14285 9.12841 6.43671 8.70801C6.56688 8.66571 6.70938 8.63113 6.87463 8.60329Z"
                                       fill="url(#paint1_linear_3_2909)"/>
                                 <defs>
-                                    <linearGradient id="paint0_linear_3_2909" x1="21.5001"
-                                                    y1="11.9455"
-                                                    x2="2" y2="11.9455"
+                                    <linearGradient id="paint0_linear_3_2909"
+                                                    x1="21.5001"
+                                                    y1="11.9455" x2="2" y2="11.9455"
                                                     gradientUnits="userSpaceOnUse">
                                         <stop stop-color="#D32A1E"/>
                                         <stop offset="1" stop-color="#EB5E54"/>
                                     </linearGradient>
-                                    <linearGradient id="paint1_linear_3_2909" x1="21.5001"
-                                                    y1="11.9455"
-                                                    x2="2" y2="11.9455"
+                                    <linearGradient id="paint1_linear_3_2909"
+                                                    x1="21.5001"
+                                                    y1="11.9455" x2="2" y2="11.9455"
                                                     gradientUnits="userSpaceOnUse">
                                         <stop stop-color="#D32A1E"/>
                                         <stop offset="1" stop-color="#EB5E54"/>
                                     </linearGradient>
                                 </defs>
                             </svg>
-                            <input placeholder="Пароль" type="password"
+                            <input value="{{ password }}" placeholder="password" type="password"
                                    class="registration__input registration__input_password"
-                                   id="entryPassword" name="password">
-                            <svg class="registration__input_password_btn" width="22" height="18"
+                                   id="profilePassword" name="password" required>
+                            <svg class="registration__input_password_btn" width="22"
+                                 height="18"
                                  viewBox="0 0 22 18"
                                  fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path fill-rule="evenodd" clip-rule="evenodd"
@@ -91,99 +104,79 @@
                                         d="M14.5 8.75003C14.5 8.33581 14.1642 8.00003 13.75 8.00003C13.3358 8.00003 13 8.33581 13 8.75003C13 9.99267 11.9927 11 10.75 11C10.3358 11 10 11.3358 10 11.75C10 12.1642 10.3358 12.5 10.75 12.5C12.8211 12.5 14.5 10.8211 14.5 8.75003Z"
                                         fill="url(#paint2_linear_101_179)"/>
                                 <defs>
-                                    <linearGradient id="paint0_linear_101_179" x1="21.5001"
-                                                    y1="8.90913"
-                                                    x2="-1.96027e-08"
-                                                    y2="8.90913" gradientUnits="userSpaceOnUse">
+                                    <linearGradient id="paint0_linear_101_179"
+                                                    x1="21.5001"
+                                                    y1="8.90913" x2="-1.96027e-08"
+                                                    y2="8.90913"
+                                                    gradientUnits="userSpaceOnUse">
                                         <stop stop-color="#D32A1E"/>
                                         <stop offset="1" stop-color="#EB5E54"/>
                                     </linearGradient>
-                                    <linearGradient id="paint1_linear_101_179" x1="21.5001"
-                                                    y1="8.90913"
-                                                    x2="-1.96027e-08"
-                                                    y2="8.90913" gradientUnits="userSpaceOnUse">
+                                    <linearGradient id="paint1_linear_101_179"
+                                                    x1="21.5001"
+                                                    y1="8.90913" x2="-1.96027e-08"
+                                                    y2="8.90913"
+                                                    gradientUnits="userSpaceOnUse">
                                         <stop stop-color="#D32A1E"/>
                                         <stop offset="1" stop-color="#EB5E54"/>
                                     </linearGradient>
-                                    <linearGradient id="paint2_linear_101_179" x1="21.5001"
-                                                    y1="8.90913"
-                                                    x2="-1.96027e-08"
-                                                    y2="8.90913" gradientUnits="userSpaceOnUse">
+                                    <linearGradient id="paint2_linear_101_179"
+                                                    x1="21.5001"
+                                                    y1="8.90913" x2="-1.96027e-08"
+                                                    y2="8.90913"
+                                                    gradientUnits="userSpaceOnUse">
                                         <stop stop-color="#D32A1E"/>
                                         <stop offset="1" stop-color="#EB5E54"/>
                                     </linearGradient>
                                 </defs>
                             </svg>
-
                         </label>
                         <button type="submit"
                                 class="registration__btn reg-banner__link_entry">
-                            Войти
+                            Изменить пароль
                         </button>
                     </form>
-                    <a href="/forget1"
-                       class="entry__link_forget"><span>Забыли пароль?</span></a>
 
-                    <form action="/entry_sms" method="POST" class="registration__form">
-                        <label for="registrationPhone" class="registration__label">
-                            <svg width="23" height="24" viewBox="0 0 23 24" fill="none"
-                                 xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                      d="M11.2605 1.04347C8.74641 1.04347 6.70837 3.26258 6.70837 5.99999C6.70837 8.73741 8.74641 10.9565 11.2605 10.9565C13.7745 10.9565 15.8125 8.73741 15.8125 5.99999C15.8125 3.26258 13.7745 1.04347 11.2605 1.04347ZM8.14587 5.99999C8.14587 4.12703 9.54032 2.60869 11.2605 2.60869C12.9806 2.60869 14.375 4.12703 14.375 5.99999C14.375 7.87296 12.9806 9.3913 11.2605 9.3913C9.54032 9.3913 8.14587 7.87296 8.14587 5.99999Z"
-                                      fill="url(#paint0_linear_3_2505)" fill-opacity="1"/>
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                      d="M8.38546 12.5217C5.87141 12.5217 3.83337 14.7408 3.83337 17.4783C3.83337 20.2157 5.87141 22.4348 8.38546 22.4348H14.1355C16.6495 22.4348 18.6875 20.2157 18.6875 17.4783C18.6875 14.7408 16.6495 12.5217 14.1355 12.5217H8.38546ZM5.27087 17.4783C5.27087 15.6053 6.66532 14.087 8.38546 14.087H14.1355C15.8556 14.087 17.25 15.6053 17.25 17.4783C17.25 19.3512 15.8556 20.8696 14.1355 20.8696H8.38546C6.66532 20.8696 5.27087 19.3512 5.27087 17.4783Z"
-                                      fill="url(#paint1_linear_3_2505)" fill-opacity="1"/>
-                                <defs>
-                                    <linearGradient id="paint0_linear_3_2505" x1="18.6875"
-                                                    y1="11.9336" x2="3.83337"
-                                                    y2="11.9336" gradientUnits="userSpaceOnUse">
-                                        <stop stop-color="#D32A1E"/>
-                                        <stop offset="1" stop-color="#D32A1E"
-                                              stop-opacity="0.8"/>
-                                    </linearGradient>
-                                    <linearGradient id="paint1_linear_3_2505" x1="18.6875"
-                                                    y1="11.9336" x2="3.83337"
-                                                    y2="11.9336" gradientUnits="userSpaceOnUse">
-                                        <stop stop-color="#D32A1E"/>
-                                        <stop offset="1" stop-color="#D32A1E"
-                                              stop-opacity="0.8"/>
-                                    </linearGradient>
-                                </defs>
-                            </svg>
-                            <input placeholder="9215556677" type="tel" class="registration__input"
-                                   pattern="[0-9]{10}"
-                                   id="registrationPhone" name="phone">
-                        </label>
-
-                        <div class="registration__gender registration-gender">
-                            <input class="registration-gender__input" type="radio"
-                                   name="sms_send_to"
-                                   id="femaleGender" value="sms" checked>
-                            <label class="registration-gender__label" for="femaleGender">
-                                СМС
-                            </label>
-                            <input class="registration-gender__input" type="radio"
-                                   name="sms_send_to"
-                                   id="maleGender" value="call">
-                            <label class="registration-gender__label" for="maleGender">
-                                Звонок
-                            </label>
+                    <div class="user-profile__card profile-card">
+                        <div class="profile-card__title">
+                            Подписка автоматически продлится {{ user.expired_at.day }} числа
                         </div>
-                        <button type="submit"
-                                class="registration__btn reg-banner__link_entry">
-                            Войти
-                        </button>
-                        {#                        <a href="/forget2"#}
-                        {#                           class="registration__btn reg-banner__link_reg entry__link_sms"><span>#}
-                        {#                        Войти по sms</span></a>#}
-                        {##}
-                        {#                        <a href="/forget3"#}
-                        {#                           class="registration__btn reg-banner__link_reg entry__link_sms"><span>#}
-                        {#                        Войти по звонку</span></a>#}
-                    </form>
+                        <div class="profile-card__info">
+                            <div class="profile-card__icon"><img
+                                    src="/static/img/icons/credit-card.svg"
+                                    alt=""></div>
+                            <span></span>
+                            <span></span>
+                            <div class="profile-card__number">1234</div>
+                        </div>
+                        <a href="{{ subscribe_info }}" class="profile-card__link">Подробнее</a>
+                    </div>
+                </div>
+                <div class="profile-content__progress profile-progress">
+                    <div class="profile-progress__title">
+                        Ваш прогресс
+                    </div>
+                    <div class="profile-progress__circle_bg">
+                        <div class="profile-progress__circle">
+                            <div class="profile-progress__circle_info">
+                                <span class="bigRed">{{ user.level }}</span><span>/{{ max_level }}</span>
+                                <span class="profile-progress__level">Уровень</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-card__adapt">
+                    <div class="profile-card__title">
+                        Подписка автоматически продлится {{ user.expired_at }} числа
+                    </div>
+                    <div class="profile-card__info">
+                        <span class="stars">**** **** ****</span>
+                        <div class="profile-card__number">1234</div>
+                    </div>
+                    <a href="{{ subscribe_info }}"
+                       class="profile-card__link_adapt">Подробнее</a>
                 </div>
             </div>
         </div>
-    </main>
-{% endblock main %}
+    </section>
+{% endblock profile_content %}

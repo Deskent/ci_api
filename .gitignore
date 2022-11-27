@@ -1,6 +1,6 @@
 *.sh
 **/.idea
-**/spam
+spam
 **/logs
 **/postgres_db
 **/media
@@ -8,6 +8,8 @@
 **.env
 .editorconfig
 *.zip
+**/static/
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

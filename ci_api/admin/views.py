@@ -1,15 +1,16 @@
 import pydantic
-from fastapi import Request, FastAPI
+from fastapi import Request, FastAPI, Depends
 from sqladmin import Admin
 from sqladmin import ModelView, expose, BaseView
+from sqlmodel.ext.asyncio.session import AsyncSession
 from starlette.datastructures import FormData
 
 from admin.auth import authentication_backend
+from admin.utils import convert_seconds_to_time, upload_file
 from config import logger, settings
-from database.db import engine
+from database.db import engine, get_db_session
 from models.models import User, Video, Complex, Rate, Administrator
 from schemas.complexes_videos import VideoUpload
-from admin.utils import convert_seconds_to_time, upload_file
 
 ADMIN_URL = "/ci_admin"
 
@@ -133,51 +134,45 @@ class UploadVideo(BaseView):
     name = "Загрузить видео упражнения"
 
     @expose("/upload", methods=["GET", "POST"])
-    async def upload_file(self, request: Request):
+    async def upload_file(
+            self,
+            request: Request
+    ):
+        context = {"request": request}
         if request.method == "GET":
             # TODO разобраться с формами
             # TODO в выбор комплекс_ид вывести список всех комплексов
 
-            # data = dict(
-            #     filename={
-            #         "title": "Имя файла",
-            #         "value": "123.mp3"
-            #     },
-            #     name="namename",
-            #     description="descr1",
-            #     complex_id=1
-            # )
-            # form = FormData(data)
             return self.templates.TemplateResponse(
                 "upload_video.html",
-                context={"request": request},
+                context=context,
             )
-        context = {"request": request, "result": "fail"}
+
+        context.update({"result": "fail"})
         try:
             form: FormData = await request.form()
             data = VideoUpload(**{k: v for k, v in form.items()})
             logger.debug(f"Load file with data: {data}")
-            if video := await upload_file(**data.dict()):
+            if video := await upload_file(file_form=data):
                 logger.debug(f"Load file with data: OK")
                 context.update(result="ok", video=video)
 
         except pydantic.error_wrappers.ValidationError as err:
             logger.error(err)
-
-        logger.debug(f"Load file with data: FAIL")
+            logger.debug(f"Load file with data: FAIL")
         return self.templates.TemplateResponse(
             "upload_video.html",
-            context=context,
+            context=context
         )
 
 
-def get_admin(app: FastAPI) -> Admin:
+def get_admin(app: FastAPI) -> FastAPI:
     admin = Admin(
         app,
         engine,
         base_url=ADMIN_URL,
         authentication_backend=authentication_backend,
-        templates_dir=settings.STATIC_DIR / 'admin'
+        templates_dir=settings.TEMPLATES_DIR / 'admin'
     )
 
     admin.add_view(AdminView)
@@ -186,7 +181,5 @@ def get_admin(app: FastAPI) -> Admin:
     admin.add_view(RateView)
     admin.add_view(UserView)
     admin.add_view(VideoView)
-    # admin.add_view(AlarmView)
-    # admin.add_view(NotificationView)
 
-    return admin
+    return app
