@@ -128,7 +128,6 @@ async def start_charging(
     context.update(file_name=file_name, **session_context)
     return templates.TemplateResponse("startCharging.html", context=context)
 
-
 @router.get("/notifications", response_class=HTMLResponse)
 @router.get("/feedback", response_class=HTMLResponse)
 @router.get("/help_page", response_class=HTMLResponse)
@@ -164,6 +163,13 @@ async def newPassword(
         set_new_password: dict = Depends(set_new_password),
 ):
     return set_new_password
+
+
+@router.get("/entry_sms", response_class=HTMLResponse)
+async def entry_sms(
+        context: dict = Depends(get_context),
+):
+    return templates.TemplateResponse("entry_sms.html", context=context)
 
 
 @router.post("/entry_sms", response_class=HTMLResponse)

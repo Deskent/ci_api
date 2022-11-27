@@ -71,15 +71,6 @@ async def register_new_user(
     return user, errors
 
 
-async def get_user_by_token(
-        session: AsyncSession,
-        token: str
-):
-    user_id: int = auth_handler.decode_token(token)
-
-    return await User.get_by_id(session, user_id)
-
-
 async def validate_logged_user_data(
         form: FormData
 ) -> tuple[UserLogin | None, dict]:

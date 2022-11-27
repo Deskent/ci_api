@@ -116,16 +116,24 @@ class Video(MySQLModel, table=True):
 class UserModel(MySQLModel):
 
     @classmethod
-    async def get_by_email(cls, session: AsyncSession, email: EmailStr):
+    async def get_by_email(cls, session: AsyncSession, email: EmailStr) -> 'UserModel':
         query = select(cls).where(cls.email == email)
         response = await session.execute(query)
+
         return response.scalars().first()
 
     @classmethod
-    async def get_by_phone(cls, session: AsyncSession, phone: str):
+    async def get_by_phone(cls, session: AsyncSession, phone: str) -> 'UserModel':
         query = select(cls).where(cls.phone == phone)
         response = await session.execute(query)
+
         return response.scalars().first()
+
+    @classmethod
+    async def get_by_token(cls, session: AsyncSession, token: str) -> 'UserModel':
+        user_id: int = auth_handler.decode_token(token)
+
+        return await session.get(cls, user_id)
 
     async def is_password_valid(self, password: str) -> bool:
         return auth_handler.verify_password(self.password, password)

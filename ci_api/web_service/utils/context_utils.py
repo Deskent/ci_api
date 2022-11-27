@@ -13,7 +13,7 @@ from models.models import User, Video, Complex
 from schemas.user import UserLogin
 from services.depends import get_context_with_request
 from services.emails import send_verification_mail
-from services.user import user_login, get_bearer_header, get_user_by_token
+from services.user import user_login, get_bearer_header
 
 
 def get_context(
@@ -62,7 +62,7 @@ async def get_session_user(
         session: AsyncSession = Depends(get_db_session)
 ) -> User:
     if token:
-        return await get_user_by_token(session, token)
+        return await User.get_by_token(session, token)
 
 
 async def get_session_context(
@@ -143,8 +143,8 @@ async def user_entry(
 
         return RedirectResponse('/profile', headers=headers)
 
-    errors = {'error': "Invalid user or password"}
-    context.update(**errors)
+    errors = "Invalid user or password"
+    context.update(error=errors)
 
     return templates.TemplateResponse("entry.html", context=context)
 
@@ -154,7 +154,7 @@ async def load_self_page(
         session_context: dict = Depends(get_session_context),
         context: dict = Depends(get_profile_context),
 ) -> templates.TemplateResponse:
-    page_name: str = str(request.url).split('/')[-1] + '.html'
+    page_name: str = request.url.path[1:] + '.html'
     if not session_context:
         return templates.TemplateResponse("entry.html", context=context)
 
