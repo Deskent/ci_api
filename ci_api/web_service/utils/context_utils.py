@@ -7,7 +7,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
 
-from config import MAX_LEVEL, settings, templates
+from config import MAX_LEVEL, settings, templates, logger
 from database.db import get_db_session
 from models.models import User, Video, Complex
 from schemas.user import UserLogin
@@ -159,16 +159,14 @@ async def user_entry(
 
 
 async def load_self_page(
-        request: Request,
         session_context: dict = Depends(get_session_context),
         context: dict = Depends(get_profile_context),
 ) -> templates.TemplateResponse:
-    page_name: str = request.url.path[1:] + '.html'
     if not session_context:
         return templates.TemplateResponse("entry.html", context=context)
 
     context.update(**session_context)
-
+    page_name: str = context['request'].url.path[1:] + '.html'
     return templates.TemplateResponse(page_name, context=context)
 
 
@@ -188,6 +186,7 @@ async def restore_password(
         return templates.TemplateResponse("forget1.html", context=context)
 
     new_password: str = generate_random_password()
+    logger.debug(f"New password: {new_password}")
     user.password = await user.get_hashed_password(new_password)
     await user.save(session)
     tasks.add_task(send_verification_mail, user)
@@ -200,15 +199,22 @@ async def restore_password(
 async def set_new_password(
         context: dict = Depends(get_profile_context),
         session_context: dict = Depends(get_session_context),
-        new_password: str = Form(...),
+        password: str = Form(...),
+        password2: str = Form(...),
         session: AsyncSession = Depends(get_db_session),
 ):
+    context.update(**session_context)
+    if password != password2:
+        context.update(error="Пароли не совпадают")
+
+        return templates.TemplateResponse("edit_profile.html", context=context)
+
     user: User = session_context.get('user')
     if not user:
         return templates.TemplateResponse("entry.html", context=context)
 
-    context.update(**session_context, password_chanded="Пароль успешно изменен.")
-    user.password = await user.get_hashed_password(new_password)
+    context.update(password_chanded="Пароль успешно изменен.")
+    user.password = await user.get_hashed_password(password)
     await user.save(session)
 
     return templates.TemplateResponse("profile.html", context=context)

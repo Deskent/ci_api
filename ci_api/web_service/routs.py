@@ -14,6 +14,11 @@ router = APIRouter(tags=['web'])
 # TODO Как вычислять сколько осталось до конца комплекса?
 # TODO get_logged_user or get_session_user
 # TODO хранение просмотренных комплексов и видео, у комплекса должен быть номер
+# TODO После смены почты или телефона - отправлять подтверждение
+# TODO сделать переход на входе в профиль на страницу подтверждения емэйла если он не подтвержден
+# TODO Сделать страницу редактирования профиля
+# TODO Сделать страницу с сообщением "Подписка отменена"
+# TODO сделать переход со страницы Notifications
 
 
 @router.get("/", response_class=HTMLResponse)
@@ -138,6 +143,8 @@ async def start_charging(
     return templates.TemplateResponse("startCharging.html", context=context)
 
 
+@router.get("/edit_profile", response_class=HTMLResponse)
+@router.get("/cancel_subscribe", response_class=HTMLResponse)
 @router.get("/notifications", response_class=HTMLResponse)
 @router.get("/feedback", response_class=HTMLResponse)
 @router.get("/help_page", response_class=HTMLResponse)
@@ -239,6 +246,3 @@ async def finishCharging(
     current_complex: Complex = await Complex.get_by_id(session, user.current_complex)
     context.update(user=new_user, current_complex=current_complex)
     return templates.TemplateResponse("new_level.html", context=context)
-
-
-
