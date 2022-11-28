@@ -1,3 +1,5 @@
+import json
+
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -16,4 +18,6 @@ async def payments(
         session: AsyncSession = Depends(get_db_session)
 ):
     logger.debug(f"payments data: {data}")
+    with open('payments.json', 'a', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
 
