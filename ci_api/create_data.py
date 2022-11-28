@@ -13,16 +13,18 @@ async def create_complexes(session: AsyncSession, data: list[dict] = None):
     if not data:
         data = [
             {
-                "description": "complex1",
+                "description": "Описание комплекса 1",
                 "name": "комплекс 1",
+                "number": 1,
                 "next_complex_id": 2,
-                "duration": 10
+                "duration": 0
             },
             {
-                "description": "complex2",
+                "description": "Описание комплекса 2",
                 "name": "комплекс 2",
-                "next_complex_id": 3,
-                "duration": 20
+                "number": 2,
+                "next_complex_id": 1,
+                "duration": 0
             }
         ]
 

@@ -10,21 +10,22 @@ from services.auth import auth_handler
 
 class MySQLModel(SQLModel):
 
-    async def save(self, session) -> None:
+    async def save(self, session) -> 'MySQLModel':
         session.add(self)
         await session.commit()
+        return self
 
     @classmethod
-    async def get_by_id(cls, session: AsyncSession, id_: int):
+    async def get_by_id(cls, session: AsyncSession, id_: int) -> 'MySQLModel':
         return await session.get(cls, id_)
 
     @classmethod
-    async def get_all(cls, session: AsyncSession) -> list:
+    async def get_all(cls, session: AsyncSession) -> list['MySQLModel']:
         response = await session.execute(select(cls))
 
         return response.scalars().all()
 
-    async def delete(self, session: AsyncSession):
+    async def delete(self, session: AsyncSession) -> None:
         await session.delete(self)
         await session.commit()
 
@@ -32,7 +33,7 @@ class MySQLModel(SQLModel):
 class UserDataModels(MySQLModel):
 
     @classmethod
-    async def get_all_by_user_id(cls, session: AsyncSession, user_id: int):
+    async def get_all_by_user_id(cls, session: AsyncSession, user_id: int) -> list[MySQLModel]:
         query = select(cls).join(User).where(User.id == user_id)
         response = await session.execute(query)
 
@@ -75,17 +76,38 @@ class Complex(MySQLModel, table=True):
     __tablename__ = 'complexes'
 
     id: int = Field(default=None, primary_key=True, index=True)
+    number: int = Field(default=None, unique=True, description="Порядковый номер комплекса")
     name: Optional[str] = Field(nullable=True, default='', description="Название комплекса")
     description: Optional[str] = Field(nullable=True, default='', description="Описание комплекса")
     next_complex_id: int = Field(nullable=True, default=1, description="ИД следующего комплекса")
-    duration: int = Field(nullable=True, default=None, description="Длительность комплекса")
+    duration: int = Field(nullable=True, default=0, description="Длительность комплекса в секундах")
     video_count: int = Field(nullable=True, default=0, description="Количество видео в комплексе")
 
     videos: List["Video"] = Relationship(
         back_populates="complexes", sa_relationship_kwargs={"cascade": "delete"})
 
     def __str__(self):
-        return f"{self.id}-{self.description}"
+        return f"№ {self.number}: {self.description}"
+
+    @classmethod
+    async def add_new(
+            cls: 'Complex',
+            session: AsyncSession,
+            number: int,
+            name: str = '',
+            description: str = '',
+            duration: int = 0,
+            next_complex_id: int = 1,
+            video_count: int = 0
+    ) -> 'Complex':
+
+        new_complex = Complex(
+            number=number, name=name, description=description, next_complex_id=next_complex_id,
+            duration=duration, video_count=video_count
+        )
+        await new_complex.save(session)
+
+        return new_complex
 
 
 class Video(MySQLModel, table=True):
@@ -111,6 +133,29 @@ class Video(MySQLModel, table=True):
         videos_row = await session.execute(query)
 
         return videos_row.scalars().all()
+
+    @classmethod
+    async def add_new(
+            cls: 'Video',
+            session: AsyncSession,
+            file_name: str,
+            complex_id: int,
+            duration: int,
+            name: str = '',
+            description: str = '',
+    ) -> 'Video':
+
+        new_video = Video(
+            name=name, description=description, complex_id=complex_id,
+            duration=duration, file_name=file_name
+        )
+        await new_video.save(session)
+        current_complex = await Complex.get_by_id(session, complex_id)
+        current_complex.duration += duration
+        current_complex.video_count += 1
+        await current_complex.save(session)
+
+        return new_video
 
 
 class UserModel(MySQLModel):
@@ -180,7 +225,7 @@ class User(UserModel, table=True):
         back_populates="users", sa_relationship_kwargs={"cascade": "delete"})
 
     def __str__(self):
-        return f"{self.username}"
+        return f"{self.email}"
 
 
 class Rate(MySQLModel, table=True):
@@ -203,3 +248,51 @@ class Administrator(UserModel, table=True):
     email: EmailStr = Field(unique=True, index=True)
     password: str = Field(nullable=False, max_length=256, min_length=6, exclude=True)
     name: str = Field(nullable=True, default=None)
+
+
+class ViewedComplexes(MySQLModel, table=True):
+    __tablename__ = 'viewed_complexes'
+
+    id: int = Field(default=None, primary_key=True, index=True)
+
+    user_id: int = Field(nullable=False, foreign_key='users.id')
+    complex_id: int = Field(nullable=False, foreign_key='complexes.id')
+
+    @classmethod
+    async def add_viewed(cls, session: AsyncSession, user_id: int, complex_id: int) -> None:
+        viewed_complex = cls(user_id=user_id, complex_id=complex_id)
+        await viewed_complex.save(session)
+
+    @classmethod
+    async def get_all_viewed_complexes(
+            cls, session: AsyncSession, user_id: int
+    ) -> list['ViewedComplexes']:
+
+        query = select(cls).where(cls.user_id == user_id)
+        viewed_complexes = await session.execute(query)
+
+        return viewed_complexes.scalars().all()
+
+
+class ViewedVideos(MySQLModel, table=True):
+    __tablename__ = 'viewed_videos'
+
+    id: int = Field(default=None, primary_key=True, index=True)
+
+    user_id: int = Field(nullable=False, foreign_key='users.id')
+    video_id: int = Field(nullable=False, foreign_key='videos.id')
+
+    @classmethod
+    async def add_viewed(cls, session: AsyncSession, user_id: int, video_id: int) -> None:
+        viewed_video = cls(user_id=user_id, video_id=video_id)
+        await viewed_video.save(session)
+
+    @classmethod
+    async def get_all_viewed_videos(
+            cls, session: AsyncSession, user_id: int
+    ) -> list['ViewedVideos']:
+
+        query = select(cls).where(cls.user_id == user_id)
+        viewed_complexes = await session.execute(query)
+
+        return viewed_complexes.scalars().all()
