@@ -29,8 +29,7 @@ async def create_complexes(session: AsyncSession, data: list[dict] = None):
         ]
 
     for compl in data:
-        session.add(Complex(**compl))
-    await session.commit()
+        await Complex.add_new(session=session, **compl)
 
 
 async def create_videos(session: AsyncSession, data: list[dict] = None):
@@ -55,10 +54,10 @@ async def create_videos(session: AsyncSession, data: list[dict] = None):
             }
             for i in range(1, 6)
         ]
-    data.extend(data2)
+        data.extend(data2)
+
     for video in data:
-        session.add(Video(**video))
-    await session.commit()
+        await Video.add_new(session=session, **video)
 
 
 async def create_users(session: AsyncSession, data: list[dict] = None):
