@@ -10,7 +10,7 @@ from web_service.utils import *
 
 router = APIRouter(tags=['web'])
 
-# TODO оплата и сохранение истории платежей - нужен аккаунт
+# TODO оплата и сохранение истории платежей - нужен аккаунт +
 # TODO Как вычислять сколько осталось до конца комплекса?
 # TODO get_logged_user or get_session_user
 

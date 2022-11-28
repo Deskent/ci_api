@@ -23,7 +23,7 @@ async def _send_sms(user, session, context):
     message: str = generate_sms_message()
     logger.debug(f"Sms message generated: {message}")
     try:
-        sms_id: str = await sms_service.send_sms(message)
+        sms_id: str = await sms_service.send_sms(phone=user.phone, message=message)
         if sms_id:
             user.sms_message = message
             await user.save(session)
@@ -35,9 +35,9 @@ async def _send_sms(user, session, context):
 
 async def _send_call(user, session, context):
     try:
-        code: str = await sms_service.send_call()
+        code: str = await sms_service.send_call(phone=user.phone)
         if code:
-            user.sms_call_code = code
+            user.sms_call_code = str(code)
             await user.save(session)
     except SMSException as err:
         logger.error(err)
@@ -81,7 +81,7 @@ async def approve_sms_code(
         return templates.TemplateResponse("entry.html", context=context)
 
     user_code: str = user.sms_message
-    if request.url.path == "forget3":
+    if request.url.path == "/forget3":
         user_code: str = user.sms_call_code
     if code != user_code:
         logger.debug("Wrong sms code")

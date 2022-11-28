@@ -27,7 +27,7 @@ def get_context(
         context: dict = Depends(get_context_with_request)
 ) -> dict:
     context.update({
-        'email_pattern': ".*@.*[\.].{2,}",
+        'email_pattern': r"\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}\b",
         "title": "Добро пожаловать",
         "head_title": "Добро пожаловать",
         "icon_link": "/index",
