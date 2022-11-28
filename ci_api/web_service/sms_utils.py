@@ -15,10 +15,10 @@ class SMSru:
 
     token: str = settings.SMS_TOKEN
 
-    def __init__(self, phone: str):
-        self.phone: str = phone
+    def __init__(self, token: str):
+        self.token: str = token
 
-    async def send_sms(self, message: str):
+    async def send_sms(self, message: str, phone: str):
         """
         Send sms message to user phone
 
@@ -43,17 +43,19 @@ class SMSru:
         url = (
             f"https://sms.ru/sms/send?"
             f"api_id={self.token}&"
-            f"to={self.phone}"
+            f"to={phone}"
             f"&msg={message}"
             f"&json=1"
+            f"&test=1"
         )
-        logger.debug(f"Send sms message {message} to phone: {self.phone}")
+        logger.debug(f"Send sms message {message} to phone: {phone}")
         response = requests.get(url)
         if response.status_code == 200:
             data: dict = response.json()
+            logger.debug(f"Sms service answer: {data}")
 
             if data['status'] == "OK":
-                sms_id: str = data['sms']['sms_id']
+                sms_id: str = data['sms'][phone]['sms_id']
                 if not sms_id:
                     raise SMSException(f"SMS service error: No sms_id received.")
 
@@ -62,7 +64,7 @@ class SMSru:
             status_text: str = data.get('status_text', "Sms status text not defined")
             raise SMSException(f"SMS service error: {status_text}")
 
-    async def send_call(self):
+    async def send_call(self, phone: str) -> str:
         """
         Send call to user phone
         {
@@ -75,18 +77,20 @@ class SMSru:
         """
         url = (
             f"https://sms.ru/code/call?"
-            f"phone={self.phone}"
+            f"phone={phone}"
             f"&ip=-1"
             f"&api_id={self.token}"
             f"&json=1"
+            f"&test=1"
         )
-        logger.debug(f"Send call code to phone: {self.phone}")
+        logger.debug(f"Send call code to phone: {phone}")
 
         response = requests.get(url)
         if response.status_code == 200:
             data: dict = response.json()
+            logger.debug(f"Sms service answer: {data}")
             if data['status'] == "OK":
-                return data['code']
+                return str(data['code'])
 
             status_text: str = data.get('status_text', "Sms status text not defined")
             raise SMSException(f"SMS service error: {status_text}")
