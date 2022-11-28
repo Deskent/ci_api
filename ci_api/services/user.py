@@ -26,7 +26,7 @@ def get_bearer_header(token: str) -> dict[str, str]:
 
 async def user_login(session: AsyncSession, user_data: UserLogin) -> User:
     if user_found := await User.get_by_email(session, user_data.email):
-        if user_found.is_password_valid(user_data.password):
+        if await user_found.is_password_valid(user_data.password):
             return user_found
 
 
