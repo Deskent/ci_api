@@ -13,22 +13,23 @@ async def create_complexes(session: AsyncSession, data: list[dict] = None):
     if not data:
         data = [
             {
-                "description": "complex1",
+                "description": "Описание комплекса 1",
                 "name": "комплекс 1",
+                "number": 1,
                 "next_complex_id": 2,
-                "duration": 10
+                "duration": 0
             },
             {
-                "description": "complex2",
+                "description": "Описание комплекса 2",
                 "name": "комплекс 2",
-                "next_complex_id": 3,
-                "duration": 20
+                "number": 2,
+                "next_complex_id": 1,
+                "duration": 0
             }
         ]
 
     for compl in data:
-        session.add(Complex(**compl))
-    await session.commit()
+        await Complex.add_new(session=session, **compl)
 
 
 async def create_videos(session: AsyncSession, data: list[dict] = None):
@@ -53,10 +54,10 @@ async def create_videos(session: AsyncSession, data: list[dict] = None):
             }
             for i in range(1, 6)
         ]
-    data.extend(data2)
+        data.extend(data2)
+
     for video in data:
-        session.add(Video(**video))
-    await session.commit()
+        await Video.add_new(session=session, **video)
 
 
 async def create_users(session: AsyncSession, data: list[dict] = None):

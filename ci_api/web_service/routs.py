@@ -13,6 +13,7 @@ router = APIRouter(tags=['web'])
 # TODO оплата и сохранение истории платежей - нужен аккаунт +
 # TODO Как вычислять сколько осталось до конца комплекса?
 # TODO get_logged_user or get_session_user
+# TODO хранение просмотренных комплексов и видео, у комплекса должен быть номер
 
 
 @router.get("/", response_class=HTMLResponse)

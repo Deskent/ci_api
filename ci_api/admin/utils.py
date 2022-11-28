@@ -1,6 +1,6 @@
 import shutil
 import subprocess
-from datetime import time, datetime, timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from fastapi import UploadFile, HTTPException
@@ -21,20 +21,6 @@ def save_video(path: str, file: UploadFile):
     with open(path, 'wb') as buffer:
         shutil.copyfileobj(file.file, buffer)
     logger.info(f'Video file saved to {path}')
-
-
-@logger.catch
-def convert_seconds_to_time(data: int) -> time:
-    """Convert integer seconds to datetime.time format"""
-
-    if not data:
-        return time(0, 0, 0)
-
-    hour: int = data // 3600
-    minute: int = data // 60
-    second: int = data % 60
-
-    return time(hour, minute, second)
 
 
 def get_video_duration(video_path: str) -> int:
@@ -97,15 +83,13 @@ async def upload_file(
                 detail=error_text
             )
         save_video(str(file_path), file_form.file)
-        file_form.duration = get_video_duration(str(file_path))
+        duration: int = get_video_duration(str(file_path))
+        file_form.duration = duration
         file_form.file_name = full_filename
-        video = Video(**file_form.dict())
-        session.add(video)
-        await session.commit()
 
-        current_complex.video_count += 1
-        session.add(current_complex)
-        await session.commit()
+        data: dict = file_form.dict()
+        del data['file']
+        video = await Video.add_new(session=session, **data)
 
         logger.info(f"Video {file_form.file_name} for complex {current_complex.id} uploaded.")
 
