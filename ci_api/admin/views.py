@@ -1,16 +1,16 @@
 import pydantic
-from fastapi import Request, FastAPI, Depends
+from fastapi import Request, FastAPI
 from sqladmin import Admin
 from sqladmin import ModelView, expose, BaseView
-from sqlmodel.ext.asyncio.session import AsyncSession
 from starlette.datastructures import FormData
 
 from admin.auth import authentication_backend
-from admin.utils import convert_seconds_to_time, upload_file
+from admin.utils import upload_file
 from config import logger, settings
-from database.db import engine, get_db_session
+from database.db import engine
 from models.models import User, Video, Complex, Rate, Administrator
 from schemas.complexes_videos import VideoUpload
+from services.utils import convert_seconds_to_time
 
 ADMIN_URL = "/ci_admin"
 
@@ -22,14 +22,18 @@ def date_format(value):
 class ComplexView(ModelView, model=Complex):
     name = "Комплекс упражнений"
     name_plural = "Комплексы упражнений"
-    column_list = [Complex.id, Complex.videos, Complex.description, Complex.duration,
+    column_list = [Complex.number, Complex.videos, Complex.description, Complex.duration,
                    Complex.next_complex_id]
     column_labels = {
+        Complex.number: "Порядковый номер комплекс",
         Complex.next_complex_id: "Следующий комплекс",
         Complex.name: "Название комплекса",
         Complex.videos: "Упражнения",
         Complex.description: "Описание комплекса",
         Complex.duration: "Длительность",
+    }
+    column_formatters = {
+        Complex.duration: lambda m, a: convert_seconds_to_time(m.duration),
     }
     form_excluded_columns = [Complex.video_count, Complex.duration]
     column_details_exclude_list = [Complex.video_count]
@@ -83,7 +87,7 @@ class AdminView(ModelView, model=Administrator):
     column_details_exclude_list = [Administrator.password]
     column_list = [
         Administrator.id, Administrator.username, Administrator.email
-        ]
+    ]
 
     column_labels = {
         User.username: "Имя",
