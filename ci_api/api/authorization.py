@@ -91,7 +91,7 @@ async def login(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid username or password')
 
-    if not user_found.is_password_valid(user.password):
+    if not await user_found.is_password_valid(user.password):
         logger.info(f"User with email {user.email} type wrong password")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid username or password')
@@ -119,7 +119,7 @@ async def change_password(
 
     :return: None
     """
-    if not user.is_password_valid(data.old_password):
+    if not await user.is_password_valid(data.old_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid username or password')
     user.password = await user.get_hashed_password(data.password)
