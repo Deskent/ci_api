@@ -13,7 +13,8 @@ def get_complex_data() -> dict:
                "duration": 0
            }
 
-
+@pytest.mark.skip
+@pytest.mark.asyncio
 async def test_add_complex(db_session, get_complex_data):
     new_complex = await Complex.add_new(session=db_session, **get_complex_data)
     assert new_complex.id
