@@ -22,10 +22,17 @@ async def create_db() -> None:
     async with engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
 
+async_session = sessionmaker(
+    engine, class_=AsyncSession, expire_on_commit=False
+)
+
 
 async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
-    async_session = sessionmaker(
-        engine, class_=AsyncSession, expire_on_commit=False
-    )
-    async with async_session() as session:
-        yield session
+    try:
+        async with async_session() as session:
+            yield session
+    except:
+        await session.rollback()
+        raise
+    finally:
+        await session.close()
