@@ -6,7 +6,7 @@
         <section>
             <div class="startCharging-container">
                 <div class="charging-video__wrapper">
-                    <video class="charging-video" src="/static/media/test.mp4">
+                    <video class="charging-video" src="/static/media/{{ video.file_name }}">
                     </video>
                     <button class="charging-video__play">
                         <img src="/static/img/icons/charging-play-btn.svg" alt="">
@@ -22,7 +22,7 @@
                 <div class="successCharge-modal__close modal__close red"></div>
                 <div class="successCharge-modal__column">
                     <form action="/finishCharging" method="POST" class="registration__form">
-{#                        <input type="text" name="user_id" value={{ user.id }} hidden/>#}
+                        <input type="text" name="video_id" value={{ video.id }} hidden/>
                         <button href="/finishCharging" type="submit"
                                 class="registration__btn reg-banner__link_entry">
                             Готово
