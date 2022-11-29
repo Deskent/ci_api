@@ -2,16 +2,18 @@ from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
 
 from schemas.user import UserRegistration
-from services.complexes_and_videos import check_level_up
-from services.user import (
-    register_new_user
+from services.complexes_and_videos import (
+    check_level_up, get_viewed_videos_ids,
+    get_not_viewed_videos_ids, calculate_viewed_videos_duration, calculate_videos_to_next_level,
+    set_video_viewed
 )
+from services.user import register_new_user
+from services.utils import convert_seconds_to_time
 from web_service.utils import *
 
 router = APIRouter(tags=['web'])
 
-# TODO оплата и сохранение истории платежей - нужен аккаунт +
-# TODO Как вычислять сколько осталось до конца комплекса?
+
 # TODO get_logged_user or get_session_user
 # TODO хранение просмотренных комплексов и видео, у комплекса должен быть номер
 # TODO После смены почты или телефона - отправлять подтверждение
@@ -19,6 +21,7 @@ router = APIRouter(tags=['web'])
 # TODO Сделать страницу редактирования профиля
 # TODO Сделать страницу с сообщением "Подписка отменена"
 # TODO сделать переход со страницы Notifications
+# TODO оплата и сохранение истории платежей - нужен аккаунт +
 
 
 @router.get("/", response_class=HTMLResponse)
@@ -105,6 +108,7 @@ async def charging(
         videos: list = Depends(get_complex_videos_list),
         session_context: dict = Depends(get_session_context),
         context: dict = Depends(get_profile_context),
+        session: AsyncSession = Depends(get_db_session)
 ):
     if not session_context:
         return templates.TemplateResponse("entry.html", context=context)
@@ -112,11 +116,25 @@ async def charging(
 
     # Calculate video number to next level for current complex
     if videos:
-        to_next_level = int((100 - user.progress) / (100 / len(videos)))
-        context.update(to_next_level=to_next_level)
-    context.update(
-        current_complex=current_complex, videos=videos, **session_context
-    )
+        viewed_videos: tuple[int] = await get_viewed_videos_ids(session, user)
+        not_viewed_videos: tuple[int] = await get_not_viewed_videos_ids(videos, viewed_videos)
+        not_viewed_videos_duration: int = await calculate_viewed_videos_duration(
+            session, not_viewed_videos
+        )
+        complex_less_time: int = convert_seconds_to_time(
+            current_complex.duration - not_viewed_videos_duration
+        ).minute
+
+        videos_to_next_level: int = calculate_videos_to_next_level(user, videos)
+
+        context.update(
+            to_next_level=videos_to_next_level, complex_less_time=complex_less_time,
+            viewed_videos=viewed_videos
+        )
+    for video in videos:
+        video.duration = convert_seconds_to_time(video.duration)
+    context.update(current_complex=current_complex, videos=videos, **session_context)
+
     return templates.TemplateResponse("videos_list.html", context=context)
 
 
@@ -133,13 +151,13 @@ async def subscribe(
 
 @router.get("/startCharging/{video_id}", response_class=HTMLResponse)
 async def start_charging(
-        file_name: Video = Depends(get_session_video_file_name),
+        video: Video = Depends(get_session_video),
         session_context: dict = Depends(get_session_context),
         context: dict = Depends(get_profile_context)
 ):
     if not session_context:
         return templates.TemplateResponse("entry.html", context=context)
-    context.update(file_name=file_name, **session_context)
+    context.update(video=video, **session_context)
     return templates.TemplateResponse("startCharging.html", context=context)
 
 
@@ -208,7 +226,6 @@ async def forget2(
 async def login_with_sms(
         check_sms_code: dict = Depends(approve_sms_code),
 ):
-
     return check_sms_code
 
 
@@ -219,15 +236,15 @@ async def forget3(
     return templates.TemplateResponse("forget3.html", context=context)
 
 
-@router.get("/complexes_list", response_class=HTMLResponse)
-async def complexes_list(
-        current_complex: Complex = Depends(get_current_user_complex),
-        videos: list = Depends(get_complex_videos_list),
-        session_context: dict = Depends(get_session_context),
-        context: dict = Depends(get_profile_context),
-):
-    print(current_complex)
-    return templates.TemplateResponse("videos_list.html", context=context)
+# @router.get("/complexes_list", response_class=HTMLResponse)
+# async def complexes_list(
+#         current_complex: Complex = Depends(get_current_user_complex),
+#         videos: list = Depends(get_complex_videos_list),
+#         session_context: dict = Depends(get_session_context),
+#         context: dict = Depends(get_profile_context),
+# ):
+#     print(current_complex)
+#     return templates.TemplateResponse("videos_list.html", context=context)
 
 
 @router.post("/finishCharging", response_class=HTMLResponse)
@@ -236,13 +253,18 @@ async def finishCharging(
         session_context: dict = Depends(get_session_context),
         context: dict = Depends(get_profile_context),
         user: User = Depends(get_session_user),
-        session: AsyncSession = Depends(get_db_session)
+        session: AsyncSession = Depends(get_db_session),
+        video_id: int = Form()
 ):
+    if not await set_video_viewed(session, user, video_id):
+        return RedirectResponse("/charging")
+
     old_user_level = user.level
-    new_user: User = await check_level_up(user=user, session=session)
+    new_user: User = await check_level_up(session, user)
     context.update(**session_context, current_complex=current_complex)
     if new_user.level <= old_user_level:
         return RedirectResponse("/charging")
+
     current_complex: Complex = await Complex.get_by_id(session, user.current_complex)
     context.update(user=new_user, current_complex=current_complex)
     return templates.TemplateResponse("new_level.html", context=context)

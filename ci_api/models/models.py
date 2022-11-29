@@ -157,6 +157,13 @@ class Video(MySQLModel, table=True):
 
         return new_video
 
+    @classmethod
+    async def get_videos_duration(cls, session: AsyncSession, videos_ids: tuple[int]):
+        query = select(cls).where(cls.id in videos_ids)
+        response = await session.execute(query)
+
+        return sum(response.scalars().all())
+
 
 class UserModel(MySQLModel):
 
@@ -259,9 +266,18 @@ class ViewedComplexes(MySQLModel, table=True):
     complex_id: int = Field(nullable=False, foreign_key='complexes.id')
 
     @classmethod
-    async def add_viewed(cls, session: AsyncSession, user_id: int, complex_id: int) -> None:
-        viewed_complex = cls(user_id=user_id, complex_id=complex_id)
-        await viewed_complex.save(session)
+    async def add_viewed(
+            cls, session: AsyncSession, user_id: int, complex_id: int
+    ) -> 'ViewedComplexes':
+
+        query = select(cls).where(cls.user_id == user_id).where(cls.complex_id == complex_id)
+        response = await session.execute(query)
+        complex_exists = response.scalars().first()
+        if not complex_exists:
+            viewed_complex = cls(user_id=user_id, complex_id=complex_id)
+            await viewed_complex.save(session)
+
+            return viewed_complex
 
     @classmethod
     async def get_all_viewed_complexes(
@@ -283,9 +299,15 @@ class ViewedVideos(MySQLModel, table=True):
     video_id: int = Field(nullable=False, foreign_key='videos.id')
 
     @classmethod
-    async def add_viewed(cls, session: AsyncSession, user_id: int, video_id: int) -> None:
-        viewed_video = cls(user_id=user_id, video_id=video_id)
-        await viewed_video.save(session)
+    async def add_viewed(cls, session: AsyncSession, user_id: int, video_id: int) -> 'ViewedVideos':
+        query = select(cls).where(cls.user_id == user_id).where(cls.video_id == video_id)
+        response = await session.execute(query)
+        video_exists = response.scalars().first()
+        if not video_exists:
+            viewed_video = cls(user_id=user_id, video_id=video_id)
+            await viewed_video.save(session)
+
+            return viewed_video
 
     @classmethod
     async def get_all_viewed_videos(

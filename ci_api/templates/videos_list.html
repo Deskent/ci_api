@@ -9,7 +9,7 @@
             </div>
             <div class="charging-slider">
                 {% for video in videos %}
-                    <div class="charging-slide {{ 'lock' if not video.id % 2 else 'unlock' }}">
+                    <div class="charging-slide unlock">
                         <div class="charging-slide__wrapper">
                             <div class="charging-slide__image charging-image">
                                 <div class="charging-image__wrapper">
@@ -18,16 +18,23 @@
                                                 type="image/webp">
                                         <img src="/static/img/charging-image.png" alt=""></picture>
                                 </div>
-                                <div class="charging-image__time">{{ video.duration }} секунд
+                                <div class="charging-image__time">{{ video.duration }} минут
                                 </div>
-                                # TODO Как это вычислять?
-{#                                <div class="charging-image__remained">#}
-{#                                    Осталось 6 минут#}
-{#                                </div>#}
+
+                                {#                                <div class="charging-image__remained">#}
+                                {#                                    Осталось {{ complex_less_time }} минут#}
+                                {#                                </div>#}
+
                             </div>
-                            <a href="/startCharging/{{ video.id }}" class="charging-slide__btn">Нажмите
-                                чтобы
-                                начать</a>
+                            {% if video.id in viewed_videos %}
+                                <a href="/startCharging/{{ video.id }}" class="charging-slide__btn">
+                                    Просмотрено
+                                </a>
+                            {% else %}
+                                <a href="/startCharging/{{ video.id }}" class="charging-slide__btn">
+                                    Нажмите чтобы посмотреть
+                                </a>
+                            {% endif %}
                             <div class="charging-slide__text">
                                 <div class="charging-slide__title">
                                     {{ video.name }}

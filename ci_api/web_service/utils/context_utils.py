@@ -125,12 +125,12 @@ async def get_session_video_by_id(
     )
 
 
-async def get_session_video_file_name(
+async def get_session_video(
         video: Video = Depends(get_session_video_by_id),
-) -> str:
+) -> Video:
     file_path: Path = settings.MEDIA_DIR / video.file_name
     if file_path.exists():
-        return str(video.file_name)
+        return video
 
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
