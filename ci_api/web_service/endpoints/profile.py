@@ -6,9 +6,6 @@ from web_service.utils import *
 router = APIRouter(tags=['web', 'profile'])
 
 
-# TODO обработать post запрос на страницу edit_profile
-# TODO сделать проверку пароля после изменения (что он изменился)
-
 # TODO сделать переход со страницы Notifications
 
 # TODO оплата и сохранение истории платежей - нужен аккаунт +
@@ -52,9 +49,34 @@ async def help_page(
 
 @router.post("/edit_profile", response_class=HTMLResponse)
 async def edit_profile_post(
-
+        username: str = Form(),
+        last_name: str = Form(),
+        third_name: str = Form(),
+        email: str = Form(),
+        phone: str = Form(),
+        session_context: dict = Depends(get_session_context),
+        context: dict = Depends(get_profile_context),
+        session: AsyncSession = Depends(get_db_session)
 ):
-    # TODO реализовать
-    # TODO После смены почты или телефона - отправлять подтверждение
-    pass
+    user: User = session_context['user']
+    user.username = username
+    user.last_name = last_name
+    user.third_name = third_name
+    if user.phone != phone:
+        # TODO send sms to verify ?
+        pass
+    user.phone = phone
+    if user.email != email:
+        try:
+            await send_verification_mail(user)
+        except EmailException:
+            context.update(error=f"Неверный адрес почты")
+            return templates.TemplateResponse("edit_profile.html", context=context)
+    user.email = email
+    user.is_verified = False
 
+    await user.save(session)
+    session_context.update(user=user, success='Профиль успешно изменен')
+    context.update(**session_context)
+
+    return templates.TemplateResponse("profile.html", context=context)

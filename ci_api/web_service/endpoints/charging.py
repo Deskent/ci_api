@@ -14,8 +14,8 @@ router = APIRouter(tags=['web', 'charging'])
 
 
 @router.get("/videos_list/{complex_id}", response_class=HTMLResponse)
-@router.post("/videos_list", response_class=HTMLResponse)
-async def charging(
+@router.post("/videos_list/{complex_id}", response_class=HTMLResponse)
+async def videos_list(
         complex_id: int,
         session_context: dict = Depends(get_session_context),
         context: dict = Depends(get_profile_context),
@@ -73,13 +73,13 @@ async def finish_charging(
         video_id: int = Form()
 ):
     if not await set_video_viewed(session, user, video_id):
-        return RedirectResponse("/charging")
+        return RedirectResponse(f"/videos_list/{current_complex.id}")
 
     old_user_level = user.level
     new_user: User = await check_level_up(session, user)
     context.update(**session_context, current_complex=current_complex)
     if new_user.level <= old_user_level:
-        return RedirectResponse("/charging")
+        return templates.TemplateResponse("videos_list.html", context=context)
 
     current_complex: Complex = await Complex.get_by_id(session, user.current_complex)
     context.update(user=new_user, current_complex=current_complex)

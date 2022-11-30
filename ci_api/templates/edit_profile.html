@@ -3,6 +3,8 @@
 {% block profile_content %}
     <section class="profile-content">
         <div class="container">
+            {% include 'error_message.html' %}
+            {% include 'success_message.html' %}
             <form action="/edit_profile" method="POST" class="profile-editing__form">
 
                 <fieldset class="profile-editing__form-fieldset">
@@ -23,10 +25,10 @@
                            placeholder="Телефон" pattern="[0-9]{10}"
                            id="registrationPhone" name="phone" required
                            value="{{ user.phone }}">
-                <input class="profile-editing__form-submit" type="submit" value="Сохранить">
+                    <input class="profile-editing__form-submit" type="submit" value="Сохранить">
                 </fieldset>
             </form>
-        {# # TODO Как сделать чтоб были рядом#}
+
             <form action="/newPassword" method="POST" class="profile">
                 <fieldset class="profile-editing__form-fieldset">
                     <legend class="profile-editing__form-legend">Поменять пароль</legend>
@@ -36,7 +38,8 @@
                            placeholder="Новый пароль" name="password" required>
                     <input class="profile-editing__form-input" type="password"
                            placeholder="Подтвердить новый пароль" name="password2" required>
-                <input class="profile-editing__form-submit" type="submit" value="Изменить пароль">
+                    <input class="profile-editing__form-submit" type="submit"
+                           value="Изменить пароль">
                 </fieldset>
             </form>
         </div>
