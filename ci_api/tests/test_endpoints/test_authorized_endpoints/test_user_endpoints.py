@@ -22,6 +22,7 @@ class TestUsers:
         assert response.status_code == 200
         assert response.json().get("id") is not None
 
+    @pytest.mark.skip("Need to know verify code from database")
     @pytest.mark.server
     def test_verify_email(self):
         url = self.base_url + "/auth/verify_email" + f"?token={self.email_token}"

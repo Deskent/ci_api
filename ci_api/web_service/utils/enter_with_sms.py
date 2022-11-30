@@ -1,4 +1,3 @@
-import random
 from typing import Optional
 
 from fastapi import Depends, Form
@@ -9,18 +8,13 @@ from starlette.requests import Request
 from config import templates
 from database.db import get_db_session
 from models.models import User
+from services.utils import generate_four_random_digits_string
 from web_service.sms_utils import sms_service, SMSException
 from web_service.utils.context_utils import get_context, login_user
 
 
-def generate_sms_message() -> str:
-    return "".join(
-        (str(random.randint(0, 9)) for _ in range(4))
-    )
-
-
 async def _send_sms(user, session, context):
-    message: str = generate_sms_message()
+    message: str = generate_four_random_digits_string()
     logger.debug(f"Sms message generated: {message}")
     try:
         sms_id: str = await sms_service.send_sms(phone=user.phone, message=message)
