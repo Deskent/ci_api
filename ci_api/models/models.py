@@ -229,7 +229,8 @@ class ViewedComplexes(MySQLModel, table=True):
 
     @classmethod
     async def get_all_viewed_complexes(
-            cls, session: AsyncSession, user_id: int
+            cls, session: AsyncSession,
+            user_id: int
     ) -> list['ViewedComplexes']:
 
         query = select(cls).where(cls.user_id == user_id)

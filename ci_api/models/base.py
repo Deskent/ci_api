@@ -18,7 +18,7 @@ class MySQLModel(SQLModel):
 
     @classmethod
     async def get_all(cls, session: AsyncSession) -> list['MySQLModel']:
-        response = await session.execute(select(cls))
+        response = await session.execute(select(cls).order_by(cls.id))
 
         return response.scalars().all()
 

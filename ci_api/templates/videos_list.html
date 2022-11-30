@@ -20,11 +20,6 @@
                                 </div>
                                 <div class="charging-image__time">{{ video.duration }} минут
                                 </div>
-
-                                {#                                <div class="charging-image__remained">#}
-                                {#                                    Осталось {{ complex_less_time }} минут#}
-                                {#                                </div>#}
-
                             </div>
                             {% if video.id in viewed_videos %}
                                 <a href="/startCharging/{{ video.id }}" class="charging-slide__btn">
