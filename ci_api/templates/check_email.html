@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block main %}
+    <main class="main reg-main entry_main">
+        <div class="reg-main__sketch reg-main__sketch_left reg-main__sketch_left_registration">
+            <img src="/static/img/reg__bg.svg" alt="">
+        </div>
+        <div class="reg-main__sketch reg-main__sketch_right reg-main__sketch_right_registration forget__sketch_right">
+            <img src="/static/img/reg__bg_rotate.svg" alt="">
+        </div>
+        <div class="container">
+
+            <div class="reg-content__banner reg-banner">
+                <div class="reg-banner__content forget__content">
+
+                    <div class="registration__logo"></div>
+                    <h2 class="forget__title">Введите проверочный код</h2>
+                    <p class="forget__text">Введите код отправленный на вашу электронную почту</p>
+                    {% include 'error_message.html' %}
+                    <!-- Правила названия классов только тут -->
+                    <form action="/check_email" method="POST" class="verification-form">
+                        <input class="verification-form__input" type="text"
+                               placeholder="Проверочный код из письма"
+                               name="email_token" required>
+                        <input class="verification-form__submit" type="submit"
+                               value="Проверить код">
+                    </form>
+                    <!-- Правила только тут -->
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock main %}

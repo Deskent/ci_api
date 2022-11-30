@@ -58,7 +58,7 @@ class AuthHandler:
         }
         return jwt.encode(payload, self.secret, algorithm=self.algorithm)
 
-    @logger.catch
+    # @logger.catch
     def verify_email_token(self, token: str) -> dict:
         return jwt.decode(token, self.secret, algorithms=[self.algorithm])
 

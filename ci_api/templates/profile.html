@@ -27,9 +27,10 @@
                             </div>
                         </div>
                     </div>
-                    {% if password_chanded %}
-                        <div class="entry__link_forget">{{ password_chanded }}</div>
-                    {% endif %}
+
+                    {% include 'error_message.html' %}
+                    {% include 'success_message.html' %}
+
                     <form action="/edit_profile" method="GET" class="user-profile__form">
                         <button type="submit"
                                 class="registration__btn reg-banner__link_entry">

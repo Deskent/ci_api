@@ -23,6 +23,13 @@ async def create_complexes(session: AsyncSession, data: list[dict] = None):
                 "description": "Описание комплекса 2",
                 "name": "комплекс 2",
                 "number": 2,
+                "next_complex_id": 3,
+                "duration": 0
+            },
+            {
+                "description": "Описание комплекса 3",
+                "name": "комплекс 3",
+                "number": 3,
                 "next_complex_id": 1,
                 "duration": 0
             }
@@ -40,7 +47,7 @@ async def create_videos(session: AsyncSession, data: list[dict] = None):
                 'file_name': 'test.mp4',
                 'description': f'описание видео {i}',
                 'name': f'Видео № {i}',
-                'duration': i * 100
+                'duration': i * 100 + 10 * i
             }
             for i in range(1, 6)
         ]
@@ -50,7 +57,7 @@ async def create_videos(session: AsyncSession, data: list[dict] = None):
                 'file_name': 'test.mp4',
                 'description': f'описание 2 видео {i}',
                 'name': f'Видео 2 № {i}',
-                'duration': i * 100
+                'duration': i * 100 + 20 * i
             }
             for i in range(1, 6)
         ]
@@ -74,7 +81,8 @@ async def create_users(session: AsyncSession, data: list[dict] = None):
                 'current_complex': 1,
                 'rate_id': 1,
                 'is_admin': True,
-                'is_active': False
+                'is_active': False,
+                'is_verified': True
             },
             {
                 'username': "test2",

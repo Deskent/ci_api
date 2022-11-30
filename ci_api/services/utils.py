@@ -1,7 +1,5 @@
 from datetime import time
 
-from loguru import logger
-
 from config import logger
 
 
@@ -28,3 +26,7 @@ def convert_seconds_to_time(data: int) -> time:
     second: int = data % 60
 
     return time(hour, minute, second)
+
+
+def convert_to_minutes(data: int) -> int:
+    return convert_seconds_to_time(data).minute

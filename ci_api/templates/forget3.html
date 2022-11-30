@@ -20,22 +20,16 @@
                         Введите 4 последние цифры
                         звонившего номера
                     </p>
-                    {% if error %}
-                        <div class="entry__link_forget">{{ error }}</div>
-                    {% endif %}
+                    {% include 'error_message.html' %}
+                    {% include 'success_message.html' %}
+
                     <form action="/forget3" method="POST" class="registration__form forget-form">
-                        <!-- <label class="forget-form__label" for="forgetInput1"></label> -->
-                        <input class="forget-form__input" id="forgetInput1" maxlength="1"
-                               type="text" name="sms_input_1" required pattern="[0-9]{1}">
-                        <!-- <label class="forget-form__label" for="forgetInput2"></label> -->
-                        <input class="forget-form__input" id="forgetInput2" maxlength="1"
-                               type="text" name="sms_input_2" required pattern="[0-9]{1}">
-                        <!-- <label class="forget-form__label" for="forgetInput3"></label> -->
-                        <input class="forget-form__input" id="forgetInput3" maxlength="1"
-                               type="text" name="sms_input_3" required pattern="[0-9]{1}">
-                        <!-- <label class="forget-form__label" for="forgetInput4"></label> -->
-                        <input class="forget-form__input" id="forgetInput4" maxlength="1"
-                               type="text" name="sms_input_4" required pattern="[0-9]{1}">
+                        {% for index in range(1, 5) %}
+                            <input class="forget-form__input" id="forgetInput{{ index }}"
+                                   maxlength="1"
+                                   type="text" name="sms_input_{{ index }}" required
+                                   pattern="[0-9]{1}">
+                        {% endfor %}
                         <input type="text" name="user_id" value="{{ user.id }}" hidden>
                         <button type="submit"
                                 class="registration__btn reg-banner__link_entry">

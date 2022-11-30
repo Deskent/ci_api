@@ -154,11 +154,11 @@ class CreateEndpointUserData:
 
 @pytest.fixture(scope='class')
 def setup_class(
-        get_test_session, base_url, user_create, new_alarm, new_notification,
+        get_test_client_app, base_url, user_create, new_alarm, new_notification,
         test_user
 ) -> CreateEndpointUserData:
     test_data = CreateEndpointUserData(
-        session=get_test_session, base_url=base_url, new_alarm=new_alarm,
+        session=get_test_client_app, base_url=base_url, new_alarm=new_alarm,
         new_notification=new_notification
     )
     test_data.create()

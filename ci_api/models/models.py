@@ -2,74 +2,10 @@ from datetime import datetime, time
 from typing import Optional, List
 
 from pydantic import EmailStr
-from sqlmodel import SQLModel, Field, Relationship, select
+from sqlmodel import Field, Relationship, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from services.auth import auth_handler
-
-
-class MySQLModel(SQLModel):
-
-    async def save(self, session) -> 'MySQLModel':
-        session.add(self)
-        await session.commit()
-        return self
-
-    @classmethod
-    async def get_by_id(cls, session: AsyncSession, id_: int) -> 'MySQLModel':
-        return await session.get(cls, id_)
-
-    @classmethod
-    async def get_all(cls, session: AsyncSession) -> list['MySQLModel']:
-        response = await session.execute(select(cls))
-
-        return response.scalars().all()
-
-    async def delete(self, session: AsyncSession) -> None:
-        await session.delete(self)
-        await session.commit()
-
-
-class UserDataModels(MySQLModel):
-
-    @classmethod
-    async def get_all_by_user_id(cls, session: AsyncSession, user_id: int) -> list[MySQLModel]:
-        query = select(cls).join(User).where(User.id == user_id)
-        response = await session.execute(query)
-
-        return response.scalars().all()
-
-
-class Alarm(UserDataModels, table=True):
-    __tablename__ = 'alarms'
-
-    id: int = Field(default=None, primary_key=True, index=True)
-    alarm_time: time
-    sound_name: str = Field(nullable=False, default='some sound')
-    volume: int = Field(nullable=False, default=50)
-    vibration: bool = Field(default=False)
-    text: Optional[str] = Field(nullable=True, default='')
-    weekdays: Optional[str] = Field(nullable=False, default='all')
-
-    user_id: Optional[int] = Field(default=None, foreign_key="users.id")
-    users: 'User' = Relationship(back_populates="alarms")
-
-    def __str__(self):
-        return f"{self.text}"
-
-
-class Notification(UserDataModels, table=True):
-    __tablename__ = 'notifications'
-
-    id: int = Field(default=None, primary_key=True, index=True)
-    notification_time: time
-    text: Optional[str] = Field(nullable=True, default='')
-
-    user_id: Optional[int] = Field(default=None, foreign_key="users.id")
-    users: 'User' = Relationship(back_populates="notifications")
-
-    def __str__(self):
-        return f"{self.text}"
+from models.base import MySQLModel, UserModel
 
 
 class Complex(MySQLModel, table=True):
@@ -164,42 +100,12 @@ class Video(MySQLModel, table=True):
 
         return sum(response.scalars().all())
 
-
-class UserModel(MySQLModel):
-
-    @classmethod
-    async def get_by_email(cls, session: AsyncSession, email: EmailStr) -> 'UserModel':
-        query = select(cls).where(cls.email == email)
-        response = await session.execute(query)
-
-        return response.scalars().first()
-
-    @classmethod
-    async def get_by_phone(cls, session: AsyncSession, phone: str) -> 'UserModel':
-        query = select(cls).where(cls.phone == phone)
-        response = await session.execute(query)
-
-        return response.scalars().first()
-
-    @classmethod
-    async def get_by_token(cls, session: AsyncSession, token: str) -> 'UserModel':
-        user_id: int = auth_handler.decode_token(token)
-
-        return await session.get(cls, user_id)
-
-    async def is_password_valid(self, password: str) -> bool:
-        return auth_handler.verify_password(password, self.password)
-
-    async def get_user_token(self) -> str:
-        return auth_handler.encode_token(self.id)
-
-    @staticmethod
-    async def get_hashed_password(password: str) -> str:
-        return auth_handler.get_password_hash(password)
-
-    @staticmethod
-    async def get_user_id_from_email_token(token: str) -> str:
-        return auth_handler.decode_token(token)
+    async def delete(self, session: AsyncSession) -> None:
+        current_complex = await Complex.get_by_id(session, self.complex_id)
+        current_complex.video_count -= 1
+        await current_complex.save(session)
+        await session.delete(self)
+        await session.commit()
 
 
 class User(UserModel, table=True):
@@ -226,9 +132,9 @@ class User(UserModel, table=True):
 
     rate_id: int = Field(nullable=False, foreign_key='rates.id')
     current_complex: Optional[int] = Field(nullable=True, default=1, foreign_key='complexes.id')
-    alarms: List[Alarm] = Relationship(
+    alarms: List['Alarm'] = Relationship(
         back_populates="users", sa_relationship_kwargs={"cascade": "delete"})
-    notifications: List[Notification] = Relationship(
+    notifications: List['Notification'] = Relationship(
         back_populates="users", sa_relationship_kwargs={"cascade": "delete"})
 
     def __str__(self):
@@ -257,6 +163,48 @@ class Administrator(UserModel, table=True):
     name: str = Field(nullable=True, default=None)
 
 
+class UserDataModels(MySQLModel):
+
+    @classmethod
+    async def get_all_by_user_id(cls, session: AsyncSession, user_id: int) -> list[MySQLModel]:
+        query = select(cls).join(User).where(User.id == user_id)
+        response = await session.execute(query)
+
+        return response.scalars().all()
+
+
+class Alarm(UserDataModels, table=True):
+    __tablename__ = 'alarms'
+
+    id: int = Field(default=None, primary_key=True, index=True)
+    alarm_time: time
+    sound_name: str = Field(nullable=False, default='some sound')
+    volume: int = Field(nullable=False, default=50)
+    vibration: bool = Field(default=False)
+    text: Optional[str] = Field(nullable=True, default='')
+    weekdays: Optional[str] = Field(nullable=False, default='all')
+
+    user_id: Optional[int] = Field(default=None, foreign_key="users.id")
+    users: 'User' = Relationship(back_populates="alarms")
+
+    def __str__(self):
+        return f"{self.text}"
+
+
+class Notification(UserDataModels, table=True):
+    __tablename__ = 'notifications'
+
+    id: int = Field(default=None, primary_key=True, index=True)
+    notification_time: time
+    text: Optional[str] = Field(nullable=True, default='')
+
+    user_id: Optional[int] = Field(default=None, foreign_key="users.id")
+    users: 'User' = Relationship(back_populates="notifications")
+
+    def __str__(self):
+        return f"{self.text}"
+
+
 class ViewedComplexes(MySQLModel, table=True):
     __tablename__ = 'viewed_complexes'
 
@@ -281,7 +229,8 @@ class ViewedComplexes(MySQLModel, table=True):
 
     @classmethod
     async def get_all_viewed_complexes(
-            cls, session: AsyncSession, user_id: int
+            cls, session: AsyncSession,
+            user_id: int
     ) -> list['ViewedComplexes']:
 
         query = select(cls).where(cls.user_id == user_id)

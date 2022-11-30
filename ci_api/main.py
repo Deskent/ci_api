@@ -10,7 +10,7 @@ from admin.views import get_admin
 from config import settings
 from create_data import create_fake_data, recreate_db
 from routers import main_router
-from web_service.routs import router as web_router
+from web_service.router import router as web_router
 
 
 DOCS_URL = "/ci"
