@@ -79,7 +79,7 @@ async def finish_charging(
     new_user: User = await check_level_up(session, user)
     context.update(**session_context, current_complex=current_complex)
     if new_user.level <= old_user_level:
-        return templates.TemplateResponse("videos_list.html", context=context)
+        return RedirectResponse(f"/videos_list/{current_complex.id}")
 
     current_complex: Complex = await Complex.get_by_id(session, user.current_complex)
     context.update(user=new_user, current_complex=current_complex)
