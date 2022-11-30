@@ -15,7 +15,6 @@ router = APIRouter(prefix="/auth", tags=['Authorization'])
 
 @router.post("/register", response_model=User)
 async def register(
-        tasks: BackgroundTasks,
         user_data: UserRegistration,
         session: AsyncSession = Depends(get_db_session)
 ):
@@ -43,7 +42,7 @@ async def register(
     :return: User created information as JSON
     """
 
-    user, errors = await register_new_user(session, user_data, tasks)
+    user, errors = await register_new_user(session, user_data)
     if user:
         return user
     if errors:
