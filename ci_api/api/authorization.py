@@ -7,7 +7,7 @@ from database.db import get_db_session
 from models.models import User
 from schemas.user import UserRegistration, UserLogin, UserChangePassword
 from services.depends import get_logged_user
-from services.emails import verify_token_from_email
+from services.emails import get_user_id_from_email_token
 from services.user import register_new_user
 
 router = APIRouter(prefix="/auth", tags=['Authorization'])
@@ -61,7 +61,7 @@ async def verify_email_token(
         token: str,
         session: AsyncSession = Depends(get_db_session)
 ):
-    user_id: str = await verify_token_from_email(token=token)
+    user_id: str = await get_user_id_from_email_token(token=token)
     if not user_id:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Invalid token")
     user: User = await session.get(User, user_id)

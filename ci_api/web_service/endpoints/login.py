@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
 
 from schemas.user import UserRegistration
-from services.emails import verify_token_from_email
+from services.emails import get_user_id_from_email_token
 from services.user import register_new_user
 from web_service.utils import *
 
@@ -143,7 +143,7 @@ async def check_email(
         session: AsyncSession = Depends(get_db_session),
         email_token: str = Form()
 ):
-    user_id: str = await verify_token_from_email(email_token)
+    user_id: str = await get_user_id_from_email_token(email_token)
     if not user_id:
         error = 'Введен неверный токен'
         context.update(error=error)
@@ -154,6 +154,7 @@ async def check_email(
         error = 'Пользователь не найден'
         context.update(error=error)
         return templates.TemplateResponse("index.html", context=context)
+
     if not user.is_verified:
         user.is_verified = True
         await user.save(session)

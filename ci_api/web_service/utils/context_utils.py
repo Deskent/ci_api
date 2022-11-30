@@ -12,7 +12,7 @@ from database.db import get_db_session
 from models.models import User, Video, Complex
 from schemas.user import UserLogin
 from services.depends import get_context_with_request
-from services.emails import send_verification_mail, EmailException
+from services.emails import send_verification_mail, EmailException, send_email_message
 from services.user import user_login, get_bearer_header
 
 
@@ -177,6 +177,16 @@ def generate_random_password() -> str:
     return secrets.token_hex(8)
 
 
+async def get_email_send_context(email: EmailStr, message: str) -> dict:
+    context = {}
+    try:
+        await send_email_message(email, message)
+    except EmailException:
+        context.update(error=f"Неверный адрес почты")
+
+    return context
+
+
 async def restore_password(
         context: dict = Depends(get_context),
         email: EmailStr = Form(...),
@@ -184,39 +194,46 @@ async def restore_password(
 ):
     user: User = await User.get_by_email(session, email)
     if not user:
-        context.update(error='Invalid email')
+        context.update(error='Неверный адрес почты')
         return templates.TemplateResponse("forget1.html", context=context)
 
     new_password: str = generate_random_password()
+    email_errors: dict = await get_email_send_context(user.email, new_password)
+    if email_errors:
+        context.update(email_errors)
+        return templates.TemplateResponse("forget1.html", context=context)
+
     logger.debug(f"New password: {new_password}")
     user.password = await user.get_hashed_password(new_password)
     await user.save(session)
-    try:
-        await send_verification_mail(user)
-    except EmailException:
-        context.update(error=f"Неверный адрес почты")
-        return templates.TemplateResponse("forget1.html", context=context)
-
     context.update(success=f"Новый пароль выслан на почту {user.email}")
-    return templates.TemplateResponse("forget1.html", context=context)
+    return templates.TemplateResponse("entry.html", context=context)
 
 
 async def set_new_password(
         context: dict = Depends(get_profile_context),
         session_context: dict = Depends(get_session_context),
+        old_password: str = Form(...),
         password: str = Form(...),
         password2: str = Form(...),
         session: AsyncSession = Depends(get_db_session),
 ):
-    context.update(**session_context)
-    if password != password2:
-        context.update(error="Пароли не совпадают")
-
-        return templates.TemplateResponse("edit_profile.html", context=context)
-
     user: User = session_context.get('user')
     if not user:
         return templates.TemplateResponse("entry.html", context=context)
+
+    context.update(**session_context)
+    if not await user.is_password_valid(old_password):
+        context.update(error="Неверный пароль")
+        return templates.TemplateResponse("edit_profile.html", context=context)
+
+    if password == old_password:
+        context.update(error="Новый пароль не должен совпадать со старым")
+        return templates.TemplateResponse("edit_profile.html", context=context)
+
+    if password != password2:
+        context.update(error="Пароли не совпадают")
+        return templates.TemplateResponse("edit_profile.html", context=context)
 
     context.update(success="Пароль успешно изменен.")
     user.password = await user.get_hashed_password(password)
@@ -231,5 +248,3 @@ async def login_user(user, request):
     request.session.update(token=login_token)
 
     return RedirectResponse('/entry', headers=headers)
-
-
