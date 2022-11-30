@@ -30,6 +30,13 @@ async def create_complexes(session: AsyncSession, data: list[dict] = None):
                 "description": "Описание комплекса 3",
                 "name": "комплекс 3",
                 "number": 3,
+                "next_complex_id": 4,
+                "duration": 0
+            },
+            {
+                "description": "Описание комплекса 4",
+                "name": "комплекс 4",
+                "number": 4,
                 "next_complex_id": 1,
                 "duration": 0
             }
