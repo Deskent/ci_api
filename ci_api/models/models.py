@@ -268,3 +268,23 @@ class ViewedVideos(MySQLModel, table=True):
         viewed_complexes = await session.execute(query)
 
         return viewed_complexes.scalars().all()
+
+
+# class ApplicationInfo(MySQLModel, table=True):
+#     id: int = Field(default=None, primary_key=True, index=True)
+#
+#     last_check: datetime = Field(default=None, description="Время последней проверки уведомлений")
+#
+#     @classmethod
+#     async def add_check(cls, session: AsyncSession) -> None:
+#         current_time = datetime.now(tz=None)
+#         check = cls(last_check=current_time)
+#         await check.save(session)
+#
+#     @classmethod
+#     async def is_last_check_today(cls, session: AsyncSession) -> bool:
+#         current_day = datetime.now(tz=None).day
+#         response = await session.execute(select(cls).order_by(cls.last_check))
+#         last: ApplicationInfo = response.scalars().first()
+#
+#         return current_day == last.last_check.day
