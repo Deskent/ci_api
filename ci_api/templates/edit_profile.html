@@ -5,43 +5,45 @@
         <div class="container">
             {% include 'error_message.html' %}
             {% include 'success_message.html' %}
-            <form action="/edit_profile" method="POST" class="profile-editing__form">
+            <div class="profile-editing__form-box">
+                <form action="/edit_profile" method="POST" class="profile-editing__form">
 
-                <fieldset class="profile-editing__form-fieldset">
-                    <legend class="profile-editing__form-legend">Редактирование профиля</legend>
+                    <fieldset class="profile-editing__form-fieldset">
+                        <legend class="profile-editing__form-legend">Редактирование профиля</legend>
 
-                    <input class="profile-editing__form-input" type="text" placeholder="Имя"
-                           name="username" value="{{ user.username }}" required>
-                    <input class="profile-editing__form-input" type="text"
-                           placeholder="Фамилия" name="last_name" required
-                           value="{{ user.last_name }}">
-                    <input class="profile-editing__form-input" type="text"
-                           placeholder="Отчество" name="third_name"
-                           value="{{ user.third_name }}" required>
-                    <input class="profile-editing__form-input" type="email" placeholder="Почта"
-                           name="email" required
-                           pattern={{ email_pattern }} value="{{ user.email }}">
-                    <input class="profile-editing__form-input" type="tel"
-                           placeholder="Телефон" pattern="[0-9]{10}"
-                           id="registrationPhone" name="phone" required
-                           value="{{ user.phone }}">
-                    <input class="profile-editing__form-submit" type="submit" value="Сохранить">
-                </fieldset>
-            </form>
+                        <input class="profile-editing__form-input" type="text" placeholder="Имя"
+                               name="username" value="{{ user.username }}" required>
+                        <input class="profile-editing__form-input" type="text"
+                               placeholder="Фамилия" name="last_name" required
+                               value="{{ user.last_name }}">
+                        <input class="profile-editing__form-input" type="text"
+                               placeholder="Отчество" name="third_name"
+                               value="{{ user.third_name }}" required>
+                        <input class="profile-editing__form-input" type="email" placeholder="Почта"
+                               name="email" required
+                               pattern={{ email_pattern }} value="{{ user.email }}">
+                        <input class="profile-editing__form-input" type="tel"
+                               placeholder="Телефон" pattern="[0-9]{10}"
+                               id="registrationPhone" name="phone" required
+                               value="{{ user.phone }}">
+                        <input class="profile-editing__form-submit" type="submit" value="Сохранить">
+                    </fieldset>
+                </form>
 
-            <form action="/newPassword" method="POST" class="profile">
-                <fieldset class="profile-editing__form-fieldset">
-                    <legend class="profile-editing__form-legend">Поменять пароль</legend>
-                    <input class="profile-editing__form-input" type="password"
-                           placeholder="Старый пароль" name="old_password" required>
-                    <input class="profile-editing__form-input" type="password"
-                           placeholder="Новый пароль" name="password" required>
-                    <input class="profile-editing__form-input" type="password"
-                           placeholder="Подтвердить новый пароль" name="password2" required>
-                    <input class="profile-editing__form-submit" type="submit"
-                           value="Изменить пароль">
-                </fieldset>
-            </form>
+                <form action="/newPassword" method="POST" class="profile profile-editing__form">
+                    <fieldset class="profile-editing__form-fieldset">
+                        <legend class="profile-editing__form-legend">Поменять пароль</legend>
+                        <input class="profile-editing__form-input" type="password"
+                               placeholder="Старый пароль" name="old_password" required>
+                        <input class="profile-editing__form-input" type="password"
+                               placeholder="Новый пароль" name="password" required>
+                        <input class="profile-editing__form-input" type="password"
+                               placeholder="Подтвердить новый пароль" name="password2" required>
+                        <input class="profile-editing__form-submit" type="submit"
+                               value="Изменить пароль">
+                    </fieldset>
+                </form>
+            </div>
         </div>
     </section>
 {% endblock profile_content %}
