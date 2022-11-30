@@ -53,7 +53,10 @@ async def _send_mail(email: EmailStr, payload: dict) -> None:
             status_code=status.HTTP_511_NETWORK_AUTHENTICATION_REQUIRED,
             detail="Invalid mailing credentials"
         )
-    except aiosmtplib.errors.SMTPRecipientsRefused as err:
+    except (
+            aiosmtplib.errors.SMTPRecipientsRefused,
+            aiosmtplib.errors.SMTPDataError
+    ) as err:
         logger.error(f"Email sending error: {str(err)}")
         raise EmailException("Invalid email address")
 
