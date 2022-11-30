@@ -10,16 +10,20 @@
             <div class="charging-slider">
                 {% for video in videos %}
                     <div class="charging-slide unlock">
-                        <div class="charging-slide__wrapper">
-                            <div class="charging-slide__image charging-image">
+                    <div class="charging-slide__wrapper">
+                        <div class="charging-slide__image charging-image">
+                            {% if video.id in viewed_videos %}
+                                <div class="charging-image__wrapper viewed">
+                            {% else %}
                                 <div class="charging-image__wrapper">
-                                    <picture>
-                                        <source srcset="/static/img/charging-image.webp"
-                                                type="image/webp">
-                                        <img src="/static/img/charging-image.png" alt=""></picture>
-                                </div>
-                                <div class="charging-image__time">{{ video.duration }} минут
-                                </div>
+                            {% endif %}
+                            <picture>
+                                <source srcset="/static/img/charging-image.webp"
+                                        type="image/webp">
+                                <img src="/static/img/charging-image.png" alt=""></picture>
+                            </div>
+                            <div class="charging-image__time">{{ video.duration }} минут
+                            </div>
                             </div>
                             {% if video.id in viewed_videos %}
                                 <a href="/startCharging/{{ video.id }}" class="charging-slide__btn">
@@ -39,15 +43,10 @@
                                 </div>
                             </div>
                         </div>
-
-                        <div class="charging-slide__lock">
-                            Станет доступно на {{ user.level + 1 }} уровне, до {{ user.level + 1 }}
-                            уровня осталось {{ to_next_level }} упражнений
-                        </div>
                     </div>
                 {% endfor %}
+                </div>
             </div>
-        </div>
     </section>
     <div class="modal modal-subOver" id="subOver">
         <div class="modal__content modal-subOver__content">

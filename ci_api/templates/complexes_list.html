@@ -15,14 +15,12 @@
                     <div class="charging-slide__wrapper">
                         <div class="charging-slide__image charging-image">
 
-                            <!-- Для тех зарядок, что просмотрены -->
                             {% if complex.id in viewed_complexes %}
                                 <div class="charging-image__wrapper viewed">
                             {% else %}
                                 <div class="charging-image__wrapper">
                             {% endif %}
 
-                            <!-- Добавить класс viewed тут -->
                             <picture>
                                 <source srcset="/static/img/dragon.jpg"
                                         type="image/webp">
@@ -31,19 +29,20 @@
                             </picture>
                             </div>
                             <div class="charging-image__time">{{ complex.duration }} мин</div>
-                            {% if complex.id in viewed_complexes %}
-                                <div class="charging-image__remained">
-                                    Завершено
-                                </div>
-                                <a href="/videos_list/{{ complex.id }}" class="charging-slide__btn">
-                                    Посмотреть еще раз
-                                </a>
 
-                            {% else %}
-                                <a href="/videos_list/{{ complex.id }}" class="charging-slide__btn">
-                                    Посмотреть
-                                </a>
-                            {% endif %}
+                                {% if complex.id in viewed_complexes %}
+                                    <div class="charging-image__remained">
+                                        Завершено
+                                    </div>
+                                    <a href="/videos_list/{{ complex.id }}" class="charging-slide__btn">
+                                        Посмотреть еще раз
+                                    </a>
+
+                                {% else %}
+                                    <a href="/videos_list/{{ complex.id }}" class="charging-slide__btn">
+                                        Посмотреть
+                                    </a>
+                                {% endif %}
 
                             </div>
                             <div class="charging-slide__text">
@@ -54,11 +53,13 @@
                                     {{ complex.description }}
                                 </div>
                             </div>
+                        
                         </div>
                         <div class="charging-slide__lock">Станет доступно на {{ complex.number }}
                             уровне
                             {% if complex.number - user.level == 1 %}
-                                , до {{ complex.number }} уровня осталось {{ to_next_level }} упражнений
+                                , до {{ complex.number }} уровня осталось {{ to_next_level }}
+                                упражнений
                             {% endif %}
                         </div>
                     </div>
