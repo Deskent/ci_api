@@ -4,10 +4,12 @@ from fastapi import HTTPException, status
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
 from fastapi_mail.errors import ConnectionErrors
 from pydantic import EmailStr, BaseModel
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 from config import settings, logger
 from models.models import User
 from services.auth import AuthHandler
+from services.utils import generate_four_random_digits_string
 
 
 class EmailException(Exception):
@@ -56,19 +58,24 @@ async def _send_mail(email: EmailStr, payload: dict) -> None:
         raise EmailException("Invalid email address")
 
 
-async def send_verification_mail(user: User, email: str = '') -> None:
-    token: str = AuthHandler().get_email_token(user)
+async def send_verification_mail(
+        user: User,
+        email: str = ''
+) -> str:
+    # token: str = AuthHandler().get_email_token(user)
+    code: str = generate_four_random_digits_string()
     email: EmailStr = email if email else user.email
     payload = {
         'data': {
             'title': 'Токен валидации',
             'body': 'Ваш токен для валидации:',
-            'message': token
+            'message': code
         }
     }
-    logger.debug(f'Email token for {email}: {token}')
-
+    logger.debug(f'Email token for {email}: {code}')
     await _send_mail(email, payload)
+
+    return code
 
 
 async def send_email_message(email: EmailStr, message: str):
@@ -81,6 +88,12 @@ async def send_email_message(email: EmailStr, message: str):
     }
 
     await _send_mail(email, payload)
+
+
+async def get_user_id_from_email_code(session: AsyncSession, token: str) -> int:
+    user = await User.get_by_email_code(session, token)
+    if user:
+        return user.id
 
 
 async def get_user_id_from_email_token(token: str) -> str:

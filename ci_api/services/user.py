@@ -54,13 +54,14 @@ async def register_new_user(
         **user_data.dict(), is_verified=False,
         current_complex=1, is_admin=False, is_active=True, expired_at=expired_at
     )
-    await user.save(session)
     try:
-        await send_verification_mail(user)
+        code: str = await send_verification_mail(user)
+        user.email_code = code
     except EmailException:
         errors = {'error': "Неверный адрес почты"}
         return None, errors
 
+    await user.save(session)
     logger.info(f"User with id {user.id} created")
 
     return user, errors
