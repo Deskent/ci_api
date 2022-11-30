@@ -16,6 +16,9 @@ class Database(BaseSettings):
     def get_db_name(self):
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
 
+    class Config:
+        env_file = ".env"
+
 
 class Settings(BaseSettings):
     SMS_TOKEN: str
@@ -27,6 +30,7 @@ class Settings(BaseSettings):
     MAIL_SSL_TLS: bool
     SECRET: str
     HASH_ALGORITHM: str
+    NOTIFICATION_HOUR: int = 14
     DEBUG: bool = False
     BASE_DIR: Path = None
     MEDIA_DIR: Path = None
@@ -38,13 +42,16 @@ class Settings(BaseSettings):
     DEFAULT_ADMIN: dict = {}
     RECREATE_DB: bool = False
 
+    class Config:
+        env_file = ".env"
+
 
 BASE_DIR = Path(__file__).parent
-
 
 env_file = BASE_DIR / '.env'
 db = Database(_env_file=env_file, _env_file_encoding='utf-8')
 settings = Settings(_env_file=env_file, _env_file_encoding='utf-8')
+
 
 if not settings.BASE_DIR:
     settings.BASE_DIR = BASE_DIR
@@ -55,8 +62,12 @@ if not settings.STATIC_DIR:
         exit()
 if not settings.TEMPLATES_DIR:
     settings.TEMPLATES_DIR = settings.BASE_DIR / 'templates'
+
 if not settings.MEDIA_DIR:
     settings.MEDIA_DIR = settings.STATIC_DIR / 'media'
+if not settings.MEDIA_DIR.exists():
+    Path.mkdir(settings.MEDIA_DIR, exist_ok=True)
+
 if not settings.LOGS_DIR:
     current_date = str(datetime.datetime.today().date())
     settings.LOGS_DIR = BASE_DIR / 'logs' / current_date
@@ -68,3 +79,4 @@ log_level = 1 if settings.DEBUG else 20
 logger.add(level=log_level, sink=settings.LOGS_DIR / 'ci_api.log')
 
 templates = Jinja2Templates(directory=settings.TEMPLATES_DIR, auto_reload=True)
+
