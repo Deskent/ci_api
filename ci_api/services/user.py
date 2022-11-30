@@ -1,7 +1,6 @@
 import datetime
 
 import pydantic
-from fastapi.background import BackgroundTasks
 from pydantic import EmailStr
 from sqlmodel.ext.asyncio.session import AsyncSession
 from starlette.datastructures import FormData
@@ -9,19 +8,11 @@ from starlette.datastructures import FormData
 from config import logger
 from models.models import User, Administrator
 from schemas.user import UserRegistration, UserLogin
-from services.emails import send_verification_mail
-
-
-# def get_login_token(user_id: int) -> str:
-#     return auth_handler.encode_token(user_id)
+from services.emails import send_verification_mail, EmailException
 
 
 def get_bearer_header(token: str) -> dict[str, str]:
     return {'Authorization': f"Bearer {token}"}
-
-
-# def check_password_correct(existing_password, entered_password) -> bool:
-#     return auth_handler.verify_password(existing_password, entered_password)
 
 
 async def user_login(session: AsyncSession, user_data: UserLogin) -> User:
@@ -45,7 +36,6 @@ async def check_user_phone_exists(session: AsyncSession, phone: str) -> User:
 async def register_new_user(
         session: AsyncSession,
         user_data: UserRegistration,
-        tasks: BackgroundTasks
 ):
     errors = {}
     email_exists: bool = await check_email_exists(session, user_data.email)
@@ -65,7 +55,12 @@ async def register_new_user(
         current_complex=1, is_admin=False, is_active=True, expired_at=expired_at
     )
     await user.save(session)
-    tasks.add_task(send_verification_mail, user)
+    try:
+        await send_verification_mail(user)
+    except EmailException:
+        errors = {'error': "Неверный адрес почты"}
+        return None, errors
+
     logger.info(f"User with id {user.id} created")
 
     return user, errors

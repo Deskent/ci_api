@@ -13,10 +13,11 @@
                 <div class="reg-banner__content">
                     <div class="registration__logo">
                     </div>
-                    {% if error %}
-                        <div class="entry__link_forget">{{ error }}</div>
-                    {% endif %}
-                    <form action="{{ request.url }}" method="POST" class="registration__form">
+
+                    {% include 'error_message.html' %}
+                    {% include 'success_message.html' %}
+
+                    <form action="/entry" method="POST" class="registration__form">
                         <label for="entryEmail" class="registration__label">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                  xmlns="http://www.w3.org/2000/svg">

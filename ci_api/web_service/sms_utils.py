@@ -55,9 +55,13 @@ class SMSru:
             logger.debug(f"Sms service answer: {data}")
 
             if data['status'] == "OK":
-                sms_id: str = data['sms'][phone]['sms_id']
+                sms_id: str = data['sms'][phone].get('sms_id')
                 if not sms_id:
-                    raise SMSException(f"SMS service error: No sms_id received.")
+                    logger.warning(f"Sms service error: {data}")
+                    error_text = 'Неправильно указан номер телефона получателя'
+                    if error_text in data['sms'][phone].get('status_text'):
+                        raise SMSException(error_text)
+                    raise SMSException("SMS service error: No sms_id received.")
 
                 return sms_id
 

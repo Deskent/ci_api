@@ -13,9 +13,10 @@
                 <div class="reg-banner__content">
                     <div class="registration__logo">
                     </div>
-                    {% if error %}
-                        <div class="entry__link_forget">{{ error }}</div>
-                    {% endif %}
+
+                    {% include 'error_message.html' %}
+                    {% include 'success_message.html' %}
+
                     <form action="/entry_sms" method="POST" class="registration__form">
                         <label for="registrationPhone" class="registration__label">
                             <svg width="23" height="24" viewBox="0 0 23 24" fill="none"

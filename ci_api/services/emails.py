@@ -1,3 +1,4 @@
+import aiosmtplib
 from fastapi_mail.errors import ConnectionErrors
 import jwt
 from fastapi import HTTPException, status
@@ -7,6 +8,9 @@ from pydantic import EmailStr, BaseModel
 from config import settings, logger
 from models.models import User
 from services.auth import AuthHandler
+
+class EmailException(Exception):
+    pass
 
 
 class EmailSchema(BaseModel):
@@ -42,10 +46,14 @@ async def _send_mail(data: EmailSchema) -> None:
         logger.error(f"Email sending error: {str(err)}")
         raise HTTPException(status_code=status.HTTP_511_NETWORK_AUTHENTICATION_REQUIRED,
                             detail="Invalid mailing credentials")
+    except aiosmtplib.errors.SMTPRecipientsRefused as err:
+        logger.error(f"Email sending error: {str(err)}")
+        raise EmailException("Invalid email address")
 
 
 async def send_verification_mail(user: User) -> None:
     token = {"token": AuthHandler().get_email_token(user)}
+    logger.debug(f'Email token for {user.email}: {token}')
     data = EmailSchema(email=user.email, token=token)
     await _send_mail(data)
 
@@ -55,7 +63,7 @@ async def verify_token_from_email(token: str) -> str:
 
     try:
         payload = AuthHandler().verify_email_token(token)
-        return payload["id"]
+        return payload["id"] if payload else ''
     except jwt.exceptions.DecodeError as err:
         logger.error(f"Email token verify: {str(err)}")
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Invalid token")
+        return ''

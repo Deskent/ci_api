@@ -1,7 +1,7 @@
 import secrets
 from pathlib import Path
 
-from fastapi import Depends, HTTPException, status, Form, BackgroundTasks
+from fastapi import Depends, HTTPException, status, Form
 from pydantic import EmailStr
 from sqlmodel.ext.asyncio.session import AsyncSession
 from starlette.requests import Request
@@ -12,7 +12,7 @@ from database.db import get_db_session
 from models.models import User, Video, Complex
 from schemas.user import UserLogin
 from services.depends import get_context_with_request
-from services.emails import send_verification_mail
+from services.emails import send_verification_mail, EmailException
 from services.user import user_login, get_bearer_header
 
 
@@ -146,14 +146,17 @@ async def user_entry(
 
 ) -> templates.TemplateResponse:
     if user := await user_login(session, form_data):
+        if not user.is_verified:
+            return templates.TemplateResponse("check_email.html", context=context)
+
         login_token: str = await user.get_user_token()
         headers: dict[str, str] = get_bearer_header(login_token)
         request.session.update(token=login_token)
 
         return RedirectResponse('/profile', headers=headers)
 
-    errors = "Invalid user or password"
-    context.update(error=errors)
+    error = "Invalid user or password"
+    context.update(error=error)
 
     return templates.TemplateResponse("entry.html", context=context)
 
@@ -175,7 +178,6 @@ def generate_random_password() -> str:
 
 
 async def restore_password(
-        tasks: BackgroundTasks,
         context: dict = Depends(get_context),
         email: EmailStr = Form(...),
         session: AsyncSession = Depends(get_db_session)
@@ -189,10 +191,13 @@ async def restore_password(
     logger.debug(f"New password: {new_password}")
     user.password = await user.get_hashed_password(new_password)
     await user.save(session)
-    tasks.add_task(send_verification_mail, user)
+    try:
+        await send_verification_mail(user)
+    except EmailException:
+        context.update(error=f"Неверный адрес почты")
+        return templates.TemplateResponse("forget1.html", context=context)
 
-    context.update(password_restored=f"Новый пароль выслан на почту {user.email}")
-
+    context.update(success=f"Новый пароль выслан на почту {user.email}")
     return templates.TemplateResponse("forget1.html", context=context)
 
 
@@ -213,7 +218,7 @@ async def set_new_password(
     if not user:
         return templates.TemplateResponse("entry.html", context=context)
 
-    context.update(password_chanded="Пароль успешно изменен.")
+    context.update(success="Пароль успешно изменен.")
     user.password = await user.get_hashed_password(password)
     await user.save(session)
 
@@ -225,6 +230,6 @@ async def login_user(user, request):
     headers: dict[str, str] = get_bearer_header(login_token)
     request.session.update(token=login_token)
 
-    return RedirectResponse('/profile', headers=headers)
+    return RedirectResponse('/entry', headers=headers)
 
 

@@ -30,7 +30,7 @@ async def _send_sms(user, session, context):
     except SMSException as err:
         logger.error(err)
         context.update(error=err, user=user)
-    return templates.TemplateResponse("forget2.html", context=context)
+    return templates.TemplateResponse("entry_sms.html", context=context)
 
 
 async def _send_call(user, session, context):
@@ -39,10 +39,11 @@ async def _send_call(user, session, context):
         if code:
             user.sms_call_code = str(code)
             await user.save(session)
+            return templates.TemplateResponse("forget3.html", context=context)
     except SMSException as err:
         logger.error(err)
         context.update(error=err, user=user)
-    return templates.TemplateResponse("forget3.html", context=context)
+    return templates.TemplateResponse("entry_sms.html", context=context)
 
 
 async def enter_by_sms(

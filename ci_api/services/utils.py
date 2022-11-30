@@ -1,7 +1,5 @@
 from datetime import time
 
-from loguru import logger
-
 from config import logger
 
 

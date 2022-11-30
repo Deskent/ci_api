@@ -63,6 +63,8 @@ async def verify_email_token(
         session: AsyncSession = Depends(get_db_session)
 ):
     user_id: str = await verify_token_from_email(token=token)
+    if not user_id:
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Invalid token")
     user: User = await session.get(User, user_id)
     if user and not user.is_verified:
         user.is_verified = True

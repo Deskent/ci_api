@@ -5,13 +5,11 @@
             <div class="reg-banner__content">
                 <div class="registration__logo">
                 </div>
-                {% if error %}
-                    <div class="entry__link_forget">{{ error }}</div>
-                {% endif %}
-                {% if password_restored %}
-                    <div class="entry__link_forget">{{ password_restored }}</div>
-                {% endif %}
-                <form action="{{ request.url }}" method="POST"
+
+                {% include 'error_message.html' %}
+                {% include 'success_message.html' %}
+
+                <form action="/forget1" method="POST"
                       class="registration__form forget-form">
                     <label for="forgetPhone" class="registration__label">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
