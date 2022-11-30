@@ -56,8 +56,10 @@
                             </div>
                         </div>
                         <div class="charging-slide__lock">Станет доступно на {{ complex.number }}
-                            уровне, до {{ complex.number }}
-                            уровня осталось {{ to_next_level }} упражнений
+                            уровне
+                            {% if complex.number - user.level == 1 %}
+                                , до {{ complex.number }} уровня осталось {{ to_next_level }} упражнений
+                            {% endif %}
                         </div>
                     </div>
                 {% endfor %}
