@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
-from starlette.background import BackgroundTasks
 
 from config import logger
 from database.db import get_db_session
 from models.models import User
 from schemas.user import UserRegistration, UserLogin, UserChangePassword
 from services.depends import get_logged_user
-from services.emails import get_user_id_from_email_token
+from services.emails import get_user_id_from_email_token, get_user_id_from_email_code
 from services.user import register_new_user
 
 router = APIRouter(prefix="/auth", tags=['Authorization'])
@@ -56,17 +56,22 @@ async def register(
     )
 
 
-@router.get("/verify_email", status_code=status.HTTP_202_ACCEPTED)
+@router.get("/verify_email", status_code=status.HTTP_202_ACCEPTED, response_model=User)
 async def verify_email_token(
         token: str,
+        email: EmailStr,
         session: AsyncSession = Depends(get_db_session)
 ):
-    user_id: str = await get_user_id_from_email_token(token=token)
-    if not user_id:
+    user: User = await User.get_by_email(session, email)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    if user.email_code != token:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Invalid token")
-    user: User = await session.get(User, user_id)
+
     if user and not user.is_verified:
         user.is_verified = True
+        user.email_code = None
         await user.save(session)
         logger.info(f"User with id {user.id} verified")
     logger.debug(f"Verify email token: OK")

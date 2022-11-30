@@ -17,7 +17,7 @@ class MySQLModel(SQLModel):
         return await session.get(cls, id_)
 
     @classmethod
-    async def get_all(cls, session: AsyncSession) -> list['MySQLModel']:
+    async def get_all(cls, session: AsyncSession) -> list:
         response = await session.execute(select(cls).order_by(cls.id))
 
         return response.scalars().all()
@@ -49,11 +49,12 @@ class UserModel(MySQLModel):
 
         return await session.get(cls, user_id)
 
-    async def is_password_valid(self, password: str) -> bool:
-        return auth_handler.verify_password(password, self.password)
+    @classmethod
+    async def get_by_email_code(cls, session: AsyncSession, email_code: str) -> 'UserModel':
+        query = select(cls).where(cls.email_code == email_code)
+        user = await session.execute(query)
 
-    async def get_user_token(self) -> str:
-        return auth_handler.encode_token(self.id)
+        return user.scalars().first()
 
     @staticmethod
     async def get_hashed_password(password: str) -> str:
@@ -62,3 +63,9 @@ class UserModel(MySQLModel):
     @staticmethod
     async def get_user_id_from_email_token(token: str) -> str:
         return auth_handler.decode_token(token)
+
+    async def is_password_valid(self, password: str) -> bool:
+        return auth_handler.verify_password(password, self.password)
+
+    async def get_user_token(self) -> str:
+        return auth_handler.encode_token(self.id)

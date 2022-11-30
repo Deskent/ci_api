@@ -5,6 +5,8 @@ import pytest
 from pydantic import EmailStr
 from pydantic.dataclasses import dataclass
 
+from database.db import get_db_session
+from models.models import User
 from services.auth import AuthHandler
 
 
@@ -134,8 +136,11 @@ class CreateEndpointUserData:
 
         return notification_id
 
-    def get_email_confirm_token(self) -> str:
-        self.email_token = AuthHandler().get_email_token(self.test_user)
+    async def get_email_confirm_token(self) -> str:
+    #     async for session in get_db_session():
+    #         user = await User.get_by_email(session, self.user_create.email)
+    #         self.email_token = user.email_code
+        # self.email_token = AuthHandler().get_email_token(self.test_user)
 
         return self.email_token
 

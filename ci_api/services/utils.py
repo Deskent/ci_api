@@ -1,3 +1,4 @@
+import random
 from datetime import time
 
 from config import logger
@@ -30,3 +31,9 @@ def convert_seconds_to_time(data: int) -> time:
 
 def convert_to_minutes(data: int) -> int:
     return convert_seconds_to_time(data).minute
+
+
+def generate_four_random_digits_string() -> str:
+    return "".join(
+        (str(random.randint(0, 9)) for _ in range(4))
+    )

@@ -2,7 +2,6 @@ from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
 
 from schemas.user import UserRegistration
-from services.emails import get_user_id_from_email_token
 from services.user import register_new_user
 from web_service.utils import *
 
@@ -141,23 +140,25 @@ async def forget3(
 async def check_email(
         context: dict = Depends(get_profile_context),
         session: AsyncSession = Depends(get_db_session),
-        email_token: str = Form()
+        email: EmailStr = Form(...),
+        email_token: str = Form(...)
 ):
-    user_id: str = await get_user_id_from_email_token(email_token)
-    if not user_id:
-        error = 'Введен неверный токен'
-        context.update(error=error)
-        return templates.TemplateResponse("check_email.html", context=context)
-
-    user: User = await User.get_by_id(session, int(user_id))
+    user: User = await User.get_by_email(session, email)
     if not user:
         error = 'Пользователь не найден'
         context.update(error=error)
         return templates.TemplateResponse("index.html", context=context)
 
+    if user.email_code != email_token:
+        error = 'Введен неверный токен'
+        context.update(error=error)
+        return templates.TemplateResponse("check_email.html", context=context)
+
     if not user.is_verified:
         user.is_verified = True
         await user.save(session)
+
     session_context: dict = await get_session_context(user)
     context.update(success='Аккаунт верифицирован', **session_context)
+
     return templates.TemplateResponse("profile.html", context=context)

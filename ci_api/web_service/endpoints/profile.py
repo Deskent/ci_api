@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
 
+from services.emails import send_verification_mail
 from web_service.utils import *
 
 router = APIRouter(tags=['web', 'profile'])
@@ -68,7 +69,8 @@ async def edit_profile_post(
     user.phone = phone
     if user.email != email:
         try:
-            await send_verification_mail(user)
+            code: str = await send_verification_mail(user)
+            user.email_code = code
         except EmailException:
             context.update(error=f"Неверный адрес почты")
             return templates.TemplateResponse("edit_profile.html", context=context)

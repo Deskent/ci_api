@@ -9,7 +9,7 @@ async def check_level_up(session: AsyncSession, user: User) -> User:
 
     current_complex: Complex = await session.get(Complex, user.current_complex)
     videos: int = len(await Video.get_all_by_complex_id(session, current_complex.id))
-    if not current_complex.video_count:
+    if not videos:
         return user
     percent: float = round(1 / videos, 1) * 100
     user.progress = user.progress + percent
@@ -56,6 +56,8 @@ async def calculate_viewed_videos_duration(
 
 
 def calculate_videos_to_next_level(user: User, videos: list[Video]):
+    if not videos:
+        return 0
     return int((LEVEL_UP_PERCENTS - user.progress) / (100 / len(videos)))
 
 

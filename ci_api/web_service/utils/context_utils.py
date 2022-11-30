@@ -12,7 +12,7 @@ from database.db import get_db_session
 from models.models import User, Video, Complex
 from schemas.user import UserLogin
 from services.depends import get_context_with_request
-from services.emails import send_verification_mail, EmailException, send_email_message
+from services.emails import EmailException, send_email_message
 from services.user import user_login, get_bearer_header
 
 
@@ -170,6 +170,7 @@ async def load_self_page(
 
     context.update(**session_context)
     page_name: str = context['request'].url.path[1:] + '.html'
+
     return templates.TemplateResponse(page_name, context=context)
 
 
