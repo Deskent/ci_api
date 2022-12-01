@@ -260,7 +260,7 @@ class ViewedComplexes(MySQLModel, table=True):
         return viewed_complexes.scalars().all()
 
     @classmethod
-    async def is_last_viewed_today(cls, session: AsyncSession) -> bool:
+    async def is_last_viewed_today(cls, session: AsyncSession, user_id: int) -> bool:
         """
         Check Complex viewed today
 
@@ -268,10 +268,10 @@ class ViewedComplexes(MySQLModel, table=True):
         """
 
         current_day = datetime.now(tz=None).day
-        response = await session.execute(select(cls).order_by(cls.viewed_at))
+        response = await session.execute(select(cls).where(cls.user_id == user_id).order_by(cls.viewed_at))
         last: ViewedComplexes = response.scalars().first()
-
-        return current_day == last.viewed_at.day
+        if last:
+            return current_day == last.viewed_at.day
 
 
 class ViewedVideos(MySQLModel, table=True):
