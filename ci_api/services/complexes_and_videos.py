@@ -18,7 +18,7 @@ async def check_level_up(session: AsyncSession, user: User) -> User:
             user.level = user.level + 1
         user.progress = 0
         await set_complex_viewed(session, user)
-        user.current_complex = current_complex.next_complex_id
+        user.current_complex = await current_complex.next_complex_id(session)
     await user.save(session)
     logger.debug(f"User with id {user.id} viewed video in complex {current_complex.id}")
 

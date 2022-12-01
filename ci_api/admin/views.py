@@ -23,10 +23,9 @@ class ComplexView(ModelView, model=Complex):
     name = "Комплекс упражнений"
     name_plural = "Комплексы упражнений"
     column_list = [Complex.number, Complex.videos, Complex.description, Complex.duration,
-                   Complex.next_complex_id]
+                   ]
     column_labels = {
-        Complex.number: "Порядковый номер комплекс",
-        Complex.next_complex_id: "Следующий комплекс",
+        Complex.number: "Порядковый номер",
         Complex.name: "Название комплекса",
         Complex.videos: "Упражнения",
         Complex.description: "Описание комплекса",
@@ -37,7 +36,7 @@ class ComplexView(ModelView, model=Complex):
     }
     form_excluded_columns = [Complex.video_count, Complex.duration]
     column_details_exclude_list = [Complex.video_count]
-    column_default_sort = [(Complex.next_complex_id, False), (Complex.id, False)]
+    column_default_sort = [(Complex.number, False)]
 
 
 class UserView(ModelView, model=User):
@@ -106,10 +105,11 @@ class VideoView(ModelView, model=Video):
     can_create = False
     can_edit = False
     column_list = [
-        Video.id, Video.name, Video.description, Video.file_name,
+        Video.number, Video.name, Video.description, Video.file_name,
         Video.complexes, Video.duration
     ]
     column_labels = {
+        Video.number: "Порядковый номер",
         Video.name: "Название",
         Video.description: "Описание",
         Video.file_name: "Имя файла",

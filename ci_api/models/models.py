@@ -15,7 +15,6 @@ class Complex(MySQLModel, table=True):
     number: int = Field(default=None, unique=True, description="Порядковый номер комплекса")
     name: Optional[str] = Field(nullable=True, default='', description="Название комплекса")
     description: Optional[str] = Field(nullable=True, default='', description="Описание комплекса")
-    next_complex_id: int = Field(nullable=True, default=1, description="ИД следующего комплекса")
     duration: int = Field(nullable=True, default=0, description="Длительность комплекса в секундах")
     video_count: int = Field(nullable=True, default=0, description="Количество видео в комплексе")
 
@@ -25,6 +24,11 @@ class Complex(MySQLModel, table=True):
     def __str__(self):
         return f"№ {self.number}: {self.description}"
 
+    async def next_complex_id(self, session: AsyncSession):
+        next_complex: Complex = await Complex.get_by_id(session, id_=self.number + 1)
+
+        return 1 if not next_complex else next_complex.id
+
     @classmethod
     async def add_new(
             cls: 'Complex',
@@ -33,13 +37,12 @@ class Complex(MySQLModel, table=True):
             name: str = '',
             description: str = '',
             duration: int = 0,
-            next_complex_id: int = 1,
             video_count: int = 0
     ) -> 'Complex':
 
         new_complex = Complex(
-            number=number, name=name, description=description, next_complex_id=next_complex_id,
-            duration=duration, video_count=video_count
+            number=number, name=name, description=description, duration=duration,
+            video_count=video_count
         )
         await new_complex.save(session)
 
@@ -85,13 +88,14 @@ class Video(MySQLModel, table=True):
             file_name: str,
             complex_id: int,
             duration: int,
+            number: int,
             name: str = '',
             description: str = '',
     ) -> 'Video':
 
         new_video = Video(
             name=name, description=description, complex_id=complex_id,
-            duration=duration, file_name=file_name
+            duration=duration, file_name=file_name, number=number
         )
         await new_video.save(session)
         current_complex = await Complex.get_by_id(session, complex_id)

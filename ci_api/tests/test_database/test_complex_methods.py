@@ -9,7 +9,6 @@ def get_complex_data() -> dict:
                "description": "Описание комплекса 1",
                "name": "комплекс 1",
                "number": 999,
-               "next_complex_id": 2,
                "duration": 0
            }
 
