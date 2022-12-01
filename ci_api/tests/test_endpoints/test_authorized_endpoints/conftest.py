@@ -64,27 +64,17 @@ def new_alarm():
     }
 
 
-@pytest.fixture(scope='session')
-def new_notification() -> dict:
-    return {
-        "notification_time": "11:10",
-        "text": "test notification text"
-    }
-
-
 class CreateEndpointUserData:
     def __init__(
             self: 'CreateEndpointUserData',
             session,
             base_url: str,
             new_alarm: dict,
-            new_notification: dict
     ):
 
         self.session = session
         self.base_url: str = base_url
         self.new_alarm: dict = new_alarm
-        self.new_notification: dict = new_notification
 
         self.user_create = CreateUser()
         self.test_user: TestUser | None = None
@@ -93,7 +83,6 @@ class CreateEndpointUserData:
         self.email_token: str = ''
         self.token: str = ''
         self.alarm_id: int = 0
-        self.notification_id: int = 0
 
     def create_user(self) -> dict:
         response = self.session.post(self.base_url + "/auth/register", json=self.user_create.as_dict())
@@ -124,18 +113,6 @@ class CreateEndpointUserData:
 
         return alarm_id
 
-    def create_notification(self) -> int:
-        response = self.session.post(
-            self.base_url + "/notifications", headers=self.headers, json=self.new_notification,
-            allow_redirects=True
-        )
-        assert response.status_code == 200
-        notification_id = response.json().get("id")
-        assert notification_id
-        self.notification_id = notification_id
-
-        return notification_id
-
     async def get_email_confirm_token(self) -> str:
     #     async for session in get_db_session():
     #         user = await User.get_by_email(session, self.user_create.email)
@@ -154,17 +131,15 @@ class CreateEndpointUserData:
         self.login_user()
         self.get_email_confirm_token()
         self.create_alarm()
-        self.create_notification()
 
 
 @pytest.fixture(scope='class')
 def setup_class(
-        get_test_client_app, base_url, user_create, new_alarm, new_notification,
+        get_test_client_app, base_url, user_create, new_alarm,
         test_user
 ) -> CreateEndpointUserData:
     test_data = CreateEndpointUserData(
-        session=get_test_client_app, base_url=base_url, new_alarm=new_alarm,
-        new_notification=new_notification
+        session=get_test_client_app, base_url=base_url, new_alarm=new_alarm
     )
     test_data.create()
     yield test_data

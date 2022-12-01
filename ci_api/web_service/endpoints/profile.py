@@ -72,11 +72,11 @@ async def edit_profile_post(
         try:
             code: str = await send_verification_mail(user)
             user.email_code = code
+            user.is_verified = False
+            user.email = email
         except EmailException:
             context.update(error=f"Неверный адрес почты")
             return templates.TemplateResponse("edit_profile.html", context=context)
-    user.email = email
-    user.is_verified = False
 
     await user.save(session)
     session_context.update(user=user, success='Профиль успешно изменен')

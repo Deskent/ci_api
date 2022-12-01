@@ -55,24 +55,23 @@ async def upload_file(
     Calculate video duration. Save row to database."""
 
     async for session in get_db_session():
-        current_complex: Complex = await session.get(Complex, file_form.complex_id)
-        if not current_complex:
-            logger.warning(f"Complex {file_form.complex_id} not found")
+        videos: list[Video] = await Video.get_all_by_complex_id(session, file_form.complex_id)
+        if not videos:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Complex with id {file_form.complex_id} not found")
-        query = select(Video).where(Video.complex_id == current_complex.id)
-        videos_row = await session.execute(query)
-        videos: list[Video] = videos_row.scalars().all()
+
         if len(videos) >= MAX_VIDEO:
             logger.warning(f"For complex {file_form.complex_id} exists {MAX_VIDEO} videos")
             raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE,
                 detail="There is maximum video in this complex")
+
         if file_form.file.content_type != 'video/mp4':
             logger.warning(f'Unsupported type {file_form.file.content_type}')
             raise HTTPException(
                 status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
                 detail=f'Unsupported type {file_form.file.content_type}. Must be mp4.'
             )
+
         full_filename: str = f'{file_form.file_name}.mp4'
         file_path: Path = settings.MEDIA_DIR / full_filename
         if file_path.exists():
@@ -83,6 +82,7 @@ async def upload_file(
                 detail=error_text
             )
         save_video(str(file_path), file_form.file)
+
         duration: int = get_video_duration(str(file_path))
         file_form.duration = duration
         file_form.file_name = full_filename
@@ -91,7 +91,7 @@ async def upload_file(
         del data['file']
         video = await Video.add_new(session=session, **data)
 
-        logger.info(f"Video {file_form.file_name} for complex {current_complex.id} uploaded.")
+        logger.info(f"Video {file_form.file_name} for complex {file_form.complex_id} uploaded.")
 
         return video
 

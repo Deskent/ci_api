@@ -211,9 +211,8 @@ class Notification(UserDataModels, table=True):
     __tablename__ = 'notifications'
 
     id: int = Field(default=None, primary_key=True, index=True)
-    notification_time: time
     text: Optional[str] = Field(nullable=True, default='')
-
+    created_at: datetime = Field(default=None, description="Дата создания")
     user_id: Optional[int] = Field(default=None, foreign_key="users.id")
     users: 'User' = Relationship(back_populates="notifications")
 
@@ -221,7 +220,7 @@ class Notification(UserDataModels, table=True):
         return f"{self.text}"
 
 
-class ViewedComplexes(MySQLModel, table=True):
+class ViewedComplex(MySQLModel, table=True):
     __tablename__ = 'viewed_complexes'
 
     id: int = Field(default=None, primary_key=True, index=True)
@@ -235,7 +234,7 @@ class ViewedComplexes(MySQLModel, table=True):
     @classmethod
     async def add_viewed(
             cls, session: AsyncSession, user_id: int, complex_id: int
-    ) -> 'ViewedComplexes':
+    ) -> 'ViewedComplex':
 
         query = select(cls).where(cls.user_id == user_id).where(cls.complex_id == complex_id)
         response = await session.execute(query)
@@ -252,7 +251,7 @@ class ViewedComplexes(MySQLModel, table=True):
     async def get_all_viewed_complexes(
             cls, session: AsyncSession,
             user_id: int
-    ) -> list['ViewedComplexes']:
+    ) -> list['ViewedComplex']:
 
         query = select(cls).where(cls.user_id == user_id)
         viewed_complexes = await session.execute(query)
@@ -269,12 +268,12 @@ class ViewedComplexes(MySQLModel, table=True):
 
         current_day = datetime.now(tz=None).day
         response = await session.execute(select(cls).where(cls.user_id == user_id).order_by(cls.viewed_at))
-        last: ViewedComplexes = response.scalars().first()
+        last: ViewedComplex = response.scalars().first()
         if last and last.viewed_at:
             return current_day == last.viewed_at.day
 
 
-class ViewedVideos(MySQLModel, table=True):
+class ViewedVideo(MySQLModel, table=True):
     __tablename__ = 'viewed_videos'
 
     id: int = Field(default=None, primary_key=True, index=True)
@@ -283,7 +282,7 @@ class ViewedVideos(MySQLModel, table=True):
     video_id: int = Field(nullable=False, foreign_key='videos.id')
 
     @classmethod
-    async def add_viewed(cls, session: AsyncSession, user_id: int, video_id: int) -> 'ViewedVideos':
+    async def add_viewed(cls, session: AsyncSession, user_id: int, video_id: int) -> 'ViewedVideo':
         query = select(cls).where(cls.user_id == user_id).where(cls.video_id == video_id)
         response = await session.execute(query)
         video_exists = response.scalars().first()
@@ -296,7 +295,7 @@ class ViewedVideos(MySQLModel, table=True):
     @classmethod
     async def get_all_viewed_videos(
             cls, session: AsyncSession, user_id: int
-    ) -> list['ViewedVideos']:
+    ) -> list['ViewedVideo']:
 
         query = select(cls).where(cls.user_id == user_id)
         viewed_complexes = await session.execute(query)

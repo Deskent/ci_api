@@ -13,7 +13,6 @@ class TestUsers:
         self.headers = setup_class.headers
         self.email_token = setup_class.email_token
         self.alarm_id = setup_class.alarm_id
-        self.notification_id = setup_class.notification_id
         yield
 
     @pytest.mark.server
@@ -42,11 +41,6 @@ class TestUsers:
         assert response.status_code == 200
 
     @pytest.mark.server
-    def test_get_user_notifications(self):
-        response = self.session.get(self.base_url + "/users/notifications", headers=self.headers)
-        assert response.status_code == 200
-
-    @pytest.mark.server
     def test_change_password(self):
         payload = {
             "old_password": self.user_payload["password"],
@@ -63,10 +57,10 @@ class TestUsers:
         assert response.status_code == 200
 
     @pytest.mark.server
-    def test_get_notification_by_id(self):
+    def test_get_notification_by_id_404(self):
         response = self.session.get(
-            self.base_url + f"/notifications/{self.notification_id}", headers=self.headers)
-        assert response.status_code == 200
+            self.base_url + f"/notifications/{1}", headers=self.headers)
+        assert response.status_code == 404
 
     @pytest.mark.server
     def test_get_alarm(self):
