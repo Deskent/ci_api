@@ -95,13 +95,6 @@ def logout(request: Request):
     return RedirectResponse('/index')
 
 
-@router.get("/newPassword", response_class=HTMLResponse)
-async def newPassword(
-        context: dict = Depends(get_context),
-):
-    return templates.TemplateResponse("newPassword.html", context=context)
-
-
 @router.post("/newPassword", response_class=HTMLResponse)
 async def newPassword(
         set_new_password: dict = Depends(set_new_password),
