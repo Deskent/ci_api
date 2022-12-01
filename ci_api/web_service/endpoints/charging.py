@@ -2,13 +2,17 @@ from fastapi import APIRouter
 from starlette.responses import HTMLResponse
 
 from models.models import ViewedComplexes
-from services.complexes_and_videos import get_viewed_videos_ids, get_not_viewed_videos_ids, \
-    calculate_viewed_videos_duration, calculate_videos_to_next_level, set_video_viewed, \
+from services.complexes_and_videos import (
+    get_viewed_videos_ids, get_not_viewed_videos_ids,
+    calculate_viewed_videos_duration, calculate_videos_to_next_level, is_video_viewed,
     check_level_up
+)
 from services.utils import convert_seconds_to_time, convert_to_minutes
 from web_service.utils import *
-from web_service.utils import get_current_user_complex, get_complex_videos_list, \
+from web_service.utils import (
+    get_current_user_complex, get_complex_videos_list,
     get_session_context, get_profile_context, get_session_video, get_session_user
+)
 
 router = APIRouter(tags=['web', 'charging'])
 
@@ -52,6 +56,7 @@ async def videos_list(
 
 
 @router.get("/startCharging/{video_id}", response_class=HTMLResponse)
+@router.post("/startCharging/{video_id}", response_class=HTMLResponse)
 async def start_charging(
         video: Video = Depends(get_session_video),
         session_context: dict = Depends(get_session_context),
@@ -66,35 +71,45 @@ async def start_charging(
 @router.post("/finish_charging", response_class=HTMLResponse)
 async def finish_charging(
         current_complex: Complex = Depends(get_current_user_complex),
-        session_context: dict = Depends(get_session_context),
-        context: dict = Depends(get_profile_context),
+        context: dict = Depends(get_user_context),
         user: User = Depends(get_session_user),
         session: AsyncSession = Depends(get_db_session),
         video_id: int = Form()
 ):
-    if not await set_video_viewed(session, user, video_id):
-        return RedirectResponse(f"/videos_list/{current_complex.id}")
+    current_video: Video = await Video.get_by_id(session, video_id)
+    next_video: Video = await current_video.get_next_video(session)
+
+    if not next_video:
+        return templates.TemplateResponse("come_tomorrow.html", context=context)
+
+    context.update(video=next_video)
+
+    if not await is_video_viewed(session, user, video_id):
+        return RedirectResponse(f"/startCharging/{next_video.id}")
 
     old_user_level = user.level
     new_user: User = await check_level_up(session, user)
-    context.update(**session_context, current_complex=current_complex)
+    context.update(current_complex=current_complex)
     if new_user.level <= old_user_level:
-        return RedirectResponse(f"/videos_list/{current_complex.id}")
+        return RedirectResponse(f"/startCharging/{next_video.id}")
 
     current_complex: Complex = await Complex.get_by_id(session, user.current_complex)
     context.update(user=new_user, current_complex=current_complex)
+
     return templates.TemplateResponse("new_level.html", context=context)
 
 
 @router.get("/complexes_list", response_class=HTMLResponse)
 async def complexes_list(
-        session_context: dict = Depends(get_session_context),
-        context: dict = Depends(get_profile_context),
+        context: dict = Depends(get_user_context),
         session: AsyncSession = Depends(get_db_session),
         videos: list = Depends(get_complex_videos_list),
 ):
+    user: User = context['user']
+    if await ViewedComplexes.is_last_viewed_today(session, user.id):
+        return RedirectResponse("/come_tomorrow")
+
     complexes: list[Complex] = await Complex.get_all(session)
-    user: User = session_context['user']
     viewed_complexes: list[
         ViewedComplexes] = await ViewedComplexes.get_all_viewed_complexes(session, user.id)
     for complex_ in complexes:
@@ -103,8 +118,15 @@ async def complexes_list(
     videos_to_next_level: int = calculate_videos_to_next_level(user, videos)
 
     context.update(
-        **session_context, viewed_complexes=viewed_complexes_ids, complexes=complexes,
+        viewed_complexes=viewed_complexes_ids, complexes=complexes,
         to_next_level=videos_to_next_level
     )
 
     return templates.TemplateResponse("complexes_list.html", context=context)
+
+
+@router.get("/come_tomorrow", response_class=HTMLResponse)
+async def come_tomorrow(
+        context: dict = Depends(get_user_context),
+):
+    return templates.TemplateResponse("come_tomorrow.html", context=context)
