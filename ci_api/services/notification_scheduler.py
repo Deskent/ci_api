@@ -62,6 +62,7 @@ async def create_notifications_for_not_viewed_users():
         logger.info(f"Create notifications for next users {len(user_need_to_notificate)}: "
                     f"\n{user_need_to_notificate}")
 
+        # TODO проверить наличие и если есть - поменять дату, если нет - создать
         await _create_notifications(session, user_need_to_notificate)
 
 
