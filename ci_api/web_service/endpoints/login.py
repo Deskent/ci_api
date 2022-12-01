@@ -16,6 +16,30 @@ async def index(
     return templates.TemplateResponse("index.html", context=context)
 
 
+@router.get("/user_agree", response_class=HTMLResponse)
+async def user_agree(
+        context: dict = Depends(get_context)
+):
+    context.update(
+        title='Пользовательское соглашение',
+        head_title='Пользовательское соглашение'
+    )
+
+    return templates.TemplateResponse('user_agree.html', context=context)
+
+
+@router.get("/confidential", response_class=HTMLResponse)
+async def confidential(
+        context: dict = Depends(get_context)
+):
+    context.update(
+        title='Политика',
+        head_title='Политика в отношении обработки персональных данных'
+    )
+
+    return templates.TemplateResponse('confidential.html', context=context)
+
+
 @router.post("/registration", response_class=HTMLResponse)
 async def web_register_post(
         request: Request,

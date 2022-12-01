@@ -39,8 +39,8 @@ def get_context(
         "vk_link": "https://vk.com/cigun_energy",
         "youtube_link": "https://www.youtube.com/channel/UCA3VIncMlr7MxXY2Z_QEM-Q",
         "subscribe_info": "#",
-        "conditions": "#",
-        "confidence": "#",
+        "conditions": "/user_agree",
+        "confidence": "/confidential",
         "feedback_link": "/feedback",
         "help_link": "/help_page"
     })
@@ -146,6 +146,7 @@ async def user_entry(
 
 ) -> templates.TemplateResponse:
     if user := await user_login(session, form_data):
+        context.update(user=user)
         if not user.is_verified:
             return templates.TemplateResponse("check_email.html", context=context)
 

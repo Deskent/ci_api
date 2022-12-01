@@ -20,7 +20,7 @@
                     <!-- Правила названия классов только тут -->
                     <form action="/check_email" method="POST" class="verification-form">
                         <input placeholder="user@mail.ru" type="email"
-                               class="verification-form__input"
+                               class="verification-form__input" value="{{ user.email }}"
                                id="registrationEmail" name="email" required
                                pattern={{ email_pattern }}>
                         <input class="verification-form__input" type="text"
