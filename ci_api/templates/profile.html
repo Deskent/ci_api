@@ -14,13 +14,8 @@
                                 <img src="/static/img/user-image.png" alt=""></picture>
                         </div>
                         <div class="user-profile__contacts">
-                            <div class="user-profile__name">
-                                <input id="userName" type="text" disabled
-                                       value="{{ user.username }} {{ user.last_name }}"
-                                       class="user-profile__name_input" maxlength="18">
-                                <label for="userName" class="user-profile__name_label">
-                                    <img src="/static/img/icons/edit.svg" alt="">
-                                </label>
+                            <div class="user-profile__name user-profile__name_input">
+                                {{ user.username }} {{ user.last_name }}
                             </div>
                             <div class="user-profile__phone">
                                 {{ user_present_phone }}
@@ -47,7 +42,7 @@
                                     src="/static/img/icons/credit-card.svg"
                                     alt=""></div>
                             <span></span>
-                            <div class="profile-card__number">1234</div>
+                            <div class="profile-card__number">**** 1234</div>
                         </div>
                         <a href="{{ subscribe_info }}" class="profile-card__link">Подробнее</a>
                     </div>
