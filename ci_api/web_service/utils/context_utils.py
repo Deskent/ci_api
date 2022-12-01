@@ -76,6 +76,7 @@ async def get_session_user(
 async def get_session_context(
         user: User = Depends(get_session_user)
 ) -> dict:
+    """Returns default page context and user data"""
     context = {}
     if user:
         context.update({
@@ -83,6 +84,14 @@ async def get_session_context(
             "user_present_phone": represent_phone(user.phone)
         })
 
+    return context
+
+
+async def get_user_context(
+        session_context: dict = Depends(get_session_context),
+        context: dict = Depends(get_context)
+) -> dict:
+    context.update(**session_context)
     return context
 
 
