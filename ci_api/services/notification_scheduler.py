@@ -1,18 +1,48 @@
 import asyncio
 from datetime import datetime
 
-from alembic.operations.toimpl import bulk_insert
 from sqlalchemy import select
 from sqlalchemy.sql import extract
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from config import logger
 from database.db import get_db_session
 from models.models import User, ViewedComplex, Notification
-from config import settings, logger
 
 
-async def get_users_for_notification():
-    return None
+today = datetime.today()
+
+
+async def _get_users_for_notification(
+        session: AsyncSession, today_viewed: list[ViewedComplex]
+) -> list[User]:
+    query = select(User).where(User.is_verified == True).filter(User.id.not_in(today_viewed))
+
+    return await _execute_all(session, query)
+
+
+async def _get_today_viewed_complexes(session: AsyncSession) -> list[ViewedComplex]:
+
+    query = (
+        select(ViewedComplex.user_id)
+        .where(
+            extract('day', ViewedComplex.viewed_at) == today.day
+        )
+    )
+    return await _execute_all(session, query)
+
+
+async def _create_notifications(session: AsyncSession, users: list[User]) -> None:
+    """Create notifications for user not viewed complex today"""
+
+    text = "Зарядка не выполнена, не забудьте выполнить упражнения"
+
+    notifications = [
+        Notification(user_id=user.id, created_at=today, text=text)
+        for user in users
+    ]
+    session.add_all(notifications)
+    await session.commit()
 
 
 async def _execute_all(session: AsyncSession, query):
@@ -20,33 +50,20 @@ async def _execute_all(session: AsyncSession, query):
     return response.scalars().all()
 
 
-async def send_notifications():
+async def create_notifications_for_not_viewed_users():
     """Create notifications for user not viewed complex today"""
 
-    today = datetime.today()
     async for session in get_db_session():
-        query = (
-            select(ViewedComplex.user_id)
-            .where(
-                extract('day', ViewedComplex.viewed_at) == today.day
-            )
-        )
-        today_viewed = await _execute_all(session, query)
+
+        today_viewed: list[ViewedComplex] = await _get_today_viewed_complexes(session)
         logger.info(today_viewed)
 
-        query = select(User).filter(User.id.not_in(today_viewed))
-        user_need_to_notificate = await _execute_all(session, query)
+        user_need_to_notificate = await _get_users_for_notification(session, today_viewed)
         logger.info(f"Create notifications for next users {len(user_need_to_notificate)}: "
                     f"\n{user_need_to_notificate}")
-        text = "Зарядка не выполнена, не забудьте выполнить упражнения"
 
-        notifications = [
-            Notification(user_id=user.id, created_at=today, text=text)
-            for user in user_need_to_notificate
-        ]
-        session.add_all(notifications)
-        await session.commit()
+        await _create_notifications(session, user_need_to_notificate)
 
 
 if __name__ == '__main__':
-    asyncio.run(send_notifications())
+    asyncio.run(create_notifications_for_not_viewed_users())
