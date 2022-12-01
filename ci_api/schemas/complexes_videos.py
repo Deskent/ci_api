@@ -15,7 +15,7 @@ class VideoUpload(VideoBase):
     description: str
     complex_id: int
     file: UploadFile
-    video_number: int
+    number: int
     duration: int = 0
 
     @classmethod
@@ -25,7 +25,7 @@ class VideoUpload(VideoBase):
             name: str = Form(...),
             description: str = Form(...),
             complex_id: int = Form(...),
-            video_number: int = Form(...),
+            number: int = Form(...),
             file: UploadFile = Form(...)
     ):
         return cls(
@@ -34,7 +34,7 @@ class VideoUpload(VideoBase):
             description=description,
             complex_id=complex_id,
             file=file,
-            video_number=video_number,
+            number=number,
             duration=0
         )
 
