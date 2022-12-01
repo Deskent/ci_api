@@ -3,86 +3,23 @@
 {% block profile_content %}
     <section class="profile-content">
         <div class="container">
-            <ul class="notifications__grid">
-                <li class="notifications__item notification">
-                    <div class="notification-date">
-                        <div class="notification-date__marker"></div>
-                        <div class="notification-date__status"></div>
-                        <div class="notification-date__span">25.04.2022</div>
-                    </div>
-                    <div class="notification__text">Зарядка не выполнена, не забудьте выполнить
-                        упражнения
-                    </div>
-                    <a href="/videos_list/{{ user.current_complex }}" class="notification__link">
-                        Выполнить
-                    </a>
-                </li>
-                <li class="notifications__item notification done">
-                    <div class="notification-date">
-                        <div class="notification-date__marker"></div>
-                        <div class="notification-date__status"></div>
-                        <div class="notification-date__span">25.04.2022</div>
-                    </div>
-                    <div class="notification__text">Зарядка не выполнена, не забудьте выполнить
-                        упражнения
-                    </div>
-                    <a href="#" class="notification__link">
-                        Выполнить
-                    </a>
-                </li>
-                <li class="notifications__item notification done">
-                    <div class="notification-date">
-                        <div class="notification-date__marker"></div>
-                        <div class="notification-date__status"></div>
-                        <div class="notification-date__span">25.04.2022</div>
-                    </div>
-                    <div class="notification__text">Зарядка не выполнена, не забудьте выполнить
-                        упражнения
-                    </div>
-                    <a href="#" class="notification__link">
-                        Выполнить
-                    </a>
-                </li>
-                <li class="notifications__item notification done">
-                    <div class="notification-date">
-                        <div class="notification-date__marker"></div>
-                        <div class="notification-date__status"></div>
-                        <div class="notification-date__span">25.04.2022</div>
-                    </div>
-                    <div class="notification__text">Зарядка не выполнена, не забудьте выполнить
-                        упражнения
-                    </div>
-                    <a href="#" class="notification__link">
-                        Выполнить
-                    </a>
-                </li>
-                <li class="notifications__item notification done">
-                    <div class="notification-date">
-                        <div class="notification-date__marker"></div>
-                        <div class="notification-date__status"></div>
-                        <div class="notification-date__span">25.04.2022</div>
-                    </div>
-                    <div class="notification__text">Зарядка не выполнена, не забудьте выполнить
-                        упражнения
-                    </div>
-                    <a href="#" class="notification__link">
-                        Выполнить
-                    </a>
-                </li>
-                <li class="notifications__item notification done">
-                    <div class="notification-date">
-                        <div class="notification-date__marker"></div>
-                        <div class="notification-date__status"></div>
-                        <div class="notification-date__span">25.04.2022</div>
-                    </div>
-                    <div class="notification__text">Зарядка не выполнена, не забудьте выполнить
-                        упражнения
-                    </div>
-                    <a href="#" class="notification__link">
-                        Выполнить
-                    </a>
-                </li>
-            </ul>
+                <ul class="notifications__grid">
+            {% for notif in notifications %}
+                    <li class="notifications__item notification">
+                        <div class="notification-date">
+                            <div class="notification-date__marker"></div>
+                            <div class="notification-date__status"></div>
+                            <div class="notification-date__span">{{ notif.created_at.date() }}</div>
+                        </div>
+                        <div class="notification__text">{{ notif.text }}
+                        </div>
+                        <a href="/videos_list/{{ user.current_complex }}"
+                           class="notification__link">
+                            Выполнить
+                        </a>
+                    </li>
+            {% endfor %}
+                </ul>
         </div>
     </section>
 {% endblock profile_content %}
