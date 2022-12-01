@@ -17,8 +17,8 @@ async def check_level_up(session: AsyncSession, user: User) -> User:
         if user.level < 10:
             user.level = user.level + 1
         user.progress = 0
-        await set_complex_viewed(session, user)
-        user.current_complex = current_complex.next_complex_id
+        await ViewedComplexes.add_viewed(session, user.id, user.current_complex)
+        user.current_complex = await current_complex.next_complex_id(session)
     await user.save(session)
     logger.debug(f"User with id {user.id} viewed video in complex {current_complex.id}")
 
@@ -61,7 +61,7 @@ def calculate_videos_to_next_level(user: User, videos: list[Video]):
     return int((LEVEL_UP_PERCENTS - user.progress) / (100 / len(videos)))
 
 
-async def set_video_viewed(
+async def is_video_viewed(
         session: AsyncSession,
         user: User,
         video_id: int
@@ -69,10 +69,3 @@ async def set_video_viewed(
 ) -> ViewedVideos:
     return await ViewedVideos.add_viewed(session, user.id, video_id)
 
-
-async def set_complex_viewed(
-        session: AsyncSession,
-        user: User
-
-) -> ViewedComplexes:
-    return await ViewedComplexes.add_viewed(session, user.id, user.current_complex)
