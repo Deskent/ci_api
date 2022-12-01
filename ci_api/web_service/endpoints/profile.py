@@ -7,7 +7,8 @@ from web_service.utils import *
 router = APIRouter(tags=['web', 'profile'])
 
 
-# TODO сделать переход со страницы Notifications
+# TODO сделать обработку Notifications
+# TODO после изменения телефона отсылать потдверждение?
 
 # TODO оплата и сохранение истории платежей - нужен аккаунт +
 # TODO get_logged_user or get_session_user

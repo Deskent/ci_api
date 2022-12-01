@@ -54,6 +54,7 @@ class Video(MySQLModel, table=True):
     name: Optional[str] = Field(nullable=True, default='', description="Название видео")
     description: Optional[str] = Field(nullable=True, default='', description="Описание видео")
     duration: int = Field(nullable=True, default=None, description="Длительность видео")
+    number: int = Field(default=None, description="Порядковый номер ролика")
 
     complex_id: Optional[int] = Field(
         default=None, foreign_key="complexes.id",
@@ -62,6 +63,13 @@ class Video(MySQLModel, table=True):
 
     def __str__(self):
         return f"{self.name}"
+
+    @classmethod
+    async def get_ordered_list(cls, session: AsyncSession, complex_id: int):
+        query = select(cls).where(cls.complex_id == complex_id).order_by(cls.number)
+        videos_row = await session.execute(query)
+
+        return videos_row.scalars().all()
 
     @classmethod
     async def get_all_by_complex_id(cls, session: AsyncSession, complex_id: int):
