@@ -67,6 +67,9 @@ class Video(MySQLModel, table=True):
     def __str__(self):
         return f"{self.name}"
 
+    async def get_next_video(self, session: AsyncSession):
+        return await Video.get_by_id(session, id_=self.number + 1)
+
     @classmethod
     async def get_ordered_list(cls, session: AsyncSession, complex_id: int):
         query = select(cls).where(cls.complex_id == complex_id).order_by(cls.number)
@@ -225,6 +228,9 @@ class ViewedComplexes(MySQLModel, table=True):
 
     user_id: int = Field(nullable=False, foreign_key='users.id')
     complex_id: int = Field(nullable=False, foreign_key='complexes.id')
+    viewed_at: datetime = Field(
+        default=None, description="Время последнего просмотренного комплекса"
+    )
 
     @classmethod
     async def add_viewed(
@@ -235,7 +241,9 @@ class ViewedComplexes(MySQLModel, table=True):
         response = await session.execute(query)
         complex_exists = response.scalars().first()
         if not complex_exists:
-            viewed_complex = cls(user_id=user_id, complex_id=complex_id)
+            viewed_complex = cls(
+                user_id=user_id, complex_id=complex_id, viewed_at=datetime.now(tz=None)
+            )
             await viewed_complex.save(session)
 
             return viewed_complex
@@ -250,6 +258,20 @@ class ViewedComplexes(MySQLModel, table=True):
         viewed_complexes = await session.execute(query)
 
         return viewed_complexes.scalars().all()
+
+    @classmethod
+    async def is_last_viewed_today(cls, session: AsyncSession) -> bool:
+        """
+        Check Complex viewed today
+
+        True if viewed  else False
+        """
+
+        current_day = datetime.now(tz=None).day
+        response = await session.execute(select(cls).order_by(cls.viewed_at))
+        last: ViewedComplexes = response.scalars().first()
+
+        return current_day == last.viewed_at.day
 
 
 class ViewedVideos(MySQLModel, table=True):
