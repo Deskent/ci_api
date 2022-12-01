@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from starlette.responses import HTMLResponse
 
-from models.models import ViewedComplexes
+from models.models import ViewedComplex
 from services.complexes_and_videos import (
     get_viewed_videos_ids, get_not_viewed_videos_ids,
     calculate_viewed_videos_duration, calculate_videos_to_next_level, is_video_viewed,
@@ -106,12 +106,12 @@ async def complexes_list(
         videos: list = Depends(get_complex_videos_list),
 ):
     user: User = context['user']
-    if await ViewedComplexes.is_last_viewed_today(session, user.id):
+    if await ViewedComplex.is_last_viewed_today(session, user.id):
         return RedirectResponse("/come_tomorrow")
 
     complexes: list[Complex] = await Complex.get_all(session)
     viewed_complexes: list[
-        ViewedComplexes] = await ViewedComplexes.get_all_viewed_complexes(session, user.id)
+        ViewedComplex] = await ViewedComplex.get_all_viewed_complexes(session, user.id)
     for complex_ in complexes:
         complex_.duration = convert_to_minutes(complex_.duration)
     viewed_complexes_ids: tuple[int] = tuple(elem.complex_id for elem in viewed_complexes)

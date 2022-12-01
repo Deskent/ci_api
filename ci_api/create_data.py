@@ -148,20 +148,22 @@ async def create_alarms(session: AsyncSession, data: list[dict] = None):
 
 
 async def create_notifications(session: AsyncSession, data: list[dict] = None):
+    today = datetime.today()
+
     if not data:
         data = [
             {
-                'notification_time': '10:00',
+                'created_at': today,
                 'text': 'notification1',
                 'user_id': 1
             },
             {
-                'notification_time': '11:00',
+                'created_at': today,
                 'text': 'notification2',
                 'user_id': 1
             },
             {
-                'notification_time': '12:00',
+                'created_at': today,
                 'text': 'notification3',
                 'user_id': 2
             },

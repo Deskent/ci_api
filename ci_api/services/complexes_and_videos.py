@@ -1,7 +1,7 @@
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from config import LEVEL_UP_PERCENTS, logger
-from models.models import User, Complex, Video, ViewedVideos, ViewedComplexes
+from models.models import User, Complex, Video, ViewedVideo, ViewedComplex
 
 
 async def check_level_up(session: AsyncSession, user: User) -> User:
@@ -17,7 +17,7 @@ async def check_level_up(session: AsyncSession, user: User) -> User:
         if user.level < 10:
             user.level = user.level + 1
         user.progress = 0
-        await ViewedComplexes.add_viewed(session, user.id, user.current_complex)
+        await ViewedComplex.add_viewed(session, user.id, user.current_complex)
         user.current_complex = await current_complex.next_complex_id(session)
     await user.save(session)
     logger.debug(f"User with id {user.id} viewed video in complex {current_complex.id}")
@@ -29,7 +29,7 @@ async def get_viewed_videos_ids(
         session: AsyncSession,
         user: User
 ) -> tuple[int]:
-    viewed_videos: list[ViewedVideos] = await ViewedVideos.get_all_viewed_videos(session, user.id)
+    viewed_videos: list[ViewedVideo] = await ViewedVideo.get_all_viewed_videos(session, user.id)
 
     return tuple(elem.video_id for elem in viewed_videos)
 
@@ -66,6 +66,6 @@ async def is_video_viewed(
         user: User,
         video_id: int
 
-) -> ViewedVideos:
-    return await ViewedVideos.add_viewed(session, user.id, video_id)
+) -> ViewedVideo:
+    return await ViewedVideo.add_viewed(session, user.id, video_id)
 
