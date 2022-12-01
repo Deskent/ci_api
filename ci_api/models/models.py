@@ -270,7 +270,7 @@ class ViewedComplexes(MySQLModel, table=True):
         current_day = datetime.now(tz=None).day
         response = await session.execute(select(cls).where(cls.user_id == user_id).order_by(cls.viewed_at))
         last: ViewedComplexes = response.scalars().first()
-        if last:
+        if last and last.viewed_at:
             return current_day == last.viewed_at.day
 
 
