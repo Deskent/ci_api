@@ -19,12 +19,14 @@ DOCS_URL = "/ci"
 
 def get_application():
     scheduler = AsyncIOScheduler()
-    # TODO отобразить уведомления на странице
     # TODO генерировать уведомления только для подписанных (active)
-    # scheduler.add_job(
-    #     create_notifications_for_not_viewed_users, 'cron', hour=14, minute=00, replace_existing=True,
-    #     timezone=datetime.timezone(datetime.timedelta(hours=3))
-    # )
+    scheduler.add_job(
+        create_notifications_for_not_viewed_users, 'cron',
+        hour=settings.NOTIFICATION_HOUR,
+        minute=00,
+        replace_existing=True,
+        timezone=datetime.timezone(datetime.timedelta(hours=3))
+    )
 
     app = FastAPI(docs_url=DOCS_URL, redoc_url=DOCS_URL, debug=settings.DEBUG)
     app.mount("/static", StaticFiles(directory=str(settings.STATIC_DIR)), name="static")

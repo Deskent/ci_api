@@ -76,6 +76,8 @@ async def finish_charging(
         session: AsyncSession = Depends(get_db_session),
         video_id: int = Form()
 ):
+    if not user:
+        return templates.TemplateResponse("entry.html", context=context)
     current_video: Video = await Video.get_by_id(session, video_id)
     next_video: Video = await current_video.get_next_video(session)
 
@@ -106,6 +108,8 @@ async def complexes_list(
         videos: list = Depends(get_complex_videos_list),
 ):
     user: User = context['user']
+    if not user:
+        return templates.TemplateResponse("entry.html", context=context)
     if await ViewedComplex.is_last_viewed_today(session, user.id):
         return RedirectResponse("/come_tomorrow")
 
@@ -132,6 +136,8 @@ async def delete_notification(
         session: AsyncSession = Depends(get_db_session),
 ):
     user: User = context['user']
+    if not user:
+        return templates.TemplateResponse("entry.html", context=context)
     await Notification.delete_by_id(session, notification_id)
 
     return RedirectResponse(f"/videos_list/{user.current_complex}")
@@ -141,4 +147,7 @@ async def delete_notification(
 async def come_tomorrow(
         context: dict = Depends(get_user_context),
 ):
+    user: User = context['user']
+    if not user:
+        return templates.TemplateResponse("entry.html", context=context)
     return templates.TemplateResponse("come_tomorrow.html", context=context)
