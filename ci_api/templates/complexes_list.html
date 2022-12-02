@@ -3,69 +3,74 @@
 
 {% block profile_content %}
 
-    <section class="charging__content">
-        <div class="charging-container">
-            <div class="charging__title">
+    <section class="complexes-list__content">
+        <div class="complexes-list-container">
+            <div class="complexes-list__title">
                 Комплекс <span>1</span>
             </div>
+            <div class="complexes-list-slider">
 
-            <div class="charging-slider">
                 {% for complex in complexes %}
-                    <div class="charging-slide {{ 'unlock' if user.level >= complex.number else 'lock' }}">
-                    <div class="charging-slide__wrapper">
-                        <div class="charging-slide__image charging-image">
+                    <div class="complexes-list-slide {{ 'unlock' if user.level >= complex.number else 'lock' }}">
+
+                    <div class="complexes-list-slide__wrapper">
+                        <div class="complexes-list-slide__image complexes-list-image">
 
                             {% if complex.id in viewed_complexes %}
-                                <div class="charging-image__wrapper viewed">
+                                <div class="complexes-list-image__wrapper viewed">
                             {% else %}
-                                <div class="charging-image__wrapper">
+                                <div class="complexes-list-image__wrapper">
                             {% endif %}
 
                             <picture>
                                 <source srcset="/static/img/dragon.jpg"
                                         type="image/webp">
-                                <img class="charging-image__wrapper-img"
+                                <img class="complexes-list-image__wrapper-img"
                                      src="/static/img/dragon.jpg" alt="dragon">
                             </picture>
                             </div>
-                            <div class="charging-image__time">{{ complex.duration }} мин</div>
+                            <div class="complexes-list-image__time">{{ complex.duration }} мин</div>
 
-                                {% if complex.id in viewed_complexes %}
-                                    <div class="charging-image__remained">
-                                        Завершено
-                                    </div>
-                                    <a href="/videos_list/{{ complex.id }}" class="charging-slide__btn">
-                                        Посмотреть еще раз
-                                    </a>
+                            {% if complex.id in viewed_complexes %}
+                                <div class="complexes-list-image__remained">
+                                    Завершено
+                                </div>
+                                <a href="/videos_list/{{ complex.id }}"
+                                   class="complexes-list-slide__btn">
+                                    Посмотреть еще раз
+                                </a>
 
-                                {% else %}
-                                    <a href="/videos_list/{{ complex.id }}" class="charging-slide__btn">
-                                        Посмотреть
-                                    </a>
-                                {% endif %}
+                            {% else %}
+                                <a href="/videos_list/{{ complex.id }}"
+                                   class="complexes-list-slide__btn">
+                                    Посмотреть
+                                </a>
+                            {% endif %}
 
                             </div>
-                            <div class="charging-slide__text">
-                                <div class="charging-slide__title">
+                            <div class="complexes-list-slide__text">
+                                <div class="complexes-list-slide__title">
                                     {{ complex.name }}
                                 </div>
-                                <div class="charging-slide__desc">
+                                <div class="complexes-list-slide__desc">
                                     {{ complex.description }}
                                 </div>
                             </div>
-
-                        </div>
-                        <div class="charging-slide__lock">Станет доступно на {{ complex.number }}
-                            уровне
-                            {% if complex.number - user.level == 1 %}
-                                , до {{ complex.number }} уровня осталось {{ to_next_level }}
-                                упражнений
-                            {% endif %}
+                            <div class="complexes-list-slide__lock">Станет доступно
+                                на {{ complex.number }}
+                                уровне
+                                {% if complex.number - user.level == 1 %}
+                                    , до {{ complex.number }} уровня осталось {{ to_next_level }}
+                                    упражнений
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 {% endfor %}
+
                 </div>
             </div>
         </div>
     </section>
+
 {% endblock profile_content %}
