@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from starlette.responses import HTMLResponse
 
-from models.models import ViewedComplex
+from models.models import ViewedComplex, Notification
 from services.complexes_and_videos import (
     get_viewed_videos_ids, get_not_viewed_videos_ids,
     calculate_viewed_videos_duration, calculate_videos_to_next_level, is_video_viewed,
@@ -76,6 +76,8 @@ async def finish_charging(
         session: AsyncSession = Depends(get_db_session),
         video_id: int = Form()
 ):
+    if not user:
+        return templates.TemplateResponse("entry.html", context=context)
     current_video: Video = await Video.get_by_id(session, video_id)
     next_video: Video = await current_video.get_next_video(session)
 
@@ -106,6 +108,8 @@ async def complexes_list(
         videos: list = Depends(get_complex_videos_list),
 ):
     user: User = context['user']
+    if not user:
+        return templates.TemplateResponse("entry.html", context=context)
     if await ViewedComplex.is_last_viewed_today(session, user.id):
         return RedirectResponse("/come_tomorrow")
 
@@ -125,8 +129,25 @@ async def complexes_list(
     return templates.TemplateResponse("complexes_list.html", context=context)
 
 
+@router.get("/delete_notification/{notification_id}", response_class=HTMLResponse)
+async def delete_notification(
+        notification_id: int,
+        context: dict = Depends(get_user_context),
+        session: AsyncSession = Depends(get_db_session),
+):
+    user: User = context['user']
+    if not user:
+        return templates.TemplateResponse("entry.html", context=context)
+    await Notification.delete_by_id(session, notification_id)
+
+    return RedirectResponse(f"/videos_list/{user.current_complex}")
+
+
 @router.get("/come_tomorrow", response_class=HTMLResponse)
 async def come_tomorrow(
         context: dict = Depends(get_user_context),
 ):
+    user: User = context['user']
+    if not user:
+        return templates.TemplateResponse("entry.html", context=context)
     return templates.TemplateResponse("come_tomorrow.html", context=context)

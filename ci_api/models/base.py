@@ -22,6 +22,11 @@ class MySQLModel(SQLModel):
 
         return response.scalars().all()
 
+    @classmethod
+    async def delete_by_id(cls, session: AsyncSession, id_: int) -> None:
+        instance = await cls.get_by_id(session, id_)
+        await instance.delete(session)
+
     async def delete(self, session: AsyncSession) -> None:
         await session.delete(self)
         await session.commit()

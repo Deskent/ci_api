@@ -10,7 +10,7 @@ from admin.views import get_admin
 from config import settings
 from create_data import create_fake_data, recreate_db
 from routers import main_router
-from services.notification_scheduler import send_notifications
+from services.notification_scheduler import create_notifications_for_not_viewed_users
 from web_service.router import router as web_router
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
@@ -19,10 +19,14 @@ DOCS_URL = "/ci"
 
 def get_application():
     scheduler = AsyncIOScheduler()
-    # scheduler.add_job(
-    #     send_notifications, 'cron', hour=14, minute=00, replace_existing=True,
-    #     timezone=datetime.timezone(datetime.timedelta(hours=3))
-    # )
+    # TODO генерировать уведомления только для подписанных (active)
+    scheduler.add_job(
+        create_notifications_for_not_viewed_users, 'cron',
+        hour=settings.NOTIFICATION_HOUR,
+        minute=00,
+        replace_existing=True,
+        timezone=datetime.timezone(datetime.timedelta(hours=3))
+    )
 
     app = FastAPI(docs_url=DOCS_URL, redoc_url=DOCS_URL, debug=settings.DEBUG)
     app.mount("/static", StaticFiles(directory=str(settings.STATIC_DIR)), name="static")

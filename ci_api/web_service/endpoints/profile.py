@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
 
 from services.emails import send_verification_mail
+from models.models import Notification
 from web_service.utils import *
 
 router = APIRouter(tags=['web', 'profile'])
@@ -40,7 +41,6 @@ async def subscribe(
 
 @router.get("/edit_profile", response_class=HTMLResponse)
 @router.get("/cancel_subscribe", response_class=HTMLResponse)
-@router.get("/notifications", response_class=HTMLResponse)
 @router.get("/feedback", response_class=HTMLResponse)
 @router.get("/help_page", response_class=HTMLResponse)
 async def help_page(
@@ -83,3 +83,19 @@ async def edit_profile_post(
     context.update(**session_context)
 
     return templates.TemplateResponse("profile.html", context=context)
+
+
+@router.get("/notifications", response_class=HTMLResponse)
+async def subscribe(
+        session_context: dict = Depends(get_session_context),
+        context: dict = Depends(get_profile_context),
+        session: AsyncSession = Depends(get_db_session)
+
+):
+    if not session_context:
+        return templates.TemplateResponse("entry.html", context=context)
+    user: User = session_context['user']
+    notifications: list = await Notification.get_all_by_user_id(session, user.id)
+    context.update(**session_context, notifications=notifications)
+
+    return templates.TemplateResponse("notifications.html", context=context)
