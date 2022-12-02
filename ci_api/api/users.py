@@ -40,8 +40,8 @@ async def get_user_notifications(
 
     :return List of notifications
     """
-    # TODO написать тест
-    notifications: list[Notification] = await Notification.get_all_by_user_id(session, user.id)
+
+    notifications: list = await Notification.get_all_by_user_id(session, user.id)
     logger.info(f"User with id {user.id} request notifications")
 
     return notifications
