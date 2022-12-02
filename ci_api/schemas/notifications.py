@@ -1,4 +1,4 @@
-from datetime import time
+from datetime import datetime
 
 from pydantic import BaseModel
 
@@ -8,8 +8,12 @@ class NotificationID(BaseModel):
 
 
 class NotificationBase(BaseModel):
-    notification_time: time
+    created_at: datetime
     text: str = ''
+
+    def validate_datetime(self):
+        self.created_at = self.created_at.replace(tzinfo=None)
+        return self
 
 
 class NotificationCreate(NotificationBase):
@@ -17,4 +21,4 @@ class NotificationCreate(NotificationBase):
 
 
 class NotificationUpdate(NotificationID, NotificationBase):
-    pass
+    user_id: int
