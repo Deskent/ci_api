@@ -102,7 +102,7 @@
             <menu class="profile-menu">
                 <div class="container">
                     <div class="profile-menu__grid">
-                        <a href="/complexes_list" class="profile-menu__link fla {{ "active" if request.url.path == "/complexes_list" else ""}}">
+                        <a href="/complexes_list" class="profile-menu__link fla {{ "active" if request.url.path == "/complexes_list" or "videos_list" in request.url.path else ""}}">
                             Зарядка
                         </a>
                         <a href="/profile" class="profile-menu__link prof {{ "active" if request.url.path == "/profile" else ""}}">
