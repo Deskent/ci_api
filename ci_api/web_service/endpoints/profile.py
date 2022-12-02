@@ -8,7 +8,7 @@ from web_service.utils import *
 router = APIRouter(tags=['web', 'profile'])
 
 
-# TODO сделать обработку Notifications
+# TODO привести к единому АПИ
 # TODO после изменения телефона отсылать потдверждение?
 
 # TODO оплата и сохранение истории платежей - нужен аккаунт +
