@@ -105,13 +105,13 @@
                         <a href="/complexes_list" class="profile-menu__link fla {{ "active" if request.url.path == "/complexes_list" or "videos_list" in request.url.path else ""}}">
                             Зарядка
                         </a>
-                        <a href="/profile" class="profile-menu__link prof {{ "active" if request.url.path == "/profile" else ""}}">
+                        <a href="/profile" class="profile-menu__link prof {{ "active" if "profile" in request.url.path else ""}}">
                             Профиль
                         </a>
                         <a href="/notifications" class="profile-menu__link not {{ "active" if request.url.path == "/notifications" else ""}}">
                             Уведомления
                         </a>
-                        <a href="/subscribe" class="profile-menu__link sub {{ "active" if request.url.path == "/subscribe" else ""}}">
+                        <a href="/subscribe" class="profile-menu__link sub {{ "active" if "subscribe" in request.url.path else ""}}">
                             Подписка
                         </a>
                     </div>
