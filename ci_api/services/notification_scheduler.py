@@ -23,6 +23,7 @@ async def _get_users_for_notification(
 
 
 async def _get_today_viewed_complexes(session: AsyncSession) -> list[ViewedComplex]:
+    """Return viewed today complexes list"""
 
     query = (
         select(ViewedComplex.user_id)
@@ -33,20 +34,11 @@ async def _get_today_viewed_complexes(session: AsyncSession) -> list[ViewedCompl
     return await _execute_all(session, query)
 
 
-async def _create_notifications(session: AsyncSession, users: list[int]) -> None:
-    """Create notifications for user not viewed complex today"""
-
-    notifications = [
-        Notification(user_id=user, created_at=today, text=text)
-        for user in users
-    ]
-    session.add_all(notifications)
-    await session.commit()
-
-
 async def _get_users_with_notifications(
         session: AsyncSession, users_ids_for_notificate: list[int]
 ) -> list[int]:
+    """Return user IDs list who need to create or update notifications"""
+
     query = (
         select(User.id)
         .join(Notification)
@@ -55,8 +47,20 @@ async def _get_users_with_notifications(
     return await _execute_all(session, query)
 
 
-async def _update_notifications(session: AsyncSession, users: list[int]) -> None:
-    """Create notifications for user not viewed complex today"""
+async def _get_notifications_for_create(users: list[int]) -> list[Notification]:
+    """Return notifications list for users without notifications"""
+
+    return [
+        Notification(user_id=user, created_at=today, text=text)
+        for user in users
+    ]
+
+
+async def _get_notifications_for_update(
+        session: AsyncSession,
+        users: list[int]
+) -> list[Notification]:
+    """Return updated notifications list without add to database"""
 
     for_update: list[Notification] = []
     for user in users:
@@ -66,11 +70,21 @@ async def _update_notifications(session: AsyncSession, users: list[int]) -> None
             notification.created_at = today
             for_update.append(notification)
 
-    session.add_all(for_update)
+    return for_update
+
+
+async def create_and_update_notifications(
+        session: AsyncSession, notifications: list[Notification]
+) -> None:
+    """Add notifications to database"""
+
+    session.add_all(notifications)
     await session.commit()
 
 
 async def _execute_all(session: AsyncSession, query):
+    """Return all query results"""
+
     response = await session.execute(query)
     return response.scalars().all()
 
@@ -83,24 +97,35 @@ async def create_notifications_for_not_viewed_users():
         today_viewed: list[ViewedComplex] = await _get_today_viewed_complexes(session)
         logger.debug(f"{today_viewed=}")
 
-        users_ids_for_notificate: list[int] = await _get_users_for_notification(session, today_viewed)
-        logger.debug(f"Create notifications for next users, count: {len(users_ids_for_notificate)}: "
-                    f"\n{users_ids_for_notificate}")
+        users_ids_for_notification: list[int] = await _get_users_for_notification(
+            session, today_viewed
+        )
+        logger.debug(f"Create notifications for next users, count: {len(users_ids_for_notification)}: "
+                    f"\n{users_ids_for_notification}")
 
         users_for_update: list[int] = await _get_users_with_notifications(
-            session, users_ids_for_notificate
+            session, users_ids_for_notification
         )
-        logger.debug(f"users_ids_for_notificate: {users_for_update}")
+        logger.debug(f"users_ids_for_notification: {users_for_update}")
 
-        users_for_create = [
-            user
-            for user in users_ids_for_notificate
-            if user not in users_for_update
+        users_for_create: list[int] = [
+            user_id
+            for user_id in users_ids_for_notification
+            if user_id not in users_for_update
         ]
+        notifications_for_create: list[Notification] = await _get_notifications_for_create(
+            users_for_create
+        )
 
-        await _create_notifications(session, users_for_create)
-        await _update_notifications(session, users_for_update)
+        notifications_for_update: list[Notification] = await _get_notifications_for_update(
+            session, users_for_update
+        )
+        notifications_for_update.extend(notifications_for_create)
+
+        await create_and_update_notifications(session, notifications_for_update)
 
 
 if __name__ == '__main__':
     asyncio.run(create_notifications_for_not_viewed_users())
+
+
