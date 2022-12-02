@@ -1,3 +1,5 @@
+import datetime
+
 import pytest
 
 
@@ -13,13 +15,16 @@ class TestUsers:
         self.headers = setup_class.headers
         self.email_token = setup_class.email_token
         self.alarm_id = setup_class.alarm_id
+        self.user_id = None
         yield
 
     @pytest.mark.server
     def test_get_me(self):
         response = self.session.get(self.base_url + "/users/me", headers=self.headers)
         assert response.status_code == 200
-        assert response.json().get("id") is not None
+        user_id = response.json().get("id")
+        assert user_id is not None
+        self.user_id = user_id
 
     @pytest.mark.skip("Need to know verify code from database")
     @pytest.mark.server
@@ -57,10 +62,27 @@ class TestUsers:
         assert response.status_code == 200
 
     @pytest.mark.server
-    def test_get_notification_by_id_404(self):
+    def test_create_notification(self):
+        payload = {
+            "created_at": f"{datetime.datetime.now()}",
+            "text": "Test notif"
+        }
+        response = self.session.post(
+            self.base_url + f"/notifications/", headers=self.headers, json=payload)
+        assert response.status_code == 200
+
+    @pytest.mark.server
+    def test_get_notifications(self):
         response = self.session.get(
-            self.base_url + f"/notifications/{1}", headers=self.headers)
-        assert response.status_code == 404
+            self.base_url + f"/users/notifications/", headers=self.headers)
+        assert response.status_code == 200
+        notifications: list[dict] = response.json()
+        notification_id = notifications[0].get("id")
+        assert notification_id is not None
+
+        response = self.session.get(
+            self.base_url + f"/notifications/{notification_id}/", headers=self.headers)
+        assert response.status_code == 200
 
     @pytest.mark.server
     def test_get_alarm(self):

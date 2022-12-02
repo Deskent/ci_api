@@ -4,10 +4,33 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from config import logger
 from database.db import get_db_session
 from models.models import Notification, User
-from schemas.notifications import NotificationUpdate
+from schemas.notifications import NotificationUpdate, NotificationCreate
 from services.depends import get_logged_user
 
 router = APIRouter(prefix="/notifications", tags=['Notifications'])
+
+
+@router.post("/", response_model=NotificationUpdate, status_code=200)
+async def create_notification(
+        data: NotificationCreate,
+        user: User = Depends(get_logged_user),
+        session: AsyncSession = Depends(get_db_session)
+):
+    """Create notification for user by user database id
+
+    :param created_at: string - Datetime in format: "2022-12-02T10:48:56.528Z"
+    or "2022-12-02 10:48:56"
+
+    :param text: string - Description text
+
+    :return: Notification created information as JSON
+    """
+    data = data.validate_datetime()
+    notification: Notification = Notification(**data.dict(), user_id=user.id)
+    await notification.save(session)
+    logger.info(f"Notification with id {notification.id} created")
+
+    return notification
 
 
 @router.get(
