@@ -160,12 +160,12 @@ async def create_notifications(session: AsyncSession, data: list[dict] = None):
             {
                 'created_at': today,
                 'text': 'notification2',
-                'user_id': 1
+                'user_id': 2
             },
             {
                 'created_at': today,
                 'text': 'notification3',
-                'user_id': 2
+                'user_id': 3
             },
         ]
     for notification in data:
