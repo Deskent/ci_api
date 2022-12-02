@@ -102,16 +102,16 @@
             <menu class="profile-menu">
                 <div class="container">
                     <div class="profile-menu__grid">
-                        <a href="/complexes_list" class="profile-menu__link active fla">
+                        <a href="/complexes_list" class="profile-menu__link fla {{ "active" if request.url.path == "/complexes_list" else ""}}">
                             Зарядка
                         </a>
-                        <a href="/profile" class="profile-menu__link prof">
+                        <a href="/profile" class="profile-menu__link prof {{ "active" if request.url.path == "/profile" else ""}}">
                             Профиль
                         </a>
-                        <a href="/notifications" class="profile-menu__link not">
+                        <a href="/notifications" class="profile-menu__link not {{ "active" if request.url.path == "/notifications" else ""}}">
                             Уведомления
                         </a>
-                        <a href="/subscribe" class="profile-menu__link sub">
+                        <a href="/subscribe" class="profile-menu__link sub {{ "active" if request.url.path == "/subscribe" else ""}}">
                             Подписка
                         </a>
                     </div>
