@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from starlette.responses import HTMLResponse
 
-from models.models import ViewedComplex
+from models.models import ViewedComplex, Notification
 from services.complexes_and_videos import (
     get_viewed_videos_ids, get_not_viewed_videos_ids,
     calculate_viewed_videos_duration, calculate_videos_to_next_level, is_video_viewed,
@@ -123,6 +123,18 @@ async def complexes_list(
     )
 
     return templates.TemplateResponse("complexes_list.html", context=context)
+
+
+@router.get("/delete_notification/{notification_id}", response_class=HTMLResponse)
+async def delete_notification(
+        notification_id: int,
+        context: dict = Depends(get_user_context),
+        session: AsyncSession = Depends(get_db_session),
+):
+    user: User = context['user']
+    await Notification.delete_by_id(session, notification_id)
+
+    return RedirectResponse(f"/videos_list/{user.current_complex}")
 
 
 @router.get("/come_tomorrow", response_class=HTMLResponse)
