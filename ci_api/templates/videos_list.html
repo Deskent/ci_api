@@ -17,10 +17,51 @@
                             {% else %}
                                 <div class="charging-image__wrapper">
                             {% endif %}
-                            <picture>
+
+
+                            <!-- <picture>
                                 <source srcset="/static/img/charging-image.webp"
                                         type="image/webp">
-                                <img src="/static/img/charging-image.png" alt=""></picture>
+                                <img src="/static/img/charging-image.png" alt="">
+                            </picture> -->
+
+
+                            <!-- Секция с видео вместо картинки -->
+
+                            <section>
+                                <div class="startCharging-container">
+                                    <div class="charging-video__wrapper">
+                                        <video class="charging-video" src="/static/media/test.mp4">
+                                        </video>
+                                        <button class="charging-video__play">
+                                            <img src="/static/img/icons/charging-play-btn.svg"
+                                                 alt="">
+                                        </button>
+                                        <button class="charging-video__pause hidden">
+                                            <img src="/static/img/icons/charging-pause-btn.svg"
+                                                 alt="">
+                                        </button>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- Модалка c кнопкой ГОТОВО после просмотра видео -->
+                            <div class="modal successCharge-modal" id="successCharge">
+                                <div class="successCharge-modal__content modal__content">
+                                    <div class="successCharge-modal__close modal__close red"></div>
+                                    <div class="successCharge-modal__column">
+                                        <form action="/finish_charging" method="POST"
+                                              class="registration__form">
+                                            <input type="text" name="video_id" value="1" hidden="">
+                                            <button href="/finish_charging" type="submit"
+                                                    class="registration__btn reg-banner__link_entry">
+                                                Готово
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
                             </div>
                             <div class="charging-image__time">{{ video.duration.minute }} мин
                             </div>
@@ -47,6 +88,7 @@
                 {% endfor %}
                 </div>
             </div>
+        </div>
     </section>
     <div class="modal modal-subOver" id="subOver">
         <div class="modal__content modal-subOver__content">
