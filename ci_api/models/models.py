@@ -3,9 +3,8 @@ from typing import Optional, List
 
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, select
-from sqlmodel.ext.asyncio.session import AsyncSession
 
-from models.base import MySQLModel, UserModel
+from models.base import MySQLModel, UserModel, get_all, get_first, AdminModel
 
 
 class Complex(MySQLModel, table=True):
@@ -27,15 +26,15 @@ class Complex(MySQLModel, table=True):
     def __str__(self):
         return f"№ {self.number}: {self.description}"
 
-    async def next_complex_id(self, session: AsyncSession):
-        next_complex: Complex = await Complex.get_by_id(session, id_=self.number + 1)
+    async def next_complex_id(self) -> int:
+        query = select(Complex).where(Complex.number == self.number + 1)
+        next_complex: Complex = await get_first(query)
 
         return 1 if not next_complex else next_complex.id
 
     @classmethod
     async def add_new(
             cls: 'Complex',
-            session: AsyncSession,
             number: int,
             name: str = '',
             description: str = '',
@@ -47,7 +46,7 @@ class Complex(MySQLModel, table=True):
             number=number, name=name, description=description, duration=duration,
             video_count=video_count
         )
-        await new_complex.save(session)
+        await new_complex.save()
 
         return new_complex
 
@@ -73,27 +72,24 @@ class Video(MySQLModel, table=True):
     def __str__(self):
         return f"{self.name}"
 
-    async def get_next_video(self, session: AsyncSession):
-        return await Video.get_by_id(session, id_=self.number + 1)
+    async def get_next_video_id(self) -> int:
+        query = select(Video).where(Video.number == self.number + 1)
+        next_video: Video = await get_first(query)
+
+        return 1 if not next_video else next_video.id
 
     @classmethod
-    async def get_ordered_list(cls, session: AsyncSession, complex_id: int):
+    async def get_ordered_list(cls, complex_id: int):
         query = select(cls).where(cls.complex_id == complex_id).order_by(cls.number)
-        videos_row = await session.execute(query)
-
-        return videos_row.scalars().all()
+        return await get_all(query)
 
     @classmethod
-    async def get_all_by_complex_id(cls, session: AsyncSession, complex_id: int):
-        query = select(cls).where(cls.complex_id == complex_id)
-        videos_row = await session.execute(query)
-
-        return videos_row.scalars().all()
+    async def get_all_by_complex_id(cls, complex_id: int):
+        return await cls.get_ordered_list(complex_id)
 
     @classmethod
     async def add_new(
             cls: 'Video',
-            session: AsyncSession,
             file_name: str,
             complex_id: int,
             duration: int,
@@ -106,27 +102,26 @@ class Video(MySQLModel, table=True):
             name=name, description=description, complex_id=complex_id,
             duration=duration, file_name=file_name, number=number
         )
-        await new_video.save(session)
-        current_complex = await Complex.get_by_id(session, complex_id)
+        await new_video.save()
+        current_complex = await Complex.get_by_id(complex_id)
         current_complex.duration += duration
         current_complex.video_count += 1
-        await current_complex.save(session)
+        await current_complex.save()
 
         return new_video
 
     @classmethod
-    async def get_videos_duration(cls, session: AsyncSession, videos_ids: tuple[int]):
-        query = select(cls).where(cls.id in videos_ids)
-        response = await session.execute(query)
+    async def get_videos_duration(cls, videos_ids: tuple[int]) -> int:
+        query = select(cls.duration).where(cls.id.in_(videos_ids))
+        durations: list[int] = await get_all(query)
 
-        return sum(response.scalars().all())
+        return sum(durations)
 
-    async def delete(self, session: AsyncSession) -> None:
-        current_complex = await Complex.get_by_id(session, self.complex_id)
+    async def delete(self) -> None:
+        current_complex = await Complex.get_by_id(self.complex_id)
         current_complex.video_count -= 1
-        await current_complex.save(session)
-        await session.delete(self)
-        await session.commit()
+        await current_complex.save()
+        await self.delete()
 
 
 class User(UserModel, table=True):
@@ -175,7 +170,7 @@ class Rate(MySQLModel, table=True):
         return f"{self.id}: {self.name}"
 
 
-class Administrator(UserModel, table=True):
+class Administrator(AdminModel, table=True):
     __tablename__ = 'admins'
 
     id: int = Field(default=None, primary_key=True, index=True)
@@ -188,11 +183,10 @@ class Administrator(UserModel, table=True):
 class UserDataModels(MySQLModel):
 
     @classmethod
-    async def get_all_by_user_id(cls, session: AsyncSession, user_id: int) -> list[MySQLModel]:
+    async def get_all_by_user_id(cls,user_id: int) -> list[MySQLModel]:
         query = select(cls).join(User).where(User.id == user_id)
-        response = await session.execute(query)
 
-        return response.scalars().all()
+        return await get_all(query)
 
 
 class Alarm(UserDataModels, table=True):
@@ -240,33 +234,30 @@ class ViewedComplex(MySQLModel, table=True):
 
     @classmethod
     async def add_viewed(
-            cls, session: AsyncSession, user_id: int, complex_id: int
+            cls, user_id: int, complex_id: int
     ) -> 'ViewedComplex':
 
         query = select(cls).where(cls.user_id == user_id).where(cls.complex_id == complex_id)
-        response = await session.execute(query)
-        complex_exists = response.scalars().first()
+        complex_exists = await get_all(query)
         if not complex_exists:
             viewed_complex = cls(
                 user_id=user_id, complex_id=complex_id, viewed_at=datetime.now(tz=None)
             )
-            await viewed_complex.save(session)
+            await viewed_complex.save()
 
             return viewed_complex
 
     @classmethod
     async def get_all_viewed_complexes(
-            cls, session: AsyncSession,
+            cls,
             user_id: int
     ) -> list['ViewedComplex']:
 
         query = select(cls).where(cls.user_id == user_id)
-        viewed_complexes = await session.execute(query)
-
-        return viewed_complexes.scalars().all()
+        return await get_all(query)
 
     @classmethod
-    async def is_last_viewed_today(cls, session: AsyncSession, user_id: int) -> bool:
+    async def is_last_viewed_today(cls, user_id: int) -> bool:
         """
         Check Complex viewed today
 
@@ -275,8 +266,7 @@ class ViewedComplex(MySQLModel, table=True):
 
         current_day = datetime.now(tz=None).day
         query = select(cls).where(cls.user_id == user_id).order_by(cls.viewed_at)
-        response = await session.execute(query)
-        last: ViewedComplex = response.scalars().first()
+        last: ViewedComplex = await get_first(query)
         if last and last.viewed_at:
             return current_day == last.viewed_at.day
 
@@ -292,22 +282,20 @@ class ViewedVideo(MySQLModel, table=True):
     videos: 'Video' = Relationship(back_populates="viewed_videos")
 
     @classmethod
-    async def add_viewed(cls, session: AsyncSession, user_id: int, video_id: int) -> 'ViewedVideo':
+    async def add_viewed(cls, user_id: int, video_id: int) -> 'ViewedVideo':
         query = select(cls).where(cls.user_id == user_id).where(cls.video_id == video_id)
-        response = await session.execute(query)
-        video_exists = response.scalars().first()
+        video_exists = await get_first(query)
         if not video_exists:
             viewed_video = cls(user_id=user_id, video_id=video_id)
-            await viewed_video.save(session)
+            await viewed_video.save()
 
             return viewed_video
 
     @classmethod
     async def get_all_viewed_videos(
-            cls, session: AsyncSession, user_id: int
+            cls, user_id: int
     ) -> list['ViewedVideo']:
 
         query = select(cls).where(cls.user_id == user_id)
-        viewed_complexes = await session.execute(query)
 
-        return viewed_complexes.scalars().all()
+        return await get_all(query)

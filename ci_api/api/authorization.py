@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import EmailStr
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from config import logger
 from database.db import get_db_session
@@ -16,7 +15,6 @@ router = APIRouter(prefix="/auth", tags=['Authorization'])
 @router.post("/register", response_model=User)
 async def register(
         user_data: UserRegistration,
-        session: AsyncSession = Depends(get_db_session)
 ):
     """
     Create new user in database if not exists
@@ -42,7 +40,7 @@ async def register(
     :return: User created information as JSON
     """
 
-    user, errors = await register_new_user(session, user_data)
+    user, errors = await register_new_user(user_data)
     if user:
         return user
     if errors:
@@ -60,9 +58,8 @@ async def register(
 async def verify_email_token(
         token: str,
         email: EmailStr,
-        session: AsyncSession = Depends(get_db_session)
 ):
-    user: User = await User.get_by_email(session, email)
+    user: User = await User.get_by_email(email)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
@@ -72,7 +69,7 @@ async def verify_email_token(
     if user and not user.is_verified:
         user.is_verified = True
         user.email_code = None
-        await user.save(session)
+        await user.save()
         logger.info(f"User with id {user.id} verified")
     logger.debug(f"Verify email token: OK")
 
@@ -82,7 +79,6 @@ async def verify_email_token(
 @router.post("/login", response_model=dict)
 async def login(
         user: UserLogin,
-        session: AsyncSession = Depends(get_db_session)
 ):
     """Get user authorization token
 
@@ -92,7 +88,7 @@ async def login(
 
      :return: Authorization token as JSON
     """
-    user_found: User = await User.get_by_email(session, user.email)
+    user_found: User = await User.get_by_email(user.email)
     if not user_found:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid username or password')
@@ -112,7 +108,6 @@ async def login(
 async def change_password(
         data: UserChangePassword,
         user: User = Depends(get_logged_user),
-        session: AsyncSession = Depends(get_db_session)
 ):
     """
     Change password
@@ -129,5 +124,5 @@ async def change_password(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid username or password')
     user.password = await user.get_hashed_password(data.password)
-    await user.save(session)
+    await user.save()
     logger.info(f"User with id {user.id} change password")

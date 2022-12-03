@@ -4,7 +4,6 @@ from fastapi import HTTPException, status
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
 from fastapi_mail.errors import ConnectionErrors
 from pydantic import EmailStr, BaseModel
-from sqlmodel.ext.asyncio.session import AsyncSession
 
 from config import settings, logger
 from models.models import User
@@ -93,8 +92,8 @@ async def send_email_message(email: EmailStr, message: str):
     await _send_mail(email, payload)
 
 
-async def get_user_id_from_email_code(session: AsyncSession, token: str) -> int:
-    user = await User.get_by_email_code(session, token)
+async def get_user_id_from_email_code(token: str) -> int:
+    user = await User.get_by_email_code(token)
     if user:
         return user.id
 

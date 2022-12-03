@@ -58,7 +58,6 @@ async def edit_profile_post(
         phone: str = Form(),
         session_context: dict = Depends(get_session_context),
         context: dict = Depends(get_profile_context),
-        session: AsyncSession = Depends(get_db_session)
 ):
     user: User = session_context['user']
     user.username = username
@@ -78,7 +77,7 @@ async def edit_profile_post(
             context.update(error=f"Неверный адрес почты")
             return templates.TemplateResponse("edit_profile.html", context=context)
 
-    await user.save(session)
+    await user.save()
     session_context.update(user=user, success='Профиль успешно изменен')
     context.update(**session_context)
 
@@ -89,13 +88,12 @@ async def edit_profile_post(
 async def subscribe(
         session_context: dict = Depends(get_session_context),
         context: dict = Depends(get_profile_context),
-        session: AsyncSession = Depends(get_db_session)
 
 ):
     if not session_context:
         return templates.TemplateResponse("entry.html", context=context)
     user: User = session_context['user']
-    notifications: list = await Notification.get_all_by_user_id(session, user.id)
+    notifications: list = await Notification.get_all_by_user_id(user.id)
     context.update(**session_context, notifications=notifications)
 
     return templates.TemplateResponse("notifications.html", context=context)

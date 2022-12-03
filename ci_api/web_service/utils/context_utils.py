@@ -3,7 +3,6 @@ from pathlib import Path
 
 from fastapi import Depends, HTTPException, status, Form
 from pydantic import EmailStr
-from sqlmodel.ext.asyncio.session import AsyncSession
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
 
@@ -67,10 +66,9 @@ async def get_session_token(request: Request) -> str:
 
 async def get_session_user(
         token: str = Depends(get_session_token),
-        session: AsyncSession = Depends(get_db_session)
 ) -> User:
     if token:
-        return await User.get_by_token(session, token)
+        return await User.get_by_token(token)
 
 
 async def get_session_context(
@@ -97,10 +95,9 @@ async def get_user_context(
 
 async def get_current_user_complex(
         user: User = Depends(get_session_user),
-        session: AsyncSession = Depends(get_db_session),
 ) -> Complex:
     if user:
-        return await Complex.get_by_id(session, user.current_complex)
+        return await Complex.get_by_id(user.current_complex)
 
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
@@ -110,10 +107,9 @@ async def get_current_user_complex(
 
 async def get_complex_videos_list(
         user: User = Depends(get_session_user),
-        session: AsyncSession = Depends(get_db_session),
 ) -> list[Video]:
     if user:
-        return await Video.get_all_by_complex_id(session, user.current_complex)
+        return await Video.get_all_by_complex_id(user.current_complex)
 
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
@@ -123,10 +119,9 @@ async def get_complex_videos_list(
 
 async def get_session_video_by_id(
         video_id: int,
-        session: AsyncSession = Depends(get_db_session),
 ) -> Video:
     if video_id:
-        return await Video.get_by_id(session, video_id)
+        return await Video.get_by_id(video_id)
 
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
@@ -149,12 +144,11 @@ async def get_session_video(
 
 async def user_entry(
         request: Request,
-        session: AsyncSession = Depends(get_db_session),
         context: dict = Depends(get_profile_context),
         form_data: UserLogin = Depends(UserLogin.as_form)
 
 ) -> templates.TemplateResponse:
-    if user := await user_login(session, form_data):
+    if user := await user_login(form_data):
         context.update(user=user)
         if not user.is_verified:
             return templates.TemplateResponse("check_email.html", context=context)
@@ -201,9 +195,8 @@ async def get_email_send_context(email: EmailStr, message: str) -> dict:
 async def restore_password(
         context: dict = Depends(get_context),
         email: EmailStr = Form(...),
-        session: AsyncSession = Depends(get_db_session)
 ):
-    user: User = await User.get_by_email(session, email)
+    user: User = await User.get_by_email(email)
     if not user:
         context.update(error='Неверный адрес почты')
         return templates.TemplateResponse("forget1.html", context=context)
@@ -216,7 +209,7 @@ async def restore_password(
 
     logger.debug(f"New password: {new_password}")
     user.password = await user.get_hashed_password(new_password)
-    await user.save(session)
+    await user.save()
     context.update(success=f"Новый пароль выслан на почту {user.email}")
     return templates.TemplateResponse("entry.html", context=context)
 
@@ -227,7 +220,6 @@ async def set_new_password(
         old_password: str = Form(...),
         password: str = Form(...),
         password2: str = Form(...),
-        session: AsyncSession = Depends(get_db_session),
 ):
     user: User = session_context.get('user')
     if not user:
@@ -248,7 +240,7 @@ async def set_new_password(
 
     context.update(success="Пароль успешно изменен.")
     user.password = await user.get_hashed_password(password)
-    await user.save(session)
+    await user.save()
 
     return templates.TemplateResponse("profile.html", context=context)
 

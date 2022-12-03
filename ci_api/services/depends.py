@@ -1,7 +1,6 @@
 from fastapi import HTTPException, status, Depends
 from fastapi import Request
 
-from database.db import get_db_session, AsyncSession
 from models.models import User, Administrator
 from schemas.user import UserLogin
 from services.auth import auth_handler
@@ -9,11 +8,10 @@ from services.auth import auth_handler
 
 async def get_logged_user(
         logged_user: int = Depends(auth_handler.auth_wrapper),
-        session: AsyncSession = Depends(get_db_session)
 ) -> User:
     """Returns authenticated with Bearer user instance"""
 
-    if user := await session.get(User, logged_user):
+    if user := await User.get_by_id(logged_user):
         return user
 
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
@@ -23,18 +21,17 @@ async def get_logged_user(
 async def check_admin_credentials(user_data: UserLogin) -> Administrator:
     """Check user and password is correct. Return user instance"""
 
-    async for session in get_db_session():
-        admin: Administrator = await Administrator.get_by_email(session, user_data.email)
-        if not admin:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                detail='Incorrect username or password')
+    admin: Administrator = await Administrator.get_by_email(user_data.email)
+    if not admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+            detail='Incorrect username or password')
 
-        is_password_correct: bool = await admin.is_password_valid(user_data.password)
-        if not is_password_correct:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid username or password')
+    is_password_correct: bool = await admin.is_password_valid(user_data.password)
+    if not is_password_correct:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid username or password')
 
-        return admin
+    return admin
 
 
 async def is_user_active(
@@ -56,7 +53,10 @@ async def is_user_verified(
     if user.is_verified:
         return user
 
-    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='User is not verified yet.')
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail='User is not verified yet.'
+    )
 
 
 async def get_context_with_request(

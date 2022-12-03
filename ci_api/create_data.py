@@ -1,15 +1,14 @@
 import asyncio
 from datetime import datetime, timedelta
 
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from admin.utils import create_default_admin
 from config import logger, settings
-from database.db import drop_db, create_db, get_db_session
+from database.db import drop_db, create_db
 from models.models import User, Alarm, Notification, Video, Complex, Rate
 
 
-async def create_complexes(session: AsyncSession, data: list[dict] = None):
+async def create_complexes(data: list[dict] = None):
     if not data:
         data = [
             {
@@ -39,10 +38,10 @@ async def create_complexes(session: AsyncSession, data: list[dict] = None):
         ]
 
     for compl in data:
-        await Complex.add_new(session=session, **compl)
+        await Complex.add_new(**compl)
 
 
-async def create_videos(session: AsyncSession, data: list[dict] = None):
+async def create_videos(data: list[dict] = None):
     if not data:
         data = [
             {
@@ -70,10 +69,10 @@ async def create_videos(session: AsyncSession, data: list[dict] = None):
         data.extend(data2)
 
     for video in data:
-        await Video.add_new(session=session, **video)
+        await Video.add_new(**video)
 
 
-async def create_users(session: AsyncSession, data: list[dict] = None):
+async def create_users(data: list[dict] = None):
     if not data:
         data = [
             {
@@ -119,11 +118,10 @@ async def create_users(session: AsyncSession, data: list[dict] = None):
         expired_at = datetime.utcnow() + timedelta(days=30)
         user['password'] = await User.get_hashed_password(user['password'])
         user = User(**user, expired_at=expired_at)
-        session.add(user)
-    await session.commit()
+        await user.save()
 
 
-async def create_alarms(session: AsyncSession, data: list[dict] = None):
+async def create_alarms(data: list[dict] = None):
     if not data:
         data = [
             {
@@ -143,11 +141,11 @@ async def create_alarms(session: AsyncSession, data: list[dict] = None):
             },
         ]
     for alarm in data:
-        session.add(Alarm(**alarm))
-    await session.commit()
+        alarm = Alarm(**alarm)
+        await alarm.save()
 
 
-async def create_notifications(session: AsyncSession, data: list[dict] = None):
+async def create_notifications(data: list[dict] = None):
     today = datetime.today()
 
     if not data:
@@ -169,11 +167,11 @@ async def create_notifications(session: AsyncSession, data: list[dict] = None):
             },
         ]
     for notification in data:
-        session.add(Notification(**notification))
-    await session.commit()
+        elem = Notification(**notification)
+        await elem.save()
 
 
-async def create_rates(session: AsyncSession, data: list[dict] = None):
+async def create_rates(data: list[dict] = None):
     if not data:
         data = [
             {
@@ -193,25 +191,24 @@ async def create_rates(session: AsyncSession, data: list[dict] = None):
             }
         ]
     for elem in data:
-        session.add(Rate(**elem))
-    await session.commit()
+        elem = Rate(**elem)
+        await elem.save()
 
 
 async def create_fake_data(flag: bool = False):
     """Create fake data in database"""
     if settings.CREATE_FAKE_DATA or flag:
-        async for session in get_db_session():
-            logger.debug("Create fake data to DB")
-            if await session.get(User, 1):
-                return
-            await create_rates(session)
-            await create_complexes(session)
-            await create_videos(session)
-            await create_users(session)
-            await create_alarms(session)
-            await create_notifications(session)
-            await create_default_admin()
-            logger.debug("Create fake data to DB: OK")
+        logger.debug("Create fake data to DB")
+        if await User.get_by_id(1):
+            return
+        await create_rates()
+        await create_complexes()
+        await create_videos()
+        await create_users()
+        await create_alarms()
+        await create_notifications()
+        await create_default_admin()
+        logger.debug("Create fake data to DB: OK")
 
 
 async def recreate_db(drop=False) -> None:

@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from config import logger
 from database.db import get_db_session
@@ -14,14 +13,13 @@ router = APIRouter(prefix="/users", tags=['Users'])
 @router.get("/alarms", response_model=list[AlarmBase])
 async def get_user_alarms(
         user: User = Depends(get_logged_user),
-        session: AsyncSession = Depends(get_db_session)
 ):
     """Get all user alarms. Need authorization.
 
     :return List of alarms as JSON
     """
 
-    alarms_data: list[Alarm] = await Alarm.get_all_by_user_id(session, user.id)
+    alarms_data: list = await Alarm.get_all_by_user_id(user.id)
     alarms: list[dict] = [elem.dict() for elem in alarms_data]
     for alarm in alarms:
         alarm['weekdays'] = WeekDay(alarm['weekdays']).as_list
@@ -34,29 +32,26 @@ async def get_user_alarms(
 @router.get("/notifications", response_model=list[Notification])
 async def get_user_notifications(
         user: User = Depends(get_logged_user),
-        session: AsyncSession = Depends(get_db_session)
 ):
     """Get all user notifications. Need authorization.
 
     :return List of notifications
     """
 
-    notifications: list = await Notification.get_all_by_user_id(session, user.id)
+    notifications: list = await Notification.get_all_by_user_id(user.id)
     logger.info(f"User with id {user.id} request notifications")
 
     return notifications
 
 
 @router.get("/rates", response_model=list[Rate])
-async def get_all_rates(
-        session: AsyncSession = Depends(get_db_session)
-):
+async def get_all_rates():
     """Get all rates.
 
     :return List of rates
     """
 
-    rates: list[Rate] = await Rate.get_all(session)
+    rates: list[Rate] = await Rate.get_all()
     logger.info(f"Rates requested")
 
     return rates
@@ -65,7 +60,6 @@ async def get_all_rates(
 @router.delete("/", status_code=status.HTTP_204_NO_CONTENT, dependencies=[])
 async def delete_user(
         logged_user: User = Depends(get_logged_user),
-        session: AsyncSession = Depends(get_db_session)
 ):
     """
     Delete user by user_id. Need authorization.
@@ -75,9 +69,9 @@ async def delete_user(
     :return: None
     """
 
-    if not (user := await session.get(User, logged_user.id)):
+    if not (user := await User.get_by_id(logged_user.id)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    await user.delete(session)
+    await user.delete()
     logger.info(f"User with id {user.id} deleted")
 
 

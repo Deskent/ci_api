@@ -23,20 +23,19 @@ async def videos_list(
         complex_id: int,
         session_context: dict = Depends(get_session_context),
         context: dict = Depends(get_profile_context),
-        session: AsyncSession = Depends(get_db_session)
 ):
-    current_complex: Complex = await Complex.get_by_id(session, complex_id)
+    current_complex: Complex = await Complex.get_by_id(complex_id)
     if not session_context:
         return templates.TemplateResponse("entry.html", context=context)
     user: User = session_context['user']
 
     # Calculate video number to next level for current complex
-    videos: list[Video] = await Video.get_all_by_complex_id(session, complex_id)
+    videos: list[Video] = await Video.get_all_by_complex_id(complex_id)
     if videos:
-        viewed_videos: tuple[int] = await get_viewed_videos_ids(session, user)
+        viewed_videos: tuple[int] = await get_viewed_videos_ids(user)
         not_viewed_videos: tuple[int] = await get_not_viewed_videos_ids(videos, viewed_videos)
         not_viewed_videos_duration: int = await calculate_viewed_videos_duration(
-            session, not_viewed_videos
+            not_viewed_videos
         )
         complex_less_time: int = convert_seconds_to_time(
             current_complex.duration - not_viewed_videos_duration
@@ -73,29 +72,28 @@ async def finish_charging(
         current_complex: Complex = Depends(get_current_user_complex),
         context: dict = Depends(get_user_context),
         user: User = Depends(get_session_user),
-        session: AsyncSession = Depends(get_db_session),
         video_id: int = Form()
 ):
     if not user:
         return templates.TemplateResponse("entry.html", context=context)
-    current_video: Video = await Video.get_by_id(session, video_id)
-    next_video: Video = await current_video.get_next_video(session)
+    current_video: Video = await Video.get_by_id(video_id)
+    next_video_id: int = await current_video.get_next_video_id()
 
-    if not next_video:
+    if not next_video_id:
         return templates.TemplateResponse("come_tomorrow.html", context=context)
 
-    context.update(video=next_video)
+    context.update(video=next_video_id)
 
-    if not await is_video_viewed(session, user, video_id):
-        return RedirectResponse(f"/startCharging/{next_video.id}")
+    if not await is_video_viewed(user, video_id):
+        return RedirectResponse(f"/startCharging/{id}")
 
     old_user_level = user.level
-    new_user: User = await check_level_up(session, user)
+    new_user: User = await check_level_up(user)
     context.update(current_complex=current_complex)
     if new_user.level <= old_user_level:
-        return RedirectResponse(f"/startCharging/{next_video.id}")
+        return RedirectResponse(f"/startCharging/{next_video_id}")
 
-    current_complex: Complex = await Complex.get_by_id(session, user.current_complex)
+    current_complex: Complex = await Complex.get_by_id(user.current_complex)
     context.update(user=new_user, current_complex=current_complex)
 
     return templates.TemplateResponse("new_level.html", context=context)
@@ -104,18 +102,17 @@ async def finish_charging(
 @router.get("/complexes_list", response_class=HTMLResponse)
 async def complexes_list(
         context: dict = Depends(get_user_context),
-        session: AsyncSession = Depends(get_db_session),
         videos: list = Depends(get_complex_videos_list),
 ):
     user: User = context['user']
     if not user:
         return templates.TemplateResponse("entry.html", context=context)
-    if await ViewedComplex.is_last_viewed_today(session, user.id):
+    if await ViewedComplex.is_last_viewed_today(user.id):
         return RedirectResponse("/come_tomorrow")
 
-    complexes: list[Complex] = await Complex.get_all(session)
+    complexes: list[Complex] = await Complex.get_all()
     viewed_complexes: list[
-        ViewedComplex] = await ViewedComplex.get_all_viewed_complexes(session, user.id)
+        ViewedComplex] = await ViewedComplex.get_all_viewed_complexes(user.id)
     for complex_ in complexes:
         complex_.duration = convert_to_minutes(complex_.duration)
     viewed_complexes_ids: tuple[int] = tuple(elem.complex_id for elem in viewed_complexes)
@@ -133,12 +130,11 @@ async def complexes_list(
 async def delete_notification(
         notification_id: int,
         context: dict = Depends(get_user_context),
-        session: AsyncSession = Depends(get_db_session),
 ):
     user: User = context['user']
     if not user:
         return templates.TemplateResponse("entry.html", context=context)
-    await Notification.delete_by_id(session, notification_id)
+    await Notification.delete_by_id(notification_id)
 
     return RedirectResponse(f"/videos_list/{user.current_complex}")
 
