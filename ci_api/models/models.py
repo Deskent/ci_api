@@ -21,6 +21,9 @@ class Complex(MySQLModel, table=True):
     videos: List["Video"] = Relationship(
         back_populates="complexes", sa_relationship_kwargs={"cascade": "delete"})
 
+    viewed_complexes: List['ViewedComplex'] = Relationship(
+        back_populates="complexes", sa_relationship_kwargs={"cascade": "delete"})
+
     def __str__(self):
         return f"№ {self.number}: {self.description}"
 
@@ -63,6 +66,9 @@ class Video(MySQLModel, table=True):
         default=None, foreign_key="complexes.id",
         description="В каком комплексе")
     complexes: Complex = Relationship(back_populates="videos")
+
+    viewed_videos: List['ViewedVideo'] = Relationship(
+        back_populates="videos", sa_relationship_kwargs={"cascade": "delete"})
 
     def __str__(self):
         return f"{self.name}"
@@ -230,6 +236,7 @@ class ViewedComplex(MySQLModel, table=True):
     viewed_at: datetime = Field(
         default=None, description="Время последнего просмотренного комплекса"
     )
+    complexes: 'Complex' = Relationship(back_populates="viewed_complexes")
 
     @classmethod
     async def add_viewed(
@@ -267,7 +274,8 @@ class ViewedComplex(MySQLModel, table=True):
         """
 
         current_day = datetime.now(tz=None).day
-        response = await session.execute(select(cls).where(cls.user_id == user_id).order_by(cls.viewed_at))
+        query = select(cls).where(cls.user_id == user_id).order_by(cls.viewed_at)
+        response = await session.execute(query)
         last: ViewedComplex = response.scalars().first()
         if last and last.viewed_at:
             return current_day == last.viewed_at.day
@@ -279,7 +287,9 @@ class ViewedVideo(MySQLModel, table=True):
     id: int = Field(default=None, primary_key=True, index=True)
 
     user_id: int = Field(nullable=False, foreign_key='users.id')
+
     video_id: int = Field(nullable=False, foreign_key='videos.id')
+    videos: 'Video' = Relationship(back_populates="viewed_videos")
 
     @classmethod
     async def add_viewed(cls, session: AsyncSession, user_id: int, video_id: int) -> 'ViewedVideo':
