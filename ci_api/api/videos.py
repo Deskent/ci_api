@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from config import settings, logger
 from database.db import get_db_session
 from models.models import Video
+from schemas.complexes_videos import VideoViewed
 from services.depends import is_user_active
 
 router = APIRouter(prefix="/videos", tags=['Videos'])
@@ -37,4 +38,12 @@ async def get_video(
 
     return FileResponse(path=str(full_path), media_type='video/mp4')
 
+
+@router.post("/viewed", dependencies=[Depends(is_user_active)], status_code=status.HTTP_200_OK)
+async def viewed_video(
+        viewed: VideoViewed,
+        session: AsyncSession = Depends(get_db_session)
+):
+    logger.debug(f"VIEWED: {viewed}")
+    return viewed
 
