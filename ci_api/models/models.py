@@ -4,7 +4,7 @@ from typing import Optional, List
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, select
 
-from models.base import MySQLModel, UserModel, get_all, get_first, AdminModel
+from models.methods import MySQLModel, UserModel, get_all, get_first, AdminModel
 
 
 class Complex(MySQLModel, table=True):

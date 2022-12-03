@@ -7,7 +7,7 @@ from sqlalchemy.sql import extract
 from config import logger
 from database.db import get_db_session
 from models.models import User, ViewedComplex, Notification
-from models.base import get_all
+from models.methods import get_all
 
 today = datetime.today()
 text = "Зарядка не выполнена, не забудьте выполнить упражнения"
@@ -16,7 +16,11 @@ text = "Зарядка не выполнена, не забудьте выпол
 async def _get_users_for_notification(
         today_viewed: list[ViewedComplex]
 ) -> list[int]:
-    query = select(User.id).where(User.is_verified == True).filter(User.id.not_in(today_viewed))
+    query = (
+        select(User.id)
+        .where(User.is_verified == True)
+        .filter(User.id.not_in(today_viewed))
+    )
 
     return await get_all(query)
 
