@@ -2,7 +2,6 @@ import datetime
 
 import pydantic
 from pydantic import EmailStr
-from sqlmodel.ext.asyncio.session import AsyncSession
 from starlette.datastructures import FormData
 
 from config import logger
@@ -15,35 +14,34 @@ def get_bearer_header(token: str) -> dict[str, str]:
     return {'Authorization': f"Bearer {token}"}
 
 
-async def user_login(session: AsyncSession, user_data: UserLogin) -> User:
-    if user_found := await User.get_by_email(session, user_data.email):
+async def user_login(user_data: UserLogin) -> User:
+    if user_found := await User.get_by_email(user_data.email):
         if await user_found.is_password_valid(user_data.password):
             return user_found
 
 
-async def check_email_exists(session: AsyncSession, email: EmailStr) -> bool:
-    user: User = await User.get_by_email(session, email)
-    admin: Administrator = await Administrator.get_by_email(session, email)
+async def check_email_exists(email: EmailStr) -> bool:
+    user: User = await User.get_by_email(email)
+    admin: Administrator = await Administrator.get_by_email(email)
 
     return True if user or admin else False
 
 
-async def check_user_phone_exists(session: AsyncSession, phone: str) -> User:
-    if user := await User.get_by_phone(session, phone):
+async def check_user_phone_exists(phone: str) -> User:
+    if user := await User.get_by_phone(phone):
         return user
 
 
 async def register_new_user(
-        session: AsyncSession,
         user_data: UserRegistration,
 ):
     errors = {}
-    email_exists: bool = await check_email_exists(session, user_data.email)
+    email_exists: bool = await check_email_exists(user_data.email)
     if email_exists:
         errors = {'error': 'User with this email already exists'}
         return None, errors
 
-    phone_exists: User = await check_user_phone_exists(session, user_data.phone)
+    phone_exists: User = await check_user_phone_exists(user_data.phone)
     if phone_exists:
         errors = {'error': 'User with this phone already exists'}
         return None, errors
@@ -61,7 +59,7 @@ async def register_new_user(
         errors = {'error': "Неверный адрес почты"}
         return None, errors
 
-    await user.save(session)
+    await user.save()
     logger.info(f"User with id {user.id} created")
 
     return user, errors

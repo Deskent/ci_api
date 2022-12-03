@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, status, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from config import logger
 from database.db import get_db_session
@@ -14,7 +13,6 @@ router = APIRouter(prefix="/notifications", tags=['Notifications'])
 async def create_notification(
         data: NotificationCreate,
         user: User = Depends(get_logged_user),
-        session: AsyncSession = Depends(get_db_session)
 ):
     """Create notification for user by user database id
 
@@ -27,7 +25,7 @@ async def create_notification(
     """
     data = data.validate_datetime()
     notification: Notification = Notification(**data.dict(), user_id=user.id)
-    await notification.save(session)
+    await notification.save()
     logger.info(f"Notification with id {notification.id} created")
 
     return notification
@@ -39,7 +37,6 @@ async def create_notification(
 )
 async def get_notification(
         notification_id: int,
-        session: AsyncSession = Depends(get_db_session),
         user: User = Depends(get_logged_user)
 ):
     """Get notification by its id. Need authorization.
@@ -48,7 +45,7 @@ async def get_notification(
 
     :return: Notification data as JSON
     """
-    notification = await Notification.get_by_id(session, notification_id)
+    notification = await Notification.get_by_id(notification_id)
     if notification and notification.user_id == user.id:
         return notification
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found")
@@ -61,7 +58,6 @@ async def get_notification(
 )
 async def delete_notification(
         notification_id: int,
-        session: AsyncSession = Depends(get_db_session)
 ):
     """Delete notification by its id. Need authorization.
 
@@ -69,9 +65,9 @@ async def delete_notification(
 
     :return: None
     """
-    notification: Notification = await session.get(Notification, notification_id)
+    notification: Notification = await Notification.get_by_id(notification_id)
     if not notification:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found")
-    await notification.delete(session)
+    await notification.delete()
 
     logger.info(f"Notification with id {notification_id} deleted")

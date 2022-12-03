@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, status, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from config import logger
 from database.db import get_db_session
@@ -18,7 +17,6 @@ router = APIRouter(prefix="/alarms", tags=['Alarms'])
 async def create_alarm(
         data: AlarmCreate,
         user: User = Depends(get_logged_user),
-        session: AsyncSession = Depends(get_db_session)
 ):
     """Create alarm for user by user database id. Need authorization.
 
@@ -46,7 +44,7 @@ async def create_alarm(
     week_days: WeekDay = WeekDay(data.weekdays)
     payload.update(weekdays=week_days.as_string)
     alarm: Alarm = Alarm(**payload)
-    await alarm.save(session)
+    await alarm.save()
     alarm.weekdays = week_days.as_list
     logger.info(f"Alarm with id {alarm.id} created")
 
@@ -61,9 +59,8 @@ async def create_alarm(
 async def get_alarm(
         alarm_id: int,
         user: User = Depends(get_logged_user),
-        session: AsyncSession = Depends(get_db_session)
 ):
-    alarm: Alarm = await Alarm.get_by_id(session, alarm_id)
+    alarm: Alarm = await Alarm.get_by_id(alarm_id)
     if alarm and alarm.user_id == user.id:
         alarm.weekdays = WeekDay(alarm.weekdays).as_list
         return alarm
@@ -77,7 +74,6 @@ async def get_alarm(
 )
 async def delete_alarm(
         alarm_id: int,
-        session: AsyncSession = Depends(get_db_session)
 ):
     """Delete alarm by its id. Need authorization.
 
@@ -86,8 +82,8 @@ async def delete_alarm(
     :return: None
     """
 
-    alarm: Alarm = await session.get(Alarm, alarm_id)
+    alarm: Alarm = await Alarm.get_by_id(alarm_id)
     if not alarm:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Alarm not found")
-    await alarm.delete(session)
+    await alarm.delete()
     logger.info(f"Alarm with id {alarm_id} deleted")

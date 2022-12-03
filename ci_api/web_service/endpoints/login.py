@@ -44,7 +44,6 @@ async def confidential(
 async def web_register_post(
         request: Request,
         context: dict = Depends(get_context),
-        session: AsyncSession = Depends(get_db_session),
         form_data: UserRegistration = Depends(UserRegistration.as_form)
 ):
     if not form_data:
@@ -54,7 +53,7 @@ async def web_register_post(
 
         return templates.TemplateResponse("registration.html", context=context)
 
-    user, errors = await register_new_user(session, form_data)
+    user, errors = await register_new_user(form_data)
     if user:
         return await login_user(user, request)
 
@@ -156,11 +155,10 @@ async def forget3(
 @router.post("/check_email", response_class=HTMLResponse)
 async def check_email(
         context: dict = Depends(get_profile_context),
-        session: AsyncSession = Depends(get_db_session),
         email: EmailStr = Form(...),
         email_token: str = Form(...)
 ):
-    user: User = await User.get_by_email(session, email)
+    user: User = await User.get_by_email(email)
     if not user:
         error = 'Пользователь не найден'
         context.update(error=error)
@@ -173,7 +171,7 @@ async def check_email(
 
     if not user.is_verified:
         user.is_verified = True
-        await user.save(session)
+        await user.save()
 
     session_context: dict = await get_session_context(user)
     context.update(success='Аккаунт верифицирован', **session_context)
