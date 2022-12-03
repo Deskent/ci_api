@@ -9,6 +9,16 @@ class VideoBase(BaseModel):
     description: str = ''
 
 
+class VideoInfo(VideoBase):
+    id: int
+    duration: time
+
+
+class VideoViewed(BaseModel):
+    user_id: int
+    video_id: int
+
+
 class VideoUpload(VideoBase):
     file_name: str
     name: str
@@ -37,11 +47,6 @@ class VideoUpload(VideoBase):
             number=number,
             duration=0
         )
-
-
-class VideoInfo(VideoBase):
-    id: int
-    duration: time
 
 
 class ComplexData(BaseModel):
