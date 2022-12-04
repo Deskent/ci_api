@@ -70,7 +70,7 @@ async def start_charging(
 @router.post("/finish_charging", response_class=HTMLResponse)
 async def finish_charging(
         current_complex: Complex = Depends(get_current_user_complex),
-        context: dict = Depends(get_user_context),
+        context: dict = Depends(get_full_context),
         user: User = Depends(get_session_user),
         video_id: int = Form()
 ):
@@ -101,7 +101,7 @@ async def finish_charging(
 
 @router.get("/complexes_list", response_class=HTMLResponse)
 async def complexes_list(
-        context: dict = Depends(get_user_context),
+        context: dict = Depends(get_full_context),
         videos: list = Depends(get_complex_videos_list),
 ):
     user: User = context['user']
@@ -129,7 +129,7 @@ async def complexes_list(
 @router.get("/delete_notification/{notification_id}", response_class=HTMLResponse)
 async def delete_notification(
         notification_id: int,
-        context: dict = Depends(get_user_context),
+        context: dict = Depends(get_full_context),
 ):
     user: User = context['user']
     if not user:
@@ -141,7 +141,7 @@ async def delete_notification(
 
 @router.get("/come_tomorrow", response_class=HTMLResponse)
 async def come_tomorrow(
-        context: dict = Depends(get_user_context),
+        context: dict = Depends(get_full_context),
 ):
     user: User = context['user']
     if not user:

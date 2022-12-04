@@ -85,7 +85,7 @@ async def get_session_context(
     return context
 
 
-async def get_user_context(
+async def get_full_context(
         session_context: dict = Depends(get_session_context),
         context: dict = Depends(get_context)
 ) -> dict:
