@@ -77,7 +77,7 @@ async def finish_charging(
     if not user:
         return templates.TemplateResponse("entry.html", context=context)
     current_video: Video = await Video.get_by_id(video_id)
-    next_video_id: int = await current_video.get_next_video_id()
+    next_video_id: int = await current_video.next_video_id()
 
     if not next_video_id:
         return templates.TemplateResponse("come_tomorrow.html", context=context)

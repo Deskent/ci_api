@@ -72,7 +72,7 @@ class Video(MySQLModel, table=True):
     def __str__(self):
         return f"{self.name}"
 
-    async def get_next_video_id(self) -> int:
+    async def next_video_id(self) -> int:
         query = select(Video).where(Video.number == self.number + 1)
         next_video: Video = await get_first(query)
 

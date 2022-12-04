@@ -1,12 +1,12 @@
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, HTTPException, status, Body
+from fastapi import APIRouter, Depends, HTTPException, status, Body, Request
 from fastapi.responses import FileResponse
 
 from config import settings, logger
-from models.models import Video
+from models.models import Video, User
 from schemas.complexes_videos import VideoViewed
-from services.depends import is_user_active
+from services.depends import is_user_active, get_logged_user
 
 router = APIRouter(prefix="/videos", tags=['Videos'])
 
@@ -39,9 +39,15 @@ async def get_video(
 
 @router.post("/viewed", status_code=status.HTTP_200_OK)
 async def viewed_video(
-        viewed: VideoViewed = Body(...),
+        video_id: VideoViewed = Body(...),
+        user: User = Depends(get_logged_user)
 ):
-    logger.debug(f"VIEWED: {viewed.user_tel} {viewed.video_id}")
+    result = {}
+    logger.debug(f"VIEWED: {user} {video_id}")
+    video: Video = await Video.get_by_id(video_id.video_id)
+    if video:
+        next_video = await video.next_video_id()
+        if next_video:
+            result.update(next_video=next_video, user=user)
 
-    return viewed
-    # TODO передавать юзер_ид на странице хидденом
+    return result
