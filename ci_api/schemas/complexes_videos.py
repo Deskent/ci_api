@@ -15,7 +15,7 @@ class VideoInfo(VideoBase):
 
 
 class VideoViewed(BaseModel):
-    user_id: int
+    user_tel: str
     video_id: int
 
 
