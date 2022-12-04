@@ -24,5 +24,6 @@ async def save_payment(data):
 async def payments_report(
         data: dict = Body()
 ):
-    await save_payment(data)
+    if data.get('sys') == settings.PRODAMUS_SYS_KEY:
+        await save_payment(data)
 
