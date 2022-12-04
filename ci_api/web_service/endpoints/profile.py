@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
 
 from services.emails import send_verification_mail
-from models.models import Notification
+from models.models import Notification, Rate
 from web_service.utils import *
 
 router = APIRouter(tags=['web', 'profile'])
@@ -30,12 +30,12 @@ async def profile(
 
 @router.get("/subscribe", response_class=HTMLResponse)
 async def subscribe(
-        session_context: dict = Depends(get_session_context),
-        context: dict = Depends(get_profile_context),
+        context: dict = Depends(get_full_context),
 ):
-    if not session_context:
+    if not context.get('user'):
         return templates.TemplateResponse("entry.html", context=context)
-    context.update(**session_context)
+    rates: list[Rate] = await Rate.get_all()
+    context.update(rates=rates)
     return templates.TemplateResponse("subscribe.html", context=context)
 
 
