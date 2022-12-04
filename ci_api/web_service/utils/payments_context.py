@@ -10,23 +10,27 @@ from web_service.utils import get_full_context
 from web_service.utils.payment_request import get_payment_link
 
 
+async def _get_rate_date(user: User) -> dict:
+    rates: list[Rate] = await Rate.get_all()
+    current_rate: Rate = await Rate.get_by_id(user.rate_id)
+
+    return dict(rates=rates, current_rate=current_rate)
+
+
 async def subscribe_context(
         context: dict = Depends(get_full_context),
-
 ) -> WebContext:
+
     obj = WebContext(context=context)
-    if not (user := obj.context.get('user')):
+    if not (user := context.get('user')):
         obj.template = "entry.html"
         obj.to_raise = UserNotFoundError
         return obj
 
-    rates: list[Rate] = await Rate.get_all()
-    current_rate: Rate = await Rate.get_by_id(user.rate_id)
-
-    api_data = dict(rates=rates, current_rate=current_rate)
-    obj.api_data = dict(payload=api_data)
-    obj.template = "subscribe.html"
+    api_data: dict = await _get_rate_date(user)
     obj.context.update(**api_data)
+    obj.api_data.update(payload=api_data)
+    obj.template = "subscribe.html"
 
     return obj
 
@@ -35,11 +39,13 @@ async def get_subscribe_by_rate_id(
         rate_id: int,
         context: dict = Depends(get_full_context),
 ) -> WebContext:
+
     user: User = context['user']
-    current_rate: Rate = await Rate.get_by_id(user.rate_id)
-    rates: list[Rate] = await Rate.get_all()
-    context.update(current_rate=current_rate, rates=rates)
+    api_data = await _get_rate_date(user)
+    context.update(**api_data)
     obj = WebContext(context=context)
+    obj.api_data.update(payload=api_data)
+
     rate: Rate = await Rate.get_by_id(rate_id)
 
     if await Payment.get_by_user_and_rate_id(user_id=user.id, rate_id=rate.id):
@@ -48,17 +54,19 @@ async def get_subscribe_by_rate_id(
         obj.to_raise = SubscribeExistsError
 
         return obj
-    link: str = get_payment_link(user, rate)
-    if link:
-        obj.redirect = link
-        obj.api_data = dict(payload=link)
+
+    link: str = await get_payment_link(user, rate)
+    if not link:
+        obj.error = PaymentServiceError.detail
+        obj.template = "subscribe.html"
+        obj.to_raise = PaymentServiceError
+
         return obj
 
-    obj.error = PaymentServiceError.detail
-    obj.template = "subscribe.html"
-    obj.to_raise = PaymentServiceError
-
+    obj.redirect = link
+    obj.api_data = dict(payload=link)
     return obj
+
 
 # TODO отрефакторить, убрать контекст
 async def check_payment_result(
