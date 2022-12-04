@@ -39,7 +39,7 @@ async def get_video(
 
 @router.post(
     "/viewed",
-    dependencies=[Depends(is_user_active)],
+    # dependencies=[Depends(is_user_active)],
     status_code=status.HTTP_200_OK
 )
 async def viewed_video(
