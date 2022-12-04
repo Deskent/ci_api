@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Body
 from fastapi.responses import FileResponse
 
 from config import settings, logger
@@ -43,8 +43,7 @@ async def get_video(
     status_code=status.HTTP_200_OK
 )
 async def viewed_video(
-        viewed: VideoViewed,
+        viewed: VideoViewed = Body(...),
 ):
-    logger.debug(f"VIEWED: {viewed}")
+    logger.debug(f"VIEWED: {viewed.user_tel} {viewed.video_id}")
     return viewed
-
