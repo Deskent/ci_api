@@ -11,12 +11,12 @@ from config import logger
 router = APIRouter(tags=['web', 'sybscribe'])
 
 
-@router.get("/get_subscribe", response_class=HTMLResponse)
+@router.get("/get_subscribe/{rate_id}", response_class=HTMLResponse)
 async def get_subscribe(
-        context: dict = Depends(get_full_context)
+        rate_id: int,
+        context: dict = Depends(get_full_context),
 ):
     user: User = context['user']
-    rate_id: int = 1
     rate: Rate = await Rate.get_by_id(rate_id)
     link: str = get_payment_link(user, rate)
     if link:
@@ -65,6 +65,7 @@ def get_payment_link(user: User, rate: Rate) -> str:
     params: str = (
         f"&order_id={rate.id}"
         f"&customer_phone={user.phone}"
+        f"&customer_extra={user.id}"
         f"&order_sum={rate.price}"
         f"&products[0][price]={rate.price}"
         f"&products[0][quantity]=1"
@@ -79,6 +80,7 @@ def get_payment_link(user: User, rate: Rate) -> str:
         f"&callbackType=json"
         f"&currency=rub"
         f"&acquiring=sbrf"
+        f"&sys={settings.PRODAMUS_SYS_KEY}"
     )
     url += params
     headers = {
