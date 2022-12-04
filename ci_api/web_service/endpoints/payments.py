@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from starlette.responses import HTMLResponse
 
 from services.response_manager import WebServiceResponser
+from web_service.utils import load_self_page
 from web_service.utils.payments_context import *
 
 router = APIRouter(tags=['web', 'sybscribe'])
@@ -26,3 +27,11 @@ async def payment_result(
         context: WebContext = Depends(check_payment_result)
 ):
     return WebServiceResponser(context).render()
+
+
+@router.get("/cancel_subscribe", response_class=HTMLResponse)
+async def cancel_subscribe(
+        self_page: dict = Depends(load_self_page),
+):
+    # TODO переделать
+    return self_page

@@ -29,7 +29,6 @@ async def profile(
 
 
 @router.get("/edit_profile", response_class=HTMLResponse)
-@router.get("/cancel_subscribe", response_class=HTMLResponse)
 @router.get("/feedback", response_class=HTMLResponse)
 @router.get("/help_page", response_class=HTMLResponse)
 async def help_page(
