@@ -38,9 +38,10 @@ async def get_video(
 
 
 @router.post("/viewed", status_code=status.HTTP_200_OK)
-@router.options("/viewed", status_code=status.HTTP_200_OK)
 async def viewed_video(
         viewed: VideoViewed = Body(...),
 ):
     logger.debug(f"VIEWED: {viewed.user_tel} {viewed.video_id}")
+
     return viewed
+    # TODO передавать юзер_ид на странице хидденом
