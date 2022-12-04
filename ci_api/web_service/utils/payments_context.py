@@ -1,8 +1,9 @@
 from fastapi import Depends
 from loguru import logger
 
-from exc.payment.exceptions import PaymentServiceError, UserNotFoundError, RateNotFound, \
-    SubscribeExistsError
+from exc.payment.exceptions import (
+    PaymentServiceError, UserNotFoundError, RateNotFound, SubscribeExistsError
+)
 from models.models import User, Rate, Payment
 from services.response_manager import WebContext
 from web_service.utils import get_full_context
@@ -59,7 +60,7 @@ async def get_subscribe_by_rate_id(
 
     return obj
 
-
+# TODO отрефакторить, убрать контекст
 async def check_payment_result(
         context: dict = Depends(get_full_context),
         _payform_status: str = None,
@@ -109,5 +110,3 @@ async def check_payment_result(
     obj.template = "profile.html"
 
     return obj
-
-
