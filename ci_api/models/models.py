@@ -153,6 +153,8 @@ class User(UserModel, table=True):
         back_populates="users", sa_relationship_kwargs={"cascade": "delete"})
     notifications: List['Notification'] = Relationship(
         back_populates="users", sa_relationship_kwargs={"cascade": "delete"})
+    payments: List['Payment'] = Relationship(
+        back_populates="users", sa_relationship_kwargs={"cascade": "delete"})
 
     def __str__(self):
         return f"{self.email}"
@@ -165,6 +167,8 @@ class Rate(MySQLModel, table=True):
     name: Optional[str] = Field(nullable=True, default='', description="Название тарифа")
     price: int = Field(nullable=False, description="Цена")
     duration: int = Field(nullable=True, default=None, description="Длительность тарифа в секундах")
+    payments: List['Payment'] = Relationship(
+        back_populates="rates", sa_relationship_kwargs={"cascade": "delete"})
 
     def __str__(self):
         return f"{self.id}: {self.name}"
@@ -299,3 +303,18 @@ class ViewedVideo(MySQLModel, table=True):
         query = select(cls).where(cls.user_id == user_id)
 
         return await get_all(query)
+
+
+class Payment(MySQLModel, table=True):
+    __tablename__ = 'payments'
+
+    id: int = Field(default=None, primary_key=True, index=True)
+
+    payment_id: int = Field(unique=True)
+    payment_sign: str = Field(unique=True)
+
+    user_id: int = Field(nullable=False, foreign_key='users.id')
+    users: 'User' = Relationship(back_populates="payments")
+    rate_id: int = Field(nullable=False, foreign_key='rates.id')
+    rates: 'Rate' = Relationship(back_populates="payments")
+

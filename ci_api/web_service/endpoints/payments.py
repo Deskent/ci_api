@@ -40,7 +40,7 @@ async def get_subscribe(
     return templates.TemplateResponse("subscribe.html", context=context)
 
 
-@router.get("/payment_result")
+@router.get("/payment_result", response_class=HTMLResponse)
 async def payment_result(
         context: dict = Depends(get_full_context),
         _payform_status: str = None,
