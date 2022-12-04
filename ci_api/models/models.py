@@ -318,3 +318,8 @@ class Payment(MySQLModel, table=True):
     rate_id: int = Field(nullable=False, foreign_key='rates.id')
     rates: 'Rate' = Relationship(back_populates="payments")
 
+    @classmethod
+    async def get_by_user_and_rate_id(cls, user_id: int, rate_id: int) -> 'Payment':
+        query = select(cls).where(cls.user_id == user_id).where(cls.rate_id == rate_id)
+        return await get_first(query)
+
