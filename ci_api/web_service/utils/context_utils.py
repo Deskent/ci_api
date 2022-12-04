@@ -7,7 +7,6 @@ from starlette.requests import Request
 from starlette.responses import RedirectResponse
 
 from config import MAX_LEVEL, settings, templates, logger
-from database.db import get_db_session
 from models.models import User, Video, Complex
 from schemas.user import UserLogin
 from services.depends import get_context_with_request
