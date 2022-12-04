@@ -5,7 +5,7 @@ from services.response_manager import WebServiceResponser
 from web_service.utils import load_self_page
 from web_service.utils.payments_context import *
 
-router = APIRouter(tags=['web', 'sybscribe'])
+router = APIRouter(tags=['web', 'subscribe'])
 
 
 @router.get("/subscribe", response_class=HTMLResponse)
