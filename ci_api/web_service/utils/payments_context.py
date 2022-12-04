@@ -1,7 +1,8 @@
 from fastapi import Depends
 from loguru import logger
 
-from exc.payment.exceptions import PaymentServiceError, UserNotFoundError, RateNotFound
+from exc.payment.exceptions import PaymentServiceError, UserNotFoundError, RateNotFound, \
+    SubscribeExistsError
 from models.models import User, Rate, Payment
 from services.response_manager import WebContext
 from web_service.utils import get_full_context
@@ -33,14 +34,17 @@ async def get_subscribe_by_rate_id(
         rate_id: int,
         context: dict = Depends(get_full_context),
 ) -> WebContext:
-    obj = WebContext(context=context)
     user: User = context['user']
+    current_rate: Rate = await Rate.get_by_id(user.rate_id)
+    rates: list[Rate] = await Rate.get_all()
+    context.update(current_rate=current_rate, rates=rates)
+    obj = WebContext(context=context)
     rate: Rate = await Rate.get_by_id(rate_id)
 
     if await Payment.get_by_user_and_rate_id(user_id=user.id, rate_id=rate.id):
-        obj.error = PaymentServiceError.detail
+        obj.error = SubscribeExistsError.detail
         obj.template = "subscribe.html"
-        obj.to_raise = PaymentServiceError
+        obj.to_raise = SubscribeExistsError
 
         return obj
     link: str = get_payment_link(user, rate)
