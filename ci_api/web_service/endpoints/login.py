@@ -87,7 +87,7 @@ async def entry(
 
 
 @router.get("/logout", response_class=HTMLResponse)
-def logout(request: Request):
+async def logout(request: Request):
     if 'token' in request.session:
         request.session.clear()
 
