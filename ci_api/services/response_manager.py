@@ -2,15 +2,32 @@ import abc
 from abc import abstractmethod
 
 from fastapi.responses import RedirectResponse, HTMLResponse
+from pydantic import BaseModel, validator
 
 from config import templates
 from exc.payment.exceptions import ApiRequestError
 
 
+class WebContext(BaseModel):
+    context: dict = {}
+    template: str = ''
+    redirect: str = ''
+    error: str = ''
+    success: str = ''
+    to_raise: object = None,
+    api_data: dict = {}
+
+    @validator('to_raise')
+    def name_must_contain_space(cls, value):
+        if not isinstance(value, Exception):
+            raise ValueError('Must be an Exception type')
+        return value
+
+
 class ResponseManager(abc.ABC):
 
-    def __init__(self, context: dict):
-        self._context: dict = context
+    def __init__(self, context: WebContext):
+        self._obj: WebContext = context
 
     @abstractmethod
     async def render(self):
@@ -19,31 +36,29 @@ class ResponseManager(abc.ABC):
 
 class WebServiceResponser(ResponseManager):
 
-    def __init__(self, context: dict):
+    def __init__(self, context: WebContext):
         super().__init__(context)
-        self._template: str = context.get('template', '')
-        self._error: str = context.get('error', '')
-        self._success: str = context.get('success', '')
-        self._redirect: str = context.get('redirect', '')
 
     async def render(self) -> HTMLResponse | RedirectResponse:
-        if self._template:
-            return templates.TemplateResponse(self._template, context=self._context)
-        elif self._redirect:
-            return RedirectResponse(self._redirect)
+        if self._obj.error:
+            self._obj.context.update(error=self._obj.error)
+        if self._obj.success:
+            self._obj.context.update(success=self._obj.success)
+
+        if self._obj.template:
+            return templates.TemplateResponse(self._obj.template, context=self._obj.context)
+        elif self._obj.redirect:
+            return RedirectResponse(self._obj.redirect)
         return templates.TemplateResponse("error_page.html", context={})
 
 
 class ApiServiceResponser(ResponseManager):
-    def __init__(self, context: dict):
+    def __init__(self, context: WebContext):
         super().__init__(context)
 
-        self._to_raise: Exception = context.get("to_raise", None)
-        self._api_data: dict = context.get("api_data", {})
-
     async def render(self) -> dict:
-        if self._to_raise:
-            raise self._to_raise
-        elif self._api_data:
-            return self._api_data
+        if self._obj.to_raise:
+            raise self._obj.to_raise
+        elif self._obj.api_data:
+            return self._obj.api_data
         raise ApiRequestError
