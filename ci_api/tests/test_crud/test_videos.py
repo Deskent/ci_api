@@ -34,7 +34,7 @@ async def test_video_update():
 
 async def test_get_next_video():
     data: Video = await Video.get_by_id(7)
-    next_video: int = await data.get_next_video_id()
+    next_video: int = await data.next_video_id()
     assert next_video == 3
 
 
