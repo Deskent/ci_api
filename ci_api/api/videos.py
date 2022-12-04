@@ -37,11 +37,8 @@ async def get_video(
     return FileResponse(path=str(full_path), media_type='video/mp4')
 
 
-@router.post(
-    "/viewed",
-    # dependencies=[Depends(is_user_active)],
-    status_code=status.HTTP_200_OK
-)
+@router.post("/viewed", status_code=status.HTTP_200_OK)
+@router.options("/viewed", status_code=status.HTTP_200_OK)
 async def viewed_video(
         viewed: VideoViewed = Body(...),
 ):
