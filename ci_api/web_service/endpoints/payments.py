@@ -11,6 +11,19 @@ from config import logger
 router = APIRouter(tags=['web', 'sybscribe'])
 
 
+@router.get("/subscribe", response_class=HTMLResponse)
+async def subscribe(
+        context: dict = Depends(get_full_context),
+):
+    if not (user := context.get('user')):
+        return templates.TemplateResponse("entry.html", context=context)
+
+    rates: list[Rate] = await Rate.get_all()
+    current_rate: Rate = await Rate.get_by_id(user.rate_id)
+    context.update(rates=rates, current_rate=current_rate)
+    return templates.TemplateResponse("subscribe.html", context=context)
+
+
 @router.get("/get_subscribe/{rate_id}", response_class=HTMLResponse)
 async def get_subscribe(
         rate_id: int,
