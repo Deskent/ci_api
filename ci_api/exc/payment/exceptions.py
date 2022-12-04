@@ -13,7 +13,7 @@ PaymentServiceError = HTTPException(
 
 SubscribeExistsError = HTTPException(
     status_code=status.HTTP_406_NOT_ACCEPTABLE,
-    detail="Вы уже подписаны на это"
+    detail="Вы уже подписаны на этот тариф"
 )
 
 

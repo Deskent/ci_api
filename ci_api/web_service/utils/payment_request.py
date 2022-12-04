@@ -7,7 +7,7 @@ from config import settings
 from models.models import User, Rate
 
 
-def get_payment_link(user: User, rate: Rate) -> str:
+async def get_payment_link(user: User, rate: Rate) -> str:
     params: str = (
         f"&order_id={rate.id}"
         f"&customer_phone={user.phone}"
@@ -33,12 +33,15 @@ def get_payment_link(user: User, rate: Rate) -> str:
         "Content-type": "text/plain",
         "charset": "utf-8"
     }
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-        try:
-            data: dict = response.json()
-            return data['payment_link']
-        except json.JSONDecodeError as err:
-            logger.error(f"Json error: {err}")
+    try:
+        response = requests.get(url, headers=headers, timeout=15)
+        if response.status_code == 200:
+            try:
+                data: dict = response.json()
+                return data['payment_link']
+            except json.JSONDecodeError as err:
+                logger.error(f"Json error: {err}")
+    except requests.exceptions.Timeout as err:
+        logger.error(f"Prodamus request timeout error: {err}")
 
     return ''
