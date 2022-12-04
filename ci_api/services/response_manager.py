@@ -1,5 +1,7 @@
 import abc
 from abc import abstractmethod
+from types import NoneType
+from typing import Any
 
 from fastapi.responses import RedirectResponse, HTMLResponse
 from pydantic import BaseModel, validator
@@ -14,12 +16,12 @@ class WebContext(BaseModel):
     redirect: str = ''
     error: str = ''
     success: str = ''
-    to_raise: object = None,
+    to_raise: object = None
     api_data: dict = {}
 
     @validator('to_raise')
-    def name_must_contain_space(cls, value):
-        if not isinstance(value, Exception):
+    def to_raise_must_be_exception_or_none(cls, value):
+        if value and not isinstance(value, Exception):
             raise ValueError('Must be an Exception type')
         return value
 
@@ -30,7 +32,7 @@ class ResponseManager(abc.ABC):
         self._obj: WebContext = context
 
     @abstractmethod
-    async def render(self):
+    def render(self):
         raise NotImplementedError
 
 
@@ -39,7 +41,7 @@ class WebServiceResponser(ResponseManager):
     def __init__(self, context: WebContext):
         super().__init__(context)
 
-    async def render(self) -> HTMLResponse | RedirectResponse:
+    def render(self) -> HTMLResponse | RedirectResponse:
         if self._obj.error:
             self._obj.context.update(error=self._obj.error)
         if self._obj.success:
@@ -56,9 +58,9 @@ class ApiServiceResponser(ResponseManager):
     def __init__(self, context: WebContext):
         super().__init__(context)
 
-    async def render(self) -> dict:
-        if self._obj.to_raise:
+    def render(self) -> dict:
+        if self._obj.to_raise is not None:
             raise self._obj.to_raise
         elif self._obj.api_data:
-            return self._obj.api_data
+            return self._obj.api_data['payload']
         raise ApiRequestError

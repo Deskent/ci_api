@@ -149,6 +149,7 @@ class User(UserModel, table=True):
 
     rate_id: int = Field(nullable=False, foreign_key='rates.id')
     current_complex: Optional[int] = Field(nullable=True, default=1, foreign_key='complexes.id')
+
     alarms: List['Alarm'] = Relationship(
         back_populates="users", sa_relationship_kwargs={"cascade": "delete"})
     notifications: List['Notification'] = Relationship(

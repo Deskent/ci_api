@@ -1,14 +1,11 @@
-import json
-
-import requests
 from fastapi import Depends
 from loguru import logger
 
-from config import settings
 from exc.payment.exceptions import PaymentServiceError, UserNotFoundError, RateNotFound
 from models.models import User, Rate, Payment
 from services.response_manager import WebContext
 from web_service.utils import get_full_context
+from web_service.utils.payment_request import get_payment_link
 
 
 async def subscribe_context(
@@ -110,38 +107,3 @@ async def check_payment_result(
     return obj
 
 
-def get_payment_link(user: User, rate: Rate) -> str:
-    params: str = (
-        f"&order_id={rate.id}"
-        f"&customer_phone={user.phone}"
-        f"&customer_extra={user.id}"
-        f"&order_sum={rate.price}"
-        f"&products[0][price]={rate.price}"
-        f"&products[0][quantity]=1"
-        f"&products[0][name]={rate.name}"
-        f"&demo_mode=1"  # TODO  <- ТЕСТОВЫЙ РЕЖИМ!
-    )
-
-    url = (
-        f"https://box.payform.ru/?"
-        f"do=link"
-        f"&type=json"
-        f"&callbackType=json"
-        f"&currency=rub"
-        f"&acquiring=sbrf"
-        f"&sys={settings.PRODAMUS_SYS_KEY}"
-    )
-    url += params
-    headers = {
-        "Content-type": "text/plain",
-        "charset": "utf-8"
-    }
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-        try:
-            data: dict = response.json()
-            return data['payment_link']
-        except json.JSONDecodeError as err:
-            logger.error(f"Json error: {err}")
-
-    return ''

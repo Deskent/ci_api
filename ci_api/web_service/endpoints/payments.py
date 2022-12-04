@@ -11,18 +11,18 @@ router = APIRouter(tags=['web', 'sybscribe'])
 async def subscribe(
         context: WebContext = Depends(subscribe_context),
 ):
-    return await WebServiceResponser(context).render()
+    return WebServiceResponser(context).render()
 
 
 @router.get("/get_subscribe/{rate_id}", response_class=HTMLResponse)
 async def get_subscribe(
         context: WebContext = Depends(get_subscribe_by_rate_id)
 ):
-    return await WebServiceResponser(context).render()
+    return WebServiceResponser(context).render()
 
 
 @router.get("/payment_result", response_class=HTMLResponse)
 async def payment_result(
         context: WebContext = Depends(check_payment_result)
 ):
-    return await WebServiceResponser(context).render()
+    return WebServiceResponser(context).render()
