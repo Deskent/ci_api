@@ -4,6 +4,10 @@
     <section class="profile-content">
         <div class="container">
             <div class="subscribe__grid">
+
+                {% include 'error_message.html' %}
+                {% include 'success_message.html' %}
+
                 <div class="user-profile__card profile-card subscribe-card">
                     <div class="profile-card__title subscribe-card__text">
                         Сменить карту
@@ -13,6 +17,7 @@
                         реплицированные с зарубежных
                     </div>
                     <a href="#" class="profile-card__link">Сменить</a>
+                    <a href="/get_subscribe" class="profile-card__link">Подписаться</a>
                 </div>
 
                 {#               # TODO переделать на кнопку скачивания файла #}
