@@ -175,18 +175,18 @@ async def create_rates(data: list[dict] = None):
     if not data:
         data = [
             {
-                'name': 'Бесплатный',
-                'price': 0,
+                'name': 'Солнце',
+                'price': 999,
                 'duration': 30
             },
             {
-                'name': '30 дней',
-                'price': 100,
+                'name': 'Инь-ян',
+                'price': 1990,
                 'duration': 30
             },
             {
-                'name': '6 месяцев',
-                'price': 500,
+                'name': 'Энергия жизни',
+                'price': 2900,
                 'duration': 30 * 6
             }
         ]
@@ -197,6 +197,7 @@ async def create_rates(data: list[dict] = None):
 
 async def create_fake_data(flag: bool = False):
     """Create fake data in database"""
+
     if settings.CREATE_FAKE_DATA or flag:
         logger.debug("Create fake data to DB")
         if await User.get_by_id(1):
