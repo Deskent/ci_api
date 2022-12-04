@@ -21,7 +21,6 @@ class Database(BaseSettings):
 
 
 class Settings(BaseSettings):
-    PRODAMUS_TOKEN: str
     SMS_TOKEN: str
     EMAIL_LOGIN: EmailStr
     EMAIL_PASSWORD: str
