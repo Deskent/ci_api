@@ -76,6 +76,7 @@ async def finish_charging(
 ):
     if not user:
         return templates.TemplateResponse("entry.html", context=context)
+
     current_video: Video = await Video.get_by_id(video_id)
     next_video_id: int = await current_video.next_video_id()
 
@@ -85,7 +86,7 @@ async def finish_charging(
     context.update(video=next_video_id)
 
     if not await is_video_viewed(user, video_id):
-        return RedirectResponse(f"/startCharging/{id}")
+        return RedirectResponse(f"/startCharging/{next_video_id}")
 
     old_user_level = user.level
     new_user: User = await check_level_up(user)
