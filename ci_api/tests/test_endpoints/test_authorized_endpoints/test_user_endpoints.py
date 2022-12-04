@@ -26,13 +26,6 @@ class TestUsers:
         assert user_id is not None
         self.user_id = user_id
 
-    @pytest.mark.skip("Need to know verify code from database")
-    @pytest.mark.server
-    def test_verify_email(self):
-        url = self.base_url + "/auth/verify_email" + f"?token={self.email_token}"
-        response = self.session.get(url)
-        assert response.status_code == 202
-
     @pytest.mark.server
     def test_login_endpoint(self):
         response = self.session.post(self.base_url + "/auth/login", json=self.user_payload)
@@ -97,3 +90,21 @@ class TestUsers:
     def test_get_rates(self):
         response = self.session.get(self.base_url + "/users/rates")
         assert response.status_code == 200
+
+    # TODO исправить
+    @pytest.mark.skip("Not delete relations viewed video")
+    def test_viewed_video_endpoint(self):
+        data = {
+            "user_tel": self.test_user.phone,
+            "video_id": 1
+        }
+        response = self.session.post(self.base_url + "/videos/viewed", json=data)
+        assert response.status_code == 200
+        data = response.json()
+        assert data['user'] is not None
+
+    @pytest.mark.skip("Need to know verify code from database")
+    def test_verify_email(self):
+        url = self.base_url + "/auth/verify_email" + f"?token={self.email_token}"
+        response = self.session.get(url)
+        assert response.status_code == 202
