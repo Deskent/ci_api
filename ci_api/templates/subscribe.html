@@ -9,6 +9,10 @@
                 {% include 'success_message.html' %}
 
             {#               # TODO переделать в красивое #}
+
+            <div>
+                Ваш текущий тариф: {{ current_rate.name }}
+            </div>
                 {% for rate in rates %}
                     <div class="user-profile__card profile-card subscribe-card">
                         <div class="profile-card__title subscribe-card__text">
@@ -21,8 +25,8 @@
                     </div>
                 {% endfor %}
 
-                {#               # TODO переделать на кнопку скачивания файла #}
 
+                {#               # TODO переделать на кнопку скачивания файла #}
                 <a href="#" class="subscribe__download">
                     Скачать историю транзакций
                 </a>

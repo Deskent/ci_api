@@ -5,7 +5,6 @@ from loguru import logger
 from starlette.requests import Request
 
 from config import templates
-from database.db import get_db_session
 from models.models import User
 from services.utils import generate_four_random_digits_string
 from web_service.sms_utils import sms_service, SMSException

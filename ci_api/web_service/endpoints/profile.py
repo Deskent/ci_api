@@ -28,17 +28,6 @@ async def profile(
     return templates.TemplateResponse("profile.html", context=context)
 
 
-@router.get("/subscribe", response_class=HTMLResponse)
-async def subscribe(
-        context: dict = Depends(get_full_context),
-):
-    if not context.get('user'):
-        return templates.TemplateResponse("entry.html", context=context)
-    rates: list[Rate] = await Rate.get_all()
-    context.update(rates=rates)
-    return templates.TemplateResponse("subscribe.html", context=context)
-
-
 @router.get("/edit_profile", response_class=HTMLResponse)
 @router.get("/cancel_subscribe", response_class=HTMLResponse)
 @router.get("/feedback", response_class=HTMLResponse)
