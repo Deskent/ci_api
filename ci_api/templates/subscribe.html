@@ -8,17 +8,18 @@
                 {% include 'error_message.html' %}
                 {% include 'success_message.html' %}
 
-                <div class="user-profile__card profile-card subscribe-card">
-                    <div class="profile-card__title subscribe-card__text">
-                        Сменить карту
+            {#               # TODO переделать в красивое #}
+                {% for rate in rates %}
+                    <div class="user-profile__card profile-card subscribe-card">
+                        <div class="profile-card__title subscribe-card__text">
+                            {{ rate.name }}
+                        </div>
+                        <div class="profile-card__title subscribe-card__text">
+                            {{ rate.price }}
+                        </div>
+                        <a href="/get_subscribe/{{ rate.id }}" class="profile-card__link">Подписаться</a>
                     </div>
-                    <div class="profile-card__title subscribe-card__text">
-                        В своём стремлении улучшить пользовательский опыт мы упускаем, что
-                        реплицированные с зарубежных
-                    </div>
-                    <a href="#" class="profile-card__link">Сменить</a>
-                    <a href="/get_subscribe" class="profile-card__link">Подписаться</a>
-                </div>
+                {% endfor %}
 
                 {#               # TODO переделать на кнопку скачивания файла #}
 
