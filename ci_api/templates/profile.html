@@ -35,9 +35,16 @@
                     </form>
 
                     <div class="user-profile__card profile-card">
-                        <div class="profile-card__title">
-                            Подписка автоматически продлится {{ user.expired_at.day }} числа
-                        </div>
+                        {% if user.expired_at %}
+                            <div class="profile-card__title">
+                                Подписка автоматически продлится {{ user.expired_at }} числа
+                            </div>
+                        {% else %}
+                            <div class="profile-card__title">
+                                Нет подписки
+                            </div>
+
+                        {% endif %}
                         <div class="profile-card__info">
                             <div class="profile-card__icon"><img
                                     src="/static/img/icons/credit-card.svg"
@@ -65,9 +72,14 @@
                     </div>
                 </div>
                 <div class="profile-card__adapt">
-                    <div class="profile-card__title">
-                        Подписка автоматически продлится {{ user.expired_at }} числа
-                    </div>
+                        {% if user.expired_at %}
+                            <div class="profile-card__title">
+                                Подписка автоматически продлится {{ user.expired_at }} числа
+                            </div>
+                        {% else %}
+                            <div class="profile-card__title">
+                                Нет подписки
+                            </div>
                     <div class="profile-card__info">
                         <span class="stars">**** **** ****</span>
                         <div class="profile-card__number">1234</div>

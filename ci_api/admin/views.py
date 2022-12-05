@@ -16,7 +16,7 @@ ADMIN_URL = "/ci_admin"
 
 
 def date_format(value):
-    return value.strftime("%Y-%m-%d %H:%M:%S")
+    return value.strftime("%Y-%m-%d %H:%M:%S") if value else "Нет подписки"
 
 
 class ComplexView(ModelView, model=Complex):
@@ -67,7 +67,7 @@ class UserView(ModelView, model=User):
     }
     column_formatters = {
         User.expired_at: lambda m, a: date_format(m.expired_at),
-        User.created_at: lambda m, a: date_format(m.expired_at),
+        User.created_at: lambda m, a: date_format(m.created_at),
         User.gender: lambda m, a: "Male" if m.gender else "Female"
     }
     column_formatters_detail = column_formatters
