@@ -44,7 +44,6 @@ class UserRegistration(Password, PhoneNumber):
     username: str
     last_name: str = ''
     third_name: str = ''
-    rate_id: int = 1
     email: EmailStr
     gender: bool = True
 
@@ -66,7 +65,6 @@ class UserRegistration(Password, PhoneNumber):
                 last_name=last_name,
                 third_name=third_name,
                 phone=phone,
-                rate_id=1,
                 email=email,
                 gender=True if gender == 'male' else False,
                 password=password,

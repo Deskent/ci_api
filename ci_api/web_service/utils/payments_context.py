@@ -1,3 +1,5 @@
+import datetime
+
 from loguru import logger
 
 from exc.exceptions import (
@@ -6,6 +8,7 @@ from exc.exceptions import (
 from exc.payment.pay_exceptions import PaymentServiceError, SubscribeExistsError
 from models.models import User, Rate, Payment
 from services.response_manager import WebContext
+from services.utils import get_current_datetime
 from web_service.handlers.payment_request import get_payment_link
 
 
@@ -105,6 +108,7 @@ async def check_payment_result(
         logger.debug(f"Activating user: {user.email}")
         user.rate_id = rate_id
         user.is_active = True
+        user.expired_at = get_current_datetime() + datetime.timedelta(days=30)
         await user.save()
 
         payment: Payment = Payment(

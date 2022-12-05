@@ -60,6 +60,7 @@ async def edit_profile_post(
             logger.debug(f"Email code: {code}")
             user.email_code = code
             user.is_verified = False
+            user.expired_at = None
             user.email = email
         except EmailException:
             context.update(error=f"Неверный адрес почты")

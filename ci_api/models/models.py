@@ -5,6 +5,7 @@ from pydantic import EmailStr
 from sqlmodel import Field, Relationship, select
 
 from models.methods import MySQLModel, UserModel, get_all, get_first, AdminModel
+from services.utils import get_current_datetime
 
 
 class Complex(MySQLModel, table=True):
@@ -142,7 +143,7 @@ class User(UserModel, table=True):
     level: int = Field(nullable=False, default=1, description="Текущий уровень")
     progress: int = Field(nullable=False, default=0,
         description="Процент прогресса просмотра текущего комплекса")
-    created_at: datetime = Field(default=datetime.now(tz=None))
+    created_at: datetime = Field(default=get_current_datetime())
     expired_at: Optional[datetime] = Field(default=None)
     is_verified: Optional[bool] = Field(default=False)
     is_active: Optional[bool] = Field(default=False)
