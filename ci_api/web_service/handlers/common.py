@@ -9,7 +9,7 @@ from models.models import User
 from schemas.user import UserLogin
 from services.user import user_login, get_bearer_header
 from services.utils import generate_random_password
-from web_service.utils.title_context_func import update_context_title
+from web_service.utils.title_context_func import update_title
 from web_service.utils.titles_context import get_profile_context, get_session_context, \
     get_email_send_context, get_password_recovery_context
 
@@ -24,7 +24,7 @@ async def user_entry(
         context.update(user=user)
         if not user.is_verified:
             return templates.TemplateResponse(
-                "check_email.html", context=update_context_title(context, 'check_email'))
+                "check_email.html", context=update_title(context, 'check_email'))
 
         login_token: str = await user.get_user_token()
         headers: dict[str, str] = get_bearer_header(login_token)
@@ -35,7 +35,7 @@ async def user_entry(
     error = "Invalid user or password"
     context.update(error=error)
 
-    return templates.TemplateResponse("entry.html", context=update_context_title(context, 'entry'))
+    return templates.TemplateResponse("entry.html", context=update_title(context, 'entry'))
 
 
 async def restore_password(
@@ -46,21 +46,21 @@ async def restore_password(
     if not user:
         context.update(error='Неверный адрес почты')
         return templates.TemplateResponse(
-            "forget1.html", context=update_context_title(context, "forget1.html"))
+            "forget1.html", context=update_title(context, "forget1.html"))
 
     new_password: str = generate_random_password()
     email_errors: dict = await get_email_send_context(user.email, new_password)
     if email_errors:
         context.update(email_errors)
         return templates.TemplateResponse(
-            "forget1.html", context=update_context_title(context, "forget1.html"))
+            "forget1.html", context=update_title(context, "forget1.html"))
 
     logger.debug(f"New password: {new_password}")
     user.password = await user.get_hashed_password(new_password)
     await user.save()
     context.update(success=f"Новый пароль выслан на почту {user.email}")
     return templates.TemplateResponse(
-        "entry.html", context=update_context_title(context, "entry.html"))
+        "entry.html", context=update_title(context, "entry.html"))
 
 
 async def set_new_password(
@@ -73,10 +73,10 @@ async def set_new_password(
     user: User = session_context.get('user')
     if not user:
         return templates.TemplateResponse(
-            "entry.html", context=update_context_title(context, "entry.html"))
+            "entry.html", context=update_title(context, "entry.html"))
 
     context.update(**session_context)
-    context = update_context_title(context, "edit_profile.html")
+    context = update_title(context, "edit_profile.html")
     if not await user.is_password_valid(old_password):
         context.update(error="Неверный пароль")
         return templates.TemplateResponse("edit_profile.html", context=context)
@@ -94,4 +94,4 @@ async def set_new_password(
     await user.save()
 
     return templates.TemplateResponse(
-        "profile.html", context=update_context_title(context, "profile.html"))
+        "profile.html", context=update_title(context, "profile.html"))
