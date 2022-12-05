@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, APIRouter
 from loguru import logger
 from starlette import status
 from starlette.requests import Request
@@ -7,10 +7,11 @@ from starlette.responses import HTMLResponse
 from config import templates
 from schemas.user import UserRegistration
 from services.user import register_new_user
-from web_service.endpoints.login import router
 from web_service.utils.title_context_func import update_title
 from web_service.utils.titles_context import get_base_context
 from web_service.utils.web_utils import redirect_logged_user_to_entry
+
+router = APIRouter(tags=['web', 'register'])
 
 
 @router.get("/registration", response_class=HTMLResponse)

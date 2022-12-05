@@ -1,12 +1,13 @@
-from fastapi import Depends, Form
+from fastapi import Depends, Form, APIRouter
 from pydantic import EmailStr
 from starlette.responses import HTMLResponse
 
 from config import templates
 from models.models import User
-from web_service.endpoints.login import router
 from web_service.utils.title_context_func import update_title
 from web_service.utils.titles_context import get_base_context, get_logged_user_context
+
+router = APIRouter(tags=['web', 'check_email'])
 
 
 @router.get("/check_email", response_class=HTMLResponse)

@@ -1,10 +1,11 @@
-from fastapi import Depends
+from fastapi import Depends, APIRouter
 from starlette.responses import HTMLResponse
 
 from services.response_manager import WebContext, WebServiceResponser
-from web_service.endpoints.subscribe_and_payment import router
 from web_service.utils.payments_context import check_payment_result
 from web_service.utils.titles_context import get_logged_user_context
+
+router = APIRouter(tags=['web', 'payments'])
 
 
 @router.get("/payment_result", response_class=HTMLResponse)

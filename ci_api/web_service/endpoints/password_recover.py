@@ -1,11 +1,12 @@
-from fastapi import Depends
+from fastapi import Depends, APIRouter
 from starlette.responses import HTMLResponse
 
 from config import templates
-from web_service.endpoints.login import router
 from web_service.handlers.common import restore_password
 from web_service.utils.title_context_func import update_title
 from web_service.utils.titles_context import get_base_context
+
+router = APIRouter(tags=['web', 'recover'])
 
 
 @router.get("/forget1", response_class=HTMLResponse)
