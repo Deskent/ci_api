@@ -32,9 +32,7 @@ async def check_user_phone_exists(phone: str) -> User:
         return user
 
 
-async def register_new_user(
-        user_data: UserRegistration,
-):
+async def register_new_user(user_data: UserRegistration) -> tuple[User | None, dict]:
     errors = {}
     email_exists: bool = await check_email_exists(user_data.email)
     if email_exists:
@@ -65,9 +63,7 @@ async def register_new_user(
     return user, errors
 
 
-async def validate_logged_user_data(
-        form: FormData
-) -> tuple[UserLogin | None, dict]:
+async def validate_logged_user_data(form: FormData) -> tuple[UserLogin | None, dict]:
 
     try:
         user_data = UserLogin(email=form['email'], password=form['password'])
