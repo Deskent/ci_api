@@ -7,7 +7,9 @@ from fastapi.responses import RedirectResponse, HTMLResponse
 from pydantic import BaseModel, validator
 
 from config import templates
-from exc.payment.exceptions import ApiRequestError
+from exc.payment.exceptions import ApiRequestError, UserNotFoundError
+from models.models import User
+from config import logger
 
 
 class WebContext(BaseModel):
@@ -24,6 +26,13 @@ class WebContext(BaseModel):
         if value and not isinstance(value, Exception):
             raise ValueError('Must be an Exception type')
         return value
+
+    def is_user_in_context(self) -> User:
+        if user := self.context.get('user'):
+            logger.warning("User is not in context")
+            return user
+        self.template = "entry.html"
+        self.to_raise = UserNotFoundError
 
 
 class ResponseManager(abc.ABC):

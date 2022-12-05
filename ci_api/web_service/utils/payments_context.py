@@ -1,4 +1,3 @@
-from fastapi import Depends
 from loguru import logger
 
 from exc.payment.exceptions import (
@@ -6,7 +5,6 @@ from exc.payment.exceptions import (
 )
 from models.models import User, Rate, Payment
 from services.response_manager import WebContext
-from web_service.utils import get_full_context
 from web_service.utils.payment_request import get_payment_link
 
 
@@ -17,14 +15,12 @@ async def _get_rate_date(user: User) -> dict:
     return dict(rates=rates, current_rate=current_rate)
 
 
-async def subscribe_context(
-        context: dict = Depends(get_full_context),
+async def get_subscribe_context(
+        context: dict
 ) -> WebContext:
-
     obj = WebContext(context=context)
-    if not (user := context.get('user')):
-        obj.template = "entry.html"
-        obj.to_raise = UserNotFoundError
+    user: User = obj.is_user_in_context()
+    if not user:
         return obj
 
     api_data: dict = await _get_rate_date(user)
@@ -36,14 +32,16 @@ async def subscribe_context(
 
 
 async def get_subscribe_by_rate_id(
-        rate_id: int,
-        context: dict = Depends(get_full_context),
+        context: dict,
+        rate_id: int
 ) -> WebContext:
-
-    user: User = context['user']
-    api_data = await _get_rate_date(user)
-    context.update(**api_data)
     obj = WebContext(context=context)
+    user: User = obj.is_user_in_context()
+    if not user:
+        return obj
+
+    api_data = await _get_rate_date(user)
+    obj.context.update(**api_data)
     obj.api_data.update(payload=api_data)
 
     rate: Rate = await Rate.get_by_id(rate_id)
@@ -70,20 +68,23 @@ async def get_subscribe_by_rate_id(
 
 # TODO отрефакторить, убрать контекст
 async def check_payment_result(
-        context: dict = Depends(get_full_context),
-        _payform_status: str = None,
-        _payform_id: int = None,
-        _payform_order_id: int = None,
-        _payform_sign: str = None
+        context: dict,
+        payform_status: str,
+        payform_id: int,
+        payform_order_id: int,
+        payform_sign: str
 ) -> WebContext:
-
     obj = WebContext(context=context)
-    if _payform_status != 'success':
+    user: User = obj.is_user_in_context()
+    if not user:
+        return obj
+
+    if payform_status != 'success':
         logger.error(
-            f"\nPayform status: {_payform_status}"
-            f"\nPayform id: {_payform_id}"
-            f"\nPayform order id: {_payform_order_id}"
-            f"\nPayform status: {_payform_sign}"
+            f"\nPayform status: {payform_status}"
+            f"\nPayform id: {payform_id}"
+            f"\nPayform order id: {payform_order_id}"
+            f"\nPayform status: {payform_sign}"
         )
         obj.error = "При попытке подписки произошла ошибка"
         obj.template = "subscribe.html"
@@ -91,7 +92,7 @@ async def check_payment_result(
 
         return obj
 
-    rate_id: int = _payform_order_id
+    rate_id: int = payform_order_id
 
     if not await Rate.get_by_id(rate_id):
         obj.error = "Тариф не найден",
@@ -100,7 +101,6 @@ async def check_payment_result(
 
         return obj
 
-    user: User = context['user']
     if not user.is_active:
         logger.debug(f"Activating user: {user.email}")
         user.rate_id = rate_id
@@ -108,7 +108,7 @@ async def check_payment_result(
         await user.save()
 
         payment: Payment = Payment(
-            payment_id=_payform_id, payment_sign=_payform_sign,
+            payment_id=payform_id, payment_sign=payform_sign,
             user_id=user.id, rate_id=user.rate_id
         )
         await payment.save()
@@ -118,3 +118,29 @@ async def check_payment_result(
     obj.template = "profile.html"
 
     return obj
+
+
+async def get_cancel_subscribe_context(context: dict) -> WebContext:
+    obj = WebContext(context=context)
+    user: User = obj.is_user_in_context()
+    if not user:
+        return obj
+
+    if user.is_active:
+        user: User = await user.deactivate()
+
+    payment: Payment = await Payment.get_by_user_and_rate_id(user_id=user.id, rate_id=user.rate_id)
+    if payment:
+        logger.info(f"Payment for {user.email}: {user.rate_id} wille be deleted.")
+        await payment.delete()
+
+    free_rate: Rate = await Rate.get_free()
+    user.rate_id = free_rate.id
+    user: User = await user.save()
+
+    # TODO отписываться!!!
+    obj.template = "cancel_subscribe.html"
+    obj.api_data.update(payload=user)
+
+    return obj
+
