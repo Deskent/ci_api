@@ -175,6 +175,11 @@ async def create_rates(data: list[dict] = None):
     if not data:
         data = [
             {
+                'name': 'Free',
+                'price': 0,
+                'duration': 30
+            },
+            {
                 'name': 'Солнце',
                 'price': 999,
                 'duration': 30
