@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Body
 from fastapi.responses import FileResponse
 
 from config import settings, logger
+from exc.payment.exceptions import PhoneNumberError
 from models.models import Video, User
 from schemas.complexes_videos import VideoViewed
 from services.depends import is_user_active
@@ -51,9 +52,9 @@ async def viewed_video(
     #     next_video = await video.next_video_id()
     #     if next_video:
     #         result.update(next_video=next_video)
-    if data.user_tel.startswith('8'):
-        data.user_tel = data.user_tel[1:]
-    phone: str = data.user_tel.strip().replace('(', '').replace(')', '').replace('-', '').replace(' ', '')
+    phone: str = data.user_tel.strip()[-10:].replace('(', '').replace(')', '').replace('-', '').replace(' ', '')
+    if len(phone) != 10:
+        raise PhoneNumberError
     user: User = await User.get_by_phone(phone)
     web_context: WebContext = await get_viewed_video_response(
         user=user, video_id=data.video_id, context={}
