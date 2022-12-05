@@ -9,7 +9,7 @@ from services.complexes_and_videos import (
 )
 from services.utils import convert_seconds_to_time, convert_to_minutes
 from web_service.utils import *
-from web_service.utils.title_context_func import update_context_title
+from web_service.utils.title_context_func import update_title
 from web_service.utils.titles_context import get_profile_context, get_session_context, \
     get_full_context, get_session_user
 
@@ -26,7 +26,7 @@ async def videos_list(
     current_complex: Complex = await Complex.get_by_id(complex_id)
     if not session_context:
         return templates.TemplateResponse(
-            "entry.html", context=update_context_title(context, "entry.html")
+            "entry.html", context=update_title(context, "entry.html")
         )
     user: User = session_context['user']
 
@@ -52,7 +52,8 @@ async def videos_list(
         video.duration = convert_seconds_to_time(video.duration)
     context.update(current_complex=current_complex, videos=videos, **session_context)
 
-    return templates.TemplateResponse("videos_list.html", context=context)
+    return templates.TemplateResponse(
+        "videos_list.html", context=update_title(context, "videos_list.html"))
 
 
 @router.get("/startCharging/{video_id}", response_class=HTMLResponse)
@@ -64,11 +65,11 @@ async def start_charging(
 ):
     if not session_context:
         return templates.TemplateResponse(
-            "entry.html", context=update_context_title(context, "entry.html")
+            "entry.html", context=update_title(context, "entry.html")
         )
     context.update(video=video, **session_context)
     return templates.TemplateResponse(
-        "startCharging.html", context=update_context_title(context, "startCharging.html")
+        "startCharging.html", context=update_title(context, "startCharging.html")
     )
 
 
@@ -81,7 +82,7 @@ async def finish_charging(
 ):
     if not user:
         return templates.TemplateResponse(
-            "entry.html", context=update_context_title(context, "entry.html")
+            "entry.html", context=update_title(context, "entry.html")
         )
 
     current_video: Video = await Video.get_by_id(video_id)
@@ -89,7 +90,7 @@ async def finish_charging(
 
     if not next_video_id:
         return templates.TemplateResponse(
-            "come_tomorrow.html", context=update_context_title(context, "come_tomorrow.html")
+            "come_tomorrow.html", context=update_title(context, "come_tomorrow.html")
         )
 
     context.update(video=next_video_id)
@@ -107,7 +108,7 @@ async def finish_charging(
     context.update(user=new_user, current_complex=current_complex)
 
     return templates.TemplateResponse(
-        "new_level.html", context=update_context_title(context, "new_level.html")
+        "new_level.html", context=update_title(context, "new_level.html")
     )
 
 
@@ -119,7 +120,7 @@ async def complexes_list(
     user: User = context['user']
     if not user:
         return templates.TemplateResponse(
-            "entry.html", context=update_context_title(context, "entry.html")
+            "entry.html", context=update_title(context, "entry.html")
         )
     if await ViewedComplex.is_last_viewed_today(user.id):
         return RedirectResponse("/come_tomorrow")
@@ -137,7 +138,7 @@ async def complexes_list(
         to_next_level=videos_to_next_level
     )
     return templates.TemplateResponse(
-        "complexes_list.html", context=update_context_title(context, "complexes_list.html")
+        "complexes_list.html", context=update_title(context, "complexes_list.html")
     )
 
 
@@ -149,7 +150,7 @@ async def delete_notification(
     user: User = context['user']
     if not user:
         return templates.TemplateResponse(
-            "entry.html", context=update_context_title(context, "entry.html")
+            "entry.html", context=update_title(context, "entry.html")
         )
     await Notification.delete_by_id(notification_id)
 
@@ -163,9 +164,9 @@ async def come_tomorrow(
     user: User = context['user']
     if not user:
         return templates.TemplateResponse(
-            "entry.html", context=update_context_title(context, "entry.html")
+            "entry.html", context=update_title(context, "entry.html")
         )
 
     return templates.TemplateResponse(
-        "come_tomorrow.html", context=update_context_title(context, "come_tomorrow.html")
+        "come_tomorrow.html", context=update_title(context, "come_tomorrow.html")
     )

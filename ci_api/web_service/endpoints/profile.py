@@ -87,4 +87,4 @@ async def subscribe(
     context.update(notifications=notifications)
 
     return templates.TemplateResponse(
-        "notifications.html", context=update_title(context, "notifications"))
+        "notifications.html", context=update_title(context, "notifications.html"))

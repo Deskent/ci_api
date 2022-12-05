@@ -11,7 +11,7 @@ from services.user import user_login, get_bearer_header
 from services.utils import generate_random_password
 from web_service.utils.title_context_func import update_title
 from web_service.utils.titles_context import get_profile_context, get_session_context, \
-    get_email_send_context, get_password_recovery_context
+    get_email_send_context, get_context
 
 
 async def user_entry(
@@ -39,7 +39,7 @@ async def user_entry(
 
 
 async def restore_password(
-        context: dict = Depends(get_password_recovery_context),
+        context: dict = Depends(get_context),
         email: EmailStr = Form(...),
 ):
     user: User = await User.get_by_email(email)

@@ -8,7 +8,7 @@ from config import logger
 from config import templates
 from exc.payment.exceptions import ApiRequestError, UserNotFoundError
 from models.models import User
-from web_service.utils.title_context_func import update_context_title
+from web_service.utils.title_context_func import update_title
 
 
 class WebContext:
@@ -58,7 +58,7 @@ class WebContext:
     @template.setter
     def template(self, value):
         self._template = value
-        self.context.update(**update_context_title(self.context, value))
+        self.context.update(**update_title(self.context, value))
 
 
 class ResponseManager(abc.ABC):

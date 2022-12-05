@@ -8,7 +8,7 @@ from config import db, logger, settings
 
 
 DATABASE_URL: str = db.get_db_name()
-engine = create_async_engine(DATABASE_URL, echo=settings.DEBUG, future=True)
+engine = create_async_engine(DATABASE_URL, echo=settings.ECHO, future=True)
 
 
 async def drop_db() -> None:
