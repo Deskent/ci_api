@@ -4,8 +4,6 @@ from fastapi.responses import HTMLResponse
 from schemas.user import UserRegistration
 from services.user import register_new_user
 from web_service.utils import *
-from web_service.utils import get_password_recovery_context, get_context, get_sms_recovery_context, \
-    get_session_context
 from web_service.utils.titles_context import get_email_check_context
 
 router = APIRouter(tags=['web', 'login'])

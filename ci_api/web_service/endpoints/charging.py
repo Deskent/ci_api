@@ -9,10 +9,6 @@ from services.complexes_and_videos import (
 )
 from services.utils import convert_seconds_to_time, convert_to_minutes
 from web_service.utils import *
-from web_service.utils import (
-    get_current_user_complex, get_complex_videos_list,
-    get_session_video
-)
 from web_service.utils.titles_context import get_profile_context, get_session_context, \
     get_full_context, get_session_user
 

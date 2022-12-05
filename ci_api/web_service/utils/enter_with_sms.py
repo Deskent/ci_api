@@ -8,7 +8,7 @@ from config import templates
 from models.models import User
 from services.utils import generate_four_random_digits_string
 from web_service.sms_utils import sms_service, SMSException
-from web_service.utils.context_utils import login_user
+from web_service.utils.web_utils import login_user
 from web_service.utils.titles_context import get_context, get_sms_recovery_context
 
 

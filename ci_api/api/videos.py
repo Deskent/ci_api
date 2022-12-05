@@ -1,10 +1,9 @@
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, HTTPException, status, Body
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import FileResponse
 
 from config import settings, logger
-from exc.payment.exceptions import PhoneNumberError
 from models.models import Video, User
 from schemas.complexes_videos import VideoViewed
 from services.depends import is_user_active

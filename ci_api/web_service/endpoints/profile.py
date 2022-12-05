@@ -2,9 +2,8 @@ from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
 
 from models.models import Notification
-from services.emails import send_verification_mail
+from services.emails import send_verification_mail, EmailException
 from web_service.utils import *
-from web_service.utils import get_profile_context, get_session_context
 
 router = APIRouter(tags=['web', 'profile'])
 
