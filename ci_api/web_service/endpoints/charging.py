@@ -10,8 +10,8 @@ from services.complexes_and_videos import (
 )
 from services.utils import convert_seconds_to_time, convert_to_minutes
 from web_service.utils.title_context_func import update_title
-from web_service.utils.titles_context import get_logger_user_context, get_user_from_context
-from web_service.utils.web_utils import get_session_video
+from web_service.utils.titles_context import get_logged_user_context, get_user_from_context
+from web_service.utils.web_utils import get_checked_video
 
 router = APIRouter(tags=['web', 'charging'])
 
@@ -20,7 +20,7 @@ router = APIRouter(tags=['web', 'charging'])
 @router.post("/videos_list/{complex_id}", response_class=HTMLResponse)
 async def videos_list(
         complex_id: int,
-        context: dict = Depends(get_logger_user_context),
+        context: dict = Depends(get_logged_user_context),
         user: User = Depends(get_user_from_context),
 ):
     current_complex: Complex = await Complex.get_by_id(complex_id)
@@ -55,9 +55,9 @@ async def videos_list(
 @router.post("/startCharging/{video_id}", response_class=HTMLResponse)
 async def start_charging(
         video_id: int,
-        context: dict = Depends(get_logger_user_context)
+        context: dict = Depends(get_logged_user_context)
 ):
-    video: Video = await get_session_video(video_id)
+    video: Video = await get_checked_video(video_id)
     context.update(video=video)
     return templates.TemplateResponse(
         "startCharging.html", context=update_title(context, "startCharging.html")
@@ -66,7 +66,7 @@ async def start_charging(
 
 @router.post("/finish_charging", response_class=HTMLResponse)
 async def finish_charging(
-        context: dict = Depends(get_logger_user_context),
+        context: dict = Depends(get_logged_user_context),
         user: User = Depends(get_user_from_context),
         video_id: int = Form()
 ):
@@ -100,7 +100,7 @@ async def finish_charging(
 
 @router.get("/complexes_list", response_class=HTMLResponse)
 async def complexes_list(
-        context: dict = Depends(get_logger_user_context),
+        context: dict = Depends(get_logged_user_context),
         user: User = Depends(get_user_from_context)
 
 ):
@@ -137,7 +137,7 @@ async def delete_notification(
 
 @router.get("/come_tomorrow", response_class=HTMLResponse)
 async def come_tomorrow(
-        context: dict = Depends(get_logger_user_context),
+        context: dict = Depends(get_logged_user_context),
 ):
     return templates.TemplateResponse(
         "come_tomorrow.html", context=update_title(context, "come_tomorrow.html")

@@ -10,8 +10,8 @@ from services.user import register_new_user
 from web_service.handlers.common import user_entry, restore_password, set_new_password
 from web_service.handlers.enter_with_sms import approve_sms_code, enter_by_sms
 from web_service.utils.title_context_func import update_title
-from web_service.utils.titles_context import get_base_context, get_logger_user_context
-from web_service.utils.web_utils import login_user
+from web_service.utils.titles_context import get_base_context, get_logged_user_context
+from web_service.utils.web_utils import redirect_logged_user_to_entry
 
 router = APIRouter(tags=['web', 'login'])
 
@@ -65,7 +65,7 @@ async def web_register_post(
 
     user, errors = await register_new_user(form_data)
     if user:
-        return await login_user(user, request)
+        return await redirect_logged_user_to_entry(user, request)
 
     if errors:
         context.update(**errors)
@@ -187,7 +187,7 @@ async def check_email(
         user.is_verified = True
         await user.save()
 
-    context: dict = await get_logger_user_context(user=user, context=context)
+    context: dict = await get_logged_user_context(user=user, context=context)
     context.update(success='Аккаунт верифицирован')
 
     return templates.TemplateResponse(

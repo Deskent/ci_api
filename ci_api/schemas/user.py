@@ -4,7 +4,7 @@ from fastapi import Form
 from pydantic import BaseModel, validator, EmailStr
 
 from config import logger
-from exc.payment.exceptions import PhoneNumberError, PasswordMatchError
+from exc.exceptions import PhoneNumberError, PasswordMatchError
 
 
 class PhoneNumber(BaseModel):

@@ -5,7 +5,7 @@ from config import templates
 from models.models import Notification, User
 from services.emails import send_verification_mail, EmailException
 from web_service.utils.title_context_func import update_title
-from web_service.utils.titles_context import get_logger_user_context, get_profile_page_context, \
+from web_service.utils.titles_context import get_logged_user_context, get_profile_page_context, \
     get_user_from_context
 
 router = APIRouter(tags=['web', 'profile'])
@@ -29,7 +29,7 @@ async def profile(
 
 @router.get("/edit_profile", response_class=HTMLResponse)
 async def edit_profile(
-        context: dict = Depends(get_logger_user_context),
+        context: dict = Depends(get_logged_user_context),
 ):
     return templates.TemplateResponse(
         "edit_profile.html", context=update_title(context, "edit_profile.html"))
@@ -42,7 +42,7 @@ async def edit_profile_post(
         third_name: str = Form(),
         email: str = Form(),
         phone: str = Form(),
-        context: dict = Depends(get_logger_user_context),
+        context: dict = Depends(get_logged_user_context),
         user: User = Depends(get_user_from_context)
 ):
 
@@ -71,7 +71,7 @@ async def edit_profile_post(
 
 @router.get("/notifications", response_class=HTMLResponse)
 async def subscribe(
-        context: dict = Depends(get_logger_user_context),
+        context: dict = Depends(get_logged_user_context),
         user: User = Depends(get_user_from_context)
 ):
     notifications: list = await Notification.get_all_by_user_id(user.id)

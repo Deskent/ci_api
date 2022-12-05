@@ -6,7 +6,7 @@ from pydantic import validator
 
 from config import logger
 from config import templates
-from exc.payment.exceptions import ApiRequestError, UserNotFoundError
+from exc.exceptions import ApiRequestError, UserNotFoundError
 from models.models import User
 from web_service.utils.title_context_func import update_title
 

@@ -1,2 +1,0 @@
-class UserNotLoggedError(Exception):
-    pass

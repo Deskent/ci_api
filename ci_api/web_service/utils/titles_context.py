@@ -3,7 +3,7 @@ from pydantic import EmailStr
 from starlette.requests import Request
 
 from config import MAX_LEVEL
-from exc.common import UserNotLoggedError
+from exc.exceptions import UserNotLoggedError
 from models.models import User
 from services.depends import get_context_with_request
 from services.emails import send_email_message, EmailException
@@ -48,7 +48,7 @@ def get_base_context(
     return context
 
 
-async def get_logger_user_context(
+async def get_logged_user_context(
         user: User = Depends(get_session_user),
         context: dict = Depends(get_base_context)
 ) -> dict:
@@ -65,13 +65,13 @@ async def get_logger_user_context(
 
 
 def get_user_from_context(
-        context: dict = Depends(get_logger_user_context)
+        context: dict = Depends(get_logged_user_context)
 ) -> User:
     return context['user']
 
 
 def get_profile_page_context(
-        context: dict = Depends(get_logger_user_context)
+        context: dict = Depends(get_logged_user_context)
 ) -> dict:
     context.update(max_level=MAX_LEVEL)
     return context

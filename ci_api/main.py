@@ -10,7 +10,7 @@ from admin.utils import create_default_admin
 from admin.views import get_admin
 from config import settings, templates
 from create_data import create_fake_data, recreate_db
-from exc.common import UserNotLoggedError
+from exc.exceptions import UserNotLoggedError
 from routers import main_router
 from services.notification_scheduler import create_notifications_for_not_viewed_users
 from web_service.router import router as web_router

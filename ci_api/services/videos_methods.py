@@ -1,4 +1,4 @@
-from exc.payment.exceptions import UserNotFoundError
+from exc.exceptions import UserNotFoundError
 from models.models import User, Video, Complex
 from services.complexes_and_videos import is_video_viewed, check_level_up
 from services.response_manager import WebContext

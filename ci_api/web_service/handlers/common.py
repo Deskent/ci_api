@@ -11,13 +11,13 @@ from services.user import user_login, get_bearer_header
 from services.utils import generate_random_password
 from web_service.utils.title_context_func import update_title
 from web_service.utils.titles_context import (
-    get_email_send_context, get_base_context, get_logger_user_context
+    get_email_send_context, get_base_context, get_logged_user_context
 )
 
 
 async def user_entry(
         request: Request,
-        context: dict = Depends(get_logger_user_context),
+        context: dict = Depends(get_base_context),
         form_data: UserLogin = Depends(UserLogin.as_form)
 
 ) -> templates.TemplateResponse:
@@ -65,7 +65,7 @@ async def restore_password(
 
 
 async def set_new_password(
-        context: dict = Depends(get_logger_user_context),
+        context: dict = Depends(get_logged_user_context),
         old_password: str = Form(...),
         password: str = Form(...),
         password2: str = Form(...),
