@@ -4,7 +4,7 @@ from fastapi.responses import HTMLResponse
 from models.models import Notification
 from services.emails import send_verification_mail, EmailException
 from web_service.utils import *
-from web_service.utils.title_context_func import update_context_title
+from web_service.utils.title_context_func import update_title
 from web_service.utils.titles_context import get_full_context
 
 router = APIRouter(tags=['web', 'profile'])
@@ -24,9 +24,9 @@ async def profile(
 ):
     if not context.get('user'):
         return templates.TemplateResponse(
-            "entry.html", context=update_context_title(context, 'entry.html'))
+            "entry.html", context=update_title(context, 'entry.html'))
     return templates.TemplateResponse(
-        "profile.html", context=update_context_title(context, 'profile.html'))
+        "profile.html", context=update_title(context, 'profile.html'))
 
 
 @router.get("/edit_profile", response_class=HTMLResponse)
@@ -35,10 +35,10 @@ async def edit_profile(
 ):
     if not (user := context.get('user')):
         return templates.TemplateResponse(
-            "entry.html", context=update_context_title(context, 'entry'))
+            "entry.html", context=update_title(context, 'entry'))
 
     return templates.TemplateResponse(
-        "edit_profile.html", context=update_context_title(context, "edit_profile.html"))
+        "edit_profile.html", context=update_title(context, "edit_profile.html"))
 
 
 @router.post("/edit_profile", response_class=HTMLResponse)
@@ -52,7 +52,7 @@ async def edit_profile_post(
 ):
     if not (user := context.get('user')):
         return templates.TemplateResponse(
-            "entry.html", context=update_context_title(context, 'entry'))
+            "entry.html", context=update_title(context, 'entry'))
     user.username = username
     user.last_name = last_name
     user.third_name = third_name
@@ -69,11 +69,11 @@ async def edit_profile_post(
         except EmailException:
             context.update(error=f"Неверный адрес почты")
             return templates.TemplateResponse(
-                "edit_profile.html", context=update_context_title(context, "edit_profile"))
+                "edit_profile.html", context=update_title(context, "edit_profile"))
 
     await user.save()
     context.update(user=user, success='Профиль успешно изменен')
-    return templates.TemplateResponse("profile.html", context=update_context_title(context, "profile"))
+    return templates.TemplateResponse("profile.html", context=update_title(context, "profile"))
 
 
 @router.get("/notifications", response_class=HTMLResponse)
@@ -82,9 +82,9 @@ async def subscribe(
 ):
     if not (user := context.get('user')):
         return templates.TemplateResponse(
-            "entry.html", context=update_context_title(context, 'entry'))
+            "entry.html", context=update_title(context, 'entry'))
     notifications: list = await Notification.get_all_by_user_id(user.id)
     context.update(notifications=notifications)
 
     return templates.TemplateResponse(
-        "notifications.html", context=update_context_title(context, "notifications"))
+        "notifications.html", context=update_title(context, "notifications"))
