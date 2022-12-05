@@ -5,6 +5,7 @@ from pydantic import EmailStr
 from sqlmodel import Field, Relationship, select
 
 from models.methods import MySQLModel, UserModel, get_all, get_first, AdminModel
+from services.utils import get_current_datetime
 
 
 class Complex(MySQLModel, table=True):
@@ -26,6 +27,11 @@ class Complex(MySQLModel, table=True):
     def __str__(self):
         return f"№ {self.number}: {self.description}"
 
+    @classmethod
+    async def get_first(cls) -> 'Complex':
+        query = select(cls)
+        return min(await get_all(query), key=lambda x: x.number)
+
     async def next_complex_id(self) -> int:
         query = select(Complex).where(Complex.number == self.number + 1)
         next_complex: Complex = await get_first(query)
@@ -41,7 +47,6 @@ class Complex(MySQLModel, table=True):
             duration: int = 0,
             video_count: int = 0
     ) -> 'Complex':
-
         new_complex = Complex(
             number=number, name=name, description=description, duration=duration,
             video_count=video_count
@@ -97,7 +102,6 @@ class Video(MySQLModel, table=True):
             name: str = '',
             description: str = '',
     ) -> 'Video':
-
         new_video = Video(
             name=name, description=description, complex_id=complex_id,
             duration=duration, file_name=file_name, number=number
@@ -133,13 +137,13 @@ class User(UserModel, table=True):
     third_name: str = Field(nullable=True, default='', description="Отчество")
     email: EmailStr = Field(unique=True, index=True)
     phone: str = Field(unique=True, nullable=False, min_length=10, max_length=13,
-                       description="Телефон в формате 9998887766")
+        description="Телефон в формате 9998887766")
     password: str = Field(nullable=False, max_length=256, min_length=6, exclude=True)
     gender: bool = Field(nullable=False, description='Пол, 1 - муж, 0 - жен')
     level: int = Field(nullable=False, default=1, description="Текущий уровень")
     progress: int = Field(nullable=False, default=0,
-                          description="Процент прогресса просмотра текущего комплекса")
-    created_at: datetime = Field(default=datetime.now(tz=None))
+        description="Процент прогресса просмотра текущего комплекса")
+    created_at: datetime = Field(default=get_current_datetime())
     expired_at: Optional[datetime] = Field(default=None)
     is_verified: Optional[bool] = Field(default=False)
     is_active: Optional[bool] = Field(default=False)
@@ -193,7 +197,7 @@ class Administrator(AdminModel, table=True):
 class UserDataModels(MySQLModel):
 
     @classmethod
-    async def get_all_by_user_id(cls,user_id: int) -> list[MySQLModel]:
+    async def get_all_by_user_id(cls, user_id: int) -> list[MySQLModel]:
         query = select(cls).join(User).where(User.id == user_id)
 
         return await get_all(query)
@@ -305,7 +309,6 @@ class ViewedVideo(MySQLModel, table=True):
     async def get_all_viewed_videos(
             cls, user_id: int
     ) -> list['ViewedVideo']:
-
         query = select(cls).where(cls.user_id == user_id)
 
         return await get_all(query)

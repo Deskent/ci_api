@@ -49,7 +49,7 @@ class TestUsers:
             self.base_url + "/auth/change_password", json=payload, headers=self.headers)
         assert response.status_code == 202
 
-    @pytest.mark.server
+    @pytest.mark.skip('Need activate user')
     def test_get_video_by_id(self):
         response = self.session.get(self.base_url + f"/complex/1/", headers=self.headers)
         assert response.status_code == 200

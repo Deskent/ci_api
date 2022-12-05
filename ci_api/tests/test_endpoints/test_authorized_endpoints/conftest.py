@@ -20,7 +20,6 @@ class CreateUser:
     password: str = "testpassword"
     password2: str = "testpassword"
     gender: bool = True
-    rate_id: int = 1
 
     def as_dict(self):
         return self.__dict__
@@ -38,7 +37,7 @@ class TestUser(CreateUser):
     expired_at: datetime = datetime.now(tz=None) + timedelta(days=30)
     is_verified: bool = False
     is_admin: bool = False
-    is_active: bool = False
+    is_active: bool = True
     current_complex: int = 1
 
 

@@ -25,7 +25,7 @@ RateNotFound = HTTPException(
     detail="Invalid rate id"
 
 )
-FileNotFound = HTTPException(
+FileNotFoundError = HTTPException(
     status_code=status.HTTP_404_NOT_FOUND,
     detail="File not found"
 

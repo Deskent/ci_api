@@ -1,8 +1,13 @@
+import datetime
 import random
 import secrets
 from datetime import time
 
 from config import logger
+
+
+def get_current_datetime() -> datetime:
+    return datetime.datetime.now(tz=None)
 
 
 @logger.catch

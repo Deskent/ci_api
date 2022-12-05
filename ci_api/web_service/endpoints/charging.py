@@ -84,6 +84,7 @@ async def start_charging(
         video_id: int,
         context: dict = Depends(get_logged_user_context)
 ):
+    # TODO fix it
     video: Video = await get_checked_video(video_id)
     context.update(video=video)
     return templates.TemplateResponse(
