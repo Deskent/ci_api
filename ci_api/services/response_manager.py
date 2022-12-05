@@ -30,9 +30,10 @@ class WebContext:
 
     def is_user_in_context(self) -> User:
         if user := self.context.get('user'):
-            logger.warning("User is not in context")
             return user
-        self._template = "entry.html"
+
+        logger.warning(f"User is not in context:\n{self.context}")
+        self.template = "entry.html"
         self.to_raise = UserNotFoundError
 
     @property

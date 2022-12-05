@@ -7,7 +7,6 @@ from models.models import User
 from services.depends import get_context_with_request
 from services.emails import send_email_message, EmailException
 from services.utils import represent_phone
-from web_service.utils.title_context_func import update_title
 
 
 async def get_session_token(request: Request) -> str:
@@ -51,19 +50,7 @@ def get_profile_context(
         common_context=Depends(get_context)
 ) -> dict:
     common_context.update(max_level=MAX_LEVEL)
-    return update_title(common_context, key="profile")
-
-
-def get_sms_recovery_context(
-        common_context=Depends(get_context)
-) -> dict:
-    return update_title(common_context, key="sms_recovery")
-
-
-def get_email_check_context(
-        common_context=Depends(get_profile_context)
-) -> dict:
-    return update_title(common_context, key="check_email_code")
+    return common_context
 
 
 async def get_session_context(

@@ -10,8 +10,7 @@ from services.user import register_new_user
 from web_service.handlers.common import user_entry, restore_password, set_new_password
 from web_service.handlers.enter_with_sms import approve_sms_code, enter_by_sms
 from web_service.utils.title_context_func import update_title
-from web_service.utils.titles_context import get_session_context, get_context, \
-    get_sms_recovery_context
+from web_service.utils.titles_context import get_session_context, get_context
 from web_service.utils.web_utils import login_user
 
 router = APIRouter(tags=['web', 'login'])
@@ -142,7 +141,7 @@ async def forget1_post(
 
 @router.get("/forget2", response_class=HTMLResponse)
 async def forget2(
-        context: dict = Depends(get_sms_recovery_context),
+        context: dict = Depends(get_context),
 ):
     return templates.TemplateResponse(
         "forget2.html", context=update_title(context, "forget2.html"))
@@ -158,7 +157,7 @@ async def login_with_sms(
 
 @router.get("/forget3", response_class=HTMLResponse)
 async def forget3(
-        context: dict = Depends(get_sms_recovery_context),
+        context: dict = Depends(get_context),
 ):
     return templates.TemplateResponse(
         "forget3.html", context=update_title(context, "forget3.html"))
