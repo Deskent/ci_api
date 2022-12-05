@@ -2,7 +2,7 @@ import abc
 from abc import abstractmethod
 
 from fastapi.responses import RedirectResponse, HTMLResponse
-from pydantic import BaseModel, validator
+from pydantic import validator
 
 from config import logger
 from config import templates
@@ -16,10 +16,10 @@ class WebContext:
     def __init__(self, context: dict):
         self.context: dict = context
         self._template: str = ''
-        self._redirect: str = ''
-        self._error: str = ''
-        self._success: str = ''
-        self._to_raise: object = None
+        self.redirect: str = ''
+        self.error: str = ''
+        self.success: str = ''
+        self.to_raise: object = None
         self.api_data: dict = {}
 
     @validator('to_raise')
@@ -33,23 +33,7 @@ class WebContext:
             logger.warning("User is not in context")
             return user
         self._template = "entry.html"
-        self._to_raise = UserNotFoundError
-
-    @property
-    def redirect(self) -> str:
-        return self._redirect
-
-    @property
-    def error(self) -> str:
-        return self._error
-
-    @property
-    def success(self) -> str:
-        return self._success
-
-    @property
-    def to_raise(self) -> object:
-        return self._to_raise
+        self.to_raise = UserNotFoundError
 
     @property
     def template(self) -> str:

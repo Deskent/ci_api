@@ -5,7 +5,7 @@ from exc.payment.exceptions import (
 )
 from models.models import User, Rate, Payment
 from services.response_manager import WebContext
-from web_service.utils.payment_request import get_payment_link
+from web_service.handlers.payment_request import get_payment_link
 
 
 async def _get_rate_date(user: User) -> dict:
@@ -66,7 +66,6 @@ async def get_subscribe_by_rate_id(
     return obj
 
 
-# TODO отрефакторить, убрать контекст
 async def check_payment_result(
         context: dict,
         payform_status: str,

@@ -1,9 +1,9 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, Form
 from fastapi.responses import HTMLResponse
 
+from config import templates
 from models.models import Notification
 from services.emails import send_verification_mail, EmailException
-from web_service.utils import *
 from web_service.utils.title_context_func import update_title
 from web_service.utils.titles_context import get_full_context
 

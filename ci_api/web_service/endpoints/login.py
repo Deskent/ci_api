@@ -1,14 +1,18 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, Request, HTTPException, status, Form
 from fastapi.responses import HTMLResponse
 from pydantic import EmailStr
+from starlette.responses import RedirectResponse
 
+from config import templates, logger
+from models.models import User
 from schemas.user import UserRegistration
 from services.user import register_new_user
 from web_service.handlers.common import user_entry, restore_password, set_new_password
-from web_service.utils import *
+from web_service.handlers.enter_with_sms import approve_sms_code, enter_by_sms
 from web_service.utils.title_context_func import update_title
-from web_service.utils.titles_context import get_session_context
-
+from web_service.utils.titles_context import get_session_context, get_context, \
+    get_sms_recovery_context
+from web_service.utils.web_utils import login_user
 
 router = APIRouter(tags=['web', 'login'])
 
