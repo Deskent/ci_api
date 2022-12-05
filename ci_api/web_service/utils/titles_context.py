@@ -29,8 +29,6 @@ def get_context(
 ) -> dict:
     context.update({
         'email_pattern': r"\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}\b",
-        "title": "Добро пожаловать",
-        "head_title": "Добро пожаловать",
         "icon_link": "/index",
         "company_email": "company@email.com",
         "company_phone": f"tel:{COMPANY_PHONE}",
