@@ -1,6 +1,7 @@
 import datetime
 
 import uvicorn
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
@@ -12,7 +13,6 @@ from create_data import create_fake_data, recreate_db
 from routers import main_router
 from services.notification_scheduler import create_notifications_for_not_viewed_users
 from web_service.router import router as web_router
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 DOCS_URL = "/ci"
 
