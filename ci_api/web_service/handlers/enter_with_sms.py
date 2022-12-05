@@ -7,7 +7,7 @@ from starlette.requests import Request
 from config import templates
 from models.models import User
 from services.utils import generate_four_random_digits_string
-from web_service.sms_utils import sms_service, SMSException
+from web_service.sms_class import sms_service, SMSException
 from web_service.utils.title_context_func import update_title
 from web_service.utils.web_utils import login_user
 from web_service.utils.titles_context import get_context, get_sms_recovery_context
