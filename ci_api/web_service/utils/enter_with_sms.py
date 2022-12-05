@@ -8,6 +8,7 @@ from config import templates
 from models.models import User
 from services.utils import generate_four_random_digits_string
 from web_service.sms_utils import sms_service, SMSException
+from web_service.utils.title_context_func import update_title
 from web_service.utils.web_utils import login_user
 from web_service.utils.titles_context import get_context, get_sms_recovery_context
 
@@ -23,7 +24,7 @@ async def _send_sms(user, context):
     except SMSException as err:
         logger.error(err)
         context.update(error=err, user=user)
-    return templates.TemplateResponse("entry_sms.html", context=context)
+    return templates.TemplateResponse("entry_sms.html", context=update_title(context, "entry_sms.html"))
 
 
 async def _send_call(user, context):
@@ -32,11 +33,11 @@ async def _send_call(user, context):
         if code:
             user.sms_call_code = str(code)
             await user.save()
-            return templates.TemplateResponse("forget3.html", context=context)
+            return templates.TemplateResponse("forget3.html", context=update_title(context, "forget3.html"))
     except SMSException as err:
         logger.error(err)
         context.update(error=err, user=user)
-    return templates.TemplateResponse("entry_sms.html", context=context)
+    return templates.TemplateResponse("entry_sms.html", context=update_title(context, "entry_sms.html"))
 
 
 async def enter_by_sms(
@@ -44,14 +45,12 @@ async def enter_by_sms(
         sms_send_to: str = Form(...),
         phone: str = Form(...),
 ):
-    context.update(
-        title="Верификация по телефону/sms",
-        head_title="Верификация по телефону/sms"
-    )
     user: User = await User.get_by_phone(phone)
     if not user:
         context.update(error="User with this phone number not found")
-        return templates.TemplateResponse("entry.html", context=context)
+        return templates.TemplateResponse(
+            "entry.html", context=update_title(context, "entry.html")
+        )
 
     context.update(user=user)
     if sms_send_to == "sms":
@@ -74,7 +73,7 @@ async def approve_sms_code(
     user: User = await User.get_by_id(user_id)
     if not user:
         context.update(error="Неверный номер телефона")
-        return templates.TemplateResponse("entry.html", context=context)
+        return templates.TemplateResponse("entry.html", context=update_title(context, "entry"))
 
     user_code: str = user.sms_message
     if request.url.path == "/forget3":
@@ -83,13 +82,9 @@ async def approve_sms_code(
         text = "Неверный код"
         logger.debug(text)
         context.update(error=text, user=user)
-        return templates.TemplateResponse(f"{request.url.path}.html", context=context)
+        url_path = f"{request.url.path}.html"
+        return templates.TemplateResponse(url_path, context=update_title(context, url_path))
 
-    await clean_sms_code(user)
+    await user.clean_sms_code()
 
     return await login_user(user, request)
-
-
-async def clean_sms_code(user):
-    user.sms_message = None
-    await user.save()
