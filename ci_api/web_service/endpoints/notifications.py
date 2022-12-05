@@ -1,12 +1,12 @@
-from fastapi import Depends
+from fastapi import Depends, APIRouter
 from starlette.responses import HTMLResponse, RedirectResponse
 
 from config import templates
 from models.models import User, Notification
-from web_service.endpoints.charging import router
-from web_service.endpoints.profile import router
 from web_service.utils.title_context_func import update_title
 from web_service.utils.titles_context import get_user_from_context, get_logged_user_context
+
+router = APIRouter(tags=['web', 'notifications'])
 
 
 @router.get("/delete_notification/{notification_id}", response_class=HTMLResponse)
