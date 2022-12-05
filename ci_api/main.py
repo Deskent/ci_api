@@ -19,7 +19,6 @@ DOCS_URL = "/ci"
 
 def get_application():
     scheduler = AsyncIOScheduler()
-    # TODO генерировать уведомления только для подписанных (active)
     scheduler.add_job(
         create_notifications_for_not_viewed_users, 'cron',
         hour=settings.NOTIFICATION_HOUR,

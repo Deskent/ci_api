@@ -18,7 +18,7 @@ async def _get_users_for_notification(
 ) -> list[int]:
     query = (
         select(User.id)
-        .where(User.is_verified == True)
+        .where(User.is_verified == True and User.is_active == True)
         .filter(User.id.not_in(today_viewed))
     )
 
