@@ -2,17 +2,20 @@ import datetime
 
 import uvicorn
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
 from admin.utils import create_default_admin
 from admin.views import get_admin
-from config import settings
+from config import settings, templates
 from create_data import create_fake_data, recreate_db
+from exc.common import UserNotLoggedError
 from routers import main_router
 from services.notification_scheduler import create_notifications_for_not_viewed_users
 from web_service.router import router as web_router
+from web_service.utils.title_context_func import update_title
+from web_service.utils.titles_context import get_base_context
 
 DOCS_URL = "/ci"
 
@@ -43,6 +46,15 @@ def get_application():
     @app.on_event('shutdown')
     async def on_shutdown():
         scheduler.shutdown()
+
+    @app.exception_handler(UserNotLoggedError)
+    async def user_not_logged_exception_handler(
+            request: Request, exc: UserNotLoggedError
+    ):
+        context: dict = get_base_context({"request": request})
+        return templates.TemplateResponse(
+            "entry.html", context=update_title(context, "entry.html")
+        )
 
     app: FastAPI = get_admin(app)
     app.add_middleware(SessionMiddleware, secret_key=settings.SECRET)
