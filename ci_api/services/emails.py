@@ -61,12 +61,10 @@ async def _send_mail(email: EmailStr, payload: dict) -> None:
 
 
 async def send_verification_mail(
-        user: User,
-        email: str = ''
+        email: EmailStr
 ) -> str:
     # token: str = AuthHandler().get_email_token(user)
     code: str = generate_four_random_digits_string()
-    email: EmailStr = email if email else user.email
     payload = {
         'data': {
             'title': 'Токен валидации',

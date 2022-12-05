@@ -1,10 +1,12 @@
+import datetime
+
 from pydantic import EmailStr
 from sqlmodel import SQLModel, select
 from sqlmodel.engine.result import Result
 
-from services.auth import auth_handler
-from database.db import get_db_session
 from config import logger
+from database.db import get_db_session
+from services.auth import auth_handler
 
 
 async def get_session_response(query) -> Result:
@@ -122,3 +124,10 @@ class UserModel(AdminModel):
         self.sms_message = ''
         return await self.save()
 
+    @classmethod
+    async def create(cls, data: dict) -> 'User':
+        data['password'] = await cls.get_hashed_password(data['password'])
+        data['expired_at'] = datetime.datetime.now(tz=None) + datetime.timedelta(days=30)
+        user = cls(**data)
+
+        return await user.save()

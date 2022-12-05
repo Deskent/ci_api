@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, Form
 from fastapi.responses import HTMLResponse
+from pydantic import EmailStr
 
-from config import templates
+from config import templates, logger
 from models.models import User
 from services.emails import send_verification_mail, EmailException
 from web_service.utils.title_context_func import update_title
@@ -40,7 +41,7 @@ async def edit_profile_post(
         username: str = Form(),
         last_name: str = Form(),
         third_name: str = Form(),
-        email: str = Form(),
+        email: EmailStr = Form(),
         phone: str = Form(),
         context: dict = Depends(get_logged_user_context),
         user: User = Depends(get_user_from_context)
@@ -55,7 +56,8 @@ async def edit_profile_post(
     user.phone = phone
     if user.email != email:
         try:
-            code: str = await send_verification_mail(user)
+            code: str = await send_verification_mail(email)
+            logger.debug(f"Email code: {code}")
             user.email_code = code
             user.is_verified = False
             user.email = email

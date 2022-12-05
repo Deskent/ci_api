@@ -5,7 +5,7 @@ from pydantic import EmailStr
 from starlette.datastructures import FormData
 
 from config import logger
-from models.models import User, Administrator
+from models.models import User, Administrator, Rate, Complex
 from schemas.user import UserRegistration, UserLogin
 from services.emails import send_verification_mail, EmailException
 
@@ -44,21 +44,32 @@ async def register_new_user(user_data: UserRegistration) -> tuple[User | None, d
         errors = {'error': 'User with this phone already exists'}
         return None, errors
 
-    user_data.password = await User.get_hashed_password(user_data.password)
-    expired_at = datetime.datetime.now(tz=None) + datetime.timedelta(days=30)
-    user = User(
-        **user_data.dict(), is_verified=False,
-        current_complex=1, is_admin=False, is_active=True, expired_at=expired_at
-    )
+    data: dict = user_data.dict()
     try:
-        code: str = await send_verification_mail(user)
-        user.email_code = code
+        data['email_code'] = await send_verification_mail(user_data.email)
+        logger.debug(f"Email code: {data['email_code']}")
+
     except EmailException:
+        logger.warning(f"Wrong email {user_data.email}")
         errors = {'error': "Неверный адрес почты"}
         return None, errors
-
-    await user.save()
-    logger.info(f"User with id {user.id} created")
+    first_complex: Complex = await Complex.get_first()
+    data['current_complex'] = first_complex.id
+    free_rate: Rate = await Rate.get_free()
+    if free_rate:
+        data['rate_id'] = free_rate.id
+    user: User = await User.create(data)
+    # user_data.password = await User.get_hashed_password(user_data.password)
+    # expired_at = datetime.datetime.now(tz=None) + datetime.timedelta(days=30)
+    # user = User(
+    #     **user_data.dict(), is_verified=False,
+    #     current_complex=1, is_admin=False, is_active=True, expired_at=expired_at
+    # )
+    # free_rate: Rate = await Rate.get_free()
+    # if free_rate:
+    #     user.rate_id = free_rate.id
+    # await user.save()
+    logger.info(f"User with id {user.id} created. Rate set: {user.rate_id}")
 
     return user, errors
 
