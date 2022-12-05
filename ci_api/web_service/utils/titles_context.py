@@ -7,6 +7,7 @@ from models.models import User
 from services.depends import get_context_with_request
 from services.emails import send_email_message, EmailException
 from services.utils import represent_phone
+from web_service.utils.title_context_func import update_context_title
 
 
 async def get_session_token(request: Request) -> str:
@@ -18,36 +19,6 @@ async def get_session_user(
 ) -> User:
     if token:
         return await User.get_by_token(token)
-
-
-def update_context_title(context: dict, key: str) -> dict:
-    data = {
-        "password_recovery": {
-            "title": "Восстановление пароля",
-            "head_title": "Восстановление пароля",
-        },
-        "sms_recovery": {
-            "title": "Вход по телефону/sms",
-            "head_title": "Вход по телефону/sms",
-        },
-        "check_email_code": {
-            "title": "Верификация почты",
-            "head_title": "Верификация почты",
-        },
-        "profile": {
-            "title": "Личный кабинет",
-            "head_title": "Профиль",
-        },
-        "entry": {
-            "title": "Вход",
-            "head_title": "Добро пожаловать",
-        },
-    }
-    title: dict = data.get(key)
-    if title:
-        context.update(title=title['title'], head_title=title['head_title'])
-
-    return context
 
 
 COMPANY_PHONE = "9213336698"
