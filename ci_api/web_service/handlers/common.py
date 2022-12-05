@@ -10,13 +10,14 @@ from schemas.user import UserLogin
 from services.user import user_login, get_bearer_header
 from services.utils import generate_random_password
 from web_service.utils.title_context_func import update_title
-from web_service.utils.titles_context import get_profile_context, get_session_context, \
-    get_email_send_context, get_context
+from web_service.utils.titles_context import (
+    get_email_send_context, get_base_context, get_logged_user_context
+)
 
 
 async def user_entry(
         request: Request,
-        context: dict = Depends(get_profile_context),
+        context: dict = Depends(get_base_context),
         form_data: UserLogin = Depends(UserLogin.as_form)
 
 ) -> templates.TemplateResponse:
@@ -39,7 +40,7 @@ async def user_entry(
 
 
 async def restore_password(
-        context: dict = Depends(get_context),
+        context: dict = Depends(get_base_context),
         email: EmailStr = Form(...),
 ):
     user: User = await User.get_by_email(email)
@@ -64,18 +65,13 @@ async def restore_password(
 
 
 async def set_new_password(
-        context: dict = Depends(get_profile_context),
-        session_context: dict = Depends(get_session_context),
+        context: dict = Depends(get_logged_user_context),
         old_password: str = Form(...),
         password: str = Form(...),
         password2: str = Form(...),
 ):
-    user: User = session_context.get('user')
-    if not user:
-        return templates.TemplateResponse(
-            "entry.html", context=update_title(context, "entry.html"))
+    user: User = context.get('user')
 
-    context.update(**session_context)
     context = update_title(context, "edit_profile.html")
     if not await user.is_password_valid(old_password):
         context.update(error="Неверный пароль")

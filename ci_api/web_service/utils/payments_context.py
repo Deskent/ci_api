@@ -1,8 +1,9 @@
 from loguru import logger
 
-from exc.payment.exceptions import (
-    PaymentServiceError, RateNotFound, SubscribeExistsError
+from exc.exceptions import (
+    RateNotFound
 )
+from exc.payment.pay_exceptions import PaymentServiceError, SubscribeExistsError
 from models.models import User, Rate, Payment
 from services.response_manager import WebContext
 from web_service.handlers.payment_request import get_payment_link

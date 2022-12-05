@@ -5,16 +5,6 @@ ApiRequestError = HTTPException(
     detail="ApiServiceResponser error"
 )
 
-PaymentServiceError = HTTPException(
-    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-    detail="Ошибка ответа сервиса оплаты"
-)
-
-SubscribeExistsError = HTTPException(
-    status_code=status.HTTP_406_NOT_ACCEPTABLE,
-    detail="Вы уже подписаны на этот тариф"
-)
-
 UserNotFoundError = HTTPException(
     status_code=status.HTTP_404_NOT_FOUND,
     detail="Invalid user or password"
@@ -35,6 +25,11 @@ RateNotFound = HTTPException(
     detail="Invalid rate id"
 
 )
+FileNotFound = HTTPException(
+    status_code=status.HTTP_404_NOT_FOUND,
+    detail="File not found"
+
+)
 
 PhoneNumberError = HTTPException(
     status_code=status.HTTP_400_BAD_REQUEST,
@@ -46,3 +41,6 @@ PasswordMatchError = HTTPException(
     detail="Passwords does not match"
 )
 
+
+class UserNotLoggedError(Exception):
+    pass

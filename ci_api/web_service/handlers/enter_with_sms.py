@@ -9,11 +9,11 @@ from models.models import User
 from services.utils import generate_four_random_digits_string
 from web_service.sms_class import sms_service, SMSException
 from web_service.utils.title_context_func import update_title
-from web_service.utils.web_utils import login_user
-from web_service.utils.titles_context import get_context
+from web_service.utils.web_utils import redirect_logged_user_to_entry
+from web_service.utils.titles_context import get_base_context
 
 
-async def _send_sms(user, context):
+async def _send_sms(user: User, context: dict):
     message: str = generate_four_random_digits_string()
     logger.debug(f"Sms message generated: {message}")
     try:
@@ -27,7 +27,7 @@ async def _send_sms(user, context):
     return templates.TemplateResponse("entry_sms.html", context=update_title(context, "entry_sms.html"))
 
 
-async def _send_call(user, context):
+async def _send_call(user: User, context: dict):
     try:
         code: str = await sms_service.send_call(phone=user.phone)
         if code:
@@ -41,7 +41,7 @@ async def _send_call(user, context):
 
 
 async def enter_by_sms(
-        context: dict = Depends(get_context),
+        context: dict = Depends(get_base_context),
         sms_send_to: str = Form(...),
         phone: str = Form(...),
 ):
@@ -62,7 +62,7 @@ async def enter_by_sms(
 
 async def approve_sms_code(
         request: Request,
-        context: dict = Depends(get_context),
+        context: dict = Depends(get_base_context),
         sms_input_1: Optional[str] = Form(...),
         sms_input_2: Optional[str] = Form(...),
         sms_input_3: Optional[str] = Form(...),
@@ -87,4 +87,4 @@ async def approve_sms_code(
 
     await user.clean_sms_code()
 
-    return await login_user(user, request)
+    return await redirect_logged_user_to_entry(user, request)
