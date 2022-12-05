@@ -83,8 +83,6 @@ async def create_users(data: list[dict] = None):
                 'gender': 1,
                 'password': "asd",
                 'email': "asd@asd.ru",
-                'current_complex': 1,
-                'rate_id': 1,
                 'is_admin': True,
                 'is_active': False,
                 'is_verified': True
@@ -96,8 +94,6 @@ async def create_users(data: list[dict] = None):
                 'gender': 0,
                 'password': "test2pass",
                 'email': 'test2@email.com',
-                'current_complex': 1,
-                'rate_id': 1,
                 'is_admin': False,
                 'is_active': True
 
@@ -108,17 +104,17 @@ async def create_users(data: list[dict] = None):
                 'password': "test3pass",
                 'gender': 0,
                 'email': 'test3@email.com',
-                'current_complex': 1,
-                'rate_id': 2,
                 'is_admin': False,
                 'is_active': False
             },
         ]
-    for user in data:
-        expired_at = datetime.utcnow() + timedelta(days=30)
-        user['password'] = await User.get_hashed_password(user['password'])
-        user = User(**user, expired_at=expired_at)
-        await user.save()
+    for user_data in data:
+        first_complex: Complex = await Complex.get_first()
+        user_data['current_complex'] = first_complex.id
+        free_rate: Rate = await Rate.get_free()
+        if free_rate:
+            user_data['rate_id'] = free_rate.id
+        await User.create(user_data)
 
 
 async def create_alarms(data: list[dict] = None):
