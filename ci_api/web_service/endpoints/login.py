@@ -10,7 +10,7 @@ from services.user import register_new_user
 from web_service.handlers.common import user_entry, restore_password, set_new_password
 from web_service.handlers.enter_with_sms import approve_sms_code, enter_by_sms
 from web_service.utils.title_context_func import update_title
-from web_service.utils.titles_context import get_session_context, get_context
+from web_service.utils.titles_context import get_base_context, get_logger_user_context
 from web_service.utils.web_utils import login_user
 
 router = APIRouter(tags=['web', 'login'])
@@ -19,7 +19,7 @@ router = APIRouter(tags=['web', 'login'])
 @router.get("/", response_class=HTMLResponse)
 @router.get("/index", response_class=HTMLResponse)
 async def index(
-        context: dict = Depends(get_context)
+        context: dict = Depends(get_base_context)
 ):
     return templates.TemplateResponse(
         "index.html", context=update_title(context, 'index'))
@@ -27,7 +27,7 @@ async def index(
 
 @router.get("/user_agree", response_class=HTMLResponse)
 async def user_agree(
-        context: dict = Depends(get_context)
+        context: dict = Depends(get_base_context)
 ):
     context.update(
         title='Пользовательское соглашение',
@@ -39,7 +39,7 @@ async def user_agree(
 
 @router.get("/confidential", response_class=HTMLResponse)
 async def confidential(
-        context: dict = Depends(get_context)
+        context: dict = Depends(get_base_context)
 ):
     context.update(
         title='Политика',
@@ -52,7 +52,7 @@ async def confidential(
 @router.post("/registration", response_class=HTMLResponse)
 async def web_register_post(
         request: Request,
-        context: dict = Depends(get_context),
+        context: dict = Depends(get_base_context),
         form_data: UserRegistration = Depends(UserRegistration.as_form)
 ):
     if not form_data:
@@ -80,7 +80,7 @@ async def web_register_post(
 
 @router.get("/registration", response_class=HTMLResponse)
 async def web_register(
-        context: dict = Depends(get_context)
+        context: dict = Depends(get_base_context)
 ):
     context.update(personal_data="/personal_data_info")
     return templates.TemplateResponse(
@@ -111,7 +111,7 @@ async def newPassword(
 
 @router.get("/entry_sms", response_class=HTMLResponse)
 async def entry_sms(
-        context: dict = Depends(get_context),
+        context: dict = Depends(get_base_context),
 ):
     return templates.TemplateResponse(
         "entry_sms.html", context=update_title(context, "entry_sms.html"))
@@ -126,7 +126,7 @@ async def entry_sms_posts(
 
 @router.get("/forget1", response_class=HTMLResponse)
 async def forget1(
-        context: dict = Depends(get_context),
+        context: dict = Depends(get_base_context),
 ):
     return templates.TemplateResponse(
         "forget1.html", context=update_title(context, "forget_password.html"))
@@ -141,7 +141,7 @@ async def forget1_post(
 
 @router.get("/forget2", response_class=HTMLResponse)
 async def forget2(
-        context: dict = Depends(get_context),
+        context: dict = Depends(get_base_context),
 ):
     return templates.TemplateResponse(
         "forget2.html", context=update_title(context, "forget2.html"))
@@ -157,7 +157,7 @@ async def login_with_sms(
 
 @router.get("/forget3", response_class=HTMLResponse)
 async def forget3(
-        context: dict = Depends(get_context),
+        context: dict = Depends(get_base_context),
 ):
     return templates.TemplateResponse(
         "forget3.html", context=update_title(context, "forget3.html"))
@@ -166,7 +166,7 @@ async def forget3(
 @router.get("/check_email", response_class=HTMLResponse)
 @router.post("/check_email", response_class=HTMLResponse)
 async def check_email(
-        context: dict = Depends(get_context),
+        context: dict = Depends(get_base_context),
         email: EmailStr = Form(...),
         email_token: str = Form(...)
 ):
@@ -187,8 +187,8 @@ async def check_email(
         user.is_verified = True
         await user.save()
 
-    session_context: dict = await get_session_context(user)
-    context.update(success='Аккаунт верифицирован', **session_context)
+    context: dict = await get_logger_user_context(user=user, context=context)
+    context.update(success='Аккаунт верифицирован')
 
     return templates.TemplateResponse(
         "profile.html", context=update_title(context, 'profile'))

@@ -3,10 +3,30 @@ from pydantic import EmailStr
 from starlette.requests import Request
 
 from config import MAX_LEVEL
+from exc.common import UserNotLoggedError
 from models.models import User
 from services.depends import get_context_with_request
 from services.emails import send_email_message, EmailException
 from services.utils import represent_phone
+
+
+COMPANY_PHONE = "9213336698"
+DEFAULT_CONTEXT = {
+    'email_pattern': r"\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}\b",
+    "icon_link": "/index",
+    "company_email": "company@email.com",
+    "company_phone": f"tel:{COMPANY_PHONE}",
+    "company_represent_phone": f"tel: {represent_phone(COMPANY_PHONE)}",
+    "google_play_link": "https://www.google.com",
+    "app_store_link": "https://www.apple.com",
+    "vk_link": "https://vk.com/cigun_energy",
+    "youtube_link": "https://www.youtube.com/channel/UCA3VIncMlr7MxXY2Z_QEM-Q",
+    "subscribe_info": "/subscribe",
+    "conditions": "/user_agree",
+    "confidence": "/confidential",
+    "feedback_link": "/feedback",
+    "help_link": "/help_page"
+}
 
 
 async def get_session_token(request: Request) -> str:
@@ -20,58 +40,40 @@ async def get_session_user(
         return await User.get_by_token(token)
 
 
-COMPANY_PHONE = "9213336698"
-
-
-def get_context(
+def get_base_context(
         context: dict = Depends(get_context_with_request)
 ) -> dict:
+    context.update(DEFAULT_CONTEXT)
+
+    return context
+
+
+async def get_logger_user_context(
+        user: User = Depends(get_session_user),
+        context: dict = Depends(get_base_context)
+) -> dict:
+
+    if not user:
+        raise UserNotLoggedError
+
     context.update({
-        'email_pattern': r"\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}\b",
-        "icon_link": "/index",
-        "company_email": "company@email.com",
-        "company_phone": f"tel:{COMPANY_PHONE}",
-        "company_represent_phone": f"tel: {represent_phone(COMPANY_PHONE)}",
-        "google_play_link": "https://www.google.com",
-        "app_store_link": "https://www.apple.com",
-        "vk_link": "https://vk.com/cigun_energy",
-        "youtube_link": "https://www.youtube.com/channel/UCA3VIncMlr7MxXY2Z_QEM-Q",
-        "subscribe_info": "#",
-        "conditions": "/user_agree",
-        "confidence": "/confidential",
-        "feedback_link": "/feedback",
-        "help_link": "/help_page"
+        "user": user,
+        "user_present_phone": represent_phone(user.phone)
     })
 
     return context
 
 
-def get_profile_context(
-        common_context=Depends(get_context)
+def get_user_from_context(
+        context: dict = Depends(get_logger_user_context)
+) -> User:
+    return context['user']
+
+
+def get_profile_page_context(
+        context: dict = Depends(get_logger_user_context)
 ) -> dict:
-    common_context.update(max_level=MAX_LEVEL)
-    return common_context
-
-
-async def get_session_context(
-        user: User = Depends(get_session_user)
-) -> dict:
-    """Returns default page context and user data"""
-    context = {}
-    if user:
-        context.update({
-            "user": user,
-            "user_present_phone": represent_phone(user.phone)
-        })
-
-    return context
-
-
-async def get_full_context(
-        session_context: dict = Depends(get_session_context),
-        context: dict = Depends(get_context)
-) -> dict:
-    context.update(**session_context)
+    context.update(max_level=MAX_LEVEL)
     return context
 
 
