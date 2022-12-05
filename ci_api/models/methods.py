@@ -97,6 +97,7 @@ class AdminModel(MySQLModel):
 class UserModel(AdminModel):
     phone: str
     email_code: str
+    is_active: bool
 
     @classmethod
     async def get_by_phone(cls, phone: str) -> 'User':
@@ -108,3 +109,10 @@ class UserModel(AdminModel):
         query = select(cls).where(cls.email_code == email_code)
         return await get_first(query)
 
+    async def activate(self):
+        self.is_active = True
+        return await self.save()
+
+    async def deactivate(self):
+        self.is_active = False
+        return await self.save()

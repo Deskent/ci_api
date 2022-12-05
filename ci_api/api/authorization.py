@@ -2,11 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import EmailStr
 
 from config import logger
-from database.db import get_db_session
 from models.models import User
 from schemas.user import UserRegistration, UserLogin, UserChangePassword
 from services.depends import get_logged_user
-from services.emails import get_user_id_from_email_token, get_user_id_from_email_code
 from services.user import register_new_user
 
 router = APIRouter(prefix="/auth", tags=['Authorization'])

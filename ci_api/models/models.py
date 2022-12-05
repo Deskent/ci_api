@@ -174,6 +174,11 @@ class Rate(MySQLModel, table=True):
     def __str__(self):
         return f"{self.id}: {self.name}"
 
+    @classmethod
+    async def get_free(cls) -> 'Rate':
+        query = select(cls).where(cls.price == 0)
+        return await get_first(query)
+
 
 class Administrator(AdminModel, table=True):
     __tablename__ = 'admins'
@@ -323,4 +328,3 @@ class Payment(MySQLModel, table=True):
     async def get_by_user_and_rate_id(cls, user_id: int, rate_id: int) -> 'Payment':
         query = select(cls).where(cls.user_id == user_id).where(cls.rate_id == rate_id)
         return await get_first(query)
-

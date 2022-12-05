@@ -20,9 +20,9 @@ async def get_viewed_video_response(user: User, video_id: int, context: dict) ->
 
         return obj
     videos: list[Video] = await Video.get_all_by_complex_id(user.current_complex)
-    api_data = dict(next_video_id=next_video_id, user=user, videos=videos)
-    obj.context.update(api_data)
-    obj.api_data['payload'] = api_data
+    data = dict(next_video_id=next_video_id, videos=videos)
+    obj.context.update(data)
+    obj.api_data['payload'] = data
 
     if not await is_video_viewed(user, video_id):
         obj.redirect = f"/startCharging/{next_video_id}"

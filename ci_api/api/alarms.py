@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 
 from config import logger
-from database.db import get_db_session
 from models.models import Alarm, User
 from schemas.alarms import AlarmCreate, AlarmFull
 from services.depends import get_logged_user

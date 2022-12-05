@@ -1,4 +1,5 @@
 import random
+import secrets
 from datetime import time
 
 from config import logger
@@ -37,3 +38,11 @@ def generate_four_random_digits_string() -> str:
     return "".join(
         (str(random.randint(0, 9)) for _ in range(4))
     )
+
+
+def represent_phone(phone: str) -> str:
+    return f"8 ({phone[:3]}) {phone[3:6]}-{phone[6:]}"
+
+
+def generate_random_password() -> str:
+    return secrets.token_hex(8)
