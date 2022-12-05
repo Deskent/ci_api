@@ -7,6 +7,7 @@ from models.models import User
 from services.depends import get_context_with_request
 from services.emails import send_email_message, EmailException
 from services.utils import represent_phone
+from web_service.utils.title_context_func import update_title
 
 
 async def get_session_token(request: Request) -> str:
@@ -20,36 +21,6 @@ async def get_session_user(
         return await User.get_by_token(token)
 
 
-def update_context_title(context: dict, key: str) -> dict:
-    data = {
-        "password_recovery": {
-            "title": "Восстановление пароля",
-            "head_title": "Восстановление пароля",
-        },
-        "sms_recovery": {
-            "title": "Вход по телефону/sms",
-            "head_title": "Вход по телефону/sms",
-        },
-        "check_email_code": {
-            "title": "Верификация почты",
-            "head_title": "Верификация почты",
-        },
-        "profile": {
-            "title": "Личный кабинет",
-            "head_title": "Профиль",
-        },
-        "entry": {
-            "title": "Вход",
-            "head_title": "Добро пожаловать",
-        },
-    }
-    title: dict = data.get(key)
-    if title:
-        context.update(title=title['title'], head_title=title['head_title'])
-
-    return context
-
-
 COMPANY_PHONE = "9213336698"
 
 
@@ -58,8 +29,6 @@ def get_context(
 ) -> dict:
     context.update({
         'email_pattern': r"\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}\b",
-        "title": "Добро пожаловать",
-        "head_title": "Добро пожаловать",
         "icon_link": "/index",
         "company_email": "company@email.com",
         "company_phone": f"tel:{COMPANY_PHONE}",
@@ -82,25 +51,19 @@ def get_profile_context(
         common_context=Depends(get_context)
 ) -> dict:
     common_context.update(max_level=MAX_LEVEL)
-    return update_context_title(common_context, key="profile")
-
-
-def get_password_recovery_context(
-        common_context=Depends(get_context)
-) -> dict:
-    return update_context_title(common_context, key="password_recovery")
+    return update_title(common_context, key="profile")
 
 
 def get_sms_recovery_context(
         common_context=Depends(get_context)
 ) -> dict:
-    return update_context_title(common_context, key="sms_recovery")
+    return update_title(common_context, key="sms_recovery")
 
 
 def get_email_check_context(
         common_context=Depends(get_profile_context)
 ) -> dict:
-    return update_context_title(common_context, key="check_email_code")
+    return update_title(common_context, key="check_email_code")
 
 
 async def get_session_context(

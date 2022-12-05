@@ -1,25 +1,26 @@
 import abc
 from abc import abstractmethod
-from types import NoneType
-from typing import Any
 
 from fastapi.responses import RedirectResponse, HTMLResponse
-from pydantic import BaseModel, validator
+from pydantic import validator
 
+from config import logger
 from config import templates
 from exc.payment.exceptions import ApiRequestError, UserNotFoundError
 from models.models import User
-from config import logger
+from web_service.utils.title_context_func import update_title
 
 
-class WebContext(BaseModel):
-    context: dict = {}
-    template: str = ''
-    redirect: str = ''
-    error: str = ''
-    success: str = ''
-    to_raise: object = None
-    api_data: dict = {}
+class WebContext:
+
+    def __init__(self, context: dict):
+        self.context: dict = context
+        self._template: str = ''
+        self.redirect: str = ''
+        self.error: str = ''
+        self.success: str = ''
+        self.to_raise: object = None
+        self.api_data: dict = {}
 
     @validator('to_raise')
     def to_raise_must_be_exception_or_none(cls, value):
@@ -31,8 +32,17 @@ class WebContext(BaseModel):
         if user := self.context.get('user'):
             logger.warning("User is not in context")
             return user
-        self.template = "entry.html"
+        self._template = "entry.html"
         self.to_raise = UserNotFoundError
+
+    @property
+    def template(self) -> str:
+        return self._template
+
+    @template.setter
+    def template(self, value):
+        self._template = value
+        self.context.update(**update_title(self.context, value))
 
 
 class ResponseManager(abc.ABC):

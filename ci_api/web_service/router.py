@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from web_service.endpoints.login import router as login_router
 from web_service.endpoints.profile import router as profile_router
 from web_service.endpoints.charging import router as charging_router
-from web_service.endpoints.payments import router as payments_router
+from web_service.endpoints.subscribe_and_payment import router as payments_router
 
 
 router = APIRouter()

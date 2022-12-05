@@ -1,9 +1,11 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, Form
 from fastapi.responses import HTMLResponse
 
+from config import templates
 from models.models import Notification
 from services.emails import send_verification_mail, EmailException
-from web_service.utils import *
+from web_service.utils.title_context_func import update_title
+from web_service.utils.titles_context import get_full_context
 
 router = APIRouter(tags=['web', 'profile'])
 
@@ -18,24 +20,25 @@ router = APIRouter(tags=['web', 'profile'])
 @router.post("/profile", response_class=HTMLResponse)
 @router.get("/entry", response_class=HTMLResponse)
 async def profile(
-        session_context: dict = Depends(get_session_context),
-        context: dict = Depends(get_profile_context),
+        context: dict = Depends(get_full_context),
 ):
-    if not session_context:
-        context.update(head_title="Добро пожаловать")
-        return templates.TemplateResponse("entry.html", context=context)
-    context.update(**session_context)
-    context.update(head_title="Профиль")
-    return templates.TemplateResponse("profile.html", context=context)
+    if not context.get('user'):
+        return templates.TemplateResponse(
+            "entry.html", context=update_title(context, 'entry.html'))
+    return templates.TemplateResponse(
+        "profile.html", context=update_title(context, 'profile.html'))
 
 
 @router.get("/edit_profile", response_class=HTMLResponse)
-@router.get("/feedback", response_class=HTMLResponse)
-@router.get("/help_page", response_class=HTMLResponse)
-async def help_page(
-        self_page: dict = Depends(load_self_page),
+async def edit_profile(
+        context: dict = Depends(get_full_context),
 ):
-    return self_page
+    if not (user := context.get('user')):
+        return templates.TemplateResponse(
+            "entry.html", context=update_title(context, 'entry'))
+
+    return templates.TemplateResponse(
+        "edit_profile.html", context=update_title(context, "edit_profile.html"))
 
 
 @router.post("/edit_profile", response_class=HTMLResponse)
@@ -45,10 +48,11 @@ async def edit_profile_post(
         third_name: str = Form(),
         email: str = Form(),
         phone: str = Form(),
-        session_context: dict = Depends(get_session_context),
-        context: dict = Depends(get_profile_context),
+        context: dict = Depends(get_full_context),
 ):
-    user: User = session_context['user']
+    if not (user := context.get('user')):
+        return templates.TemplateResponse(
+            "entry.html", context=update_title(context, 'entry'))
     user.username = username
     user.last_name = last_name
     user.third_name = third_name
@@ -64,27 +68,23 @@ async def edit_profile_post(
             user.email = email
         except EmailException:
             context.update(error=f"Неверный адрес почты")
-            context.update(head_title="Редактирование профиля")
-            return templates.TemplateResponse("edit_profile.html", context=context)
+            return templates.TemplateResponse(
+                "edit_profile.html", context=update_title(context, "edit_profile"))
 
     await user.save()
-    session_context.update(user=user, success='Профиль успешно изменен')
-    context.update(**session_context)
-    context.update(head_title="Редактирование профиля")
-    return templates.TemplateResponse("profile.html", context=context)
+    context.update(user=user, success='Профиль успешно изменен')
+    return templates.TemplateResponse("profile.html", context=update_title(context, "profile"))
 
 
 @router.get("/notifications", response_class=HTMLResponse)
 async def subscribe(
-        session_context: dict = Depends(get_session_context),
-        context: dict = Depends(get_profile_context),
-
+        context: dict = Depends(get_full_context),
 ):
-    if not session_context:
-        return templates.TemplateResponse("entry.html", context=context)
-    user: User = session_context['user']
+    if not (user := context.get('user')):
+        return templates.TemplateResponse(
+            "entry.html", context=update_title(context, 'entry'))
     notifications: list = await Notification.get_all_by_user_id(user.id)
-    context.update(**session_context, notifications=notifications)
-    context.update(head_title="Уведомления")
+    context.update(notifications=notifications)
 
-    return templates.TemplateResponse("notifications.html", context=context)
+    return templates.TemplateResponse(
+        "notifications.html", context=update_title(context, "notifications.html"))

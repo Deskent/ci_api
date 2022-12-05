@@ -1,16 +1,18 @@
-from fastapi import APIRouter
-from starlette.responses import HTMLResponse
+from fastapi import APIRouter, Form, Depends
+from starlette.responses import HTMLResponse, RedirectResponse
 
-from models.models import ViewedComplex, Notification
+from config import templates
+from models.models import ViewedComplex, Notification, User, Complex, Video
 from services.complexes_and_videos import (
     get_viewed_videos_ids, get_not_viewed_videos_ids,
     calculate_viewed_videos_duration, calculate_videos_to_next_level, is_video_viewed,
     check_level_up
 )
 from services.utils import convert_seconds_to_time, convert_to_minutes
-from web_service.utils import *
+from web_service.utils.title_context_func import update_title
 from web_service.utils.titles_context import get_profile_context, get_session_context, \
-    get_full_context, get_session_user
+    get_full_context
+from web_service.utils.web_utils import get_session_video
 
 router = APIRouter(tags=['web', 'charging'])
 
@@ -24,7 +26,9 @@ async def videos_list(
 ):
     current_complex: Complex = await Complex.get_by_id(complex_id)
     if not session_context:
-        return templates.TemplateResponse("entry.html", context=context)
+        return templates.TemplateResponse(
+            "entry.html", context=update_title(context, "entry.html")
+        )
     user: User = session_context['user']
 
     # Calculate video number to next level for current complex
@@ -49,39 +53,44 @@ async def videos_list(
         video.duration = convert_seconds_to_time(video.duration)
     context.update(current_complex=current_complex, videos=videos, **session_context)
 
-    return templates.TemplateResponse("videos_list.html", context=context)
+    return templates.TemplateResponse(
+        "videos_list.html", context=update_title(context, "videos_list.html"))
 
 
 @router.get("/startCharging/{video_id}", response_class=HTMLResponse)
 @router.post("/startCharging/{video_id}", response_class=HTMLResponse)
 async def start_charging(
-        video: Video = Depends(get_session_video),
-        session_context: dict = Depends(get_session_context),
-        context: dict = Depends(get_profile_context)
+        video_id: int,
+        context: dict = Depends(get_full_context)
 ):
-    if not session_context:
-        return templates.TemplateResponse("entry.html", context=context)
-    context.update(video=video, **session_context)
-    return templates.TemplateResponse("startCharging.html", context=context)
+    if not context.get('user'):
+        return templates.TemplateResponse(
+            "entry.html", context=update_title(context, "entry.html")
+        )
+    video: Video = await get_session_video(video_id)
+    context.update(video=video)
+    return templates.TemplateResponse(
+        "startCharging.html", context=update_title(context, "startCharging.html")
+    )
 
 
 @router.post("/finish_charging", response_class=HTMLResponse)
 async def finish_charging(
-        current_complex: Complex = Depends(get_current_user_complex),
         context: dict = Depends(get_full_context),
-        user: User = Depends(get_session_user),
         video_id: int = Form()
 ):
-    if not user:
-        context.update(head_title="Приходите завтра")
-        return templates.TemplateResponse("entry.html", context=context)
-
+    if not (user := context.get('user')):
+        return templates.TemplateResponse(
+            "entry.html", context=update_title(context, "entry.html")
+        )
+    current_complex: Complex = await Complex.get_by_id(user.current_complex)
     current_video: Video = await Video.get_by_id(video_id)
     next_video_id: int = await current_video.next_video_id()
 
     if not next_video_id:
-        context.update(head_title="Приходите завтра")
-        return templates.TemplateResponse("come_tomorrow.html", context=context)
+        return templates.TemplateResponse(
+            "come_tomorrow.html", context=update_title(context, "come_tomorrow.html")
+        )
 
     context.update(video=next_video_id)
 
@@ -97,18 +106,21 @@ async def finish_charging(
     current_complex: Complex = await Complex.get_by_id(user.current_complex)
     context.update(user=new_user, current_complex=current_complex)
 
-    context.update(head_title="Зарядка")
-    return templates.TemplateResponse("new_level.html", context=context)
+    return templates.TemplateResponse(
+        "new_level.html", context=update_title(context, "new_level.html")
+    )
 
 
 @router.get("/complexes_list", response_class=HTMLResponse)
 async def complexes_list(
         context: dict = Depends(get_full_context),
-        videos: list = Depends(get_complex_videos_list),
 ):
     user: User = context['user']
     if not user:
-        return templates.TemplateResponse("entry.html", context=context)
+        return templates.TemplateResponse(
+            "entry.html", context=update_title(context, "entry.html")
+        )
+    videos: list[Video] = await Video.get_all_by_complex_id(user.current_complex)
     if await ViewedComplex.is_last_viewed_today(user.id):
         return RedirectResponse("/come_tomorrow")
 
@@ -124,8 +136,9 @@ async def complexes_list(
         viewed_complexes=viewed_complexes_ids, complexes=complexes,
         to_next_level=videos_to_next_level
     )
-    context.update(head_title="Зарядка")
-    return templates.TemplateResponse("complexes_list.html", context=context)
+    return templates.TemplateResponse(
+        "complexes_list.html", context=update_title(context, "complexes_list.html")
+    )
 
 
 @router.get("/delete_notification/{notification_id}", response_class=HTMLResponse)
@@ -135,7 +148,9 @@ async def delete_notification(
 ):
     user: User = context['user']
     if not user:
-        return templates.TemplateResponse("entry.html", context=context)
+        return templates.TemplateResponse(
+            "entry.html", context=update_title(context, "entry.html")
+        )
     await Notification.delete_by_id(notification_id)
 
     return RedirectResponse(f"/videos_list/{user.current_complex}")
@@ -147,7 +162,10 @@ async def come_tomorrow(
 ):
     user: User = context['user']
     if not user:
-        return templates.TemplateResponse("entry.html", context=context)
+        return templates.TemplateResponse(
+            "entry.html", context=update_title(context, "entry.html")
+        )
 
-    context.update(head_title="Приходите завтра")
-    return templates.TemplateResponse("come_tomorrow.html", context=context)
+    return templates.TemplateResponse(
+        "come_tomorrow.html", context=update_title(context, "come_tomorrow.html")
+    )

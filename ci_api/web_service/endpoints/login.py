@@ -1,10 +1,18 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, Request, HTTPException, status, Form
 from fastapi.responses import HTMLResponse
+from pydantic import EmailStr
+from starlette.responses import RedirectResponse
 
+from config import templates, logger
+from models.models import User
 from schemas.user import UserRegistration
 from services.user import register_new_user
-from web_service.utils import *
-from web_service.utils.titles_context import get_email_check_context
+from web_service.handlers.common import user_entry, restore_password, set_new_password
+from web_service.handlers.enter_with_sms import approve_sms_code, enter_by_sms
+from web_service.utils.title_context_func import update_title
+from web_service.utils.titles_context import get_session_context, get_context, \
+    get_sms_recovery_context
+from web_service.utils.web_utils import login_user
 
 router = APIRouter(tags=['web', 'login'])
 
@@ -14,7 +22,8 @@ router = APIRouter(tags=['web', 'login'])
 async def index(
         context: dict = Depends(get_context)
 ):
-    return templates.TemplateResponse("index.html", context=context)
+    return templates.TemplateResponse(
+        "index.html", context=update_title(context, 'index'))
 
 
 @router.get("/user_agree", response_class=HTMLResponse)
@@ -52,7 +61,8 @@ async def web_register_post(
         context.update(**errors)
         logger.info(f'Field validation error: {errors["error"]}')
 
-        return templates.TemplateResponse("registration.html", context=context)
+        return templates.TemplateResponse(
+            "registration.html", context=update_title(context, "registration.html"))
 
     user, errors = await register_new_user(form_data)
     if user:
@@ -60,7 +70,8 @@ async def web_register_post(
 
     if errors:
         context.update(**errors)
-        return templates.TemplateResponse("registration.html", context=context)
+        return templates.TemplateResponse(
+            "registration.html", context=update_title(context, "registration.html"))
 
     raise HTTPException(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -72,12 +83,9 @@ async def web_register_post(
 async def web_register(
         context: dict = Depends(get_context)
 ):
-    context.update({
-        "title": "Регистрация",
-        "head_title": "Регистрация",
-        "personal_data": "/personal_data_info"
-    })
-    return templates.TemplateResponse("registration.html", context=context)
+    context.update(personal_data="/personal_data_info")
+    return templates.TemplateResponse(
+        "registration.html", context=update_title(context, "registration.html"))
 
 
 @router.post("/entry", response_class=HTMLResponse)
@@ -106,9 +114,8 @@ async def newPassword(
 async def entry_sms(
         context: dict = Depends(get_context),
 ):
-    title = "Вход по телефону/sms"
-    context.update(title=title, head_title=title)
-    return templates.TemplateResponse("entry_sms.html", context=context)
+    return templates.TemplateResponse(
+        "entry_sms.html", context=update_title(context, "entry_sms.html"))
 
 
 @router.post("/entry_sms", response_class=HTMLResponse)
@@ -120,9 +127,10 @@ async def entry_sms_posts(
 
 @router.get("/forget1", response_class=HTMLResponse)
 async def forget1(
-        context: dict = Depends(get_password_recovery_context),
+        context: dict = Depends(get_context),
 ):
-    return templates.TemplateResponse("forget1.html", context=context)
+    return templates.TemplateResponse(
+        "forget1.html", context=update_title(context, "forget_password.html"))
 
 
 @router.post("/forget1", response_class=HTMLResponse)
@@ -136,7 +144,8 @@ async def forget1_post(
 async def forget2(
         context: dict = Depends(get_sms_recovery_context),
 ):
-    return templates.TemplateResponse("forget2.html", context=context)
+    return templates.TemplateResponse(
+        "forget2.html", context=update_title(context, "forget2.html"))
 
 
 @router.post("/forget2", response_class=HTMLResponse)
@@ -151,13 +160,14 @@ async def login_with_sms(
 async def forget3(
         context: dict = Depends(get_sms_recovery_context),
 ):
-    return templates.TemplateResponse("forget3.html", context=context)
+    return templates.TemplateResponse(
+        "forget3.html", context=update_title(context, "forget3.html"))
 
 
 @router.get("/check_email", response_class=HTMLResponse)
 @router.post("/check_email", response_class=HTMLResponse)
 async def check_email(
-        context: dict = Depends(get_email_check_context),
+        context: dict = Depends(get_context),
         email: EmailStr = Form(...),
         email_token: str = Form(...)
 ):
@@ -165,12 +175,14 @@ async def check_email(
     if not user:
         error = 'Пользователь не найден'
         context.update(error=error)
-        return templates.TemplateResponse("index.html", context=context)
+        return templates.TemplateResponse(
+            "index.html", context=update_title(context, 'index'))
 
     if user.email_code != email_token:
         error = 'Введен неверный токен'
         context.update(error=error)
-        return templates.TemplateResponse("check_email.html", context=context)
+        return templates.TemplateResponse(
+            "check_email.html", context=update_title(context, "check_email.html"))
 
     if not user.is_verified:
         user.is_verified = True
@@ -179,4 +191,5 @@ async def check_email(
     session_context: dict = await get_session_context(user)
     context.update(success='Аккаунт верифицирован', **session_context)
 
-    return templates.TemplateResponse("profile.html", context=context)
+    return templates.TemplateResponse(
+        "profile.html", context=update_title(context, 'profile'))

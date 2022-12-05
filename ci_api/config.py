@@ -42,6 +42,7 @@ class Settings(BaseSettings):
     CREATE_ADMIN: bool = False
     DEFAULT_ADMIN: dict = {}
     RECREATE_DB: bool = False
+    ECHO: bool = False
 
     class Config:
         env_file = ".env"
