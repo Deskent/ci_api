@@ -127,7 +127,6 @@ class UserModel(AdminModel):
     @classmethod
     async def create(cls, data: dict) -> 'User':
         data['password'] = await cls.get_hashed_password(data['password'])
-        data['expired_at'] = datetime.datetime.now(tz=None) + datetime.timedelta(days=30)
         user = cls(**data)
 
         return await user.save()
