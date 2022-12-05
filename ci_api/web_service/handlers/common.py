@@ -38,20 +38,6 @@ async def user_entry(
     return templates.TemplateResponse("entry.html", context=update_context_title(context, 'entry'))
 
 
-async def load_self_page(
-        session_context: dict = Depends(get_session_context),
-        context: dict = Depends(get_profile_context),
-) -> templates.TemplateResponse:
-    if not session_context:
-        return templates.TemplateResponse(
-            "entry.html", context=update_context_title(context, 'entry'))
-
-    context.update(**session_context)
-    page_name: str = context['request'].url.path[1:] + '.html'
-
-    return templates.TemplateResponse(page_name, context=update_context_title(context, page_name))
-
-
 async def restore_password(
         context: dict = Depends(get_password_recovery_context),
         email: EmailStr = Form(...),
