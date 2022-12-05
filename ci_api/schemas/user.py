@@ -6,6 +6,27 @@ from pydantic import BaseModel, validator, EmailStr
 from config import logger
 
 
+class PhoneNumber(BaseModel):
+    phone: str
+
+    @validator('phone')
+    def check_phone(cls, phone: str):
+        phone: str = (
+            phone
+            .strip()
+            .replace('(', '')
+            .replace(')', '')
+            .replace('-', '')
+            .replace(' ', '')[-10:]
+        )
+
+        is_phone_valid: bool = len(phone) == 10
+        if not is_phone_valid:
+            logger.warning(f"Invalid phone number: {phone}")
+            raise ValueError('Phone should be in format 9214442233')
+        return phone
+
+
 class Password(BaseModel):
     password: str
     password2: str
@@ -18,22 +39,13 @@ class Password(BaseModel):
         return password2
 
 
-class UserRegistration(Password):
+class UserRegistration(Password, PhoneNumber):
     username: str
     last_name: str = ''
     third_name: str = ''
     rate_id: int = 1
     email: EmailStr
-    phone: str
     gender: bool = True
-
-    @validator('phone')
-    def check_phone(cls, phone: str, values, **kwargs):
-        is_phone_valid: bool = len(phone) == 10
-        if not is_phone_valid:
-            logger.warning(f"Invalid phone number: {phone}")
-            raise ValueError('phone should be in format 9214442233')
-        return phone
 
     @classmethod
     def as_form(
