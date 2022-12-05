@@ -1,4 +1,3 @@
-import secrets
 from pathlib import Path
 
 from fastapi import Depends, HTTPException, status, Form
@@ -6,90 +5,14 @@ from pydantic import EmailStr
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
 
-from config import MAX_LEVEL, settings, templates, logger
+from config import settings, templates, logger
+from exc.payment.exceptions import UserNotFoundError, ComplexNotFoundError, VideoNotFoundError
 from models.models import User, Video, Complex
 from schemas.user import UserLogin
-from services.depends import get_context_with_request
-from services.emails import EmailException, send_email_message
 from services.user import user_login, get_bearer_header
-
-
-COMPANY_PHONE = "9213336698"
-
-
-def represent_phone(phone: str) -> str:
-    return f"8 ({phone[:3]}) {phone[3:6]}-{phone[6:]}"
-
-
-def get_context(
-        context: dict = Depends(get_context_with_request)
-) -> dict:
-    context.update({
-        'email_pattern': r"\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}\b",
-        "title": "Добро пожаловать",
-        "head_title": "Добро пожаловать",
-        "icon_link": "/index",
-        "company_email": "company@email.com",
-        "company_phone": f"tel:{COMPANY_PHONE}",
-        "company_represent_phone": f"tel: {represent_phone(COMPANY_PHONE)}",
-        "google_play_link": "https://www.google.com",
-        "app_store_link": "https://www.apple.com",
-        "vk_link": "https://vk.com/cigun_energy",
-        "youtube_link": "https://www.youtube.com/channel/UCA3VIncMlr7MxXY2Z_QEM-Q",
-        "subscribe_info": "#",
-        "conditions": "/user_agree",
-        "confidence": "/confidential",
-        "feedback_link": "/feedback",
-        "help_link": "/help_page"
-    })
-
-    return context
-
-
-def get_profile_context(
-        common_context=Depends(get_context)
-) -> dict:
-    common_context.update(
-        {
-            "max_level": MAX_LEVEL,
-            "title": "Профиль",
-            "head_title": "Личный кабинет"
-        }
-    )
-    return common_context
-
-
-async def get_session_token(request: Request) -> str:
-    return request.session.get('token', '')
-
-
-async def get_session_user(
-        token: str = Depends(get_session_token),
-) -> User:
-    if token:
-        return await User.get_by_token(token)
-
-
-async def get_session_context(
-        user: User = Depends(get_session_user)
-) -> dict:
-    """Returns default page context and user data"""
-    context = {}
-    if user:
-        context.update({
-            "user": user,
-            "user_present_phone": represent_phone(user.phone)
-        })
-
-    return context
-
-
-async def get_full_context(
-        session_context: dict = Depends(get_session_context),
-        context: dict = Depends(get_context)
-) -> dict:
-    context.update(**session_context)
-    return context
+from services.utils import generate_random_password
+from web_service.utils.titles_context import get_profile_context, \
+    get_password_recovery_context, get_session_context, get_email_send_context, get_session_user
 
 
 async def get_current_user_complex(
@@ -98,10 +21,7 @@ async def get_current_user_complex(
     if user:
         return await Complex.get_by_id(user.current_complex)
 
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail=f'Complex not found'
-    )
+    raise ComplexNotFoundError
 
 
 async def get_complex_videos_list(
@@ -110,10 +30,7 @@ async def get_complex_videos_list(
     if user:
         return await Video.get_all_by_complex_id(user.current_complex)
 
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail=f'User not found'
-    )
+    raise UserNotFoundError
 
 
 async def get_session_video_by_id(
@@ -122,10 +39,7 @@ async def get_session_video_by_id(
     if video_id:
         return await Video.get_by_id(video_id)
 
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail=f'Video not found'
-    )
+    raise VideoNotFoundError
 
 
 async def get_session_video(
@@ -177,22 +91,8 @@ async def load_self_page(
     return templates.TemplateResponse(page_name, context=context)
 
 
-def generate_random_password() -> str:
-    return secrets.token_hex(8)
-
-
-async def get_email_send_context(email: EmailStr, message: str) -> dict:
-    context = {}
-    try:
-        await send_email_message(email, message)
-    except EmailException:
-        context.update(error=f"Неверный адрес почты")
-
-    return context
-
-
 async def restore_password(
-        context: dict = Depends(get_context),
+        context: dict = Depends(get_password_recovery_context),
         email: EmailStr = Form(...),
 ):
     user: User = await User.get_by_email(email)

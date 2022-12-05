@@ -4,6 +4,9 @@ from fastapi.responses import HTMLResponse
 from schemas.user import UserRegistration
 from services.user import register_new_user
 from web_service.utils import *
+from web_service.utils import get_password_recovery_context, get_context, get_sms_recovery_context, \
+    get_session_context
+from web_service.utils.titles_context import get_email_check_context
 
 router = APIRouter(tags=['web', 'login'])
 
@@ -105,6 +108,8 @@ async def newPassword(
 async def entry_sms(
         context: dict = Depends(get_context),
 ):
+    title = "Вход по телефону/sms"
+    context.update(title=title, head_title=title)
     return templates.TemplateResponse("entry_sms.html", context=context)
 
 
@@ -117,7 +122,7 @@ async def entry_sms_posts(
 
 @router.get("/forget1", response_class=HTMLResponse)
 async def forget1(
-        context: dict = Depends(get_context),
+        context: dict = Depends(get_password_recovery_context),
 ):
     return templates.TemplateResponse("forget1.html", context=context)
 
@@ -131,7 +136,7 @@ async def forget1_post(
 
 @router.get("/forget2", response_class=HTMLResponse)
 async def forget2(
-        context: dict = Depends(get_context),
+        context: dict = Depends(get_sms_recovery_context),
 ):
     return templates.TemplateResponse("forget2.html", context=context)
 
@@ -146,7 +151,7 @@ async def login_with_sms(
 
 @router.get("/forget3", response_class=HTMLResponse)
 async def forget3(
-        context: dict = Depends(get_context),
+        context: dict = Depends(get_sms_recovery_context),
 ):
     return templates.TemplateResponse("forget3.html", context=context)
 
@@ -154,7 +159,7 @@ async def forget3(
 @router.get("/check_email", response_class=HTMLResponse)
 @router.post("/check_email", response_class=HTMLResponse)
 async def check_email(
-        context: dict = Depends(get_profile_context),
+        context: dict = Depends(get_email_check_context),
         email: EmailStr = Form(...),
         email_token: str = Form(...)
 ):

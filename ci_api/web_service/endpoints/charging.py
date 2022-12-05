@@ -11,8 +11,10 @@ from services.utils import convert_seconds_to_time, convert_to_minutes
 from web_service.utils import *
 from web_service.utils import (
     get_current_user_complex, get_complex_videos_list,
-    get_session_context, get_profile_context, get_session_video, get_session_user
+    get_session_video
 )
+from web_service.utils.titles_context import get_profile_context, get_session_context, \
+    get_full_context, get_session_user
 
 router = APIRouter(tags=['web', 'charging'])
 
@@ -75,12 +77,14 @@ async def finish_charging(
         video_id: int = Form()
 ):
     if not user:
+        context.update(head_title="Приходите завтра")
         return templates.TemplateResponse("entry.html", context=context)
 
     current_video: Video = await Video.get_by_id(video_id)
     next_video_id: int = await current_video.next_video_id()
 
     if not next_video_id:
+        context.update(head_title="Приходите завтра")
         return templates.TemplateResponse("come_tomorrow.html", context=context)
 
     context.update(video=next_video_id)
@@ -97,6 +101,7 @@ async def finish_charging(
     current_complex: Complex = await Complex.get_by_id(user.current_complex)
     context.update(user=new_user, current_complex=current_complex)
 
+    context.update(head_title="Зарядка")
     return templates.TemplateResponse("new_level.html", context=context)
 
 
@@ -123,7 +128,7 @@ async def complexes_list(
         viewed_complexes=viewed_complexes_ids, complexes=complexes,
         to_next_level=videos_to_next_level
     )
-
+    context.update(head_title="Зарядка")
     return templates.TemplateResponse("complexes_list.html", context=context)
 
 
@@ -147,4 +152,6 @@ async def come_tomorrow(
     user: User = context['user']
     if not user:
         return templates.TemplateResponse("entry.html", context=context)
+
+    context.update(head_title="Приходите завтра")
     return templates.TemplateResponse("come_tomorrow.html", context=context)

@@ -1,9 +1,10 @@
 from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
 
+from models.models import Notification
 from services.emails import send_verification_mail
-from models.models import Notification, Rate
 from web_service.utils import *
+from web_service.utils import get_profile_context, get_session_context
 
 router = APIRouter(tags=['web', 'profile'])
 
@@ -11,8 +12,7 @@ router = APIRouter(tags=['web', 'profile'])
 # TODO привести к единому АПИ
 # TODO после изменения телефона отсылать потдверждение?
 
-# TODO оплата и сохранение истории платежей - нужен аккаунт +
-# TODO get_logged_user or get_session_user
+# TODO сделать отписку
 
 
 @router.get("/profile", response_class=HTMLResponse)
@@ -23,8 +23,10 @@ async def profile(
         context: dict = Depends(get_profile_context),
 ):
     if not session_context:
+        context.update(head_title="Добро пожаловать")
         return templates.TemplateResponse("entry.html", context=context)
     context.update(**session_context)
+    context.update(head_title="Профиль")
     return templates.TemplateResponse("profile.html", context=context)
 
 
@@ -63,12 +65,13 @@ async def edit_profile_post(
             user.email = email
         except EmailException:
             context.update(error=f"Неверный адрес почты")
+            context.update(head_title="Редактирование профиля")
             return templates.TemplateResponse("edit_profile.html", context=context)
 
     await user.save()
     session_context.update(user=user, success='Профиль успешно изменен')
     context.update(**session_context)
-
+    context.update(head_title="Редактирование профиля")
     return templates.TemplateResponse("profile.html", context=context)
 
 
@@ -83,5 +86,6 @@ async def subscribe(
     user: User = session_context['user']
     notifications: list = await Notification.get_all_by_user_id(user.id)
     context.update(**session_context, notifications=notifications)
+    context.update(head_title="Уведомления")
 
     return templates.TemplateResponse("notifications.html", context=context)

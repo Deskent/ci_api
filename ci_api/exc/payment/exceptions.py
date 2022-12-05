@@ -20,6 +20,16 @@ UserNotFoundError = HTTPException(
     detail="Invalid user or password"
 )
 
+ComplexNotFoundError = HTTPException(
+    status_code=status.HTTP_404_NOT_FOUND,
+    detail="Complex not found"
+)
+
+VideoNotFoundError = HTTPException(
+    status_code=status.HTTP_404_NOT_FOUND,
+    detail="Video not found"
+)
+
 RateNotFound = HTTPException(
     status_code=status.HTTP_404_NOT_FOUND,
     detail="Invalid rate id"
