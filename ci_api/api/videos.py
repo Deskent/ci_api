@@ -42,24 +42,11 @@ async def get_video(
 
 @router.post("/viewed", status_code=status.HTTP_200_OK, response_model=dict)
 async def viewed_video(
-        data: VideoViewed = Body(...),
+        data: VideoViewed = Depends(VideoViewed.as_form),
 ):
-    # TODO удалить
-    # result = {}
-    # logger.debug(f"VIEWED: {viewed}")
-    # video: Video = await Video.get_by_id(viewed.video_id)
-    # if video:
-    #     next_video = await video.next_video_id()
-    #     if next_video:
-    #         result.update(next_video=next_video)
-    phone: str = data.user_tel.strip()[-10:].replace('(', '').replace(')', '').replace('-', '').replace(' ', '')
-    if len(phone) != 10:
-        raise PhoneNumberError
-    user: User = await User.get_by_phone(phone)
+    user: User = await User.get_by_phone(data.phone)
     web_context: WebContext = await get_viewed_video_response(
         user=user, video_id=data.video_id, context={}
     )
 
     return ApiServiceResponser(web_context).render()
-
-
