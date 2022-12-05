@@ -98,6 +98,7 @@ class UserModel(AdminModel):
     phone: str
     email_code: str
     is_active: bool
+    sms_message: str
 
     @classmethod
     async def get_by_phone(cls, phone: str) -> 'User':
@@ -109,10 +110,15 @@ class UserModel(AdminModel):
         query = select(cls).where(cls.email_code == email_code)
         return await get_first(query)
 
-    async def activate(self):
+    async def activate(self) -> 'User':
         self.is_active = True
         return await self.save()
 
-    async def deactivate(self):
+    async def deactivate(self) -> 'User':
         self.is_active = False
         return await self.save()
+
+    async def clean_sms_code(self) -> 'User':
+        self.sms_message = ''
+        return await self.save()
+
