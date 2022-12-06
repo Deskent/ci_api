@@ -35,13 +35,10 @@ async def test_video_update():
     assert new_data.duration == 100
 
 
-@pytest.mark.skip("Not need yet")
 async def test_get_next_video():
-    query = select(Video).where(Video.complex_id == 1)
-    video: Video = min(await get_all(query), key=lambda x: x.number)
-    data: Video = await Video.get_by_id(video.id)
+    data: Video = await Video.get_by_id(1)
     next_video: int = await data.next_video_id()
-    assert next_video == 3
+    assert next_video == 2
 
 
 async def test_get_videos_duration():
