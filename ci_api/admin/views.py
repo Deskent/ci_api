@@ -8,7 +8,7 @@ from admin.auth import authentication_backend
 from admin.utils import upload_file
 from config import logger, settings
 from database.db import engine
-from models.models import User, Video, Complex, Rate, Administrator
+from models.models import User, Video, Complex, Rate, Administrator, Payment
 from schemas.complexes_videos import VideoUpload
 from services.utils import convert_seconds_to_time
 
@@ -17,6 +17,19 @@ ADMIN_URL = "/ci_admin"
 
 def date_format(value):
     return value.strftime("%Y-%m-%d %H:%M:%S") if value else "Нет подписки"
+
+
+class PaymentView(ModelView, model=Payment):
+    name = "Платеж"
+    name_plural = "Платежи"
+    column_list = [
+        Payment.payment_id, Payment.user_id, Payment.rate_id, Payment.payment_sign
+    ]
+    can_create = False
+    can_edit = False
+    can_delete = False
+    can_view_details = False
+    can_export = True
 
 
 class ComplexView(ModelView, model=Complex):
@@ -184,5 +197,6 @@ def get_admin(app: FastAPI) -> FastAPI:
     admin.add_view(RateView)
     admin.add_view(UserView)
     admin.add_view(VideoView)
+    # admin.add_view(PaymentView)
 
     return app

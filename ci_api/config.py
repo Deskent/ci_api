@@ -34,6 +34,7 @@ class Settings(BaseSettings):
     NOTIFICATION_HOUR: int = 14
     DEBUG: bool = False
     BASE_DIR: Path = None
+    PAYMENTS_DIR: Path = 'payments'
     MEDIA_DIR: Path = None
     STATIC_DIR: Path = None
     TEMPLATES_DIR: Path = None
@@ -64,6 +65,9 @@ if not settings.STATIC_DIR:
         exit()
 if not settings.TEMPLATES_DIR:
     settings.TEMPLATES_DIR = settings.BASE_DIR / 'templates'
+
+payments_dir = settings.PAYMENTS_DIR if settings.PAYMENTS_DIR else 'payments'
+settings.PAYMENTS_DIR = settings.BASE_DIR / payments_dir
 
 if not settings.MEDIA_DIR:
     settings.MEDIA_DIR = settings.STATIC_DIR / 'media'
