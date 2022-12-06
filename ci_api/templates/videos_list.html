@@ -43,16 +43,13 @@
                     <span class="new-level_header">Поздравляем! Вы перешли на {{ user.level + 1 if user.level < 10 else 10 }} уровень!</span>
                     <div class="new-level-modal__level">
                         <div>
-                            <!-- {{ max_level }} не подтягивается пока -->
                             <span class="bigred">{{ user.level + 1 if user.level < 10 else 10 }}</span><span>/ 10</span>
                         </div>
                     </div>
                     <span class="new-level__text">
-                        <!-- {{ current_complex.duration }} не подтягивается пока -->
-                        Завтрашний комплекс займет {{ current_complex.duration }} минут
+                        Завтрашний комплекс займет {{ next_complex.duration }} минут
                     </span>
-                    {#    # TODO сделать обработку level_up#}
-                    <a href="/come_tomorrow" class="new-level__link">
+                    <a href="/level_up" class="new-level__link">
                         Отлично
                     </a>
                 </div>
