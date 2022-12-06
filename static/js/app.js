@@ -268,7 +268,7 @@ document.addEventListener("keydown", function (e) {
 
 
 
-// смотрим сколько минут длится видео, создаем и вставляем html-елемент 
+// смотрим сколько минут длится видео, создаем и вставляем html-елемент
 
 // function getVideoTime() {
 //    const modalVideos = document.querySelectorAll('.modal-video');
@@ -298,11 +298,11 @@ document.addEventListener("keydown", function (e) {
 
 function modalVideoControls() {
    const modalVideoBox = document.querySelector('.modal-video__box');
-   
+
       modalVideoBox.addEventListener("click", (evt) => {
 
          let targetVideoId = evt.target.dataset.id;
-         
+
          let videoId = document.getElementById(targetVideoId);
          console.log(videoId);
 
@@ -317,7 +317,7 @@ function modalVideoControls() {
 
 
 
-         
+
 
          if (modalVideoPause.classList.contains('hidden')) {
             modalVideoPlay.classList.add("hidden");
@@ -364,7 +364,7 @@ function modalVideoEnded() {
          const modalNextVideos = document.querySelector('.modal-video[data-id="' + nextVideo + '"]');
          console.log(modalNextVideos);
          let modalVideoNextWrapperId = modalNextVideos.closest(".modal-video__card-wrapper");
-   
+
          modalNextVideos.play();
          let modalNextVideosPlay = modalVideoNextWrapperId.querySelector('.modal-video__play');
          let modalNextVideosPause = modalVideoNextWrapperId.querySelector('.modal-video__pause');
@@ -413,20 +413,20 @@ function modalVideoEnded() {
          modalVideoDescription.classList.remove("hidden");
 
 
-         
+
 
       //отправить fetch о том, что видео просмотрено
 
          const video_id = Number(evt.target.dataset.id);
          let userPhone = document.querySelector('.header-user__phone');
          const user_tel = userPhone.textContent;
-         const user_tel1 = user_tel.replace(/\s/g,'');
+         const phone = user_tel.replace(/\s/g,'');
          // console.log( user_tel1);
 
          const response = await fetch('http://127.0.0.1:8000/api/v1/videos/viewed', {
             method: 'POST',
             body: JSON.stringify({
-               "user_tel": user_tel1,
+               "user_tel": phone,
                "video_id": video_id
             }),
             headers: {
@@ -440,7 +440,7 @@ function modalVideoEnded() {
 
          });
 
- 
+
 
       })
 }

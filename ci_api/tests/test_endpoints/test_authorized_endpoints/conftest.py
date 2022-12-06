@@ -129,7 +129,7 @@ class CreateEndpointUserData:
         self.create_user()
         self.login_user()
         self.get_email_confirm_token()
-        self.create_alarm()
+        # self.create_alarm()
 
 
 @pytest.fixture(scope='class')

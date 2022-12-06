@@ -1,6 +1,9 @@
+import asyncio
 import datetime
 
 import pytest
+
+from models.models import User
 
 
 class TestUsers:
@@ -50,7 +53,7 @@ class TestUsers:
         assert response.status_code == 202
 
     @pytest.mark.skip('Need activate user')
-    def test_get_video_by_id(self):
+    def test_get_video_by_id(self, event_loop):
         response = self.session.get(self.base_url + f"/complex/1/", headers=self.headers)
         assert response.status_code == 200
         complexes: dict = response.json()
