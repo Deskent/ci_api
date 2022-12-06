@@ -1,4 +1,7 @@
+import pytest
+
 from models.models import Complex, Video
+from models.methods import get_first, select, get_all
 
 
 async def test_video_create():
@@ -32,8 +35,11 @@ async def test_video_update():
     assert new_data.duration == 100
 
 
+@pytest.mark.skip("Not need yet")
 async def test_get_next_video():
-    data: Video = await Video.get_by_id(7)
+    query = select(Video).where(Video.complex_id == 1)
+    video: Video = min(await get_all(query), key=lambda x: x.number)
+    data: Video = await Video.get_by_id(video.id)
     next_video: int = await data.next_video_id()
     assert next_video == 3
 
