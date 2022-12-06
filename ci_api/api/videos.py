@@ -1,12 +1,11 @@
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, HTTPException, status, Body
+from fastapi import APIRouter, Depends, status, Body
 from fastapi.responses import FileResponse
 
 from config import settings, logger
 from models.models import Video, User
-from schemas.complexes_videos import VideoViewed
-from schemas.user import PhoneNumber, check_phone
+from schemas.user import check_phone
 from services.depends import is_user_active
 from services.response_manager import WebContext, ApiServiceResponser
 from services.videos_methods import get_viewed_video_response
@@ -36,10 +35,11 @@ async def get_video(
 
 
 @router.post("/viewed", status_code=status.HTTP_200_OK, response_model=dict)
-async def viewed_video(
+async def video_viewed(
         user_tel: str = Body(...),
         video_id: int = Body(...)
 ):
+    # TODO переписать через схему
     phone: str = check_phone(user_tel)
     user: User = await User.get_by_phone(phone)
     web_context: WebContext = await get_viewed_video_response(

@@ -57,10 +57,14 @@ def calculate_videos_to_next_level(user: User, videos: list[Video]):
     return int((LEVEL_UP_PERCENTS - user.progress) / (100 / len(videos)))
 
 
-async def is_video_viewed(
+async def is_video_viewed_before(
         user: User,
         video_id: int
 
-) -> ViewedVideo:
-    return await ViewedVideo.add_viewed(user.id, video_id)
+) -> bool:
+    """Check video was viewed, return True if Video was created, False is exists"""
+
+    if await ViewedVideo.add_viewed(user.id, video_id):
+        return False
+    return True
 

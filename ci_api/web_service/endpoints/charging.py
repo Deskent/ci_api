@@ -1,18 +1,15 @@
-from fastapi import APIRouter, Form, Depends
+from fastapi import APIRouter, Depends
 from starlette.responses import HTMLResponse, RedirectResponse
 
 from config import templates
 from models.models import ViewedComplex, User, Complex, Video
 from services.complexes_and_videos import (
     get_viewed_videos_ids, get_not_viewed_videos_ids,
-    calculate_viewed_videos_duration, calculate_videos_to_next_level, is_video_viewed,
-    check_level_up
+    calculate_viewed_videos_duration, calculate_videos_to_next_level
 )
 from services.utils import convert_seconds_to_time, convert_to_minutes
+from web_service.utils.get_contexts import get_logged_user_context, get_user_from_context
 from web_service.utils.title_context_func import update_title
-from web_service.utils.get_contexts import get_logged_user_context, get_user_from_context, \
-    get_active_user_context
-from web_service.utils.web_utils import get_checked_video
 
 router = APIRouter(tags=['web', 'charging'])
 
@@ -81,52 +78,66 @@ async def videos_list(
     return templates.TemplateResponse(
         "videos_list.html", context=update_title(context, "videos_list.html"))
 
+#
+# @router.get("/startCharging/{video_id}", response_class=HTMLResponse)
+# @router.post("/startCharging/{video_id}", response_class=HTMLResponse)
+# async def start_charging(
+#         video_id: int,
+#         context: dict = Depends(get_logged_user_context)
+# ):
+#     # TODO fix it
+#     video: Video = await get_checked_video(video_id)
+#     context.update(video=video)
+#     return templates.TemplateResponse(
+#         "startCharging.html", context=update_title(context, "startCharging.html")
+#     )
+#
+#
+# @router.post("/finish_charging", response_class=HTMLResponse)
+# async def finish_charging(
+#         context: dict = Depends(get_logged_user_context),
+#         user: User = Depends(get_user_from_context),
+#         video_id: int = Form()
+# ):
+#     current_complex: Complex = await Complex.get_by_id(user.current_complex)
+#     current_video: Video = await Video.get_by_id(video_id)
+#     next_video_id: int = await current_video.next_video_id()
+#
+#     if not next_video_id:
+#         return templates.TemplateResponse(
+#             "come_tomorrow.html", context=update_title(context, "come_tomorrow.html")
+#         )
+#
+#     context.update(video=next_video_id)
+#
+#     if await is_video_viewed(user, video_id):
+#         return RedirectResponse(f"/startCharging/{next_video_id}")
+#
+#     old_user_level = user.level
+#     new_user: User = await check_level_up(user)
+#     context.update(current_complex=current_complex)
+#     if new_user.level <= old_user_level:
+#         return RedirectResponse(f"/startCharging/{next_video_id}")
+#
+#     current_complex: Complex = await Complex.get_by_id(user.current_complex)
+#     context.update(user=new_user, current_complex=current_complex)
+#
+#     return templates.TemplateResponse(
+#         "new_level.html", context=update_title(context, "new_level.html")
+#     )
 
-@router.get("/startCharging/{video_id}", response_class=HTMLResponse)
-@router.post("/startCharging/{video_id}", response_class=HTMLResponse)
-async def start_charging(
-        video_id: int,
-        context: dict = Depends(get_logged_user_context)
-):
-    # TODO fix it
-    video: Video = await get_checked_video(video_id)
-    context.update(video=video)
-    return templates.TemplateResponse(
-        "startCharging.html", context=update_title(context, "startCharging.html")
-    )
 
-
-@router.post("/finish_charging", response_class=HTMLResponse)
-async def finish_charging(
+@router.get("/level_up", response_class=HTMLResponse)
+async def level_up(
         context: dict = Depends(get_logged_user_context),
-        user: User = Depends(get_user_from_context),
-        video_id: int = Form()
+        user: User = Depends(get_user_from_context)
 ):
+    await user.level_up()
     current_complex: Complex = await Complex.get_by_id(user.current_complex)
-    current_video: Video = await Video.get_by_id(video_id)
-    next_video_id: int = await current_video.next_video_id()
-
-    if not next_video_id:
-        return templates.TemplateResponse(
-            "come_tomorrow.html", context=update_title(context, "come_tomorrow.html")
-        )
-
-    context.update(video=next_video_id)
-
-    if not await is_video_viewed(user, video_id):
-        return RedirectResponse(f"/startCharging/{next_video_id}")
-
-    old_user_level = user.level
-    new_user: User = await check_level_up(user)
-    context.update(current_complex=current_complex)
-    if new_user.level <= old_user_level:
-        return RedirectResponse(f"/startCharging/{next_video_id}")
-
-    current_complex: Complex = await Complex.get_by_id(user.current_complex)
-    context.update(user=new_user, current_complex=current_complex)
+    await ViewedComplex.add_viewed(user.id, user.current_complex)
+    user.current_complex = await current_complex.next_complex_id()
+    await user.save()
 
     return templates.TemplateResponse(
-        "new_level.html", context=update_title(context, "new_level.html")
+        "come_tomorrow.html", context=update_title(context, "come_tomorrow.html")
     )
-
-
