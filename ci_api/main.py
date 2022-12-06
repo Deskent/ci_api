@@ -8,14 +8,16 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from admin.utils import create_default_admin
 from admin.views import get_admin
-from config import settings, templates
+from config import settings, templates, MAX_LEVEL
 from create_data import create_fake_data, recreate_db
-from exc.exceptions import UserNotLoggedError
+from exc.exceptions import UserNotLoggedError, ComeTomorrowException
+from models.models import User
 from routers import main_router
 from services.notification_scheduler import create_notifications_for_not_viewed_users
 from web_service.router import router as web_router
+from web_service.utils.get_contexts import get_base_context, \
+    get_session_token, get_session_user, get_logged_user_context
 from web_service.utils.title_context_func import update_title
-from web_service.utils.titles_context import get_base_context
 
 DOCS_URL = "/ci"
 
@@ -54,6 +56,19 @@ def get_application():
         context: dict = get_base_context({"request": request})
         return templates.TemplateResponse(
             "entry.html", context=update_title(context, "entry.html")
+        )
+
+    @app.exception_handler(ComeTomorrowException)
+    async def user_not_active_exception_handler(
+            request: Request, exc: ComeTomorrowException,
+    ):
+        token: str = await get_session_token(request)
+        user: User = await get_session_user(token)
+        base_context: dict = get_base_context({"request": request})
+        context: dict = await get_logged_user_context(user, base_context)
+        context.update(max_level=MAX_LEVEL)
+        return templates.TemplateResponse(
+            "profile.html", context=update_title(context, "profile.html")
         )
 
     app: FastAPI = get_admin(app)

@@ -3,7 +3,7 @@ from pydantic import EmailStr
 from starlette.requests import Request
 
 from config import MAX_LEVEL
-from exc.exceptions import UserNotLoggedError
+from exc.exceptions import UserNotLoggedError, ComeTomorrowException
 from models.models import User
 from services.depends import get_context_with_request
 from services.emails import send_email_message, EmailException
@@ -64,10 +64,20 @@ async def get_logged_user_context(
     return context
 
 
+
 def get_user_from_context(
         context: dict = Depends(get_logged_user_context)
 ) -> User:
     return context['user']
+
+async def get_active_user_context(
+        user: User = Depends(get_user_from_context),
+        context: dict = Depends(get_logged_user_context)
+):
+    # TODO прописать во всех ендпоинтах
+    if user.is_active:
+        return context
+    raise ComeTomorrowException
 
 
 def get_profile_page_context(

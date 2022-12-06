@@ -4,7 +4,7 @@ from starlette.responses import HTMLResponse, RedirectResponse
 from config import templates
 from models.models import User, Notification
 from web_service.utils.title_context_func import update_title
-from web_service.utils.titles_context import get_user_from_context, get_logged_user_context
+from web_service.utils.get_contexts import get_user_from_context, get_logged_user_context
 
 router = APIRouter(tags=['web', 'notifications'])
 

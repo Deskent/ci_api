@@ -44,3 +44,7 @@ PasswordMatchError = HTTPException(
 
 class UserNotLoggedError(Exception):
     pass
+
+
+class ComeTomorrowException(Exception):
+    pass

@@ -10,7 +10,7 @@ from schemas.user import UserLogin
 from services.user import user_login, get_bearer_header
 from services.utils import generate_random_password
 from web_service.utils.title_context_func import update_title
-from web_service.utils.titles_context import (
+from web_service.utils.get_contexts import (
     get_email_send_context, get_base_context, get_logged_user_context
 )
 

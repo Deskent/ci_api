@@ -8,7 +8,7 @@ from config import templates
 from schemas.user import UserRegistration
 from services.user import register_new_user
 from web_service.utils.title_context_func import update_title
-from web_service.utils.titles_context import get_base_context
+from web_service.utils.get_contexts import get_base_context
 from web_service.utils.web_utils import redirect_logged_user_to_entry
 
 router = APIRouter(tags=['web', 'register'])

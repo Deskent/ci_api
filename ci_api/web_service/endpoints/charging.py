@@ -10,7 +10,8 @@ from services.complexes_and_videos import (
 )
 from services.utils import convert_seconds_to_time, convert_to_minutes
 from web_service.utils.title_context_func import update_title
-from web_service.utils.titles_context import get_logged_user_context, get_user_from_context
+from web_service.utils.get_contexts import get_logged_user_context, get_user_from_context, \
+    get_active_user_context
 from web_service.utils.web_utils import get_checked_video
 
 router = APIRouter(tags=['web', 'charging'])

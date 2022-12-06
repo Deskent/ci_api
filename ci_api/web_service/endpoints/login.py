@@ -6,7 +6,7 @@ from config import templates
 from web_service.handlers.common import user_entry, set_new_password
 from web_service.handlers.enter_with_sms import approve_sms_code, enter_by_sms
 from web_service.utils.title_context_func import update_title
-from web_service.utils.titles_context import get_base_context
+from web_service.utils.get_contexts import get_base_context
 
 router = APIRouter(tags=['web', 'login'])
 
