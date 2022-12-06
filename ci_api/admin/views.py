@@ -103,10 +103,9 @@ class VideoView(ModelView, model=Video):
     name_plural = "Упражнения"
 
     can_create = False
-    can_edit = False
     column_list = [
         Video.number, Video.name, Video.description, Video.file_name,
-        Video.complexes, Video.duration
+        Video.duration
     ]
     column_labels = {
         Video.number: "Порядковый номер",
