@@ -1,7 +1,8 @@
+/* # TODO раскоментировать */
 .modal-video__container {
   position: relative;
   font-family: "Evolventa";
-  overflow: hidden;
+  /*overflow: hidden;*/
   z-index: 1;
 }
 
@@ -80,7 +81,7 @@
   justify-content: center;
   width: 100%;
   font-size: 16px;
-  color: #373737; 
+  color: #373737;
   background-color: #fff;
   border-radius: 40px;
   box-shadow: 0px 15px 100px rgb(0 0 0 / 4%);
@@ -155,7 +156,7 @@
     width: 20vw;
     height: 20vw;
   }
-  
+
   .modal-video__play img {
     width: 10vw;
     height: 10vw;
@@ -165,7 +166,7 @@
     width: 20vw;
     height: 20vw;
   }
-  
+
   .modal-video__pause img {
     width: 5vw;
     height: 5vw;
