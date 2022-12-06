@@ -101,6 +101,7 @@ class UserModel(AdminModel):
     email_code: str
     is_active: bool
     sms_message: str
+    level: int
 
     @classmethod
     async def get_by_phone(cls, phone: str) -> 'User':
@@ -130,3 +131,8 @@ class UserModel(AdminModel):
         user = cls(**data)
 
         return await user.save()
+
+    async def level_up(self) -> 'User':
+        if self.level < 10:
+            self.level += 1
+            return await self.save()
