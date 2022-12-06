@@ -57,7 +57,7 @@ def calculate_videos_to_next_level(user: User, videos: list[Video]):
     return int((LEVEL_UP_PERCENTS - user.progress) / (100 / len(videos)))
 
 
-async def is_video_viewed(
+async def is_video_viewed_before(
         user: User,
         video_id: int
 

@@ -1,6 +1,6 @@
 from exc.exceptions import UserNotFoundError
 from models.models import User, Video, Complex
-from services.complexes_and_videos import is_video_viewed, check_level_up
+from services.complexes_and_videos import is_video_viewed_before, check_level_up
 from services.response_manager import WebContext
 
 
@@ -19,12 +19,13 @@ async def get_viewed_video_response(user: User, video_id: int, context: dict) ->
         obj.api_data = dict(payload={"result": "come tomorrow"})
 
         return obj
+
     videos: list[Video] = await Video.get_all_by_complex_id(user.current_complex)
     data = dict(next_video_id=next_video_id, videos=videos)
     obj.context.update(data)
     obj.api_data['payload'] = data
 
-    if not await is_video_viewed(user, video_id):
+    if await is_video_viewed_before(user, video_id):
         obj.redirect = f"/startCharging/{next_video_id}"
 
         return obj
