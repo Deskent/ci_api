@@ -1,0 +1,13 @@
+.success-box {
+  text-align: center;
+}
+
+.success_header {
+  font-size: 32px;
+  line-height: 140%;
+  text-align: center;
+  background: linear-gradient(270deg, #D32A1E 0%, #EB5E54 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

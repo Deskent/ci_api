@@ -3,40 +3,45 @@
 {% block profile_content %}
     <section class="profile-content">
         <div class="container">
-            <div class="subscribe__grid">
+
+            <h2 class="subscribe-card_header">
+                Ваш текущий тариф: <span>{{ current_rate.name }}</span>
+            </h2>
+            <div class="subscribe__box">
 
                 {% include 'error_message.html' %}
                 {% include 'success_message.html' %}
 
                 {#               # TODO переделать в красивое #}
 
-                <div>
-                    Ваш текущий тариф: {{ current_rate.name }}
-                </div>
+
                 {% for rate in rates %}
                     {% if rate.price %}
 
-                        <div class="user-profile__card profile-card subscribe-card">
-                            <div class="profile-card__title subscribe-card__text">
+                        <div class="subscribe-card">
+                            <div class="subscribe-card__text">
                                 {{ rate.name }}
                             </div>
-                            <div class="profile-card__title subscribe-card__text">
+                            <div class="subscribe-card__text">
                                 {{ rate.price }}
                             </div>
-                            <a href="/get_subscribe/{{ rate.id }}" class="profile-card__link">Подписаться</a>
+                            <a href="/get_subscribe/{{ rate.id }}" class="subscribe-card__btn">Подписаться</a>
                         </div>
 
                     {% endif %}
                 {% endfor %}
 
                 {#               # TODO переделать на кнопку скачивания файла #}
-                <a href="#" class="subscribe__download">
-                    Скачать историю транзакций
-                </a>
-                <a href="/cancel_subscribe" class="subscribe__cancel">
-                    Отменить подписку
-                </a>
+                
             </div>
+
+            <a href="#" class="subscribe__download">
+                Скачать историю транзакций
+            </a>
+            <a href="/cancel_subscribe" class="subscribe__cancel">
+                Отменить подписку
+            </a>
+            
         </div>
     </section>
 {% endblock profile_content %}

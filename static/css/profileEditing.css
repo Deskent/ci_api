@@ -1,0 +1,128 @@
+.profile-editing__form-box {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.profile-editing__form {
+  width: 45%;
+  padding-top: 34px;
+}
+
+/* .profile-editing__form-box::before {
+  position: absolute;
+  top: -15px;
+  left: -1000px;
+  content: "";
+  width: 5000px;
+  height: 1px;
+  background-color: #D9D9D9;
+} */
+
+.profile-editing__form-fieldset {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 48px;
+}
+
+.profile-editing__form-legend {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 140%;
+  color: #A6A6A6;
+  white-space: nowrap;
+  margin-bottom: 32px;
+}
+
+.profile-editing__form-input {
+  background: #ffffff;
+  background: 
+  linear-gradient(#ffffff 0 0) padding-box, /*this is your white background*/
+  linear-gradient(to right, rgba(235, 94, 84, 1), rgba(211, 42, 30, 1)) border-box;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 15px 24px;
+  margin-bottom: 32px;
+}
+
+.profile-editing__form-input:hover {
+  background: 
+  linear-gradient(#ffffff 0 0) padding-box, /*this is your white background*/
+  linear-gradient(270deg,rgba(211, 42, 30, 0.25) 0,rgba(211, 42, 30, 0.2) 100%);
+}
+
+.profile-editing__form-input:focus {
+  background: 
+  linear-gradient(#ffffff 0 0) padding-box, /*this is your white background*/
+  linear-gradient(270deg,rgba(211, 42, 30, 1), rgba(235, 94, 84, 1) 100%);
+}
+
+
+
+.profile-editing__form-input::placeholder {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 140%;
+  color: #5C5C5C;
+}
+
+.profile-editing__form-input:hover.profile-editing__form-input::placeholder,
+.profile-editing__form-input:focus.profile-editing__form-input::placeholder {
+  color: #000000;
+}
+
+
+.profile-editing__form-submit {
+  width: 100%;
+  font-style: normal;
+  font-size: 16px;
+  line-height: 140%;
+  color: #ffffff;
+  border-style: none;
+  background: linear-gradient(270deg, #D32A1E 0%, #EB5E54 100%);
+  border-radius: 40px;
+  padding: 17px 0px 16px 0px;
+  margin: 0 auto;
+}
+
+.profile-editing__form-submit:hover {
+  background: linear-gradient(270deg,rgba(211,42,30,.25) 0,rgba(211,42,30,.2) 100%);
+  color: #eb5e54;
+}
+
+.profile-editing__form-submit:focus {
+  border: 1px solid transparent;
+
+  background:
+  linear-gradient(#ffffff 0 0) padding-box, /*this is your white background*/
+  linear-gradient(to right, rgba(235, 94, 84, 1), rgba(211, 42, 30, 1)) border-box;
+  padding: 16px 0px 15px 0px;
+  color: #eb5e54;
+}
+
+
+
+@media (max-width: 768px) {
+  .profile-editing__form-box {
+    flex-direction: column;
+  }
+  .profile-editing__form-box::before {
+    display: none;
+  }
+
+  .profile-editing__form {
+    width: 100%;
+  }
+  .profile-editing__form-submit {
+    width: 100%;
+    margin: 0;
+  }
+
+  .profile-editing__form-legend {
+    white-space: break-spaces;
+  }
+}

@@ -8,7 +8,6 @@ spam
 **.env
 .editorconfig
 *.zip
-**/static/
 
 
 # Byte-compiled / optimized / DLL files
