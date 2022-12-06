@@ -1,0 +1,18 @@
+.confidential-header {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.confidential-text {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  line-height: 130%;
+}
+
+.confidential-link {
+  font-size: 16px;
+  line-height: 140%;
+  text-align: center;
+  text-decoration-line: underline;
+  color: #0077BE;
+}

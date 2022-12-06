@@ -1,0 +1,18 @@
+.user_agree-header {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.user_agree-text {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  line-height: 130%;
+}
+
+.user_agree-link {
+  font-size: 16px;
+  line-height: 140%;
+  text-align: center;
+  text-decoration-line: underline;
+  color: #0077BE;
+}
