@@ -37,14 +37,12 @@ async def get_video(
 
 @router.post("/viewed", status_code=status.HTTP_200_OK, response_model=dict)
 async def video_viewed(
-        user_tel: str = Body(...),
-        video_id: int = Body(...)
+        data: VideoViewed
 ):
-    # TODO переписать через схему
-    phone: str = check_phone(user_tel)
+    phone: str = check_phone(data.phone)
     user: User = await User.get_by_phone(phone)
     web_context: WebContext = await get_viewed_video_response(
-        user=user, video_id=video_id, context={}
+        user=user, video_id=data.video_id, context={}
     )
 
     return ApiServiceResponser(web_context).render()
