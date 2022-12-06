@@ -40,11 +40,11 @@
             <div class="new-level-box hidden">
 
                 <div class="new-level">
-                    <span class="new-level_header">Поздравляем! Вы перешли на {{ user.level }} уровень!</span>
+                    <span class="new-level_header">Поздравляем! Вы перешли на {{ user.level + 1 }} уровень!</span>
                     <div class="new-level-modal__level">
                         <div>
                             <!-- {{ max_level }} не подтягивается пока -->
-                            <span class="bigred">{{ user.level }}</span><span>/ 10</span>
+                            <span class="bigred">{{ user.level + 1 }}</span><span>/ 10</span>
                         </div>
                     </div>
                     <span class="new-level__text">
