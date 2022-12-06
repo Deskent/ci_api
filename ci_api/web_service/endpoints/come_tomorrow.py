@@ -10,8 +10,8 @@ from web_service.utils.titles_context import get_logged_user_context, get_user_f
 router = APIRouter(tags=['web', 'tomorrow'])
 
 
-@router.get("/come_tomorrow", response_class=HTMLResponse)
-async def come_tomorrow(
+@router.get("/level_up", response_class=HTMLResponse)
+async def level_up(
         context: dict = Depends(get_logged_user_context),
         user: User = Depends(get_user_from_context)
 ):
@@ -21,6 +21,15 @@ async def come_tomorrow(
     user.current_complex = await current_complex.next_complex_id()
     await user.save()
 
+    return templates.TemplateResponse(
+        "come_tomorrow.html", context=update_title(context, "come_tomorrow.html")
+    )
+
+
+@router.get("/come_tomorrow", response_class=HTMLResponse)
+async def come_tomorrow(
+        context: dict = Depends(get_logged_user_context),
+):
     return templates.TemplateResponse(
         "come_tomorrow.html", context=update_title(context, "come_tomorrow.html")
     )

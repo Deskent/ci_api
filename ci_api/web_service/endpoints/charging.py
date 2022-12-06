@@ -51,6 +51,9 @@ async def videos_list(
         user: User = Depends(get_user_from_context),
 ):
     current_complex: Complex = await Complex.get_by_id(complex_id)
+    next_complex_id: int = await current_complex.next_complex_id()
+    next_complex: Complex = await Complex.get_by_id(next_complex_id)
+    next_complex.duration = convert_seconds_to_time(next_complex.duration)
 
     # Calculate video number to next level for current complex
     videos: list[Video] = await Video.get_all_by_complex_id(complex_id)
@@ -72,7 +75,7 @@ async def videos_list(
         )
     for video in videos:
         video.duration = convert_seconds_to_time(video.duration)
-    context.update(current_complex=current_complex, videos=videos)
+    context.update(current_complex=current_complex, videos=videos, next_complex=next_complex)
 
     return templates.TemplateResponse(
         "videos_list.html", context=update_title(context, "videos_list.html"))
