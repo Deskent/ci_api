@@ -1,11 +1,12 @@
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Body
 from fastapi.responses import FileResponse
 
 from config import settings, logger
 from models.models import Video, User
 from schemas.complexes_videos import VideoViewed
+from schemas.user import PhoneNumber, check_phone
 from services.depends import is_user_active
 from services.response_manager import WebContext, ApiServiceResponser
 from services.videos_methods import get_viewed_video_response
@@ -36,11 +37,13 @@ async def get_video(
 
 @router.post("/viewed", status_code=status.HTTP_200_OK, response_model=dict)
 async def viewed_video(
-        data: VideoViewed = Depends(VideoViewed.as_form),
+        user_tel: str = Body(...),
+        video_id: int = Body(...)
 ):
-    user: User = await User.get_by_phone(data.phone)
+    phone: str = check_phone(user_tel)
+    user: User = await User.get_by_phone(phone)
     web_context: WebContext = await get_viewed_video_response(
-        user=user, video_id=data.video_id, context={}
+        user=user, video_id=video_id, context={}
     )
 
     return ApiServiceResponser(web_context).render()

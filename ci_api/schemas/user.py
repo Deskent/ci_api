@@ -7,25 +7,29 @@ from config import logger
 from exc.exceptions import PhoneNumberError, PasswordMatchError
 
 
+def check_phone(phone: str) -> str:
+    phone: str = (
+        phone
+        .strip()
+        .replace('(', '')
+        .replace(')', '')
+        .replace('-', '')
+        .replace(' ', '')[-10:]
+    )
+
+    is_phone_valid: bool = len(phone) == 10 and phone.isdigit()
+    if not is_phone_valid:
+        logger.warning(f"Invalid phone number: {phone}")
+        raise PhoneNumberError
+    return phone
+
+
 class PhoneNumber(BaseModel):
     phone: str
 
     @validator('phone')
-    def check_phone(cls, phone: str):
-        phone: str = (
-            phone
-            .strip()
-            .replace('(', '')
-            .replace(')', '')
-            .replace('-', '')
-            .replace(' ', '')[-10:]
-        )
-
-        is_phone_valid: bool = len(phone) == 10 and phone.isdigit()
-        if not is_phone_valid:
-            logger.warning(f"Invalid phone number: {phone}")
-            raise PhoneNumberError
-        return phone
+    def check_valid_phone(cls, phone: str):
+        return check_phone(phone)
 
 
 class Password(BaseModel):

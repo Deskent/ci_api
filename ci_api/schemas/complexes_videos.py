@@ -16,7 +16,8 @@ class VideoInfo(VideoBase):
     duration: time
 
 
-class VideoViewed(PhoneNumber):
+class VideoViewed(BaseModel):
+    user_tel: str
     video_id: int
 
     @classmethod
