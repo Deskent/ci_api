@@ -72,14 +72,15 @@
                     </div>
                 </div>
                 <div class="profile-card__adapt">
-                        {% if user.expired_at %}
-                            <div class="profile-card__title">
-                                Подписка автоматически продлится {{ user.expired_at }} числа
-                            </div>
-                        {% else %}
-                            <div class="profile-card__title">
-                                Нет подписки
-                            </div>
+                    {% if user.expired_at %}
+                        <div class="profile-card__title">
+                            Подписка автоматически продлится {{ user.expired_at }} числа
+                        </div>
+                    {% else %}
+                        <div class="profile-card__title">
+                            Нет подписки
+                        </div>
+                    {% endif %}
                     <div class="profile-card__info">
                         <span class="stars">**** **** ****</span>
                         <div class="profile-card__number">1234</div>
