@@ -12,11 +12,10 @@ router = APIRouter(tags=['web', 'notifications'])
 @router.get("/delete_notification/{notification_id}", response_class=HTMLResponse)
 async def delete_notification(
         notification_id: int,
-        user: User = Depends(get_user_from_context)
 ):
     await Notification.delete_by_id(notification_id)
 
-    return RedirectResponse(f"/videos_list/{user.current_complex}")
+    return RedirectResponse("/complexes_list")
 
 
 @router.get("/notifications", response_class=HTMLResponse)
