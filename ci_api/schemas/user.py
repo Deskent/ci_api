@@ -8,6 +8,10 @@ from exc.exceptions import PhoneNumberError, PasswordMatchError
 
 
 def check_phone(phone: str) -> str:
+    """Delete from phone number like `8 (123) 456-7890` or something
+    all extra symbols. Return clean phone number like `1234567890`
+    """
+
     phone: str = (
         phone
         .strip()
