@@ -61,6 +61,10 @@ async def is_video_viewed(
         user: User,
         video_id: int
 
-) -> ViewedVideo:
-    return await ViewedVideo.add_viewed(user.id, video_id)
+) -> bool:
+    """Check video was viewed, return True if Video was created, False is exists"""
+
+    if await ViewedVideo.add_viewed(user.id, video_id):
+        return False
+    return True
 
