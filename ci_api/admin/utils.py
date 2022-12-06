@@ -54,11 +54,13 @@ async def upload_file(
     """Check max videos in complex. Check video format. Save video file.
     Calculate video duration. Save row to database."""
 
-    videos: list[Video] = await Video.get_all_by_complex_id(file_form.complex_id)
-    if not videos:
+
+    current_complex: Complex = await Complex.get_by_id(file_form.complex_id)
+    if not current_complex:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Complex with id {file_form.complex_id} not found")
 
+    videos: list[Video] = await Video.get_all_by_complex_id(current_complex.id)
     if len(videos) >= MAX_VIDEO:
         logger.warning(f"For complex {file_form.complex_id} exists {MAX_VIDEO} videos")
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE,
