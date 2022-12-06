@@ -6,7 +6,7 @@ from config import templates, logger
 from models.models import User
 from services.emails import send_verification_mail, EmailException
 from web_service.utils.title_context_func import update_title
-from web_service.utils.titles_context import (
+from web_service.utils.get_contexts import (
     get_logged_user_context, get_profile_page_context, get_user_from_context
 )
 

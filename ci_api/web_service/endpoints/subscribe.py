@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from starlette.responses import HTMLResponse
 
 from services.response_manager import WebServiceResponser
-from web_service.utils.titles_context import get_logged_user_context
+from web_service.utils.get_contexts import get_logged_user_context
 from web_service.utils.payments_context import *
 
 router = APIRouter(tags=['web', 'subscribe'])

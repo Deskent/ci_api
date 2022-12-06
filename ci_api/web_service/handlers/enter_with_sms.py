@@ -10,7 +10,7 @@ from services.utils import generate_four_random_digits_string
 from web_service.sms_class import sms_service, SMSException
 from web_service.utils.title_context_func import update_title
 from web_service.utils.web_utils import redirect_logged_user_to_entry
-from web_service.utils.titles_context import get_base_context
+from web_service.utils.get_contexts import get_base_context
 
 
 async def _send_sms(user: User, context: dict):
