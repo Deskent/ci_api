@@ -9,9 +9,8 @@ from services.complexes_and_videos import (
     check_level_up
 )
 from services.utils import convert_seconds_to_time, convert_to_minutes
+from web_service.utils.get_contexts import get_logged_user_context, get_user_from_context
 from web_service.utils.title_context_func import update_title
-from web_service.utils.get_contexts import get_logged_user_context, get_user_from_context, \
-    get_active_user_context
 from web_service.utils.web_utils import get_checked_video
 
 router = APIRouter(tags=['web', 'charging'])
@@ -130,3 +129,17 @@ async def finish_charging(
     )
 
 
+@router.get("/level_up", response_class=HTMLResponse)
+async def level_up(
+        context: dict = Depends(get_logged_user_context),
+        user: User = Depends(get_user_from_context)
+):
+    await user.level_up()
+    current_complex: Complex = await Complex.get_by_id(user.current_complex)
+    await ViewedComplex.add_viewed(user.id, user.current_complex)
+    user.current_complex = await current_complex.next_complex_id()
+    await user.save()
+
+    return templates.TemplateResponse(
+        "come_tomorrow.html", context=update_title(context, "come_tomorrow.html")
+    )
