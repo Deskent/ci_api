@@ -16,20 +16,8 @@ class VideoInfo(VideoBase):
     duration: time
 
 
-class VideoViewed(BaseModel):
-    user_tel: str
+class VideoViewed(PhoneNumber):
     video_id: int
-
-    @classmethod
-    def as_form(
-            cls,
-            user_tel: str,
-            video_id: int,
-    ):
-        return cls(
-            phone=user_tel,
-            video_id=video_id
-        )
 
 
 class VideoUpload(VideoBase):

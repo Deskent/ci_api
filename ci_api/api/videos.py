@@ -5,6 +5,7 @@ from fastapi.responses import FileResponse
 
 from config import settings, logger
 from models.models import Video, User
+from schemas.complexes_videos import VideoViewed
 from schemas.user import check_phone
 from services.depends import is_user_active
 from services.response_manager import WebContext, ApiServiceResponser
