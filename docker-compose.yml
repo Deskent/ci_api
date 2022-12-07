@@ -49,3 +49,14 @@ services:
       - ci_postgres
     restart: on-failure
 
+  nginx:
+    image: nginx
+    container_name: nginx
+    hostname: nginx
+    ports:
+      - '80:80'
+    volumes:
+      - ./nginx/config:/etc/nginx/conf.d
+      - ./static:/static
+    depends_on:
+      - ci_api
