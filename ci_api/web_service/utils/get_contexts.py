@@ -89,8 +89,10 @@ def get_profile_page_context(
         context: dict = Depends(get_logged_user_context)
 ) -> dict:
     user: User = context['user']
-    user.expired_at = present_user_expired_at_day_and_month(user.expired_at)
+    if user.expired_at is not None:
+        user.expired_at = present_user_expired_at_day_and_month(user.expired_at)
     context.update(max_level=MAX_LEVEL, user=user)
+
     return context
 
 
