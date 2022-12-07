@@ -1,3 +1,5 @@
+# TODO отрефакторить (убрать классы, сделать словарь с туплом names)
+
 class WebTitle:
     def __init__(self, name: str, title: str, head_title: str):
         self.name: str = name
@@ -120,6 +122,12 @@ entry_sms = WebTitle(
     head_title="Вход по смс/звонку"
 ).add_names("forget2.html", "forget3.html")
 
+payment_report = WebTitle(
+    name="payment_report.html",
+    title="История транзакций",
+    head_title="История транзакций"
+)
+
 
 titles: tuple[WebTitle, ...] = (
     index,
@@ -136,6 +144,7 @@ titles: tuple[WebTitle, ...] = (
     forget_password,
     notifications,
     entry_sms,
+    payment_report
 )
 
 

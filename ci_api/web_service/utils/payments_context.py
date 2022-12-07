@@ -9,7 +9,7 @@ from exc.payment.pay_exceptions import PaymentServiceError, SubscribeExistsError
 from models.models import User, Rate, Payment
 from services.response_manager import WebContext
 from services.utils import get_current_datetime
-from web_service.handlers.payment_request import get_payment_link
+from web_service.handlers.send_payment_request import get_payment_link
 
 
 async def _get_rate_date(user: User) -> dict:
