@@ -5,6 +5,7 @@ spam
 **/postgres_db
 **/media
 **/front
+**/payments
 **.env
 .editorconfig
 *.zip

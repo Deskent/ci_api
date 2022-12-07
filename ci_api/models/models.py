@@ -160,6 +160,10 @@ class User(UserModel, table=True):
     payments: List['Payment'] = Relationship(
         back_populates="users", sa_relationship_kwargs={"cascade": "delete"})
 
+    payment_checks: List['PaymentCheck'] = Relationship(
+        back_populates="users", sa_relationship_kwargs={"cascade": "delete"})
+
+
     def __str__(self):
         return f"{self.email}"
 
@@ -197,6 +201,8 @@ class UserDataModels(MySQLModel):
 
     @classmethod
     async def get_all_by_user_id(cls, user_id: int) -> list[MySQLModel]:
+        """Join cls rows with User table where User.id == user_id"""
+
         query = select(cls).join(User).where(User.id == user_id)
 
         return await get_all(query)
@@ -324,9 +330,37 @@ class Payment(MySQLModel, table=True):
     user_id: int = Field(nullable=False, foreign_key='users.id')
     users: 'User' = Relationship(back_populates="payments")
     rate_id: int = Field(nullable=False, foreign_key='rates.id')
-    rates: 'Rate' = Relationship(back_populates="payments")
 
     @classmethod
     async def get_by_user_and_rate_id(cls, user_id: int, rate_id: int) -> 'Payment':
         query = select(cls).where(cls.user_id == user_id and cls.rate_id == rate_id)
         return await get_first(query)
+
+
+class PaymentCheck(MySQLModel, table=True):
+    __tablename__ = 'payment_checks'
+
+    id: int = Field(default=None, primary_key=True, index=True)
+
+    date: datetime
+    order_id: int = Field(unique=True)
+    order_num: int
+    sum: str
+    currency: str
+    customer_phone: str
+    customer_email: EmailStr
+    customer_extra: int
+    payment_type: str
+    payment_status: str
+
+    rate_id: int= Field(nullable=False, foreign_key='rates.id')
+    user_id: int = Field(nullable=False, foreign_key='users.id')
+    users: 'User' = Relationship(back_populates="payment_checks")
+
+    @classmethod
+    async def get_all_by_user_id(cls, user_id: int) -> list['PaymentCheck']:
+        """Return all rows by user_id"""
+
+        query = select(cls).where(cls.user_id == user_id)
+        return await get_all(query)
+
