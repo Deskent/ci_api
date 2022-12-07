@@ -9,7 +9,7 @@ spam
 **.env
 .editorconfig
 *.zip
-
+**/traefik
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
