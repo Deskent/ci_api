@@ -1,11 +1,10 @@
-version: '3.9'
+version: '3.7'
 
 services:
   ci_postgres:
     env_file:
       - ./.env
     container_name: ci_postgres
-    hostname: ci_postgres
     image: postgres:14.4-alpine
     command:
       - "postgres"
@@ -35,10 +34,11 @@ services:
     env_file:
       - ./.env
     command: >
-      sh -c "alembic upgrade head &&
+      sh -c "sleep 5 &&
+             alembic upgrade head &&
              uvicorn main:app --workers 1 --host 0.0.0.0 --port 8000"
-    ports:
-      - "8000:8000"
+#    ports:
+#      - "8000:8000"
     environment:
       POSTGRES_HOST: "ci_postgres"
     volumes:
@@ -48,15 +48,33 @@ services:
     depends_on:
       - ci_postgres
     restart: on-failure
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.passbolt-http.entrypoints: "web"
+      traefik.http.routers.passbolt-http.rule: "Host(energy.qidoctor.ru)"
+      traefik.http.routers.passbolt-http.middlewares: "SslHeader@file"
+      traefik.http.routers.passbolt-https.middlewares: "SslHeader@file"
+      traefik.http.routers.passbolt-https.entrypoints: "websecure"
+      traefik.http.routers.passbolt-https.rule: "Host(energy.qidoctor.ru)"
+      traefik.http.routers.passbolt-https.tls: "true"
+      traefik.http.routers.passbolt-https.tls.certresolver: "letsencrypt"
 
-  nginx:
-    image: nginx
-    container_name: nginx
-    hostname: nginx
+  traefik:
+    image: "traefik:v2.9"
+    container_name: "traefik"
+    command:
+      #- "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
     ports:
-      - '80:80'
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
     volumes:
-      - ./nginx/config:/etc/nginx/conf.d
-      - ./static:/static
-    depends_on:
-      - ci_api
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/conf/traefik.yaml:/traefik.yaml:ro
+      - ./traefik/conf/:/etc/traefik/conf
+      - ./traefik/shared/:/shared
+
