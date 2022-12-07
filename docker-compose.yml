@@ -37,8 +37,6 @@ services:
       sh -c "sleep 5 &&
              alembic upgrade head &&
              uvicorn main:app --workers 1 --host 0.0.0.0 --port 8000"
-#    ports:
-#      - "8000:8000"
     environment:
       POSTGRES_HOST: "ci_postgres"
     volumes:
@@ -63,11 +61,12 @@ services:
     image: "traefik:v2.9"
     container_name: "traefik"
     command:
-      #- "--log.level=DEBUG"
+      - "--log.level=DEBUG"
       - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
+      - "--api.dashboard=true"
     ports:
       - "80:80"
       - "443:443"
@@ -77,4 +76,8 @@ services:
       - ./traefik/conf/traefik.yaml:/traefik.yaml:ro
       - ./traefik/conf/:/etc/traefik/conf
       - ./traefik/shared/:/shared
-
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.entryPoints=traefik"
+      - "traefik.http.routers.api.rule=PathPrefix(/api) || PathPrefix(/dashboard)"
+      - "traefik.http.routers.api.service=api@internal"
