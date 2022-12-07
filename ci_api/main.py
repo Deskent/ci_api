@@ -3,6 +3,8 @@ import datetime
 import uvicorn
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
@@ -33,6 +35,24 @@ def get_application():
     )
 
     app = FastAPI(docs_url=DOCS_URL, redoc_url=DOCS_URL, debug=settings.DEBUG)
+
+    origins = [
+        "http://localhost.tiangolo.com",
+        "https://localhost.tiangolo.com",
+        "http://localhost",
+        "http://localhost:8080",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+    ]
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
     app.mount("/static", StaticFiles(directory=str(settings.STATIC_DIR)), name="static")
     app.mount("/templates", StaticFiles(directory=str(settings.TEMPLATES_DIR)), name="templates")
     app.include_router(main_router)
