@@ -1075,8 +1075,7 @@ h6 {
       -ms-flex-pack: center;
           justify-content: center;
   background-color: #fff;
-  padding-left: 35px;
-  padding-right: 35px;
+  /* padding: 0 10px 0 10px; */
   height: 58px;
   -webkit-box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.02);
           box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.02);
@@ -1097,25 +1096,17 @@ h6 {
   color: #EB5E54;
 }
 
-.profile-menu__link:hover .profile-menu__icon path {
-  fill {
-    color: #ffffff;
-  }
-}
-
-
-
 
 .profile-menu__link.active {
-  width: 100%;
-  font-style: normal;
-  font-size: 16px;
-  line-height: 140%;
+  /* width: 100%; */
+  /* font-style: normal; */
+  /* font-size: 16px; */
+  /* line-height: 140%; */
   color: #ffffff;
   border-style: none;
   background: linear-gradient(270deg, #D32A1E 0%, #EB5E54 100%);
   border-radius: 40px;
-  padding: 17px 0px 16px 0px;
+  padding: 0 10px 0 10px;
 }
 
 
@@ -1131,6 +1122,9 @@ h6 {
 .profile-menu__link.fla::before {
   background: url(../img/icons/flash.svg) center no-repeat;
 }
+.profile-menu__link.active.fla::before {
+  background: url(../img/icons/flash_white.svg) center no-repeat;
+}
 
 .profile-menu__link.not::before {
   background: url(../img/icons/notifications.svg) center no-repeat;
@@ -1145,6 +1139,8 @@ h6 {
 .profile-menu__link.active.sub::before {
   background: url(../img/icons/subscribe-white.svg) center no-repeat;
 }
+
+
 
 .profile-menu__link.cal {
   -ms-grid-column-span: 3;

@@ -1,19 +1,52 @@
 /* # TODO раскоментировать */
 .modal-video__container {
   position: relative;
+  width: 100vw;
+  min-height: 600px;
   font-family: "Evolventa";
-  /*overflow: hidden;*/
+  /* overflow: hidden; */
   z-index: 1;
 }
 
 .modal-video__box {
+  position: absolute;
   display: flex;
   flex-wrap: nowrap;
+  transition: all 2s ease-in-out;
   width: max-content;
 }
 
 
+
 .modal-video__card-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  width: 25vw;
+  height: auto;
+  border-radius: 40px;
+  margin-right: 40px;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.modal-video__card-wrapper.active {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  width: 90vw;
+  height: 90vh;
+  border-radius: 40px;
+  margin-right: 40px;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.modal-video__card-wrapper.no-active {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -32,12 +65,30 @@
   min-height: auto;
 }
 
+.modal-video__card-wrapper.active .modal-video__wrapper {
+  display: flex;
+  justify-content: center;
+}
 
 .modal-video {
   width: 100%;
   height: auto;
   border-radius: 40px;
   overflow: hidden;
+}
+
+.modal-video.lock {
+  opacity: 0.5;
+  /* -webkit-filter: drop-shadow(0px 10px 100px rgba(0, 0, 0, 0.02));
+          filter: drop-shadow(0px 10px 100px rgba(0, 0, 0, 0.02)); */
+} 
+
+
+
+
+.modal-video__card-wrapper.active .modal-video__wrapper .modal-video {
+  /* width: 35vw; */
+  height: 50vh;
 }
 
 .modal-video__play {
@@ -147,7 +198,7 @@
 }
 
 
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
   .modal-video__card-wrapper {
     width: 80vw;
   }
@@ -172,4 +223,4 @@
     height: 5vw;
   }
 
-}
+} */

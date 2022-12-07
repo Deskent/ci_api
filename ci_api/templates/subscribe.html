@@ -4,15 +4,13 @@
     <section class="profile-content">
         <div class="container">
 
+            {% include 'error_message.html' %}
+            {% include 'success_message.html' %}
+
             <h2 class="subscribe-card_header">
                 Ваш текущий тариф: <span>{{ current_rate.name }}</span>
             </h2>
             <div class="subscribe__box">
-
-                {% include 'error_message.html' %}
-                {% include 'success_message.html' %}
-
-                {#               # TODO переделать в красивое #}
 
 
                 {% for rate in rates %}
