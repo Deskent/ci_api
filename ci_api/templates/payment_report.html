@@ -1,0 +1,35 @@
+{% extends 'base_profile.html' %}
+
+{% block main %}
+    <table>
+        <thead>
+        <tr>
+            <th scope="col">Номер ордера</th>
+            <th scope="col">Телефон</th>
+            <th scope="col">Дата</th>
+            <th scope="col">Сумма</th>
+            <th scope="col">Метод оплаты</th>
+        </tr>
+        </thead>
+
+        <tbody>
+
+        {% for check in checks %}
+
+            <tr>
+                <th scope="row">{{ check.order_id }}</th>
+                <td>{{ check.customer_phone }}</td>
+                <td>{{ check.date }}</td>
+                <td>{{ check.sum }}</td>
+                <td>{{ check.payment_type }}</td>
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+    <a href="/download_checks/{{ download_file_link }}" download="">Скачать историю</a>
+
+{% endblock main %}
