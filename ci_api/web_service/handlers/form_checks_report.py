@@ -8,6 +8,7 @@ from services.response_manager import WebContext
 
 
 def save_json(checks: list[PaymentCheck], user: User) -> str:
+    # TODO сохранять в нужный формат
     file_dir = settings.PAYMENTS_DIR / 'reports'
     if not file_dir.exists():
         file_dir.mkdir(parents=True)
