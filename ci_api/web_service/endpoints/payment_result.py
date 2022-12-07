@@ -1,9 +1,12 @@
 from fastapi import Depends, APIRouter
-from starlette.responses import HTMLResponse
+from starlette.responses import HTMLResponse, FileResponse
 
+from models.models import User
 from services.response_manager import WebContext, WebServiceResponser
+from web_service.handlers.form_checks_report import form_payments_report
 from web_service.utils.payments_context import check_payment_result
-from web_service.utils.get_contexts import get_logged_user_context
+from web_service.utils.get_contexts import get_logged_user_context, get_user_from_context
+from config import settings
 
 router = APIRouter(tags=['web', 'payments'])
 
@@ -21,3 +24,28 @@ async def payment_result(
         payform_order_id=_payform_order_id, payform_sign=_payform_sign
     )
     return WebServiceResponser(web_context).render()
+
+
+@router.get("/payment_report", response_class=HTMLResponse)
+async def payment_result(
+        context: dict = Depends(get_logged_user_context),
+        user: User = Depends(get_user_from_context)
+):
+    web_context: WebContext = await form_payments_report(context=context, user=user)
+    return WebServiceResponser(web_context).render()
+
+
+@router.get("/download_checks/{file_path}")
+async def get_video(
+        file_path: str,
+):
+    """
+    Return video by video id. Need active user.
+
+    :param video_id: int - Video database ID
+
+    :return: Video data as JSON
+
+    """
+    full_path = settings.PAYMENTS_DIR / 'reports' / file_path
+    return FileResponse(path=full_path)
