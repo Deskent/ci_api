@@ -108,5 +108,5 @@ async def create_default_admin() -> None:
             data.append(settings.DEFAULT_ADMIN)
 
         for elem in data:
-            await Administrator().create(**elem)
+            await Administrator().create(elem)
         logger.info("Admin created.")
