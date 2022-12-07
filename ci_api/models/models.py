@@ -2,6 +2,7 @@ from datetime import datetime, time
 from typing import Optional, List
 
 from pydantic import EmailStr
+from sqlalchemy import Column, TIMESTAMP
 from sqlmodel import Field, Relationship, select
 
 from models.methods import MySQLModel, UserModel, get_all, get_first, AdminModel
@@ -159,8 +160,11 @@ class User(UserModel, table=True):
         back_populates="users", sa_relationship_kwargs={"cascade": "delete"})
     payments: List['Payment'] = Relationship(
         back_populates="users", sa_relationship_kwargs={"cascade": "delete"})
-
     payment_checks: List['PaymentCheck'] = Relationship(
+        back_populates="users", sa_relationship_kwargs={"cascade": "delete"})
+    viewed_complexes: List['ViewedComplex'] = Relationship(
+        back_populates="users", sa_relationship_kwargs={"cascade": "delete"})
+    viewed_videos: List['ViewedVideo'] = Relationship(
         back_populates="users", sa_relationship_kwargs={"cascade": "delete"})
 
 
@@ -176,6 +180,8 @@ class Rate(MySQLModel, table=True):
     price: int = Field(nullable=False, description="Цена")
     duration: int = Field(nullable=True, default=None, description="Длительность тарифа в секундах")
     payments: List['Payment'] = Relationship(
+        back_populates="rates", sa_relationship_kwargs={"cascade": "delete"})
+    payment_checks: List['PaymentCheck'] = Relationship(
         back_populates="rates", sa_relationship_kwargs={"cascade": "delete"})
 
     def __str__(self):
@@ -245,10 +251,13 @@ class ViewedComplex(MySQLModel, table=True):
     id: int = Field(default=None, primary_key=True, index=True)
 
     user_id: int = Field(nullable=False, foreign_key='users.id')
-    complex_id: int = Field(nullable=False, foreign_key='complexes.id')
+    users: 'User' = Relationship(back_populates="viewed_complexes")
+
     viewed_at: datetime = Field(
         default=None, description="Время последнего просмотренного комплекса"
     )
+
+    complex_id: int = Field(nullable=False, foreign_key='complexes.id')
     complexes: 'Complex' = Relationship(back_populates="viewed_complexes")
 
     @classmethod
@@ -296,6 +305,7 @@ class ViewedVideo(MySQLModel, table=True):
     id: int = Field(default=None, primary_key=True, index=True)
 
     user_id: int = Field(nullable=False, foreign_key='users.id')
+    users: 'User' = Relationship(back_populates="viewed_videos")
 
     video_id: int = Field(nullable=False, foreign_key='videos.id')
     videos: 'Video' = Relationship(back_populates="viewed_videos")
@@ -330,6 +340,7 @@ class Payment(MySQLModel, table=True):
     user_id: int = Field(nullable=False, foreign_key='users.id')
     users: 'User' = Relationship(back_populates="payments")
     rate_id: int = Field(nullable=False, foreign_key='rates.id')
+    rates: 'Rate' = Relationship(back_populates="payments")
 
     @classmethod
     async def get_by_user_and_rate_id(cls, user_id: int, rate_id: int) -> 'Payment':
@@ -342,20 +353,30 @@ class PaymentCheck(MySQLModel, table=True):
 
     id: int = Field(default=None, primary_key=True, index=True)
 
-    date: datetime
-    order_id: int = Field(unique=True)
-    order_num: int
-    sum: str
-    currency: str
-    customer_phone: str
-    customer_email: EmailStr
-    customer_extra: int
-    payment_type: str
-    payment_status: str
+    date: datetime = Field(
+        description="'date' in Prodamus report",
+        sa_column=Column(type_=TIMESTAMP(timezone=True))
+    )
+    order_id: int = Field(unique=True, description="'order_id' in Prodamus report")
 
-    rate_id: int= Field(nullable=False, foreign_key='rates.id')
-    user_id: int = Field(nullable=False, foreign_key='users.id')
+    sum: str = Field(description="'sum' in Prodamus report")
+    currency: str = Field(description="'currency' in Prodamus report")
+    customer_phone: str = Field(description="'customer_phone' in Prodamus report")
+    customer_email: EmailStr = Field(description="'customer_email' in Prodamus report")
+    payment_type: str = Field(description="'payment_type' in Prodamus report")
+    payment_status: str = Field(description="'payment_status' in Prodamus report")
+
+    user_id: int = Field(
+        nullable=False,
+        foreign_key='users.id',
+        description="Named 'customer_extra' in Prodamus report"
+    )
     users: 'User' = Relationship(back_populates="payment_checks")
+
+    rate_id: int= Field(
+        nullable=False, foreign_key='rates.id', description="Named 'order_num' in Prodamus report"
+    )
+    rates: 'Rate' = Relationship(back_populates="payment_checks")
 
     @classmethod
     async def get_all_by_user_id(cls, user_id: int) -> list['PaymentCheck']:
