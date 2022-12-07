@@ -50,14 +50,14 @@ services:
     restart: on-failure
     labels:
       traefik.enable: "true"
-      traefik.http.routers.passbolt-http.entrypoints: "web"
-      traefik.http.routers.passbolt-http.rule: "Host(energy.qidoctor.ru)"
-      traefik.http.routers.passbolt-http.middlewares: "SslHeader@file"
-      traefik.http.routers.passbolt-https.middlewares: "SslHeader@file"
-      traefik.http.routers.passbolt-https.entrypoints: "websecure"
-      traefik.http.routers.passbolt-https.rule: "Host(energy.qidoctor.ru)"
-      traefik.http.routers.passbolt-https.tls: "true"
-      traefik.http.routers.passbolt-https.tls.certresolver: "letsencrypt"
+      traefik.http.routers.ci_api-http.entrypoints: "web"
+      traefik.http.routers.ci_api-http.rule: "Host(energy.qidoctor.ru)"
+      traefik.http.routers.ci_api-http.middlewares: "SslHeader@file"
+      traefik.http.routers.ci_api-https.middlewares: "SslHeader@file"
+      traefik.http.routers.ci_api-https.entrypoints: "websecure"
+      traefik.http.routers.ci_api-https.rule: "Host(energy.qidoctor.ru)"
+      traefik.http.routers.ci_api-https.tls: "true"
+      traefik.http.routers.ci_api-https.tls.certresolver: "letsencrypt"
 
   traefik:
     image: "traefik:v2.9"
