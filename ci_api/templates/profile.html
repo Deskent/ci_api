@@ -37,7 +37,7 @@
                     <div class="user-profile__card profile-card">
                         {% if user.expired_at %}
                             <div class="profile-card__title">
-                                Подписка автоматически продлится {{ user.expired_at.day }}-{{ user.expired_at.month }}
+                                Подписка автоматически продлится {{ user.expired_at }}
                             </div>
                         {% else %}
                             <div class="profile-card__title">
@@ -75,7 +75,7 @@
                         {% if user.expired_at %}
                             <div class="profile-card__title">
 {#                            # TODO выводить число и месяц #}
-                                Подписка автоматически продлится {{ user.expired_at.day }}-{{ user.expired_at.month }}
+                                Подписка автоматически продлится {{ user.expired_at }}
                             </div>
                         {% else %}
                             <div class="profile-card__title">
