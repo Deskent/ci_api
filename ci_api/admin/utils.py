@@ -108,8 +108,5 @@ async def create_default_admin() -> None:
             data.append(settings.DEFAULT_ADMIN)
 
         for elem in data:
-            expired_at = datetime.utcnow() + timedelta(days=30)
-            elem['password'] = await Administrator.get_hashed_password(elem['password'])
-            user = Administrator(**elem, expired_at=expired_at)
-            await user.save()
+            await Administrator().create(**elem)
         logger.info("Admin created.")
