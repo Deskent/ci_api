@@ -43,6 +43,8 @@ services:
       - ./logs:/app/logs
       - ./static:/app/static
       - ./payments:/app/payments
+    ports:
+      - "8000:8000"
     depends_on:
       - ci_postgres
     restart: on-failure
