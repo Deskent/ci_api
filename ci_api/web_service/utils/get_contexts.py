@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import Depends
 from pydantic import EmailStr
 from starlette.requests import Request
@@ -79,11 +81,16 @@ async def get_active_user_context(
         return context
     raise ComeTomorrowException
 
+def present_user_expired_at_day_and_month(date: datetime) -> str:
+    return date.strftime("%d-%m")
+
 
 def get_profile_page_context(
         context: dict = Depends(get_logged_user_context)
 ) -> dict:
-    context.update(max_level=MAX_LEVEL)
+    user: User = context['user']
+    user.expired_at = present_user_expired_at_day_and_month(user.expired_at)
+    context.update(max_level=MAX_LEVEL, user=user)
     return context
 
 

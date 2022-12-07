@@ -1,7 +1,4 @@
-import pytest
-
 from models.models import Complex, Video
-from models.methods import get_first, select, get_all
 
 
 async def test_video_create():

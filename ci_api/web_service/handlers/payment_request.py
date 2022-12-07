@@ -12,6 +12,7 @@ async def get_payment_link(user: User, rate: Rate) -> str:
         f"&order_id={rate.id}"
         f"&customer_phone={user.phone}"
         f"&customer_extra={user.id}"
+        f"&customer_email={user.email}"
         f"&order_sum={rate.price}"
         f"&products[0][price]={rate.price}"
         f"&products[0][quantity]=1"

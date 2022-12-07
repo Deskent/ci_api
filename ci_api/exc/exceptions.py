@@ -23,12 +23,11 @@ VideoNotFoundError = HTTPException(
 RateNotFound = HTTPException(
     status_code=status.HTTP_404_NOT_FOUND,
     detail="Invalid rate id"
-
 )
+
 FileNotFoundError = HTTPException(
     status_code=status.HTTP_404_NOT_FOUND,
     detail="File not found"
-
 )
 
 PhoneNumberError = HTTPException(

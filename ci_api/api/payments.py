@@ -1,27 +1,16 @@
 import datetime
 import json
-from pathlib import Path
-import pydantic
+
 from fastapi import APIRouter, Body
 
 from config import logger, settings
+from exc.payment.pay_exceptions import PaymentServiceError
+from models.models import PaymentCheck, User
 
 router = APIRouter(prefix="/payments", tags=['Payments'])
 
 
-class PaymentCheck(pydantic.BaseModel):
-    date: datetime.datetime
-    order_id: int
-    order_num: int
-    sum: str
-    currency: str
-    customer_phone: str
-    customer_extra: int
-    products: list
-    payment_type: str
-    payment_status: str
-
-def save_payment(data: dict):
+async def save_payment(data: dict) -> PaymentCheck:
     """
     {
     'date': '2022-12-06T18:21:06+03:00', 'order_id': '7975674', 'order_num': '2',
@@ -38,12 +27,24 @@ def save_payment(data: dict):
     """
     # TODO сделать в БД
     logger.debug(f"payments data_body: \n{data}")
-    check = PaymentCheck(**data)
-    payments_dir = settings.PAYMENTS_DIR / 'payments' / check.customer_phone
+    user_id = int(data.pop('customer_extra'))
+    if not user_id:
+        raise PaymentServiceError
+    user: User = await User.get_by_id(user_id)
+    data['user_id'] = user.id
+    if not data.get('customer_email'):
+        data['customer_email'] = user.email
+    data['rate_id'] = int(data.pop('order_num'))
+    return await PaymentCheck().create(data)
+
+def save_to_file(data: dict):
+    current_date = datetime.datetime.now(tz=None).date()
+    payments_dir = settings.PAYMENTS_DIR / data['customer_phone'] / str(current_date)
     if not payments_dir.exists():
         payments_dir.mkdir(parents=True)
-    with open(payments_dir / f'{check.order_id}.json', 'w', encoding='utf-8') as f:
+    with open(payments_dir / f'{data["order_id"]}.json', 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
+
 
 
 @router.post(
@@ -54,4 +55,5 @@ async def payments_report(
         data: dict = Body()
 ):
     if data.get('sys') == settings.PRODAMUS_SYS_KEY:
-        save_payment(data)
+        await save_payment(data)
+        save_to_file(data)

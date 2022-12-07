@@ -65,6 +65,11 @@ class MySQLModel(SQLModel):
                 await session.commit()
                 logger.debug(f"Object: {obj} deleted")
 
+    @classmethod
+    async def create(cls, data: dict):
+        instance = cls(**data)
+        return await instance.save()
+
 
 class AdminModel(MySQLModel):
     email: EmailStr
@@ -95,6 +100,12 @@ class AdminModel(MySQLModel):
     async def get_user_token(self) -> str:
         return auth_handler.encode_token(self.id)
 
+    @classmethod
+    async def create(cls, data: dict) -> 'User':
+        data['password'] = await cls.get_hashed_password(data['password'])
+        user = cls(**data)
+
+        return await user.save()
 
 class UserModel(AdminModel):
     phone: str
@@ -125,13 +136,6 @@ class UserModel(AdminModel):
     async def clean_sms_code(self) -> 'User':
         self.sms_message = ''
         return await self.save()
-
-    @classmethod
-    async def create(cls, data: dict) -> 'User':
-        data['password'] = await cls.get_hashed_password(data['password'])
-        user = cls(**data)
-
-        return await user.save()
 
     async def level_up(self) -> 'User':
         if self.level < 10:

@@ -83,9 +83,10 @@ async def create_users(data: list[dict] = None):
                 'gender': 1,
                 'password': "asd",
                 'email': "asd@asd.ru",
-                'is_admin': True,
-                'is_active': False,
-                'is_verified': True
+                'is_active': True,
+                'is_verified': True,
+                'rate_id': 2,
+                'expired_at': datetime.now() + timedelta(days=30)
             },
             {
                 'username': "test2",
@@ -94,7 +95,6 @@ async def create_users(data: list[dict] = None):
                 'gender': 0,
                 'password': "test2pass",
                 'email': 'test2@email.com',
-                'is_admin': False,
                 'is_active': True
 
             },
@@ -104,16 +104,16 @@ async def create_users(data: list[dict] = None):
                 'password': "test3pass",
                 'gender': 0,
                 'email': 'test3@email.com',
-                'is_admin': False,
                 'is_active': False
             },
         ]
     for user_data in data:
         first_complex: Complex = await Complex.get_first()
         user_data['current_complex'] = first_complex.id
-        free_rate: Rate = await Rate.get_free()
-        if free_rate:
-            user_data['rate_id'] = free_rate.id
+        if not user_data.get('rate_id'):
+            free_rate: Rate = await Rate.get_free()
+            if free_rate:
+                user_data['rate_id'] = free_rate.id
         await User.create(user_data)
 
 
