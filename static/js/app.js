@@ -320,7 +320,7 @@ function modalVideoEnded() {
             const user_tel = userPhone.textContent;
             const phone = user_tel.replace(/\s/g, '');
 
-            const response = await fetch('http://185.154.53.122:8000/api/v1/videos/viewed', {
+            const response = await fetch('http://127.0.0.1:8000/api/v1/videos/viewed', {
                 method: 'POST',
                 body: JSON.stringify({
                     "phone": phone,
