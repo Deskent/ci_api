@@ -265,7 +265,7 @@ class ViewedComplex(MySQLModel, table=True):
             cls, user_id: int, complex_id: int
     ) -> 'ViewedComplex':
 
-        query = select(cls).where(cls.user_id == user_id and cls.complex_id == complex_id)
+        query = select(cls).where(cls.user_id == user_id).where(cls.complex_id == complex_id)
         complex_exists = await get_all(query)
         if not complex_exists:
             viewed_complex = cls(
@@ -312,7 +312,7 @@ class ViewedVideo(MySQLModel, table=True):
 
     @classmethod
     async def add_viewed(cls, user_id: int, video_id: int) -> 'ViewedVideo':
-        query = select(cls).where(cls.user_id == user_id and cls.video_id == video_id)
+        query = select(cls).where(cls.user_id == user_id).where(cls.video_id == video_id)
         video_exists = await get_first(query)
         if not video_exists:
             viewed_video = cls(user_id=user_id, video_id=video_id)
@@ -344,8 +344,9 @@ class Payment(MySQLModel, table=True):
 
     @classmethod
     async def get_by_user_and_rate_id(cls, user_id: int, rate_id: int) -> 'Payment':
-        query = select(cls).where(cls.user_id == user_id and cls.rate_id == rate_id)
-        return await get_first(query)
+        query = select(cls).where(cls.user_id == user_id).where(cls.rate_id == rate_id)
+        result = await get_first(query)
+        return result
 
 
 class PaymentCheck(MySQLModel, table=True):
