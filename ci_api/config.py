@@ -44,6 +44,7 @@ class Settings(BaseSettings):
     DEFAULT_ADMIN: dict = {}
     RECREATE_DB: bool = False
     ECHO: bool = False
+    STAGE: str = 'test'
 
     class Config:
         env_file = ".env"

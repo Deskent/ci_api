@@ -7,8 +7,7 @@ from starlette.requests import Request
 from config import templates
 from models.models import User
 from services.user import send_sms
-from web_service.handlers.redirects import redirect_created_user_to_verify_code
-from web_service.sms_class import sms_service, SMSException
+from web_service.services.sms_class import sms_service, SMSException
 from web_service.utils.title_context_func import update_title
 from web_service.utils.get_contexts import get_base_context
 
@@ -73,7 +72,7 @@ async def approve_sms_code(
     if request.url.path == "/forget3":
         user_code: str = user.sms_call_code
     if code != user_code:
-        text = "Неверный код"
+        text = f"Неверный код: {code}"
         logger.debug(text)
         context.update(error=text, user=user)
         url_path = f"{request.url.path}.html"
