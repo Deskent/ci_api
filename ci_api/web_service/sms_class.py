@@ -44,8 +44,9 @@ class SMSru:
             f"to={phone}"
             f"&msg={message}"
             f"&json=1"
-            f"&test=1"
         )
+        if settings.STAGE == 'test':
+            url += f"&test=1"
         logger.debug(f"Send sms message {message} to phone: {phone}")
         response = requests.get(url)
         if response.status_code == 200:
@@ -83,8 +84,9 @@ class SMSru:
             f"&ip=-1"
             f"&api_id={self.token}"
             f"&json=1"
-            f"&test=1"
         )
+        if settings.STAGE == 'test':
+            url += f"&test=1"
         logger.debug(f"Send call code to phone: {phone}")
 
         response = requests.get(url)
