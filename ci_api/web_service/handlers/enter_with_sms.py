@@ -80,6 +80,8 @@ async def approve_sms_code(
         return templates.TemplateResponse(url_path, context=update_title(context, url_path))
 
     await user.clean_sms_code()
+    user.is_verified = True
+    await user.save()
 
     context.update(user=user)
     return templates.TemplateResponse(

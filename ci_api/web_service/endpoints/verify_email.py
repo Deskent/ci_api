@@ -30,6 +30,7 @@ async def check_email(
         return templates.TemplateResponse(
             "check_email.html", context=update_title(context, "check_email.html"))
 
+    # TODO сделать поле для email_verify
     if not user.is_verified:
         user.is_verified = True
         await user.save()
