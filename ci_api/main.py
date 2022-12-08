@@ -23,6 +23,7 @@ from web_service.utils.title_context_func import update_title
 
 DOCS_URL = "/ci"
 
+# TODO флаг теста
 
 def get_application():
     scheduler = AsyncIOScheduler()
@@ -36,22 +37,22 @@ def get_application():
 
     app = FastAPI(docs_url=DOCS_URL, redoc_url=DOCS_URL, debug=settings.DEBUG)
 
-    # origins = [
-    #     "http://localhost.tiangolo.com",
-    #     "https://localhost.tiangolo.com",
-    #     "http://localhost",
-    #     "http://localhost:8080",
-    #     "http://localhost:8000",
-    #     "http://127.0.0.1:8000",
-    # ]
-    #
-    # app.add_middleware(
-    #     CORSMiddleware,
-    #     allow_origins=origins,
-    #     allow_credentials=True,
-    #     allow_methods=["*"],
-    #     allow_headers=["*"],
-    # )
+    origins = [
+        "http://localhost.tiangolo.com",
+        "https://localhost.tiangolo.com",
+        "http://localhost",
+        "http://localhost:8080",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+    ]
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     app.mount("/static", StaticFiles(directory=str(settings.STATIC_DIR)), name="static")
     app.mount("/templates", StaticFiles(directory=str(settings.TEMPLATES_DIR)), name="templates")
