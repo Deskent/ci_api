@@ -25,7 +25,7 @@ async def save_payment(data: dict) -> PaymentCheck:
     :param data:
     :return:
     """
-    # TODO сделать в БД
+
     logger.debug(f"payments data_body: \n{data}")
     user_id = int(data.pop('customer_extra'))
     if not user_id:
@@ -35,7 +35,11 @@ async def save_payment(data: dict) -> PaymentCheck:
     if not data.get('customer_email'):
         data['customer_email'] = user.email
     data['rate_id'] = int(data.pop('order_num'))
-    return await PaymentCheck().create(data)
+    check = await PaymentCheck().create(data)
+    user.expired_at = check.date
+    await user.save()
+
+    return check
 
 def save_to_file(data: dict):
     current_date = datetime.datetime.now(tz=None).date()
@@ -44,7 +48,6 @@ def save_to_file(data: dict):
         payments_dir.mkdir(parents=True)
     with open(payments_dir / f'{data["order_id"]}.json', 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
-
 
 
 @router.post(
