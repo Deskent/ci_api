@@ -62,6 +62,7 @@ if not settings.STATIC_DIR:
     settings.STATIC_DIR = settings.BASE_DIR / 'static'
     if not settings.STATIC_DIR.exists():
         logger.warning(f"Static directory {settings.STATIC_DIR} does not exists")
+        # TODO отправить сообщение в телегу
         exit()
 if not settings.TEMPLATES_DIR:
     settings.TEMPLATES_DIR = settings.BASE_DIR / 'templates'
@@ -72,7 +73,7 @@ settings.PAYMENTS_DIR = settings.BASE_DIR / payments_dir
 if not settings.MEDIA_DIR:
     settings.MEDIA_DIR = settings.STATIC_DIR / 'media'
 if not settings.MEDIA_DIR.exists():
-    Path.mkdir(settings.MEDIA_DIR, exist_ok=True)
+    Path.mkdir(settings.MEDIA_DIR, exist_ok=True, parents=True)
 
 if not settings.LOGS_DIR:
     current_date = str(datetime.datetime.today().date())
