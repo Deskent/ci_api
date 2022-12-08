@@ -144,7 +144,9 @@ class User(UserModel, table=True):
     progress: int = Field(nullable=False, default=0,
         description="Процент прогресса просмотра текущего комплекса")
     created_at: datetime = Field(default=datetime.now(tz=None))
-    expired_at: Optional[datetime] = Field(default=None)
+    expired_at: Optional[datetime] = Field(
+        default=None, sa_column=Column(type_=TIMESTAMP(timezone=True))
+    )
     is_verified: Optional[bool] = Field(default=False)
     is_active: Optional[bool] = Field(default=False)
     email_code: Optional[str] = Field(nullable=True, default=None, description="Код верификации")
