@@ -24,7 +24,6 @@ async def web_register(
 
 @router.post("/registration", response_class=HTMLResponse)
 async def web_register_post(
-        request: Request,
         context: dict = Depends(get_base_context),
         form_data: UserRegistration = Depends(UserRegistration.as_form)
 ):
