@@ -104,3 +104,11 @@ async def get_email_send_context(email: EmailStr, message: str) -> dict:
         context.update(error=f"Неверный адрес почты")
 
     return context
+
+
+async def update_user_session_token(request: Request, user: User) -> None:
+    """Clean and set new user token to request session"""
+
+    request.session.clear()
+    login_token: str = await user.get_user_token()
+    request.session.update(token=login_token)
