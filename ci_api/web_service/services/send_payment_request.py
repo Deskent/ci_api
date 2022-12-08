@@ -21,7 +21,7 @@ async def get_payment_link(user: User, rate: Rate) -> str:
         f"&products[0][name]={rate.name}"
     )
     if settings.STAGE == 'test':
-        params += f"&demo_mode=1"  # TODO  <- ТЕСТОВЫЙ РЕЖИМ!
+        params += f"&demo_mode=1"
 
     url = (
         f"https://box.payform.ru/?"
