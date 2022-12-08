@@ -7,9 +7,8 @@ from starlette.responses import HTMLResponse
 from config import templates
 from schemas.user import UserRegistration
 from services.user import register_new_user
-from web_service.utils.title_context_func import update_title
 from web_service.utils.get_contexts import get_base_context
-from web_service.utils.web_utils import redirect_logged_user_to_entry
+from web_service.utils.title_context_func import update_title
 
 router = APIRouter(tags=['web', 'register'])
 
@@ -39,7 +38,10 @@ async def web_register_post(
 
     user, errors = await register_new_user(form_data)
     if user:
-        return await redirect_logged_user_to_entry(user, request)
+        context.update(user=user)
+        return templates.TemplateResponse(
+            "forget2.html", context=update_title(context, "forget2.html"))
+        # return await redirect_created_user_to_verify_code(user, request)
 
     if errors:
         context.update(**errors)

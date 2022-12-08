@@ -21,6 +21,7 @@ async def user_entry(
         form_data: UserLogin = Depends(UserLogin.as_form)
 
 ) -> templates.TemplateResponse:
+
     if user := await user_login(form_data):
         context.update(user=user)
         if not user.is_verified:

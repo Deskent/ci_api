@@ -6,25 +6,11 @@ from starlette.requests import Request
 
 from config import templates
 from models.models import User
-from services.utils import generate_four_random_digits_string
+from services.user import send_sms
+from web_service.handlers.redirects import redirect_created_user_to_verify_code
 from web_service.sms_class import sms_service, SMSException
 from web_service.utils.title_context_func import update_title
-from web_service.utils.web_utils import redirect_logged_user_to_entry
 from web_service.utils.get_contexts import get_base_context
-
-
-async def _send_sms(user: User, context: dict):
-    message: str = generate_four_random_digits_string()
-    logger.debug(f"Sms message generated: {message}")
-    try:
-        sms_id: str = await sms_service.send_sms(phone=user.phone, message=message)
-        if sms_id:
-            user.sms_message = message
-            await user.save()
-    except SMSException as err:
-        logger.error(err)
-        context.update(error=err, user=user)
-    return templates.TemplateResponse("entry_sms.html", context=update_title(context, "entry_sms.html"))
 
 
 async def _send_call(user: User, context: dict):
@@ -54,7 +40,15 @@ async def enter_by_sms(
 
     context.update(user=user)
     if sms_send_to == "sms":
-        return await _send_sms(user, context)
+        result: dict = await send_sms(user.phone)
+        if sms_message := result.get('sms_message'):
+            user.sms_message = sms_message
+            await user.save()
+        elif result.get('error'):
+            context.update(**result, user=user)
+
+        return templates.TemplateResponse(
+            "forget2.html", context=update_title(context, "forget2.html"))
 
     elif sms_send_to == "call":
         return await _send_call(user, context)
@@ -87,4 +81,6 @@ async def approve_sms_code(
 
     await user.clean_sms_code()
 
-    return await redirect_logged_user_to_entry(user, request)
+    context.update(user=user)
+    return templates.TemplateResponse(
+            "profile.html", context=update_title(context, "profile.html"))
