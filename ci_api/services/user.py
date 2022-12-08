@@ -6,7 +6,7 @@ from config import logger
 from models.models import User, Administrator, Rate, Complex
 from schemas.user import UserRegistration, UserLogin
 from services.utils import generate_four_random_digits_string
-from web_service.sms_class import sms_service, SMSException
+from web_service.services.sms_class import sms_service, SMSException
 
 
 def get_bearer_header(token: str) -> dict[str, str]:

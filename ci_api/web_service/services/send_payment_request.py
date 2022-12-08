@@ -7,6 +7,8 @@ from config import settings
 from models.models import User, Rate
 
 
+REQUEST_TIMEOUT = 15
+
 async def get_payment_link(user: User, rate: Rate) -> str:
     params: str = (
         f"&order_id={rate.id}"
@@ -17,8 +19,9 @@ async def get_payment_link(user: User, rate: Rate) -> str:
         f"&products[0][price]={rate.price}"
         f"&products[0][quantity]=1"
         f"&products[0][name]={rate.name}"
-        f"&demo_mode=1"  # TODO  <- ТЕСТОВЫЙ РЕЖИМ!
     )
+    if settings.STAGE == 'test':
+        params += f"&demo_mode=1"  # TODO  <- ТЕСТОВЫЙ РЕЖИМ!
 
     url = (
         f"https://box.payform.ru/?"
@@ -35,7 +38,7 @@ async def get_payment_link(user: User, rate: Rate) -> str:
         "charset": "utf-8"
     }
     try:
-        response = requests.get(url, headers=headers, timeout=15)
+        response = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
         if response.status_code == 200:
             try:
                 data: dict = response.json()
