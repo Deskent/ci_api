@@ -112,8 +112,11 @@ class UserModel(AdminModel):
     email_code: str
     is_active: bool
     sms_message: str
+    sms_call_code: str
+    email_code: str
     level: int
     progress: int
+    is_verified: bool
 
     @classmethod
     async def get_by_phone(cls, phone: str) -> 'User':
@@ -137,8 +140,29 @@ class UserModel(AdminModel):
         self.sms_message = ''
         return await self.save()
 
+    async def clean_sms_call_code(self) -> 'User':
+        self.sms_call_code = ''
+        return await self.save()
+
+    async def clean_email_code(self) -> 'User':
+        self.email_code = ''
+        return await self.save()
+
     async def level_up(self) -> 'User':
         if self.level < 10:
             self.progress = 0
             self.level += 1
-            return await self.save()
+            await self.save()
+        return self
+
+    async def set_verified(self) -> 'User':
+        if not self.is_verified:
+            self.is_verified = True
+            await self.save()
+        return self
+
+    async def set_not_verified(self) -> 'User':
+        if self.is_verified:
+            self.is_verified = False
+            await self.save()
+        return self

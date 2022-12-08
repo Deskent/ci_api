@@ -41,7 +41,6 @@ async def web_register_post(
         context.update(user=user)
         return templates.TemplateResponse(
             "forget2.html", context=update_title(context, "forget2.html"))
-        # return await redirect_created_user_to_verify_code(user, request)
 
     if errors:
         context.update(**errors)
