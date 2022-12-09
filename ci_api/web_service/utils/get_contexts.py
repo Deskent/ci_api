@@ -79,15 +79,14 @@ async def get_active_user_context(
     raise ComeTomorrowException
 
 def present_user_expired_at_day_and_month(date: datetime) -> str:
-    return date.strftime("%d-%m")
+    return date.strftime("%d-%m") if date is not None else 'Нет подписки'
 
 
 def get_profile_page_context(
         context: dict = Depends(get_logged_user_context)
 ) -> dict:
     user: User = context['user']
-    if user.expired_at is not None:
-        user.expired_at = present_user_expired_at_day_and_month(user.expired_at)
+    user.expired_at = present_user_expired_at_day_and_month(user.expired_at)
     context.update(max_level=MAX_LEVEL, user=user)
 
     return context
