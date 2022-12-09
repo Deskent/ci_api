@@ -31,9 +31,10 @@ def slice_phone_to_format(phone: str) -> str:
 class PhoneNumber(BaseModel):
     phone: str
 
-    @validator('phone')
-    def check_valid_phone(cls, phone: str):
-        return slice_phone_to_format(phone)
+    _normalize_name = validator('phone', allow_reuse=True)(slice_phone_to_format)
+    # @validator('phone')
+    # def check_valid_phone(cls, phone: str):
+    #     return slice_phone_to_format(phone)
 
 
 class Password(BaseModel):
@@ -96,6 +97,18 @@ class UserLogin(Password):
             email=email,
             password=password)
 
+class SmsCode(BaseModel):
+    code: str
+
+    @validator('code')
+    def password_match(cls, code, values):
+        if len(code) != 4:
+            logger.warning("Passwords dont match")
+            raise PasswordMatchError
+        return code
+
+class UserPhoneCode(PhoneNumber, SmsCode):
+    pass
 
 class UserPhoneLogin(Password, PhoneNumber):
     pass
