@@ -7,7 +7,7 @@ from config import logger
 from exc.exceptions import PhoneNumberError, PasswordMatchError
 
 
-def check_phone(phone: str) -> str:
+def slice_phone_to_format(phone: str) -> str:
     """Delete from phone number like `8 (123) 456-7890` or something
     all extra symbols. Return clean phone number like `1234567890`
     """
@@ -33,7 +33,7 @@ class PhoneNumber(BaseModel):
 
     @validator('phone')
     def check_valid_phone(cls, phone: str):
-        return check_phone(phone)
+        return slice_phone_to_format(phone)
 
 
 class Password(BaseModel):
