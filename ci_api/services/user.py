@@ -4,7 +4,7 @@ from starlette.datastructures import FormData
 
 from config import logger
 from models.models import User, Administrator, Rate, Complex
-from schemas.user import UserRegistration, UserLogin
+from schemas.user import UserRegistration, UserLogin, PhoneNumber
 from services.utils import generate_four_random_digits_string
 from web_service.services.sms_class import sms_service, SMSException
 
@@ -13,7 +13,7 @@ def get_bearer_header(token: str) -> dict[str, str]:
     return {'Authorization': f"Bearer {token}"}
 
 
-async def user_login(user_data: UserLogin) -> User:
+async def check_user_and_password_correct(user_data: UserLogin) -> User:
     if user_found := await User.get_by_email(user_data.email):
         if await user_found.is_password_valid(user_data.password):
             return user_found
@@ -26,7 +26,7 @@ async def check_email_exists(email: EmailStr) -> bool:
     return True if user or admin else False
 
 
-async def check_user_phone_exists(phone: str) -> User:
+async def check_user_phone_exists(phone: str | PhoneNumber) -> User:
     if user := await User.get_by_phone(phone):
         return user
 

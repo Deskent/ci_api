@@ -38,7 +38,10 @@ class PhoneNumber(BaseModel):
 
 class Password(BaseModel):
     password: str
-    password2: str
+
+
+class Password2(Password):
+    password2: Password
 
     @validator('password')
     def password_match(cls, password, values):
@@ -48,7 +51,7 @@ class Password(BaseModel):
         return password
 
 
-class UserRegistration(Password, PhoneNumber):
+class UserRegistration(Password2, PhoneNumber):
     username: str
     last_name: str = ''
     third_name: str = ''
@@ -82,20 +85,36 @@ class UserRegistration(Password, PhoneNumber):
 
 class UserLogin(BaseModel):
     email: EmailStr
-    password: str
+    password: Password
 
     @classmethod
     def as_form(
             cls,
             email: EmailStr = Form(...),
-            password: str = Form(...),
+            password: Password = Form(...),
     ):
         return cls(
             email=email,
             password=password)
 
 
-class UserChangePassword(Password):
+class UserPhoneLogin(BaseModel):
+    phone: PhoneNumber
+    password: str
+
+
+    @classmethod
+    def as_form(
+            cls,
+            phone: PhoneNumber = Form(...),
+            password: str = Form(...),
+    ):
+        return cls(
+            phone=phone,
+            password=password)
+
+
+class UserChangePassword(Password2):
     old_password: str
 
 
