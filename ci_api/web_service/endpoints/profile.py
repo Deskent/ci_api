@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from fastapi.responses import HTMLResponse
 
-from services.response_manager import WebContext, WebServiceResponser
+from services.web_context_class import WebContext
 from web_service.handlers.profile_web_contexts import get_edit_profile_web_context
 from web_service.utils.get_contexts import get_logged_user_context, get_profile_page_context
 
@@ -19,7 +19,7 @@ async def profile(
 ):
     web_context = WebContext(context=context)
     web_context.template = "profile.html"
-    return WebServiceResponser(web_context).render()
+    return web_context.web_render()
 
 
 @router.get("/edit_profile", response_class=HTMLResponse)
@@ -28,12 +28,13 @@ async def edit_profile(
 ):
     web_context = WebContext(context=context)
     web_context.template = "edit_profile.html"
-    return WebServiceResponser(web_context).render()
+    return web_context.web_render()
 
 
 @router.post("/edit_profile", response_class=HTMLResponse)
 async def edit_profile_post(
     web_context: WebContext = Depends(get_edit_profile_web_context)
 ):
-    return WebServiceResponser(web_context).render()
+    return web_context.web_render()
+
 

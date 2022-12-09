@@ -4,7 +4,7 @@ from starlette.responses import HTMLResponse
 
 from config import templates
 from models.models import User
-from web_service.utils.title_context_func import update_title
+from web_service.utils.title_context_func import get_page_titles
 from web_service.utils.get_contexts import get_base_context, get_logged_user_context
 
 router = APIRouter(tags=['web', 'check_email'])
@@ -22,13 +22,13 @@ async def check_email(
         error = 'Пользователь не найден'
         context.update(error=error)
         return templates.TemplateResponse(
-            "index.html", context=update_title(context, 'index'))
+            "index.html", context=get_page_titles(context, 'index'))
 
     if user.email_code != email_token:
         error = 'Введен неверный токен'
         context.update(error=error)
         return templates.TemplateResponse(
-            "check_email.html", context=update_title(context, "check_email.html"))
+            "check_email.html", context=get_page_titles(context, "check_email.html"))
 
     # TODO сделать поле для email_verify
     if not user.is_verified:
@@ -39,4 +39,4 @@ async def check_email(
     context.update(success='Аккаунт верифицирован')
 
     return templates.TemplateResponse(
-        "profile.html", context=update_title(context, 'profile'))
+        "profile.html", context=get_page_titles(context, 'profile'))

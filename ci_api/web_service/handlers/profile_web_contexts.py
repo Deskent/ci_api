@@ -4,7 +4,7 @@ from pydantic import EmailStr
 
 from models.models import User
 from services.emails import send_verification_mail, EmailException
-from services.response_manager import WebContext
+from services.web_context_class import WebContext
 from web_service.utils.get_contexts import get_logged_user_context, get_user_from_context, \
     present_user_expired_at_day_and_month
 

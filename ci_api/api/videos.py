@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, status, Body
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import FileResponse
 
 from config import settings, logger
@@ -8,7 +8,7 @@ from models.models import Video, User
 from schemas.complexes_videos import VideoViewed
 from schemas.user_schema import slice_phone_to_format
 from services.depends import is_user_active
-from services.response_manager import WebContext, ApiServiceResponser
+from services.web_context_class import WebContext
 from services.videos_methods import get_viewed_video_response
 from web_service.utils.web_utils import get_checked_video
 
@@ -45,4 +45,4 @@ async def video_viewed(
         user=user, video_id=data.video_id, context={}
     )
 
-    return ApiServiceResponser(web_context).render()
+    return web_context.api_render()

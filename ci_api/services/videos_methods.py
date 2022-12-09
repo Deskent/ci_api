@@ -1,7 +1,7 @@
 from exc.exceptions import UserNotFoundError
 from models.models import User, Video, Complex
 from services.complexes_and_videos import is_video_viewed_before, check_level_up
-from services.response_manager import WebContext
+from services.web_context_class import WebContext
 
 
 async def get_viewed_video_response(user: User, video_id: int, context: dict) -> WebContext:
