@@ -5,7 +5,8 @@ from pydantic import EmailStr
 from models.models import User
 from services.emails import send_verification_mail, EmailException
 from services.response_manager import WebContext
-from web_service.utils.get_contexts import get_logged_user_context, get_user_from_context
+from web_service.utils.get_contexts import get_logged_user_context, get_user_from_context, \
+    present_user_expired_at_day_and_month
 
 
 async def get_edit_profile_web_context(
@@ -41,6 +42,7 @@ async def get_edit_profile_web_context(
             return obj
 
     await user.save()
+    user.expired_at = present_user_expired_at_day_and_month(user.expired_at)
     obj.context.update(user=user)
     obj.success = 'Профиль успешно изменен'
     obj.template = "profile.html"
