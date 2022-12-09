@@ -40,6 +40,7 @@ async def get_session_user(
 ) -> User:
     if token:
         return await User.get_by_token(token)
+    raise UserNotLoggedError
 
 
 def get_base_context(
@@ -54,9 +55,6 @@ async def get_logged_user_context(
         user: User = Depends(get_session_user),
         context: dict = Depends(get_base_context)
 ) -> dict:
-
-    if not user:
-        raise UserNotLoggedError
 
     context.update({
         "user": user,
@@ -107,7 +105,7 @@ async def get_email_send_context(email: EmailStr, message: str) -> dict:
 
 async def update_user_session_token(request: Request, user: User) -> None:
     """Clean and set new user token to request session"""
-
-    request.session.clear()
-    login_token: str = await user.get_user_token()
-    request.session.update(token=login_token)
+    if request:
+        request.session.clear()
+        login_token: str = await user.get_user_token()
+        request.session.update(token=login_token)
