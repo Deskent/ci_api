@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block main %}
+
+    <main class="main reg-main entry_main">
+        <div class="reg-main__sketch reg-main__sketch_left reg-main__sketch_left_registration">
+            <img src="/static/img/reg__bg.svg" alt="">
+        </div>
+        <div class="reg-main__sketch reg-main__sketch_right reg-main__sketch_right_registration">
+            <img src="/static/img/reg__bg_rotate.svg" alt="">
+        </div>
+        <div class="container">
+            <div class="reg-content__banner reg-banner">
+                <div class="reg-banner__content">
+                    <div class="registration__logo">
+                    </div>
+
+                    {% include 'messages/error_message.html' %}
+                    {% include 'messages/success_message.html' %}
+
+                    <form action="/entry" method="POST" class="registration__form">
+                        {% include 'form_fields/phone_field.html' %}
+                        {% include 'form_fields/password_field.html' %}
+
+                        <button type="submit"
+                                class="registration__btn reg-banner__link_entry">
+                            Войти
+                        </button>
+
+                    </form>
+
+                    <a href="/forget1"
+                       class="entry__link_forget"><span>Забыли пароль?</span>
+                    </a>
+                    <a href="/entry_sms"
+                       class="registration__btn reg-banner__link_reg entry__link_sms">
+                        <span>
+                            Войти по sms/звонку
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock main %}
