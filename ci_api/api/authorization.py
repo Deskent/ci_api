@@ -1,13 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request, Body
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from pydantic import EmailStr
 
 from config import logger, PHONE_FORMAT
 from models.models import User
-from schemas.user_schema import UserRegistration, UserPhoneLogin, UserChangePassword, PhoneNumber
-
 from schemas.user_schema import UserPhoneCode
+from schemas.user_schema import UserRegistration, UserPhoneLogin, UserChangePassword
 from services.depends import get_logged_user
-from services.response_manager import WebContext, ApiServiceResponser
+from services.web_context_class import WebContext
 from services.user import register_new_user
 from web_service.handlers.common import user_login_via_phone
 from web_service.handlers.enter_with_sms import approve_sms_code
@@ -107,7 +106,7 @@ async def verify_sms_code(
 
     web_context: WebContext = await approve_sms_code(request=request,
         context={}, phone=data.phone, code=data.code)
-    return ApiServiceResponser(web_context).render()
+    return web_context.api_render()
 
 
 

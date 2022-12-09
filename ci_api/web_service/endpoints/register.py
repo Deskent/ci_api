@@ -7,7 +7,7 @@ from config import templates
 from schemas.user_schema import UserRegistration
 from services.user import register_new_user
 from web_service.utils.get_contexts import get_base_context
-from web_service.utils.title_context_func import update_title
+from web_service.utils.title_context_func import get_page_titles
 
 router = APIRouter(tags=['web', 'register'])
 
@@ -18,7 +18,7 @@ async def web_register(
 ):
     context.update(personal_data="/personal_data_info")
     return templates.TemplateResponse(
-        "registration.html", context=update_title(context, "registration.html"))
+        "registration.html", context=get_page_titles(context, "registration.html"))
 
 
 @router.post("/registration", response_class=HTMLResponse)
@@ -32,18 +32,18 @@ async def web_register_post(
         logger.info(f'Field validation error: {errors["error"]}')
 
         return templates.TemplateResponse(
-            "registration.html", context=update_title(context, "registration.html"))
+            "registration.html", context=get_page_titles(context, "registration.html"))
 
     user, errors = await register_new_user(form_data)
     if user:
         context.update(user=user)
         return templates.TemplateResponse(
-            "forget2.html", context=update_title(context, "forget2.html"))
+            "forget2.html", context=get_page_titles(context, "forget2.html"))
 
     if errors:
         context.update(**errors)
         return templates.TemplateResponse(
-            "registration.html", context=update_title(context, "registration.html"))
+            "registration.html", context=get_page_titles(context, "registration.html"))
 
     raise HTTPException(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

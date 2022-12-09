@@ -7,10 +7,10 @@ from config import templates
 from exc.exceptions import UserNotFoundError
 from models.models import User
 from schemas.user_schema import UserPhoneLogin
-from services.response_manager import WebContext
+from services.web_context_class import WebContext
 from services.user import check_phone_and_password_correct
 from services.utils import generate_random_password
-from web_service.utils.title_context_func import update_title
+from web_service.utils.title_context_func import get_page_titles
 from web_service.utils.get_contexts import (
     get_email_send_context, get_base_context, get_logged_user_context, update_user_session_token
 )
@@ -52,21 +52,21 @@ async def restore_password(
     if not user:
         context.update(error='Неверный адрес почты')
         return templates.TemplateResponse(
-            "forget1.html", context=update_title(context, "forget1.html"))
+            "forget1.html", context=get_page_titles(context, "forget1.html"))
 
     new_password: str = generate_random_password()
     email_errors: dict = await get_email_send_context(user.email, new_password)
     if email_errors:
         context.update(email_errors)
         return templates.TemplateResponse(
-            "forget1.html", context=update_title(context, "forget1.html"))
+            "forget1.html", context=get_page_titles(context, "forget1.html"))
 
     logger.debug(f"New password: {new_password}")
     user.password = await user.get_hashed_password(new_password)
     await user.save()
     context.update(success=f"Новый пароль выслан на почту {user.email}")
     return templates.TemplateResponse(
-        "entry.html", context=update_title(context, "entry.html"))
+        "entry.html", context=get_page_titles(context, "entry.html"))
 
 
 async def set_new_password(
@@ -77,7 +77,7 @@ async def set_new_password(
 ):
     user: User = context.get('user')
 
-    context = update_title(context, "edit_profile.html")
+    context = get_page_titles(context, "edit_profile.html")
     if not await user.is_password_valid(old_password):
         context.update(error="Неверный пароль")
         return templates.TemplateResponse("edit_profile.html", context=context)
@@ -95,4 +95,4 @@ async def set_new_password(
     await user.save()
 
     return templates.TemplateResponse(
-        "profile.html", context=update_title(context, "profile.html"))
+        "profile.html", context=get_page_titles(context, "profile.html"))

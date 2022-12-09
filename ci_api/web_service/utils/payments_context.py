@@ -7,7 +7,7 @@ from exc.exceptions import (
 )
 from exc.payment.pay_exceptions import PaymentServiceError, SubscribeExistsError
 from models.models import User, Rate, Payment
-from services.response_manager import WebContext
+from services.web_context_class import WebContext
 from services.utils import get_current_datetime
 from web_service.services.send_payment_request import get_payment_link
 from web_service.utils.get_contexts import present_user_expired_at_day_and_month

@@ -2,7 +2,7 @@ from fastapi import Depends, APIRouter
 from starlette.responses import HTMLResponse, FileResponse
 
 from models.models import User
-from services.response_manager import WebContext, WebServiceResponser
+from services.web_context_class import WebContext
 from web_service.handlers.form_checks_report import form_payments_report
 from web_service.utils.payments_context import check_payment_result
 from web_service.utils.get_contexts import get_logged_user_context, get_user_from_context
@@ -23,7 +23,7 @@ async def payment_result(
         context=context, payform_status=_payform_status, payform_id=_payform_id,
         payform_order_id=_payform_order_id, payform_sign=_payform_sign
     )
-    return WebServiceResponser(web_context).render()
+    return web_context.web_render()
 
 
 @router.get("/payment_report", response_class=HTMLResponse)
@@ -32,7 +32,7 @@ async def payment_result(
         user: User = Depends(get_user_from_context)
 ):
     web_context: WebContext = await form_payments_report(context=context, user=user)
-    return WebServiceResponser(web_context).render()
+    return web_context.web_render()
 
 
 @router.get("/download_checks/{file_path}")

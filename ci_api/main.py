@@ -18,7 +18,7 @@ from services.notification_scheduler import create_notifications_for_not_viewed_
 from web_service.router import router as web_router
 from web_service.utils.get_contexts import get_base_context, \
     get_session_token, get_session_user, get_logged_user_context
-from web_service.utils.title_context_func import update_title
+from web_service.utils.title_context_func import get_page_titles
 
 DOCS_URL = "/ci"
 
@@ -59,7 +59,7 @@ def get_application():
         request.session.clear()
         context: dict = get_base_context({"request": request})
         return templates.TemplateResponse(
-            "entry_via_phone.html", context=update_title(context, "entry_via_phone.html")
+            "entry_via_phone.html", context=get_page_titles(context, "entry_via_phone.html")
         )
 
     @app.exception_handler(ComeTomorrowException)
@@ -74,7 +74,7 @@ def get_application():
         context: dict = await get_logged_user_context(user, base_context)
         context.update(max_level=MAX_LEVEL)
         return templates.TemplateResponse(
-            "profile.html", context=update_title(context, "profile.html")
+            "profile.html", context=get_page_titles(context, "profile.html")
         )
 
     app: FastAPI = get_admin(app)

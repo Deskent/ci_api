@@ -3,7 +3,7 @@ from fastapi.responses import HTMLResponse
 from starlette.responses import RedirectResponse
 
 from schemas.user_schema import SmsCode
-from services.response_manager import WebContext, WebServiceResponser
+from services.web_context_class import WebContext
 from web_service.handlers.common import user_login_via_phone, set_new_password
 from web_service.handlers.enter_with_sms import approve_sms_code, entry_via_sms_or_call
 from web_service.utils.get_contexts import get_base_context, get_profile_page_context
@@ -17,14 +17,14 @@ async def entry_get(
 ):
     web_context = WebContext(context=context)
     web_context.template = "profile.html"
-    return WebServiceResponser(web_context).render()
+    return web_context.web_render()
 
 
 @router.post("/entry", response_class=HTMLResponse)
 async def entry_post(
         web_context: WebContext = Depends(user_login_via_phone),
 ):
-    return WebServiceResponser(web_context).render()
+    return web_context.web_render()
 
 
 @router.get("/logout", response_class=HTMLResponse)
@@ -48,14 +48,14 @@ async def entry_sms(
 ):
     web_context = WebContext(context=context)
     web_context.template = "entry_sms.html"
-    return WebServiceResponser(web_context).render()
+    return web_context.web_render()
 
 
 @router.post("/entry_sms", response_class=HTMLResponse)
 async def entry_sms_posts(
         web_context: WebContext = Depends(entry_via_sms_or_call),
 ):
-    return WebServiceResponser(web_context).render()
+    return web_context.web_render()
 
 
 @router.post("/forget2", response_class=HTMLResponse)
@@ -70,7 +70,7 @@ async def login_with_sms(
         context: dict = Depends(get_base_context)
 
 ):
-    code: SmsCode = SmsCode(''.join((sms_input_1, sms_input_2, sms_input_3, sms_input_4)))
+    code: SmsCode = SmsCode(code=''.join((sms_input_1, sms_input_2, sms_input_3, sms_input_4)))
     web_context: WebContext = await approve_sms_code(
         request=request, context=context, user_id=user_id, code=code.code)
-    return WebServiceResponser(web_context).render()
+    return web_context.web_render()
