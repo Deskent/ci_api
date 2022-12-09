@@ -83,30 +83,27 @@ class UserRegistration(Password2, PhoneNumber):
             )
 
 
-class UserLogin(BaseModel):
+class UserLogin(Password):
     email: EmailStr
-    password: Password
 
     @classmethod
     def as_form(
             cls,
             email: EmailStr = Form(...),
-            password: Password = Form(...),
+            password: str = Form(...),
     ):
         return cls(
             email=email,
             password=password)
 
 
-class UserPhoneLogin(BaseModel):
-    phone: PhoneNumber
-    password: str
-
+class UserPhoneLogin(Password, PhoneNumber):
+    pass
 
     @classmethod
     def as_form(
             cls,
-            phone: PhoneNumber = Form(...),
+            phone: str = Form(...),
             password: str = Form(...),
     ):
         return cls(
