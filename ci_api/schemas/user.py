@@ -41,7 +41,7 @@ class Password(BaseModel):
 
 
 class Password2(Password):
-    password2: Password
+    password2: str
 
     @validator('password')
     def password_match(cls, password, values):
