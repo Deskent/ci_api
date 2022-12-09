@@ -6,7 +6,7 @@ from starlette.requests import Request
 from config import templates
 from exc.exceptions import UserNotFoundError
 from models.models import User
-from schemas.user import UserPhoneLogin
+from schemas.user_schema import UserPhoneLogin
 from services.response_manager import WebContext
 from services.user import check_phone_and_password_correct
 from services.utils import generate_random_password
@@ -31,15 +31,14 @@ async def user_login_via_phone(
             web_context.template = 'forget2.html'
 
             return web_context
-        if request:
-            await update_user_session_token(request, user)
+        await update_user_session_token(request, user)
 
         web_context.redirect = '/profile'
 
         return web_context
 
     web_context.error = "Invalid user or password"
-    web_context.template = "entry.html"
+    web_context.template = "entry_via_phone.html"
     web_context.to_raise = UserNotFoundError
 
     return web_context

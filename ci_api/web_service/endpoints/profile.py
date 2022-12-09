@@ -14,7 +14,6 @@ router = APIRouter(tags=['web', 'profile'])
 
 @router.get("/profile", response_class=HTMLResponse)
 @router.post("/profile", response_class=HTMLResponse)
-@router.get("/entry", response_class=HTMLResponse)
 async def profile(
         context: dict = Depends(get_profile_page_context),
 ):

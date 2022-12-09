@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from models.models import User, Complex, Video
 from schemas.complexes_videos import ComplexData
-from schemas.user import UserProgress
+from schemas.user_schema import UserProgress
 from services.complexes_and_videos import check_level_up
 from services.depends import get_logged_user
 

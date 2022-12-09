@@ -1,11 +1,10 @@
 from fastapi import Depends, HTTPException, APIRouter
 from loguru import logger
 from starlette import status
-from starlette.requests import Request
 from starlette.responses import HTMLResponse
 
 from config import templates
-from schemas.user import UserRegistration
+from schemas.user_schema import UserRegistration
 from services.user import register_new_user
 from web_service.utils.get_contexts import get_base_context
 from web_service.utils.title_context_func import update_title
