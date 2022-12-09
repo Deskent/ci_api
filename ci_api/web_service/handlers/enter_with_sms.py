@@ -5,7 +5,9 @@ from loguru import logger
 from starlette.requests import Request
 
 from config import settings
+from exc.exceptions import UserNotFoundError, SmsCodeNotValid
 from models.models import User
+from schemas.user_schema import SmsCode, PhoneNumber
 from services.response_manager import WebContext
 from services.user import send_sms
 from web_service.services.sms_class import sms_service, SMSException
@@ -64,24 +66,30 @@ async def enter_via_sms(obj: WebContext, user: User) -> WebContext:
 
 
 async def approve_sms_code(
-        request: Request,
-        context: dict = Depends(get_base_context),
-        sms_input_1: Optional[str] = Form(...),
-        sms_input_2: Optional[str] = Form(...),
-        sms_input_3: Optional[str] = Form(...),
-        sms_input_4: Optional[str] = Form(...),
-        user_id: Optional[int] = Form(...),
+        context: dict,
+        code: str,
+        request: Request = None,
+        user_id: int = None,
+        phone: str = None,
 ) -> WebContext:
 
     obj = WebContext(context=context)
-    code = ''.join((sms_input_1, sms_input_2, sms_input_3, sms_input_4))
-    user: User = await User.get_by_id(user_id)
+
+    user: User | None = None
+    if user_id:
+        user: User = await User.get_by_id(user_id)
+    elif phone:
+        user: User = await User.get_by_phone(phone)
+
     if not user:
         obj.error = "Неверный номер телефона"
         obj.template = "entry.html"
+        obj.to_raise = UserNotFoundError
+
         return obj
 
     obj.context.update(user=user)
+    obj.api_data.update(payload=user)
     user_code: str = user.sms_message
     cleaner: Callable = user.clean_sms_code
     if request.url.path == "/forget3":
@@ -93,6 +101,7 @@ async def approve_sms_code(
         logger.debug(obj.error)
         url_path = f"{request.url.path}.html"
         obj.template = url_path
+        obj.to_raise = SmsCodeNotValid
         return obj
 
     await cleaner()
