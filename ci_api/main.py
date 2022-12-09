@@ -3,14 +3,13 @@ import datetime
 import uvicorn
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
 
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
 from admin.utils import create_default_admin
 from admin.views import get_admin
-from config import settings, templates, MAX_LEVEL
+from config import settings, templates, MAX_LEVEL, logger
 from create_data import create_fake_data, recreate_db
 from exc.exceptions import UserNotLoggedError, ComeTomorrowException
 from models.models import User
@@ -55,16 +54,20 @@ def get_application():
     async def user_not_logged_exception_handler(
             request: Request, exc: UserNotLoggedError
     ):
+        logger.debug("Raised user_not_logged_exception_handler")
+
         context: dict = get_base_context({"request": request})
         request.session.clear()
         return templates.TemplateResponse(
-            "entry.html", context=update_title(context, "entry.html")
+            "entry_via_phone.html", context=update_title(context, "entry_via_phone.html")
         )
 
     @app.exception_handler(ComeTomorrowException)
     async def user_not_active_exception_handler(
             request: Request, exc: ComeTomorrowException,
     ):
+        logger.debug("Raised user_not_active_exception_handler")
+
         token: str = await get_session_token(request)
         user: User = await get_session_user(token)
         base_context: dict = get_base_context({"request": request})

@@ -88,3 +88,4 @@ logger.add(level=log_level, sink=settings.LOGS_DIR / 'ci_api.log')
 
 templates = Jinja2Templates(directory=settings.TEMPLATES_DIR, auto_reload=True)
 
+PHONE_FORMAT = '9317776655'

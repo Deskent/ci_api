@@ -25,7 +25,7 @@ class CreateUser:
         return self.__dict__
 
     def headers(self):
-        return {"email": self.email, "password": self.password}
+        return {"phone": self.phone, "password": self.password}
 
 
 @dataclass

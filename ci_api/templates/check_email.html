@@ -16,7 +16,7 @@
                     <div class="registration__logo"></div>
                     <h2 class="forget__title">Введите проверочный код</h2>
                     <p class="forget__text">Введите код отправленный на вашу электронную почту</p>
-                    {% include 'error_message.html' %}
+                    {% include 'messages/error_message.html' %}
                     <!-- Правила названия классов только тут -->
                     <form action="/check_email" method="POST" class="verification-form">
                         <input placeholder="user@mail.ru" type="email"

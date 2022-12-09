@@ -6,7 +6,7 @@ from fastapi.responses import FileResponse
 from config import settings, logger
 from models.models import Video, User
 from schemas.complexes_videos import VideoViewed
-from schemas.user import check_phone
+from schemas.user import slice_phone_to_format
 from services.depends import is_user_active
 from services.response_manager import WebContext, ApiServiceResponser
 from services.videos_methods import get_viewed_video_response
@@ -39,7 +39,7 @@ async def get_video(
 async def video_viewed(
         data: VideoViewed
 ):
-    phone: str = check_phone(data.phone)
+    phone: str = slice_phone_to_format(data.phone)
     user: User = await User.get_by_phone(phone)
     web_context: WebContext = await get_viewed_video_response(
         user=user, video_id=data.video_id, context={}

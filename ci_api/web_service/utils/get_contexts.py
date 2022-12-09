@@ -66,7 +66,6 @@ async def get_logged_user_context(
     return context
 
 
-
 def get_user_from_context(
         context: dict = Depends(get_logged_user_context)
 ) -> User:
@@ -76,7 +75,7 @@ async def get_active_user_context(
         user: User = Depends(get_user_from_context),
         context: dict = Depends(get_logged_user_context)
 ):
-    # TODO прописать во всех ендпоинтах
+    # TODO прописать во всех ендпоинтах в проде
     if user.is_active:
         return context
     raise ComeTomorrowException

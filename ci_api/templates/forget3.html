@@ -20,8 +20,8 @@
                         Введите 4 последние цифры
                         звонившего номера
                     </p>
-                    {% include 'error_message.html' %}
-                    {% include 'success_message.html' %}
+                    {% include 'messages/error_message.html' %}
+                    {% include 'messages/success_message.html' %}
 
                     <form action="/forget3" method="POST" class="registration__form forget-form">
                         {% for index in range(1, 5) %}

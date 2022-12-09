@@ -3,8 +3,8 @@
 {% block profile_content %}
     <section class="profile-content">
         <div class="container">
-            {% include 'error_message.html' %}
-            {% include 'success_message.html' %}
+            {% include 'messages/error_message.html' %}
+            {% include 'messages/success_message.html' %}
             <div class="profile-editing__form-box">
                 <form action="/edit_profile" method="POST" class="profile-editing__form">
 

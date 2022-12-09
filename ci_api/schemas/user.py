@@ -7,7 +7,7 @@ from config import logger
 from exc.exceptions import PhoneNumberError, PasswordMatchError
 
 
-def check_phone(phone: str) -> str:
+def slice_phone_to_format(phone: str) -> str:
     """Delete from phone number like `8 (123) 456-7890` or something
     all extra symbols. Return clean phone number like `1234567890`
     """
@@ -33,11 +33,14 @@ class PhoneNumber(BaseModel):
 
     @validator('phone')
     def check_valid_phone(cls, phone: str):
-        return check_phone(phone)
+        return slice_phone_to_format(phone)
 
 
 class Password(BaseModel):
     password: str
+
+
+class Password2(Password):
     password2: str
 
     @validator('password')
@@ -48,7 +51,7 @@ class Password(BaseModel):
         return password
 
 
-class UserRegistration(Password, PhoneNumber):
+class UserRegistration(Password2, PhoneNumber):
     username: str
     last_name: str = ''
     third_name: str = ''
@@ -80,9 +83,8 @@ class UserRegistration(Password, PhoneNumber):
             )
 
 
-class UserLogin(BaseModel):
+class UserLogin(Password):
     email: EmailStr
-    password: str
 
     @classmethod
     def as_form(
@@ -95,7 +97,21 @@ class UserLogin(BaseModel):
             password=password)
 
 
-class UserChangePassword(Password):
+class UserPhoneLogin(Password, PhoneNumber):
+    pass
+
+    @classmethod
+    def as_form(
+            cls,
+            phone: str = Form(...),
+            password: str = Form(...),
+    ):
+        return cls(
+            phone=phone,
+            password=password)
+
+
+class UserChangePassword(Password2):
     old_password: str
 
 

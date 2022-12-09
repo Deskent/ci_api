@@ -122,6 +122,12 @@ entry_sms = WebTitle(
     head_title="Вход по смс/звонку"
 ).add_names("forget2.html", "forget3.html")
 
+entry_via_phone = WebTitle(
+    name="entry_via_phone.html",
+    title="Вход по номеру телефона",
+    head_title="Вход по номеру телефона"
+).add_name("entry_via_phone.html")
+
 payment_report = WebTitle(
     name="payment_report.html",
     title="История транзакций",
@@ -144,7 +150,8 @@ titles: tuple[WebTitle, ...] = (
     forget_password,
     notifications,
     entry_sms,
-    payment_report
+    payment_report,
+    entry_via_phone,
 )
 
 
