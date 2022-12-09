@@ -142,6 +142,7 @@ async def get_cancel_subscribe_context(context: dict) -> WebContext:
 
     free_rate: Rate = await Rate.get_free()
     user.rate_id = free_rate.id
+    user.expired_at = None
     user: User = await user.save()
 
     # TODO отписываться!!!
