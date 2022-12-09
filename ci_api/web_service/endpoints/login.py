@@ -3,7 +3,7 @@ from fastapi.responses import HTMLResponse
 from starlette.responses import RedirectResponse
 
 from services.response_manager import WebContext, WebServiceResponser
-from web_service.handlers.common import user_entry, set_new_password
+from web_service.handlers.common import user_login_via_phone, set_new_password
 from web_service.handlers.enter_with_sms import approve_sms_code, entry_via_sms_or_call
 from web_service.utils.get_contexts import get_base_context
 
@@ -12,7 +12,7 @@ router = APIRouter(tags=['web', 'login'])
 
 @router.post("/entry", response_class=HTMLResponse)
 async def entry(
-        web_context: WebContext = Depends(user_entry),
+        web_context: WebContext = Depends(user_login_via_phone),
 ):
     return WebServiceResponser(web_context).render()
 
