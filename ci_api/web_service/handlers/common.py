@@ -4,10 +4,11 @@ from pydantic import EmailStr
 from starlette.requests import Request
 
 from config import templates
+from exc.exceptions import UserNotFoundError
 from models.models import User
 from schemas.user import UserPhoneLogin
 from services.response_manager import WebContext
-from services.user import check_user_phone_exists
+from services.user import check_phone_and_password_correct
 from services.utils import generate_random_password
 from web_service.utils.title_context_func import update_title
 from web_service.utils.get_contexts import (
@@ -15,22 +16,23 @@ from web_service.utils.get_contexts import (
 )
 
 
-async def user_entry(
-        request: Request,
+async def user_login_via_phone(
+        request: Request = None,
         context: dict = Depends(get_base_context),
         form_data: UserPhoneLogin = Depends(UserPhoneLogin.as_form)
 
 ) -> WebContext:
 
     web_context = WebContext(context=context)
-    if user := await check_user_phone_exists(form_data.phone):
+    if user := await check_phone_and_password_correct(form_data):
         web_context.context.update(user=user)
+        web_context.api_data.update(user=user)
         if not user.is_verified:
             web_context.template = 'forget2.html'
 
             return web_context
-
-        await update_user_session_token(request, user)
+        if request:
+            await update_user_session_token(request, user)
 
         web_context.redirect = '/profile'
 
@@ -38,6 +40,7 @@ async def user_entry(
 
     web_context.error = "Invalid user or password"
     web_context.template = "entry.html"
+    web_context.to_raise = UserNotFoundError
 
     return web_context
 
