@@ -2,7 +2,7 @@ from fastapi import HTTPException, status, Depends
 from fastapi import Request
 
 from models.models import User, Administrator
-from schemas.user import UserLogin
+from schemas.user_schema import UserLogin
 from services.auth import auth_handler
 
 

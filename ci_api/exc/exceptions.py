@@ -40,6 +40,11 @@ PasswordMatchError = HTTPException(
     detail="Passwords does not match"
 )
 
+SmsCodeNotValid = HTTPException(
+    status_code=status.HTTP_403_FORBIDDEN,
+    detail="Invalid sms code"
+)
+
 
 class UserNotLoggedError(Exception):
     pass

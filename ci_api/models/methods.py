@@ -1,5 +1,3 @@
-import datetime
-
 from pydantic import EmailStr
 from sqlmodel import SQLModel, select
 from sqlmodel.engine.result import Result

@@ -6,7 +6,7 @@ from fastapi.responses import FileResponse
 from config import settings, logger
 from models.models import Video, User
 from schemas.complexes_videos import VideoViewed
-from schemas.user import slice_phone_to_format
+from schemas.user_schema import slice_phone_to_format
 from services.depends import is_user_active
 from services.response_manager import WebContext, ApiServiceResponser
 from services.videos_methods import get_viewed_video_response

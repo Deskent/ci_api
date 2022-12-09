@@ -56,8 +56,8 @@ def get_application():
     ):
         logger.debug("Raised user_not_logged_exception_handler")
 
-        context: dict = get_base_context({"request": request})
         request.session.clear()
+        context: dict = get_base_context({"request": request})
         return templates.TemplateResponse(
             "entry_via_phone.html", context=update_title(context, "entry_via_phone.html")
         )

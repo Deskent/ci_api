@@ -4,7 +4,7 @@ from starlette.datastructures import FormData
 
 from config import logger
 from models.models import User, Administrator, Rate, Complex
-from schemas.user import UserRegistration, UserLogin, PhoneNumber, UserPhoneLogin
+from schemas.user_schema import UserRegistration, UserLogin, PhoneNumber, UserPhoneLogin
 from services.utils import generate_four_random_digits_string
 from web_service.services.sms_class import sms_service, SMSException
 
