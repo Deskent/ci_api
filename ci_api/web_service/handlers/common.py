@@ -2,42 +2,44 @@ from fastapi import Depends, Form
 from loguru import logger
 from pydantic import EmailStr
 from starlette.requests import Request
-from starlette.responses import RedirectResponse
 
 from config import templates
 from models.models import User
-from schemas.user import UserLogin
-from services.user import user_login, get_bearer_header
+from schemas.user import UserPhoneLogin
+from services.response_manager import WebContext
+from services.user import check_user_phone_exists
 from services.utils import generate_random_password
 from web_service.utils.title_context_func import update_title
 from web_service.utils.get_contexts import (
-    get_email_send_context, get_base_context, get_logged_user_context
+    get_email_send_context, get_base_context, get_logged_user_context, update_user_session_token
 )
 
 
 async def user_entry(
         request: Request,
         context: dict = Depends(get_base_context),
-        form_data: UserLogin = Depends(UserLogin.as_form)
+        form_data: UserPhoneLogin = Depends(UserPhoneLogin.as_form)
 
-) -> templates.TemplateResponse:
+) -> WebContext:
 
-    if user := await user_login(form_data):
-        context.update(user=user)
+    web_context = WebContext(context=context)
+    if user := await check_user_phone_exists(form_data.phone):
+        web_context.context.update(user=user)
         if not user.is_verified:
-            return templates.TemplateResponse(
-                "check_email.html", context=update_title(context, 'check_email'))
+            web_context.template = 'forget2.html'
 
-        login_token: str = await user.get_user_token()
-        headers: dict[str, str] = get_bearer_header(login_token)
-        request.session.update(token=login_token)
+            return web_context
 
-        return RedirectResponse('/profile', headers=headers)
+        await update_user_session_token(request, user)
 
-    error = "Invalid user or password"
-    context.update(error=error)
+        web_context.redirect = '/profile'
 
-    return templates.TemplateResponse("entry.html", context=update_title(context, 'entry'))
+        return web_context
+
+    web_context.error = "Invalid user or password"
+    web_context.template = "entry.html"
+
+    return web_context
 
 
 async def restore_password(
