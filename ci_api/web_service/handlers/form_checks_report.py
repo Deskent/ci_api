@@ -39,6 +39,7 @@ def save_to_excel_file(checks: list[PaymentCheck], rates: list[Rate], user: User
     worksheet.write(f'B1', "Сумма", cell_format)
     worksheet.write(f'C1', "Тариф", cell_format)
     worksheet.write(f'D1', "Дата", cell_format)
+    worksheet.write(f'E1', "Номер ордера", cell_format)
     for index, check in enumerate(checks, start=2):
         worksheet.write(f'A{index}', check.customer_phone.strip("'"), cell_format)
         worksheet.set_column('A:A', len(check.customer_phone) + 5)
@@ -50,6 +51,9 @@ def save_to_excel_file(checks: list[PaymentCheck], rates: list[Rate], user: User
         payment_date = check.date.replace(tzinfo=None).isoformat(sep=' ', timespec='seconds')
         worksheet.write(f'D{index}', payment_date, cell_format)
         worksheet.set_column('D:D', len(payment_date) + 5)
+        order_id = str(check.order_id)
+        worksheet.write(f'E{index}', order_id, cell_format)
+        worksheet.set_column('E:E', len(order_id) + 5)
     workbook.close()
 
     return filepath.name
