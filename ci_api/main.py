@@ -20,8 +20,6 @@ from web_service.utils.get_contexts import get_base_context, \
     get_session_token, get_session_user, get_logged_user_context
 from web_service.utils.title_context_func import get_page_titles
 
-DOCS_URL = "/ci"
-
 def get_application():
     scheduler = AsyncIOScheduler()
     scheduler.add_job(
@@ -32,7 +30,7 @@ def get_application():
         timezone=datetime.timezone(datetime.timedelta(hours=3))
     )
 
-    app = FastAPI(docs_url=DOCS_URL, redoc_url=DOCS_URL, debug=settings.DEBUG)
+    app = FastAPI(docs_url=settings.DOCS_URL, redoc_url=settings.DOCS_URL, debug=settings.DEBUG)
 
     app.mount("/static", StaticFiles(directory=str(settings.STATIC_DIR)), name="static")
     app.mount("/templates", StaticFiles(directory=str(settings.TEMPLATES_DIR)), name="templates")
