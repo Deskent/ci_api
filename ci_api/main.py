@@ -33,6 +33,7 @@ def get_application():
     app = FastAPI(docs_url=settings.DOCS_URL, redoc_url=settings.DOCS_URL, debug=settings.DEBUG)
 
     app.mount("/static", StaticFiles(directory=str(settings.STATIC_DIR)), name="static")
+    app.mount("/media", StaticFiles(directory=str(settings.MEDIA_DIR)), name="media")
     app.mount("/templates", StaticFiles(directory=str(settings.TEMPLATES_DIR)), name="templates")
     app.include_router(main_router)
     app.include_router(web_router)
