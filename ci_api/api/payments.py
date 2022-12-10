@@ -27,7 +27,6 @@ async def save_payment(data: dict) -> PaymentCheck:
     :return:
     """
 
-    logger.debug(f"payments data_body: \n{data}")
     user_id = int(data.pop('customer_extra'))
     if not user_id:
         raise PaymentServiceError
@@ -56,17 +55,10 @@ def save_to_file(data: dict):
     status_code=200
 )
 async def payments_report(
-        # request: Request
         data: dict = Body(...)
 ):
-
-    # body = await request.body()
-    # logger.debug(f"BODY: {body}")
-    # body = b'date=2022-12-10T00%3A00%3A00%2B03%3A00&order_id=1&order_num=test&domain=box.payform.ru&sum=1000.00&customer_phone=%2B79999999999&customer_email=email%40domain.com&customer_extra=%D1%82%D0%B5%D1%81%D1%82&payment_type=%D0%9F%D0%BB%D0%B0%D1%81%D1%82%D0%B8%D0%BA%D0%BE%D0%B2%D0%B0%D1%8F+%D0%BA%D0%B0%D1%80%D1%82%D0%B0+Visa%2C+MasterCard%2C+%D0%9C%D0%98%D0%A0&commission=3.5&commission_sum=35.00&attempt=1&sys=test&products%5B0%5D%5Bname%5D=%D0%94%D0%BE%D1%81%D1%82%D1%83%D0%BF+%D0%BA+%D0%BE%D0%B1%D1%83%D1%87%D0%B0%D1%8E%D1%89%D0%B8%D0%BC+%D0%BC%D0%B0%D1%82%D0%B5%D1%80%D0%B8%D0%B0%D0%BB%D0%B0%D0%BC&products%5B0%5D%5Bprice%5D=1000.00&products%5B0%5D%5Bquantity%5D=1&products%5B0%5D%5Bsum%5D=1000.00&payment_status=success&payment_status_description=%D0%A3%D1%81%D0%BF%D0%B5%D1%88%D0%BD%D0%B0%D1%8F+%D0%BE%D0%BF%D0%BB%D0%B0%D1%82%D0%B0'
-    # decoded_body = body.decode()
-    # logger.debug(decoded_body)
-    # data = json.loads(decoded_body)
-    logger.debug(data)
+    data_str = '\n'.join(f"{k}: {v}" for k, v in data.items())
+    logger.debug(f"Payments data: \n{data_str}")
     if data.get('sys') == settings.PRODAMUS_SYS_KEY:
         await save_payment(data)
         save_to_file(data)
