@@ -21,6 +21,7 @@ class Database(BaseSettings):
 
 
 class Settings(BaseSettings):
+    DOCS_URL: str | None = None
     PRODAMUS_SYS_KEY: str
     SMS_TOKEN: str
     EMAIL_LOGIN: EmailStr
@@ -35,9 +36,9 @@ class Settings(BaseSettings):
     DEBUG: bool = False
     BASE_DIR: Path = None
     PAYMENTS_DIR: Path = 'payments'
-    MEDIA_DIR: Path = None
-    STATIC_DIR: Path = None
-    TEMPLATES_DIR: Path = None
+    MEDIA_DIR: Path = 'media'
+    STATIC_DIR: Path = 'static'
+    TEMPLATES_DIR: Path = 'templates'
     LOGS_DIR: Path = None
     CREATE_FAKE_DATA: bool = False
     CREATE_ADMIN: bool = False
@@ -57,24 +58,15 @@ db = Database(_env_file=env_file, _env_file_encoding='utf-8')
 settings = Settings(_env_file=env_file, _env_file_encoding='utf-8')
 
 
-if not settings.BASE_DIR:
-    settings.BASE_DIR = BASE_DIR
-if not settings.STATIC_DIR:
-    settings.STATIC_DIR = settings.BASE_DIR / 'static'
-    if not settings.STATIC_DIR.exists():
-        logger.warning(f"Static directory {settings.STATIC_DIR} does not exists")
-        # TODO отправить сообщение в телегу
-        exit()
-if not settings.TEMPLATES_DIR:
-    settings.TEMPLATES_DIR = settings.BASE_DIR / 'templates'
+settings.BASE_DIR = BASE_DIR
+if not settings.STATIC_DIR.exists():
+    logger.warning(f"Static directory {settings.STATIC_DIR} does not exists")
+    exit()
 
-payments_dir = settings.PAYMENTS_DIR if settings.PAYMENTS_DIR else 'payments'
-settings.PAYMENTS_DIR = settings.BASE_DIR / payments_dir
-
-if not settings.MEDIA_DIR:
-    settings.MEDIA_DIR = settings.STATIC_DIR / 'media'
 if not settings.MEDIA_DIR.exists():
+    logger.warning(f"Media directory {settings.MEDIA_DIR} does not exists")
     Path.mkdir(settings.MEDIA_DIR, exist_ok=True, parents=True)
+    exit()
 
 if not settings.LOGS_DIR:
     current_date = str(datetime.datetime.today().date())

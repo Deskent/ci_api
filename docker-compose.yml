@@ -44,6 +44,7 @@ services:
     volumes:
       - ./logs:/app/logs
       - ./static:/app/static
+      - ./media:/app/media
       - ./payments:/app/payments
     depends_on:
       - ci_postgres

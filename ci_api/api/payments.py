@@ -36,6 +36,7 @@ async def save_payment(data: dict) -> PaymentCheck:
         data['customer_email'] = user.email
     data['rate_id'] = int(data.pop('order_num'))
     check = await PaymentCheck().create(data)
+    logger.debug(f"Check created: {check.dict()}")
     user.expired_at = check.date
     await user.save()
 
