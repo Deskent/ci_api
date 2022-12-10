@@ -55,8 +55,9 @@ def save_to_file(data: dict):
     status_code=200
 )
 async def payments_report(
-        data: dict = Body()
+        data: dict
 ):
+    logger.debug(data)
     if data.get('sys') == settings.PRODAMUS_SYS_KEY:
         await save_payment(data)
         save_to_file(data)
