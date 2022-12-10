@@ -2,7 +2,7 @@ import datetime
 import json
 from typing import Any
 
-from fastapi import APIRouter, Body, Request
+from fastapi import APIRouter, Body, Request, Query
 
 from config import logger, settings
 from exc.payment.pay_exceptions import PaymentServiceError
@@ -51,12 +51,17 @@ def save_to_file(data: dict):
         json.dump(data, f, ensure_ascii=False, indent=4)
 
 
-@router.post(
+@router.get(
     "/report",
     status_code=200
 )
+def payments_report_get(
+        args: list = Query(...)
+):
+    logger.debug(*args)
 
-@router.get(
+
+@router.post(
     "/report",
     status_code=200
 )
