@@ -1,7 +1,8 @@
 import datetime
 import json
+from typing import Any
 
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, Request
 
 from config import logger, settings
 from exc.payment.pay_exceptions import PaymentServiceError
@@ -55,9 +56,14 @@ def save_to_file(data: dict):
     status_code=200
 )
 async def payments_report(
-        data: dict
+        request: Request
+        # data: Any = Body(...)
 ):
+
+    body = await request.body()
+    logger.debug(f"BODY: {body}")
+    data = json.loads(body)
     logger.debug(data)
-    if data.get('sys') == settings.PRODAMUS_SYS_KEY:
-        await save_payment(data)
-        save_to_file(data)
+    # if data.get('sys') == settings.PRODAMUS_SYS_KEY:
+    #     await save_payment(data)
+    #     save_to_file(data)
