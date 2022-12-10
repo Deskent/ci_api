@@ -57,13 +57,12 @@ env_file = BASE_DIR / '.env'
 db = Database(_env_file=env_file, _env_file_encoding='utf-8')
 settings = Settings(_env_file=env_file, _env_file_encoding='utf-8')
 
-
+settings.BASE_DIR = BASE_DIR
 settings.TEMPLATES_DIR = settings.TEMPLATES_DIR if settings.TEMPLATES_DIR else settings.BASE_DIR / 'templates'
 settings.STATIC_DIR = settings.STATIC_DIR if settings.STATIC_DIR else settings.BASE_DIR / 'static'
 settings.MEDIA_DIR = settings.MEDIA_DIR if settings.MEDIA_DIR else settings.BASE_DIR / 'media'
 settings.PAYMENTS_DIR = settings.PAYMENTS_DIR if settings.PAYMENTS_DIR else settings.BASE_DIR / 'payments'
 
-settings.BASE_DIR = BASE_DIR
 if not settings.STATIC_DIR.exists():
     logger.warning(f"Static directory {settings.STATIC_DIR} does not exists")
     exit()
