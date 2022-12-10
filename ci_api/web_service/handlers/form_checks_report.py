@@ -6,6 +6,7 @@ from loguru import logger
 
 from config import settings
 from models.models import PaymentCheck, User, Rate
+from services.utils import to_isoformat
 from services.web_context_class import WebContext
 
 
@@ -48,7 +49,7 @@ def save_to_excel_file(checks: list[PaymentCheck], rates: list[Rate], user: User
         rate_name = _get_rate_name(rates, check.rate_id)
         worksheet.write(f'C{index}', rate_name, cell_format)
         worksheet.set_column('C:C', len(rate_name) + 5)
-        payment_date = check.date.replace(tzinfo=None).isoformat(sep=' ', timespec='seconds')
+        payment_date = to_isoformat(check.date)
         worksheet.write(f'D{index}', payment_date, cell_format)
         worksheet.set_column('D:D', len(payment_date) + 5)
         order_id = str(check.order_id)
