@@ -35,10 +35,10 @@ class Settings(BaseSettings):
     NOTIFICATION_HOUR: int = 14
     DEBUG: bool = False
     BASE_DIR: Path = None
-    PAYMENTS_DIR: Path = 'payments'
-    MEDIA_DIR: Path = 'media'
-    STATIC_DIR: Path = 'static'
-    TEMPLATES_DIR: Path = 'templates'
+    PAYMENTS_DIR: Path = None
+    MEDIA_DIR: Path = None
+    STATIC_DIR: Path = None
+    TEMPLATES_DIR: Path = None
     LOGS_DIR: Path = None
     CREATE_FAKE_DATA: bool = False
     CREATE_ADMIN: bool = False
@@ -62,6 +62,11 @@ settings.BASE_DIR = BASE_DIR
 if not settings.STATIC_DIR.exists():
     logger.warning(f"Static directory {settings.STATIC_DIR} does not exists")
     exit()
+
+settings.TEMPLATES_DIR = settings.TEMPLATES_DIR if settings.TEMPLATES_DIR else settings.BASE_DIR / 'templates'
+settings.STATIC_DIR = settings.STATIC_DIR if settings.STATIC_DIR else settings.BASE_DIR / 'static'
+settings.MEDIA_DIR = settings.MEDIA_DIR if settings.MEDIA_DIR else settings.BASE_DIR / 'media'
+settings.PAYMENTS_DIR = settings.PAYMENTS_DIR if settings.PAYMENTS_DIR else settings.BASE_DIR / 'payments'
 
 if not settings.MEDIA_DIR.exists():
     logger.warning(f"Media directory {settings.MEDIA_DIR} does not exists")
