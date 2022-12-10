@@ -51,3 +51,7 @@ def represent_phone(phone: str) -> str:
 
 def generate_random_password() -> str:
     return secrets.token_hex(8)
+
+
+def to_isoformat(data: datetime.datetime) -> str:
+    return data.replace(tzinfo=None).isoformat(sep=' ', timespec='seconds')

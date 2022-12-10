@@ -55,6 +55,11 @@ def save_to_file(data: dict):
     "/report",
     status_code=200
 )
+
+@router.get(
+    "/report",
+    status_code=200
+)
 async def payments_report(
         data: dict = Body(...)
 ):
