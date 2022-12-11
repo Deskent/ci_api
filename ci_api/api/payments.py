@@ -63,11 +63,9 @@ def save_to_file(data: dict):
 async def payments_report_get(
         request: Request,
 ):
-    params = request.query_params
     body = await request.body()
-    logger.debug(body)
-    logger.debug(params)
-    logger.debug(dict(params))
+    dec_body = body.decode()
+    logger.debug(dec_body)
 
 #
 # @router.post(
