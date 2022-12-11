@@ -1,10 +1,9 @@
 import datetime
 import json
-from typing import Any
 
-from fastapi import APIRouter, Body, Request, Query
+from fastapi import APIRouter, Body, Request
 
-from config import logger, settings
+from config import logger, settings, prodamus
 from exc.payment.pay_exceptions import PaymentServiceError
 from models.models import PaymentCheck, User
 
@@ -78,7 +77,7 @@ async def payments_report(
 
     data_str = '\n'.join(f"{k}: {v}" for k, v in data.items())
     logger.debug(f"Payments data: \n{data_str}")
-    if data.get('sys') == settings.PRODAMUS_SYS_KEY:
+    if data.get('sys') == prodamus.PRODAMUS_SYS_KEY:
         await save_payment(data)
         save_to_file(data)
 
