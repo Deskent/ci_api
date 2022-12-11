@@ -56,6 +56,10 @@ def save_to_file(data: dict):
     "/report",
     status_code=200
 )
+@router.post(
+    "/report",
+    status_code=200
+)
 def payments_report_get(
         request: Request
 ):
@@ -63,16 +67,16 @@ def payments_report_get(
     logger.debug(params)
     logger.debug(dict(params))
 
-
-@router.post(
-    "/report",
-    status_code=200
-)
-async def payments_report(
-        data: dict = Body(...)
-):
-    data_str = '\n'.join(f"{k}: {v}" for k, v in data.items())
-    logger.debug(f"Payments data: \n{data_str}")
-    if data.get('sys') == settings.PRODAMUS_SYS_KEY:
-        await save_payment(data)
-        save_to_file(data)
+#
+# @router.post(
+#     "/report",
+#     status_code=200
+# )
+# async def payments_report(
+#         data: dict = Body(...)
+# ):
+#     data_str = '\n'.join(f"{k}: {v}" for k, v in data.items())
+#     logger.debug(f"Payments data: \n{data_str}")
+#     if data.get('sys') == settings.PRODAMUS_SYS_KEY:
+#         await save_payment(data)
+#         save_to_file(data)
