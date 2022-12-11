@@ -509,8 +509,8 @@ modalVideoEnded();
 
 // Слушаем модальное окно new-level
 
-let close = modalNewLevel.querySelector(".new-level__close");
-let repeatViewingBtn = modalNewLevel.querySelector(".new-level__repeat-btn");
+let close = modalNewLevel?.querySelector(".new-level__close");
+let repeatViewingBtn = modalNewLevel?.querySelector(".new-level__repeat-btn");
 
 
 function closeModalNewLevelHandler () {
@@ -522,5 +522,7 @@ function closeModalNewLevelHandler () {
    repeatViewingBtn.removeEventListener("click", closeModalNewLevelHandler);
 }
 
-close.addEventListener("click", closeModalNewLevelHandler);
-repeatViewingBtn.addEventListener("click", closeModalNewLevelHandler);
+close?.addEventListener("click", closeModalNewLevelHandler);
+repeatViewingBtn?.addEventListener("click", closeModalNewLevelHandler);
+
+

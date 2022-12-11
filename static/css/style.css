@@ -190,6 +190,7 @@ h6 {
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
+  width: 45%;
 }
 
 .reg-banner__logo {
@@ -478,10 +479,11 @@ h6 {
   -webkit-box-direction: normal;
       -ms-flex-direction: column;
           flex-direction: column;
+          width: 100%;
 }
 
 .registration__label {
-  width: 320px;
+  width: 100%;
   height: 50px;
   border-radius: 40px;
   display: -webkit-box;
@@ -695,8 +697,14 @@ h6 {
   text-fill-color: transparent;
 }
 
-.forget-form {
+.forget2-form-box {
   margin-bottom: 20px;
+}
+
+.forget2-form {
+  display: flex;
+  justify-content: space-around;
+  flex-direction: row;
 }
 
 .forget__sketch_right {
@@ -2091,6 +2099,11 @@ h6 {
     background-color: transparent;
   }
 
+  .reg-banner__content {
+    width: 60%;
+  }
+  
+
   .reg-banner__logo {
     background-color: #fff;
     border-radius: 50%;
@@ -2612,7 +2625,17 @@ h6 {
   .slick-list {
     overflow: visible;
   }
+
+
 }
+
+@media (max-width: 470px) {
+  .reg-banner__content {
+    width: 90%;
+  }
+}
+
+
 
 
 
