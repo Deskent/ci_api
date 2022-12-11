@@ -19,7 +19,7 @@ async def get_payment_link(user: User, rate: Rate) -> str:
         f"&products[0][price]={rate.price}"
         f"&products[0][quantity]=1"
         f"&products[0][name]={rate.name}"
-        f"urlNotification={prodamus.NOTIFICATION_URL}"
+        f"&urlNotification={prodamus.NOTIFICATION_URL}"
         f"&sys={prodamus.PRODAMUS_SYS_KEY}"
     )
     if settings.STAGE == 'test':
