@@ -61,9 +61,11 @@ def save_to_file(data: dict):
     status_code=200
 )
 def payments_report_get(
-        request: Request
+        request: Request,
 ):
     params = request.query_params
+    body = await request.body()
+    logger.debug(body)
     logger.debug(params)
     logger.debug(dict(params))
 
