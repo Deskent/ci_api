@@ -3,7 +3,7 @@ import json
 import requests
 from loguru import logger
 
-from config import settings
+from config import settings, prodamus
 from models.models import User, Rate
 
 
@@ -19,6 +19,8 @@ async def get_payment_link(user: User, rate: Rate) -> str:
         f"&products[0][price]={rate.price}"
         f"&products[0][quantity]=1"
         f"&products[0][name]={rate.name}"
+        f"urlNotification={prodamus.NOTIFICATION_URL}"
+        f"&sys={prodamus.PRODAMUS_SYS_KEY}"
     )
     if settings.STAGE == 'test':
         params += f"&demo_mode=1"
@@ -30,7 +32,6 @@ async def get_payment_link(user: User, rate: Rate) -> str:
         f"&callbackType=json"
         f"&currency=rub"
         f"&acquiring=sbrf"
-        f"&sys={settings.PRODAMUS_SYS_KEY}"
     )
     url += params
     headers = {
