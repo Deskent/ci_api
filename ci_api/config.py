@@ -22,7 +22,6 @@ class Database(BaseSettings):
 
 class Settings(BaseSettings):
     DOCS_URL: str | None = None
-    PRODAMUS_SYS_KEY: str
     SMS_TOKEN: str
     EMAIL_LOGIN: EmailStr
     EMAIL_PASSWORD: str
@@ -51,11 +50,17 @@ class Settings(BaseSettings):
         env_file = ".env"
 
 
+class Prodamus(BaseSettings):
+    PRODAMUS_SYS_KEY: str
+    NOTIFICATION_URL: str
+
+
 BASE_DIR = Path(__file__).parent
 
 env_file = BASE_DIR / '.env'
 db = Database(_env_file=env_file, _env_file_encoding='utf-8')
 settings = Settings(_env_file=env_file, _env_file_encoding='utf-8')
+prodamus = Prodamus(_env_file=env_file, _env_file_encoding='utf-8')
 
 settings.BASE_DIR = BASE_DIR
 settings.TEMPLATES_DIR = settings.TEMPLATES_DIR if settings.TEMPLATES_DIR else settings.BASE_DIR / 'templates'
