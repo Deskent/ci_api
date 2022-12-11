@@ -29,7 +29,7 @@ services:
       retries: 3
       start_period: 5s
 
-  ci_api:
+  app:
     build: ./ci_api
     container_name: ${APPNAME}-${VERSION}
     image: ${APPNAME}:${VERSION}
