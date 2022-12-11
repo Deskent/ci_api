@@ -2391,6 +2391,7 @@ h6 {
     border-radius: 40px 40px 0px 0px;
     padding-left: 19px;
     padding-right: 19px;
+    z-index: 99;
   }
 
   .profile-footer__row {

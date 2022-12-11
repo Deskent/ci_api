@@ -69,44 +69,7 @@ function makeBurgerMenu() {
 }
 
 
-
-
-
-
 // slider
-function slider1Work() {
-   const chargingSlider1 = document.querySelector('.charging-slider')
-   if (chargingSlider1) {
-      $(document).ready(function () {
-         $('.charging-slider').slick({
-            slidesToShow: 3,
-            slidesToScroll: 1,
-            arrows: true,
-            dots: true,
-            // loop: false,
-            infinite: false,
-            responsive: [
-               {
-                  breakpoint: 769,
-                  settings: {
-                     arrows: false,
-                  }
-               },
-               {
-                  breakpoint: 651,
-                  settings: {
-                     slidesToShow: 1,
-                     arrows: false,
-                  }
-               },
-            ],
-         });
-      });
-   }
-
-}
-
-// slider2
 function slider2Work() {
    const chargingSlider2 = document.querySelector('.complexes-list-slider')
    if (chargingSlider2) {
@@ -138,14 +101,10 @@ function slider2Work() {
    }
 
 }
-// editUserName()
 activeInputs()
 showPassword()
 makeBurgerMenu()
-slider1Work()
 slider2Work()
-
-
 
 
 
@@ -171,9 +130,6 @@ if (popupLinks.length > 0) {
    }
 }
 
-
-
-
 if (popupCloseIcon.length > 0) {
    for (let index = 0; index < popupCloseIcon.length; index++) {
       const el = popupCloseIcon[index];
@@ -183,7 +139,6 @@ if (popupCloseIcon.length > 0) {
       });
    }
 }
-
 
 function popupOpen(curentPopup) {
    if (curentPopup && unlock) {
@@ -247,7 +202,6 @@ function bodyUnLock() {
    }, timeout)
 }
 
-
 document.addEventListener("keydown", function (e) {
    if (e.which === 27) {
       const popupActive = document.querySelector(".modal.open");
@@ -269,36 +223,135 @@ document.addEventListener("keydown", function (e) {
 
 
 
+
+
+
+
+
+
+
+// Отправляем запрос после загрузки страницы
+
+const urlPath = window.location.pathname;
+const video_id = Array.from(urlPath).pop();
+
+let userPhone = document.querySelector('.header-user__phone');
+const user_tel = userPhone.textContent;
+const phone = user_tel.replace(/\s/g,'');
+
+
+// TODO: https://energy.qidoctor.ru/v1/api/... запрос на сервере отправлять сюда
+// TODO: для разработки на http://127.0.0.1:8000/api/v1/videos/viewed
+
+document.addEventListener("DOMContentLoaded", async (evt) => {
+   const response = await fetch('http://127.0.0.1:8000/api/v1/videos/viewed', {
+      method: 'POST',
+      body: JSON.stringify({
+         "phone": phone,
+         "video_id": video_id
+      }),
+      headers: {
+      'Content-Type': 'application/json;charset=utf-8',
+      },
+   });
+            
+   let result = await response.json();
+   console.log(result);
+
+})
+
+
+     
+            
+
+
+
+
+
+
 // Сториз рилз
 
 
 
-function modalVideoControls() {
-   const modalVideoBox = document.querySelector('.modal-video__box');
 
-      modalVideoBox.addEventListener("click", (evt) => {
+// Инициализируем слайдер для упражнений 
+   let swiper = new Swiper(".mySwiper", {
+      slidesPerView: 3,
+      spaceBetween: 30,
+      speed: 400,
+      grabCursor: true,
+      autoHeight: true,
+      //отключение функционала если слайдов меньше чем нужно
+      watchOverflow: true,
+
+      device: {
+         ios: true,
+         android: true
+      },
+
+      pagination: {
+         el: ".swiper-pagination",
+         clickable: true,
+      },
+      navigation: {
+         nextEl: ".swiper-button-next",
+         prevEl: ".swiper-button-prev",
+      },
+      keyboard: {
+         enabled: true,
+         onlyInViewport: true,
+      },
+      breakpoints: {
+         50: {
+            slidesPerView: 1,
+         },
+         480: {
+            slidesPerView: 2,
+         },
+         768: {
+            slidesPerView: 3,
+         }
+      }
+   });
+
+
+
+
+
+
+const modalVideos = document.querySelectorAll('.slide');
+const modalVideoBox = document.querySelector(".swiper-wrapper");
+const modalNewLevel = document.querySelector('.new-level-box');
+const swiperButtonPrev = document.querySelector(".swiper-button-prev")
+const swiperButtonNext = document.querySelector(".swiper-button-next")
+
+
+
+function modalVideoControls() {
+   
+      modalVideoBox?.addEventListener("click", (evt) => {
+         if(evt.target.dataset.disabled) {
+            evt.preventDefault();
+         } else {
 
          let targetVideoId = evt.target.dataset.id;
-
          let videoId = document.getElementById(targetVideoId);
-         console.log(videoId);
 
-
-         let modalVideoWrapperId = videoId.closest(".modal-video__card-wrapper");
-         let modalVideoPlay = modalVideoWrapperId.querySelector('.modal-video__play');
-         let modalVideoPause = modalVideoWrapperId.querySelector('.modal-video__pause');
-         let modalVideoViewed = modalVideoWrapperId.querySelector('.modal-video__viewed');
-         let modalVideoTime = modalVideoWrapperId.querySelector('.modal-video__time');
-         let modalVideoTitle = modalVideoWrapperId.querySelector('.modal-video__title');
-         let modalVideoDescription = modalVideoWrapperId.querySelector('.modal-video__description');
+         let modalVideoWrapperId = videoId.closest(".slide__card-wrapper");
+         let modalVideoPlay = modalVideoWrapperId.querySelector('.slide__play');
+         let modalVideoPause = modalVideoWrapperId.querySelector('.slide__pause');
+         let modalVideoViewed = modalVideoWrapperId.querySelector('.slide__viewed');
+         let modalVideoTime = modalVideoWrapperId.querySelector('.slide__time');
+         let modalVideoTitle = modalVideoWrapperId.querySelector('.slide__title');
+         let modalVideoDescription = modalVideoWrapperId.querySelector('.slide__description');
 
 
          if (modalVideoPause.classList.contains('hidden')) {
             modalVideoPlay.classList.add("hidden");
+            videoId.play();
             if(videoId.classList.contains('viewed')) {
                videoId.classList.remove("viewed");
             }
-            videoId.play();
             modalVideoPause.classList.remove("hidden");
             modalVideoViewed.classList.add("hidden");
             modalVideoTime.classList.add("hidden");
@@ -311,8 +364,10 @@ function modalVideoControls() {
             modalVideoPause.classList.add("hidden");
             modalVideoViewed.classList.remove("hidden");
             modalVideoTime.classList.remove("hidden");
+            modalVideoViewed.classList.add("hidden");
 
          }
+      }
    })
 }
 
@@ -322,91 +377,150 @@ modalVideoControls();
 
 
 
+// меняет стили на "видео просмотрено"
 
-// Закончилось ли видео?
+function changesStylesViewed(evt) {
+   let targetModalVideoEnded = evt.target.dataset.id;
+
+   let videoIdEnded = document.getElementById(targetModalVideoEnded);
+   let modalVideoWrapperId = videoIdEnded.closest(".slide__card-wrapper");
+
+   let modalVideoPlay = modalVideoWrapperId.querySelector('.slide__play');
+   let modalVideoPause = modalVideoWrapperId.querySelector('.slide__pause');
+   let modalVideoViewedHidden = modalVideoWrapperId.querySelector('.slide__viewed');
+   let modalVideoTitle = modalVideoWrapperId.querySelector('.slide__title');
+   let modalVideoDescription = modalVideoWrapperId.querySelector('.slide__description');
+   let modalVideoTime = modalVideoWrapperId.querySelector('.slide__time');
+
+   modalVideoTime.classList.remove("hidden");
+   modalVideoViewedHidden.classList.remove("hidden");
+
+
+   let viewedTag = modalVideoViewedHidden.querySelector(".slide__viewed-text");
+   viewedTag.textContent = "Упражнение выполнено";
+   viewedTag.style.fontSize = "17px";
+   modalVideoViewedHidden.querySelector(".slide__viewed-img").src = "/static/img/icons/plus.svg";
+
+
+
+
+
+
+   videoIdEnded.classList.add("viewed");
+   modalVideoPlay.classList.remove("hidden");
+   modalVideoPause.classList.add("hidden");
+   modalVideoTitle.classList.remove("hidden");
+   modalVideoDescription.classList.remove("hidden");
+}
+
+
+ // менят стили на "видео включено" у следующего видео в массиве по id
+function changeStylesToOn(nextVideoId) {
+   let videoSlidesNodeList = document.querySelectorAll(".slide__card-wrapper");
+   let videoSlidesArr = Array.from(videoSlidesNodeList);
+   let indexVideo; 
+    videoSlidesArr.forEach((element, index) => {
+      let attributeIdValue = element.getAttribute("data-id");
+      if (attributeIdValue == nextVideoId) {
+         indexVideo = index;
+      }
+   })
+
+   let videoWrapper = videoSlidesArr[indexVideo];
+   let video = videoWrapper.querySelector(".slide");
+
+   video.play();
+
+   let videoNextWrapper = video.closest(".slide__card-wrapper");
+   let modalVideoDisabled = videoNextWrapper.querySelector(".slide__disabled");
+   if(modalVideoDisabled.classList.contains("slide__disabled")) {
+      modalVideoDisabled.style.display = "none";
+   }   
+   let nextVideosPlay = videoNextWrapper.querySelector('.slide__play');
+   let nextVideosPause = videoNextWrapper.querySelector('.slide__pause');
+   let videoNextLock = videoNextWrapper.querySelector('.slide');
+   let videoViewed = videoNextWrapper.querySelector('.slide__viewed');
+   let videoTime = videoNextWrapper.querySelector('.slide__time');
+   let videoTitle = videoNextWrapper.querySelector('.slide__title');
+   let videoDescription = videoNextWrapper.querySelector('.slide__description');
+
+   nextVideosPlay.classList.add("hidden");
+   nextVideosPause.classList.remove("hidden");
+   if (videoNextLock.classList.contains("lock")) {
+      videoNextLock.classList.remove("lock");
+   }
+   if (videoNextLock.classList.contains("viewed")) {
+      videoNextLock.classList.remove("viewed");
+   }
+   videoViewed.classList.add("hidden");
+   videoTime.classList.add("hidden");
+   videoTitle.classList.add("hidden");
+   videoDescription.classList.add("hidden");
+}
+
+
+
+// Слушаем закончилось ли видео?
 function modalVideoEnded() {
-   const modalVideos = document.querySelectorAll('.modal-video');
 
    modalVideos.forEach((video, index, arr) => {
-
+      // у первого видео сняли блокировку
       if(index == 0 ) {
          video.classList.remove("lock");
+         let modalVideoWrapper = video.closest(".slide__card-wrapper");
+         let modalVideoDisabled = modalVideoWrapper.querySelector(".slide__disabled");
+         let modalVideoViewed = modalVideoWrapper.querySelector(".slide__viewed");
+         modalVideoViewed.classList.add("hidden");
+         modalVideoDisabled.style.display = "none";
+         modalVideoDisabled.removeAttribute("data-disabled")
       }
 
       video.addEventListener("ended", async (evt) => {
 
-            const video_id = Number(evt.target.dataset.id);
-            let userPhone = document.querySelector('.header-user__phone');
-            const user_tel = userPhone.textContent;
-            const phone = user_tel.replace(/\s/g,'');
+         
+         changesStylesViewed(evt); // поменяли стили на "видео просмотрено"
 
-            const response = await fetch('http://127.0.0.1:8000/api/v1/videos/viewed', {
-               method: 'POST',
-               body: JSON.stringify({
-                  "phone": phone,
-                  "video_id": video_id
-               }),
-               headers: {
-               'Content-Type': 'application/json;charset=utf-8',
-               },
-            });
-            
-            let result = await response.json();
+         const lengthArrVideo = modalVideos.length - 1;
 
-            const lengthArrVideo = modalVideos.length - 1;
+         if(index < lengthArrVideo) {
+            // имитируем клик по кнопке для переключения слайда после того, как видео закорнчилось
+            swiperButtonNext.click();
 
-            //нашли следующее видео для воспроизведения
-            if(index < lengthArrVideo) {
-               const modalNextVideos = document.getElementById(result.next_video_id);
-               modalNextVideos.play();
-               let modalVideoNextWrapperId = modalNextVideos.closest(".modal-video__card-wrapper");
-               let modalNextVideosPlay = modalVideoNextWrapperId.querySelector('.modal-video__play');
-               let modalNextVideosPause = modalVideoNextWrapperId.querySelector('.modal-video__pause');
-               let modalVideoNextLock = modalVideoNextWrapperId.querySelector('.modal-video.lock');
-               let modalVideoViewed = modalVideoNextWrapperId.querySelector('.modal-video__viewed');
-               let modalVideoTime = modalVideoNextWrapperId.querySelector('.modal-video__time');
+            // нашли следующее видео для воспроизведения в массиве и нашли id
+            let nextVideo = modalVideos[index + 1];
+            let nextVideoId = nextVideo.getAttribute("data-id");
 
-               modalNextVideosPlay.classList.add("hidden");
-               modalNextVideosPause.classList.remove("hidden");
-               modalVideoNextLock.classList.remove("lock");
-               modalVideoViewed.classList.add("hidden");
-               modalVideoTime.classList.add("hidden");
+            changeStylesToOn(nextVideoId); // поменяли стили на "видео включено"
+         }
+
+
+         // Если закончилось последнее видео показываем модальное окно
+         if(index === lengthArrVideo) {
+            if(modalNewLevel.classList.contains('hidden')) {
+               modalNewLevel.classList.remove('hidden');
             }
-
-            const modalNewLevel = document.querySelector('.new-level-box');
-
-
-            if(index === lengthArrVideo) {
-               if(modalNewLevel.classList.contains('hidden')) {
-                  modalNewLevel.classList.remove('hidden');
-               }
-            }
-
-            // поменяли стили на "видео просмотрено"
-            let targetModalVideoEnded = evt.target.dataset.id;
-            console.log("Видео " + targetModalVideoEnded + " просмотрено!");
-
-            let videoIdEnded = document.getElementById(targetModalVideoEnded);
-            let modalVideoWrapperId = videoIdEnded.closest(".modal-video__card-wrapper");
-            
-            let modalVideoPlay = modalVideoWrapperId.querySelector('.modal-video__play');
-            let modalVideoPause = modalVideoWrapperId.querySelector('.modal-video__pause');
-            let modalVideoViewedHidden = modalVideoWrapperId.querySelector('.modal-video__viewed');
-            let modalVideoTitle = modalVideoWrapperId.querySelector('.modal-video__title');
-            let modalVideoDescription = modalVideoWrapperId.querySelector('.modal-video__description');
-            let modalVideoTime = modalVideoWrapperId.querySelector('.modal-video__time');
-
-            modalVideoTime.classList.remove("hidden");
-            modalVideoViewedHidden.classList.remove("hidden");
-            modalVideoViewedHidden.textContent = "Просмотрено"
-            videoIdEnded.classList.add("viewed");
-            modalVideoPlay.classList.remove("hidden");
-            modalVideoPause.classList.add("hidden");
-            modalVideoTitle.classList.remove("hidden");
-            modalVideoDescription.classList.remove("hidden");
-
-         });
-      })
+         }
+      });
+   })
 }
 
 modalVideoEnded();
+
+
+// Слушаем модальное окно new-level
+
+let close = modalNewLevel.querySelector(".new-level__close");
+let repeatViewingBtn = modalNewLevel.querySelector(".new-level__repeat-btn");
+
+
+function closeModalNewLevelHandler () {
+   modalNewLevel.classList.add("hidden");
+   for(let i = 0; i < modalVideos.length; i++) {
+      swiperButtonPrev.click();
+   }
+   close.removeEventListener("click", closeModalNewLevelHandler);
+   repeatViewingBtn.removeEventListener("click", closeModalNewLevelHandler);
+}
+
+close.addEventListener("click", closeModalNewLevelHandler);
+repeatViewingBtn.addEventListener("click", closeModalNewLevelHandler);

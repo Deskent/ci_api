@@ -12,10 +12,10 @@
 }
 
 .charging__content {
-  -webkit-transform: translateY(-35px);
+  /* -webkit-transform: translateY(-35px);
       -ms-transform: translateY(-35px);
           transform: translateY(-35px);
-  padding-bottom: 50px;
+  padding-bottom: 50px; */
 }
 
 .charging-container {
@@ -421,10 +421,10 @@ body.lock {
 
           @media (max-width: 768px) {
             .charging__content {
-              -webkit-transform: translateY(0);
+              /* -webkit-transform: translateY(0);
                   -ms-transform: translateY(0);
                       transform: translateY(0);
-              padding-bottom: 0;
+              padding-bottom: 0; */
             }
 
             .charging-container {
