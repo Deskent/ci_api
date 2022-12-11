@@ -60,7 +60,7 @@ def save_to_file(data: dict):
     "/report",
     status_code=200
 )
-def payments_report_get(
+async def payments_report_get(
         request: Request,
 ):
     params = request.query_params
