@@ -53,6 +53,8 @@ class Settings(BaseSettings):
 class Prodamus(BaseSettings):
     PRODAMUS_SYS_KEY: str
     NOTIFICATION_URL: str
+    SUCCESS_URL: str
+    RETURN_URL: str
 
 
 BASE_DIR = Path(__file__).parent
