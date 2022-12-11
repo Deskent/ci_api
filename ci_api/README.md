@@ -10,9 +10,6 @@ Python 3.10.0+
 5. Линтеры
 
 
-
-
-
 https://docs.google.com/document/d/1vr_iqdYd2VVZNK5KCUwzN26a1Iz4SrtI6K7vxEfHNmM/edit#
 
 # Приложение ЦИ-будильник (mvp)
