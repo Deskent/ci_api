@@ -31,6 +31,8 @@ services:
 
   ci_api:
     build: ./ci_api
+    container_name: ${APPNAME}-${VERSION}
+    image: ${APPNAME}:${VERSION}
     env_file:
       - ./.env
     command: >
