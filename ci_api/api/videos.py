@@ -4,11 +4,11 @@ from fastapi import APIRouter, status, Depends, Request
 from fastapi.responses import FileResponse
 
 from config import settings, logger
-from models.models import Video, User
+from models.models import Video, User, ViewedComplex
 from schemas.complexes_videos import VideoViewed
 from schemas.user_schema import slice_phone_to_format
 from services.depends import get_logged_user
-from services.videos_methods import get_viewed_video_response
+from services.videos_methods import get_viewed_video_response, get_viewed_complex_response
 from services.web_context_class import WebContext
 from web_service.utils.get_contexts import get_user_from_context
 from web_service.utils.web_utils import get_checked_video
@@ -66,16 +66,8 @@ async def get_all_videos_from_complex(
     status_code=status.HTTP_200_OK,
     response_model=dict
 )
-async def video_viewed(
+async def complex_viewed(
         complex_id: int,
         user: User = Depends(get_user_from_context)
 ):
-    print(user.email)
-    print(complex_id)
-    return {"result": "ok"}
-    # TODO отправить ответ - был ли левел ап?
-    # web_context: WebContext = await get_viewed_video_response(
-    #     user=user, video_id=data.video_id, context={}
-    # )
-    #
-    # return web_context.api_render()
+    return await get_viewed_complex_response(user=user, complex_id=complex_id)

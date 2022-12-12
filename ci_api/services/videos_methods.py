@@ -1,5 +1,5 @@
 from exc.exceptions import UserNotFoundError
-from models.models import User, Video, Complex
+from models.models import User, Video, Complex, ViewedComplex
 from services.complexes_and_videos import is_video_viewed_before, check_level_up
 from services.web_context_class import WebContext
 
@@ -43,3 +43,16 @@ async def get_viewed_video_response(user: User, video_id: int, context: dict) ->
     obj.template = "new_level.html"
 
     return obj
+
+
+async def get_viewed_complex_response(
+        user: User,
+        complex_id: int
+) -> dict:
+    result = {"level_up": False}
+    if not await ViewedComplex.is_viewed_complex(user_id=user.id, complex_id=complex_id):
+        await ViewedComplex.add_viewed(user_id=user.id, complex_id=complex_id)
+        user: User = await user.level_up()
+        result.update({"level_up": True, "new_level": user.level})
+
+    return result
