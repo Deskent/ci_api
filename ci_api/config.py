@@ -21,7 +21,7 @@ class Database(BaseSettings):
 
 
 class Settings(BaseSettings):
-    PRODAMUS_SYS_KEY: str
+    DOCS_URL: str | None = None
     SMS_TOKEN: str
     EMAIL_LOGIN: EmailStr
     EMAIL_PASSWORD: str
@@ -34,7 +34,7 @@ class Settings(BaseSettings):
     NOTIFICATION_HOUR: int = 14
     DEBUG: bool = False
     BASE_DIR: Path = None
-    PAYMENTS_DIR: Path = 'payments'
+    PAYMENTS_DIR: Path = None
     MEDIA_DIR: Path = None
     STATIC_DIR: Path = None
     TEMPLATES_DIR: Path = None
@@ -44,9 +44,17 @@ class Settings(BaseSettings):
     DEFAULT_ADMIN: dict = {}
     RECREATE_DB: bool = False
     ECHO: bool = False
+    STAGE: str = 'test'
 
     class Config:
         env_file = ".env"
+
+
+class Prodamus(BaseSettings):
+    PRODAMUS_SYS_KEY: str
+    NOTIFICATION_URL: str
+    SUCCESS_URL: str
+    RETURN_URL: str
 
 
 BASE_DIR = Path(__file__).parent
@@ -54,25 +62,23 @@ BASE_DIR = Path(__file__).parent
 env_file = BASE_DIR / '.env'
 db = Database(_env_file=env_file, _env_file_encoding='utf-8')
 settings = Settings(_env_file=env_file, _env_file_encoding='utf-8')
+prodamus = Prodamus(_env_file=env_file, _env_file_encoding='utf-8')
+
+settings.BASE_DIR = BASE_DIR
+settings.TEMPLATES_DIR = settings.TEMPLATES_DIR if settings.TEMPLATES_DIR else settings.BASE_DIR / 'templates'
+settings.STATIC_DIR = settings.STATIC_DIR if settings.STATIC_DIR else settings.BASE_DIR / 'static'
+settings.MEDIA_DIR = settings.MEDIA_DIR if settings.MEDIA_DIR else settings.BASE_DIR / 'media'
+settings.PAYMENTS_DIR = settings.PAYMENTS_DIR if settings.PAYMENTS_DIR else settings.BASE_DIR / 'payments'
+
+if not settings.STATIC_DIR.exists():
+    logger.warning(f"Static directory {settings.STATIC_DIR} does not exists")
+    exit()
 
 
-if not settings.BASE_DIR:
-    settings.BASE_DIR = BASE_DIR
-if not settings.STATIC_DIR:
-    settings.STATIC_DIR = settings.BASE_DIR / 'static'
-    if not settings.STATIC_DIR.exists():
-        logger.warning(f"Static directory {settings.STATIC_DIR} does not exists")
-        exit()
-if not settings.TEMPLATES_DIR:
-    settings.TEMPLATES_DIR = settings.BASE_DIR / 'templates'
-
-payments_dir = settings.PAYMENTS_DIR if settings.PAYMENTS_DIR else 'payments'
-settings.PAYMENTS_DIR = settings.BASE_DIR / payments_dir
-
-if not settings.MEDIA_DIR:
-    settings.MEDIA_DIR = settings.STATIC_DIR / 'media'
 if not settings.MEDIA_DIR.exists():
-    Path.mkdir(settings.MEDIA_DIR, exist_ok=True)
+    logger.warning(f"Media directory {settings.MEDIA_DIR} does not exists")
+    Path.mkdir(settings.MEDIA_DIR, exist_ok=True, parents=True)
+    exit()
 
 if not settings.LOGS_DIR:
     current_date = str(datetime.datetime.today().date())
@@ -86,3 +92,4 @@ logger.add(level=log_level, sink=settings.LOGS_DIR / 'ci_api.log')
 
 templates = Jinja2Templates(directory=settings.TEMPLATES_DIR, auto_reload=True)
 
+PHONE_FORMAT = '9317776655'

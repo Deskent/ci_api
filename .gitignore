@@ -9,6 +9,8 @@ spam
 **.env
 .editorconfig
 *.zip
+**/traefik
+**nginx
 
 
 # Byte-compiled / optimized / DLL files

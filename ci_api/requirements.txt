@@ -10,6 +10,7 @@ pydantic[email]
 pytest-asyncio==0.20.2
 python-dotenv==0.21.0
 python-multipart==0.0.5
-sqladmin==0.7.0
+sqladmin==0.8.0
 sqlmodel==0.0.8
 uvicorn==0.19.0
+XlsxWriter==3.0.3

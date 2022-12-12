@@ -20,8 +20,8 @@
                         на номер {{ user.phone }}
                     </p>
 
-                {% include 'error_message.html' %}
-                {% include 'success_message.html' %}
+                {% include 'messages/error_message.html' %}
+                {% include 'messages/success_message.html' %}
 
                     <form action="/forget2" method="POST" class="registration__form forget-form">
                         <div class="forget2-form-box">

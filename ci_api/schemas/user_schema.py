@@ -7,7 +7,7 @@ from config import logger
 from exc.exceptions import PhoneNumberError, PasswordMatchError
 
 
-def check_phone(phone: str) -> str:
+def slice_phone_to_format(phone: str) -> str:
     """Delete from phone number like `8 (123) 456-7890` or something
     all extra symbols. Return clean phone number like `1234567890`
     """
@@ -31,13 +31,17 @@ def check_phone(phone: str) -> str:
 class PhoneNumber(BaseModel):
     phone: str
 
-    @validator('phone')
-    def check_valid_phone(cls, phone: str):
-        return check_phone(phone)
+    _normalize_name = validator('phone', allow_reuse=True)(slice_phone_to_format)
+    # @validator('phone')
+    # def check_valid_phone(cls, phone: str):
+    #     return slice_phone_to_format(phone)
 
 
 class Password(BaseModel):
     password: str
+
+
+class Password2(Password):
     password2: str
 
     @validator('password')
@@ -48,7 +52,7 @@ class Password(BaseModel):
         return password
 
 
-class UserRegistration(Password, PhoneNumber):
+class UserRegistration(Password2, PhoneNumber):
     username: str
     last_name: str = ''
     third_name: str = ''
@@ -80,9 +84,8 @@ class UserRegistration(Password, PhoneNumber):
             )
 
 
-class UserLogin(BaseModel):
+class UserLogin(Password):
     email: EmailStr
-    password: str
 
     @classmethod
     def as_form(
@@ -94,8 +97,34 @@ class UserLogin(BaseModel):
             email=email,
             password=password)
 
+class SmsCode(BaseModel):
+    code: str
 
-class UserChangePassword(Password):
+    @validator('code')
+    def password_match(cls, code, values):
+        if len(code) != 4:
+            logger.warning("Passwords dont match")
+            raise PasswordMatchError
+        return code
+
+class UserPhoneCode(PhoneNumber, SmsCode):
+    pass
+
+class UserPhoneLogin(Password, PhoneNumber):
+    pass
+
+    @classmethod
+    def as_form(
+            cls,
+            phone: str = Form(...),
+            password: str = Form(...),
+    ):
+        return cls(
+            phone=phone,
+            password=password)
+
+
+class UserChangePassword(Password2):
     old_password: str
 
 

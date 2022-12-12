@@ -7,9 +7,10 @@ from exc.exceptions import (
 )
 from exc.payment.pay_exceptions import PaymentServiceError, SubscribeExistsError
 from models.models import User, Rate, Payment
-from services.response_manager import WebContext
+from services.web_context_class import WebContext
 from services.utils import get_current_datetime
-from web_service.handlers.payment_request import get_payment_link
+from web_service.services.send_payment_request import get_payment_link
+from web_service.utils.get_contexts import present_user_expired_at_day_and_month
 
 
 async def _get_rate_date(user: User) -> dict:
@@ -117,6 +118,7 @@ async def check_payment_result(
         )
         await payment.save()
 
+    user.expired_at = present_user_expired_at_day_and_month(user.expired_at)
     obj.api_data = dict(payload=user)
     obj.success = "Подписка успешна оформлена"
     obj.template = "profile.html"
@@ -140,6 +142,7 @@ async def get_cancel_subscribe_context(context: dict) -> WebContext:
 
     free_rate: Rate = await Rate.get_free()
     user.rate_id = free_rate.id
+    user.expired_at = None
     user: User = await user.save()
 
     # TODO отписываться!!!

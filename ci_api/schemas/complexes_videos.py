@@ -3,7 +3,7 @@ from datetime import time
 from fastapi import UploadFile, Form
 from pydantic import BaseModel
 
-from schemas.user import PhoneNumber
+from schemas.user_schema import PhoneNumber
 
 
 class VideoBase(BaseModel):

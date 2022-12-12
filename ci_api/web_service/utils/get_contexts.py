@@ -40,6 +40,7 @@ async def get_session_user(
 ) -> User:
     if token:
         return await User.get_by_token(token)
+    raise UserNotLoggedError
 
 
 def get_base_context(
@@ -55,16 +56,12 @@ async def get_logged_user_context(
         context: dict = Depends(get_base_context)
 ) -> dict:
 
-    if not user:
-        raise UserNotLoggedError
-
     context.update({
         "user": user,
         "user_present_phone": represent_phone(user.phone)
     })
 
     return context
-
 
 
 def get_user_from_context(
@@ -76,13 +73,13 @@ async def get_active_user_context(
         user: User = Depends(get_user_from_context),
         context: dict = Depends(get_logged_user_context)
 ):
-    # TODO прописать во всех ендпоинтах
+    # TODO прописать во всех ендпоинтах в проде
     if user.is_active:
         return context
     raise ComeTomorrowException
 
 def present_user_expired_at_day_and_month(date: datetime) -> str:
-    return date.strftime("%d-%m")
+    return date.strftime("%d-%m") if date is not None else 'Нет подписки'
 
 
 def get_profile_page_context(
@@ -91,6 +88,7 @@ def get_profile_page_context(
     user: User = context['user']
     user.expired_at = present_user_expired_at_day_and_month(user.expired_at)
     context.update(max_level=MAX_LEVEL, user=user)
+
     return context
 
 
@@ -102,3 +100,11 @@ async def get_email_send_context(email: EmailStr, message: str) -> dict:
         context.update(error=f"Неверный адрес почты")
 
     return context
+
+
+async def update_user_session_token(request: Request, user: User) -> None:
+    """Clean and set new user token to request session"""
+    if request:
+        request.session.clear()
+        login_token: str = await user.get_user_token()
+        request.session.update(token=login_token)

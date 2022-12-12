@@ -1,20 +1,19 @@
-import datetime
-
 import pydantic
 from pydantic import EmailStr
 from starlette.datastructures import FormData
 
 from config import logger
 from models.models import User, Administrator, Rate, Complex
-from schemas.user import UserRegistration, UserLogin
-from services.emails import send_verification_mail, EmailException
+from schemas.user_schema import UserRegistration, UserLogin, PhoneNumber, UserPhoneLogin
+from services.utils import generate_four_random_digits_string
+from web_service.services.sms_class import sms_service, SMSException
 
 
 def get_bearer_header(token: str) -> dict[str, str]:
     return {'Authorization': f"Bearer {token}"}
 
 
-async def user_login(user_data: UserLogin) -> User:
+async def check_email_and_password_correct(user_data: UserLogin) -> User:
     if user_found := await User.get_by_email(user_data.email):
         if await user_found.is_password_valid(user_data.password):
             return user_found
@@ -27,48 +26,48 @@ async def check_email_exists(email: EmailStr) -> bool:
     return True if user or admin else False
 
 
-async def check_user_phone_exists(phone: str) -> User:
+async def check_user_phone_exists(phone: str | PhoneNumber) -> User:
     if user := await User.get_by_phone(phone):
         return user
 
 
+async def check_phone_and_password_correct(user_data: UserPhoneLogin) -> User:
+    if user_found := await check_user_phone_exists(user_data.phone):
+        if await user_found.is_password_valid(user_data.password):
+            return user_found
+
 async def register_new_user(user_data: UserRegistration) -> tuple[User | None, dict]:
     errors = {}
-    email_exists: bool = await check_email_exists(user_data.email)
-    if email_exists:
-        errors = {'error': 'User with this email already exists'}
+    if await check_email_exists(user_data.email):
+        errors = {'error': 'Пользователь с таким email уже существует'}
         return None, errors
 
-    phone_exists: User = await check_user_phone_exists(user_data.phone)
-    if phone_exists:
-        errors = {'error': 'User with this phone already exists'}
+    if await check_user_phone_exists(user_data.phone):
+        errors = {'error': 'Пользователь с таким телефоном уже существует'}
         return None, errors
 
     data: dict = user_data.dict()
-    try:
-        data['email_code'] = await send_verification_mail(user_data.email)
-        logger.debug(f"Email code: {data['email_code']}")
-
-    except EmailException:
-        logger.warning(f"Wrong email {user_data.email}")
-        errors = {'error': "Неверный адрес почты"}
+    result: dict = await send_sms(user_data.phone)
+    if sms_message := result.get('sms_message'):
+        logger.debug(f"Sms_message code: {sms_message}")
+        data['sms_message'] = sms_message
+    elif result.get('error'):
+        errors.update(**result)
         return None, errors
+
+    # except EmailException:
+    #     logger.warning(f"Wrong email {user_data.email}")
+    #     errors = {'error': "Неверный адрес почты"}
+    #     return None, errors
     first_complex: Complex = await Complex.get_first()
-    data['current_complex'] = first_complex.id
+    if first_complex:
+        data['current_complex'] = first_complex.id
+
     free_rate: Rate = await Rate.get_free()
     if free_rate:
         data['rate_id'] = free_rate.id
     user: User = await User.create(data)
-    # user_data.password = await User.get_hashed_password(user_data.password)
-    # expired_at = datetime.datetime.now(tz=None) + datetime.timedelta(days=30)
-    # user = User(
-    #     **user_data.dict(), is_verified=False,
-    #     current_complex=1, is_admin=False, is_active=True, expired_at=expired_at
-    # )
-    # free_rate: Rate = await Rate.get_free()
-    # if free_rate:
-    #     user.rate_id = free_rate.id
-    # await user.save()
+
     logger.info(f"User with id {user.id} created. Rate set: {user.rate_id}")
 
     return user, errors
@@ -84,3 +83,18 @@ async def validate_logged_user_data(form: FormData) -> tuple[UserLogin | None, d
         logger.debug(err)
 
         return None, {'error': "Invalid email or password"}
+
+
+async def send_sms(phone: str) -> dict:
+    sms_message: str = generate_four_random_digits_string()
+
+    logger.debug(f"Sms message generated: {sms_message}")
+    result = {"error": 'Undefined error in _send_sms function'}
+    try:
+        if await sms_service.send_sms(phone=phone, message=sms_message):
+            return {"sms_message": sms_message}
+    except SMSException as err:
+        logger.error(err)
+        result.update(error=err)
+
+    return result

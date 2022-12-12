@@ -3,12 +3,13 @@ import datetime
 import uvicorn
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI, Request
+
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
 from admin.utils import create_default_admin
 from admin.views import get_admin
-from config import settings, templates, MAX_LEVEL
+from config import settings, templates, MAX_LEVEL, logger
 from create_data import create_fake_data, recreate_db
 from exc.exceptions import UserNotLoggedError, ComeTomorrowException
 from models.models import User
@@ -17,10 +18,7 @@ from services.notification_scheduler import create_notifications_for_not_viewed_
 from web_service.router import router as web_router
 from web_service.utils.get_contexts import get_base_context, \
     get_session_token, get_session_user, get_logged_user_context
-from web_service.utils.title_context_func import update_title
-
-DOCS_URL = "/ci"
-
+from web_service.utils.title_context_func import get_page_titles
 
 def get_application():
     scheduler = AsyncIOScheduler()
@@ -32,8 +30,10 @@ def get_application():
         timezone=datetime.timezone(datetime.timedelta(hours=3))
     )
 
-    app = FastAPI(docs_url=DOCS_URL, redoc_url=DOCS_URL, debug=settings.DEBUG)
+    app = FastAPI(docs_url=settings.DOCS_URL, redoc_url=settings.DOCS_URL, debug=settings.DEBUG)
+
     app.mount("/static", StaticFiles(directory=str(settings.STATIC_DIR)), name="static")
+    app.mount("/media", StaticFiles(directory=str(settings.MEDIA_DIR)), name="media")
     app.mount("/templates", StaticFiles(directory=str(settings.TEMPLATES_DIR)), name="templates")
     app.include_router(main_router)
     app.include_router(web_router)
@@ -53,22 +53,27 @@ def get_application():
     async def user_not_logged_exception_handler(
             request: Request, exc: UserNotLoggedError
     ):
+        logger.debug("Raised user_not_logged_exception_handler")
+
+        request.session.clear()
         context: dict = get_base_context({"request": request})
         return templates.TemplateResponse(
-            "entry.html", context=update_title(context, "entry.html")
+            "entry_via_phone.html", context=get_page_titles(context, "entry_via_phone.html")
         )
 
     @app.exception_handler(ComeTomorrowException)
     async def user_not_active_exception_handler(
             request: Request, exc: ComeTomorrowException,
     ):
+        logger.debug("Raised user_not_active_exception_handler")
+
         token: str = await get_session_token(request)
         user: User = await get_session_user(token)
         base_context: dict = get_base_context({"request": request})
         context: dict = await get_logged_user_context(user, base_context)
         context.update(max_level=MAX_LEVEL)
         return templates.TemplateResponse(
-            "profile.html", context=update_title(context, "profile.html")
+            "profile.html", context=get_page_titles(context, "profile.html")
         )
 
     app: FastAPI = get_admin(app)

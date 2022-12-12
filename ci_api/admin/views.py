@@ -8,7 +8,7 @@ from admin.auth import authentication_backend
 from admin.utils import upload_file
 from config import logger, settings
 from database.db import engine
-from models.models import User, Video, Complex, Rate, Administrator, Payment
+from models.models import User, Video, Complex, Rate, Administrator, Payment, PaymentCheck
 from schemas.complexes_videos import VideoUpload
 from services.utils import convert_seconds_to_time
 
@@ -32,12 +32,26 @@ class PaymentView(ModelView, model=Payment):
     can_export = True
 
 
+class PaymentCheckView(ModelView, model=PaymentCheck):
+    name = "Чек"
+    name_plural = "Чеки"
+    column_list = [
+        PaymentCheck.customer_phone, PaymentCheck.user_id, PaymentCheck.rate_id, PaymentCheck.date
+    ]
+    can_create = False
+    can_edit = False
+    can_delete = False
+    can_view_details = False
+    can_export = True
+
+
 class ComplexView(ModelView, model=Complex):
     name = "Комплекс упражнений"
     name_plural = "Комплексы упражнений"
-    column_list = [Complex.number, Complex.videos, Complex.description, Complex.duration,
+    column_list = [Complex.id, Complex.videos, Complex.number, Complex.description, Complex.duration,
                    ]
     column_labels = {
+        Complex.id: "ID",
         Complex.number: "Порядковый номер",
         Complex.name: "Название комплекса",
         Complex.videos: "Упражнения",
@@ -197,6 +211,7 @@ def get_admin(app: FastAPI) -> FastAPI:
     admin.add_view(RateView)
     admin.add_view(UserView)
     admin.add_view(VideoView)
-    # admin.add_view(PaymentView)
+    admin.add_view(PaymentView)
+    admin.add_view(PaymentCheckView)
 
     return app

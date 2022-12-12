@@ -1,21 +1,25 @@
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, status, Body
+from fastapi import APIRouter, status, Depends
 from fastapi.responses import FileResponse
 
 from config import settings, logger
 from models.models import Video, User
 from schemas.complexes_videos import VideoViewed
-from schemas.user import check_phone
-from services.depends import is_user_active
-from services.response_manager import WebContext, ApiServiceResponser
+from schemas.user_schema import slice_phone_to_format
+from services.depends import get_logged_user
 from services.videos_methods import get_viewed_video_response
+from services.web_context_class import WebContext
 from web_service.utils.web_utils import get_checked_video
 
 router = APIRouter(prefix="/videos", tags=['Videos'])
 
 
-@router.get("/{video_id}", dependencies=[Depends(is_user_active)])
+@router.get(
+    "/{video_id}",
+    dependencies=[Depends(get_logged_user)],
+    status_code=status.HTTP_200_OK
+)
 async def get_video(
         video_id: int,
 ):
@@ -35,14 +39,39 @@ async def get_video(
     return FileResponse(path=str(full_path), media_type='video/mp4')
 
 
-@router.post("/viewed", status_code=status.HTTP_200_OK, response_model=dict)
+@router.get(
+    "/all_for/{complex_id}",
+    dependencies=[Depends(get_logged_user)],
+    response_model=list[Video],
+    status_code=status.HTTP_200_OK
+)
+async def get_all_videos_from_complex(
+        complex_id: int
+):
+    """
+    Return list videos by complex id. Need active user.
+
+    :param complex_id: int - Complex database ID
+
+    :return: List of videos as JSON
+
+    """
+    return await Video.get_all_by_complex_id(complex_id)
+
+
+
+@router.post(
+    "/viewed",
+    status_code=status.HTTP_200_OK,
+    response_model=dict
+)
 async def video_viewed(
         data: VideoViewed
 ):
-    phone: str = check_phone(data.phone)
+    phone: str = slice_phone_to_format(data.phone)
     user: User = await User.get_by_phone(phone)
     web_context: WebContext = await get_viewed_video_response(
         user=user, video_id=data.video_id, context={}
     )
 
-    return ApiServiceResponser(web_context).render()
+    return web_context.api_render()

@@ -94,6 +94,11 @@ class TestUsers:
         response = self.session.get(self.base_url + "/users/rates")
         assert response.status_code == 200
 
+    @pytest.mark.server
+    def test_all_for_complex_id(self):
+        response = self.session.get(self.base_url + "/videos/all_for/1", headers=self.headers)
+        assert response.status_code == 200
+
     # TODO исправить
     @pytest.mark.skip("Not delete relations viewed video")
     def test_viewed_video_endpoint(self):

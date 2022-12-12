@@ -1,11 +1,10 @@
-version: '3.9'
+version: '3.7'
 
 services:
   ci_postgres:
     env_file:
       - ./.env
     container_name: ci_postgres
-    hostname: ci_postgres
     image: postgres:14.4-alpine
     command:
       - "postgres"
@@ -30,22 +29,38 @@ services:
       retries: 3
       start_period: 5s
 
-  ci_api:
+  app:
     build: ./ci_api
+    container_name: ${APPNAME}-${VERSION}
+    image: ${APPNAME}:${VERSION}
     env_file:
       - ./.env
     command: >
       sh -c "alembic upgrade head &&
              uvicorn main:app --workers 1 --host 0.0.0.0 --port 8000"
-    ports:
-      - "8000:8000"
     environment:
       POSTGRES_HOST: "ci_postgres"
+    ports:
+      - "8000:8000"
     volumes:
       - ./logs:/app/logs
       - ./static:/app/static
+      - ./media:/app/media
       - ./payments:/app/payments
     depends_on:
       - ci_postgres
     restart: on-failure
 
+#  nginx:
+#    image: nginx:latest
+#    container_name: nginx
+#    ports:
+#      - '80:80'
+#      - '8080:8080'
+#      - '443:443'
+#    volumes:
+#      - ./nginx/config/:/etc/nginx/conf.d
+##      - ./static:/www/data/static
+#    depends_on:
+#      - ci_api
+#    restart: always
