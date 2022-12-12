@@ -55,7 +55,6 @@ async def get_logged_user_context(
         user: User = Depends(get_session_user),
         context: dict = Depends(get_base_context)
 ) -> dict:
-
     context.update({
         "user": user,
         "user_present_phone": represent_phone(user.phone)
@@ -69,17 +68,23 @@ def get_user_from_context(
 ) -> User:
     return context['user']
 
+
 async def get_active_user_context(
         user: User = Depends(get_user_from_context),
         context: dict = Depends(get_logged_user_context)
 ):
-    # TODO прописать во всех ендпоинтах в проде
+    # TODO прописать во всех ендпоинтах где зарядка
     if user.is_active:
         return context
     raise ComeTomorrowException
 
+
 def present_user_expired_at_day_and_month(date: datetime) -> str:
-    return f'Подписка автоматически продлится: {date.strftime("%d-%m")}' if date is not None else 'Нет подписки'
+    return (
+        f'Подписка автоматически продлится: {date.strftime("%d-%m")}'
+        if date is not None
+        else 'Нет подписки'
+    )
 
 
 async def get_profile_page_context(
