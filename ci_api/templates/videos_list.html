@@ -17,13 +17,13 @@
                     <div class="swiper-slide slide__card-wrapper" data-id="{{ video.id }}" tabindex="0">
 
                         <div class="slide__wrapper">
-                            <div class="slide__time"> 
+                            <div class="slide__time">
                                 <span class="slide__time-text">{{ video.duration.minute }} мин</span>
                                 <img class="slide__time-img" src="/static/img/icons/clock.svg" width="20" height="20" alt="clock">
                             </div>
                             <!-- {{video.file_name}} -->
                             <video id="{{ video.id }}" data-id="{{ video.id }}" class="slide lock"
-                                   src="/static/media/{{video.file_name}}"
+                                   src="/media/{{video.file_name}}"
                                    poster="/static/img/charging-image.png"></video>
                             <a href="#" data-id="{{ video.id }}" class="slide__viewed">
                                 <p class="slide__viewed-text">Станет доступно после выполнения предыдущего упражнения</p>
@@ -51,11 +51,11 @@
 
             <!-- If we need pagination -->
             <div class="swiper-pagination"></div>
-        
+
             <!-- If we need navigation buttons -->
             <div class="swiper-button-prev"></div>
             <div class="swiper-button-next"></div>
-        
+
             <!-- If we need scrollbar -->
             <div class="swiper-scrollbar"></div>
         </div>
