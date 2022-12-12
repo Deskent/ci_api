@@ -35,25 +35,14 @@
                     </form>
 
                     <div class="user-profile__card profile-card">
-                        {% if user.expired_at %}
-                            <div class="profile-card__title">
-                                Подписка автоматически продлится {{ user.expired_at }}
-                            </div>
-                        {% else %}
-                            <div class="profile-card__title">
-                                Нет подписки
-                            </div>
-
-                        {% endif %}
+                        <div class="profile-card__title">
+                            {{ user.expired_at }}
+                        </div>
                         <div class="profile-card__info">
                             <div class="profile-card__icon"><img
                                     src="/static/img/icons/credit-card.svg"
                                     alt=""></div>
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                            <div class="profile-card__number">1234</div>
+                            <div class="profile-card__number">Ваш тариф: {{ rate.name }}</div>
                         </div>
                         <a href="{{ subscribe_info }}" class="profile-card__link">Подробнее</a>
                     </div>
@@ -72,21 +61,11 @@
                     </div>
                 </div>
                 <div class="profile-card__adapt">
-                        {% if user.expired_at %}
-                            <div class="profile-card__title">
-{#                            # TODO выводить число и месяц #}
-                                Подписка автоматически продлится {{ user.expired_at }}
-                            </div>
-                        {% else %}
-                            <div class="profile-card__title">
-                                Нет подписки
-                            </div>
-                        {% endif %}
 
-                    <div class="profile-card__info">
-                        <span class="stars">**** **** ****</span>
-                        <div class="profile-card__number">1234</div>
+                    <div class="profile-card__title">
+                        {{ user.expired_at }}
                     </div>
+
                     <a href="{{ subscribe_info }}"
                        class="profile-card__link_adapt">Подробнее</a>
                 </div>

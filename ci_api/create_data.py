@@ -93,7 +93,7 @@ async def create_users(data: list[dict] = None):
                 'last_name': "test2last",
                 'phone': "1234567892",
                 'gender': 0,
-                'password': "test2pass",
+                'password': "asd",
                 'email': 'test2@email.com',
                 'is_active': True
 
@@ -101,7 +101,7 @@ async def create_users(data: list[dict] = None):
             {
                 'username': "test3",
                 'phone': "1234567893",
-                'password': "test3pass",
+                'password': "asd",
                 'gender': 0,
                 'email': 'test3@email.com',
                 'is_active': False
