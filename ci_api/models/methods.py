@@ -146,13 +146,6 @@ class UserModel(AdminModel):
         self.email_code = ''
         return await self.save()
 
-    async def level_up(self) -> 'User':
-        if self.level < 10:
-            self.progress = 0
-            self.level += 1
-            await self.save()
-        return self
-
     async def set_verified(self) -> 'User':
         if not self.is_verified:
             self.is_verified = True
