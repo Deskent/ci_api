@@ -80,6 +80,7 @@ async def approve_sms_code(
     if user_id:
         user: User = await User.get_by_id(user_id)
     elif phone:
+        phone = slice_phone_to_format(phone)
         user: User = await User.get_by_phone(phone)
 
     if not user:

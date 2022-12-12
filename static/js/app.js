@@ -238,11 +238,7 @@ document.addEventListener("keydown", function (e) {
 // Отправляем запрос после загрузки страницы
 
 const urlPath = window.location.pathname;
-const video_id = Array.from(urlPath).pop();
-
-let userPhone = document.querySelector('.header-user__phone');
-const user_tel = userPhone.textContent;
-const phone = user_tel.replace(/\s/g,'');
+const complex_id = Array.from(urlPath).pop();
 
 
 // TODO: https://energy.qidoctor.ru/v1/api/... запрос на сервере отправлять сюда
@@ -250,25 +246,22 @@ const phone = user_tel.replace(/\s/g,'');
 
 
 document.addEventListener("DOMContentLoaded", async (evt) => {
-   const response = await fetch('http://energy.qidoctor.ru/api/v1/videos/viewed', {
-      method: 'POST',
-      body: JSON.stringify({
-         "phone": phone,
-         "video_id": video_id
-      }),
+   const response = await fetch('http://127.0.0.1:8000/api/v1/videos/complex_viewed/' + complex_id, {
+   // const response = await fetch('http://energy.qidoctor.ru/api/v1/videos/complex_viewed/' + complex_id, {
+      method: 'GET',
       headers: {
       'Content-Type': 'application/json;charset=utf-8',
       },
    });
-            
+
    let result = await response.json();
    console.log(result);
 
 })
 
 
-     
-            
+
+
 
 
 
@@ -280,7 +273,7 @@ document.addEventListener("DOMContentLoaded", async (evt) => {
 
 
 
-// Инициализируем слайдер для упражнений 
+// Инициализируем слайдер для упражнений
    let swiper = new Swiper(".mySwiper", {
       slidesPerView: 3,
       spaceBetween: 30,
@@ -334,7 +327,7 @@ const swiperButtonNext = document.querySelector(".swiper-button-next")
 
 
 function modalVideoControls() {
-   
+
       modalVideoBox?.addEventListener("click", (evt) => {
          if(evt.target.dataset.disabled) {
             evt.preventDefault();
@@ -424,7 +417,7 @@ function changesStylesViewed(evt) {
 function changeStylesToOn(nextVideoId) {
    let videoSlidesNodeList = document.querySelectorAll(".slide__card-wrapper");
    let videoSlidesArr = Array.from(videoSlidesNodeList);
-   let indexVideo; 
+   let indexVideo;
     videoSlidesArr.forEach((element, index) => {
       let attributeIdValue = element.getAttribute("data-id");
       if (attributeIdValue == nextVideoId) {
@@ -441,7 +434,7 @@ function changeStylesToOn(nextVideoId) {
    let modalVideoDisabled = videoNextWrapper.querySelector(".slide__disabled");
    if(modalVideoDisabled.classList.contains("slide__disabled")) {
       modalVideoDisabled.style.display = "none";
-   }   
+   }
    let nextVideosPlay = videoNextWrapper.querySelector('.slide__play');
    let nextVideosPause = videoNextWrapper.querySelector('.slide__pause');
    let videoNextLock = videoNextWrapper.querySelector('.slide');
@@ -483,7 +476,7 @@ function modalVideoEnded() {
 
         video.addEventListener("ended", async (evt) => {
 
-         
+
          changesStylesViewed(evt); // поменяли стили на "видео просмотрено"
 
          const lengthArrVideo = modalVideos.length - 1;
