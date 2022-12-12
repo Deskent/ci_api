@@ -287,6 +287,16 @@ class ViewedComplex(MySQLModel, table=True):
         return await get_all(query)
 
     @classmethod
+    async def is_viewed_complex(
+            cls,
+            user_id: int,
+            complex_id: int
+    ) -> 'ViewedComplex':
+
+        query = select(cls).where(cls.user_id == user_id).where(cls.id == complex_id)
+        return await get_first(query)
+
+    @classmethod
     async def is_last_viewed_today(cls, user_id: int) -> bool:
         """
         Check Complex viewed today
