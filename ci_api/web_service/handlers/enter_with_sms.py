@@ -1,4 +1,4 @@
-from typing import Optional, Callable
+from typing import Callable
 
 from fastapi import Depends, Form
 from loguru import logger
@@ -7,9 +7,9 @@ from starlette.requests import Request
 from config import settings
 from exc.exceptions import UserNotFoundError, SmsCodeNotValid
 from models.models import User
-from schemas.user_schema import SmsCode, PhoneNumber
-from services.web_context_class import WebContext
+from schemas.user_schema import slice_phone_to_format
 from services.user import send_sms
+from services.web_context_class import WebContext
 from web_service.services.sms_class import sms_service, SMSException
 from web_service.utils.get_contexts import get_base_context, update_user_session_token
 
@@ -20,6 +20,7 @@ async def entry_via_sms_or_call(
         phone: str = Form(...),
 ) -> WebContext:
     web_context = WebContext(context=context)
+    phone = slice_phone_to_format(phone)
     user: User = await User.get_by_phone(phone)
     if not user:
         web_context.error = "Пользователь с таким номером телефона не найден"
