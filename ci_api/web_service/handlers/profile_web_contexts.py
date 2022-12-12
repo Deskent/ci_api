@@ -3,6 +3,7 @@ from loguru import logger
 from pydantic import EmailStr
 
 from models.models import User
+from schemas.user_schema import slice_phone_to_format
 from services.emails import send_verification_mail, EmailException
 from services.web_context_class import WebContext
 from web_service.utils.get_contexts import get_logged_user_context, get_user_from_context, \
@@ -23,6 +24,7 @@ async def get_edit_profile_web_context(
     user.username = username
     user.last_name = last_name
     user.third_name = third_name
+    phone: str = slice_phone_to_format(phone)
     if user.phone != phone:
         # TODO send sms to verify ?
         pass
@@ -41,7 +43,7 @@ async def get_edit_profile_web_context(
 
             return obj
 
-    await user.save()
+    user: User = await user.save()
     user.expired_at = present_user_expired_at_day_and_month(user.expired_at)
     obj.context.update(user=user)
     obj.success = 'Профиль успешно изменен'
