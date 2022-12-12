@@ -2,7 +2,7 @@ import datetime
 
 import uvicorn
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, status
 
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
@@ -59,6 +59,17 @@ def get_application():
         context: dict = get_base_context({"request": request})
         return templates.TemplateResponse(
             "entry_via_phone.html", context=get_page_titles(context, "entry_via_phone.html")
+        )
+
+    @app.exception_handler(status.HTTP_500_INTERNAL_SERVER_ERROR)
+    async def status_500_exception_handler(
+            request: Request, exc: Exception
+    ):
+        context: dict = get_base_context({"request": request})
+        logger.error(f"Status 500 error: \n{request.url}")
+
+        return templates.TemplateResponse(
+            "error_page.html", context=get_page_titles(context, "error_page.html")
         )
 
     @app.exception_handler(ComeTomorrowException)
