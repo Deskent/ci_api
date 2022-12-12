@@ -61,17 +61,6 @@ def get_application():
             "entry_via_phone.html", context=get_page_titles(context, "entry_via_phone.html")
         )
 
-    @app.exception_handler(status.HTTP_500_INTERNAL_SERVER_ERROR)
-    async def status_500_exception_handler(
-            request: Request, exc: Exception
-    ):
-        context: dict = get_base_context({"request": request})
-        logger.error(f"Status 500 error: \n{request.url}")
-
-        return templates.TemplateResponse(
-            "error_page.html", context=get_page_titles(context, "error_page.html")
-        )
-
     @app.exception_handler(ComeTomorrowException)
     async def user_not_active_exception_handler(
             request: Request, exc: ComeTomorrowException,
@@ -85,6 +74,17 @@ def get_application():
         context.update(max_level=MAX_LEVEL)
         return templates.TemplateResponse(
             "profile.html", context=get_page_titles(context, "profile.html")
+        )
+
+    @app.exception_handler(status.HTTP_500_INTERNAL_SERVER_ERROR)
+    async def status_500_exception_handler(
+            request: Request, exc: Exception
+    ):
+        context: dict = get_base_context({"request": request})
+        logger.error(f"Status 500 error: \n{request.url}")
+
+        return templates.TemplateResponse(
+            "error_page.html", context=get_page_titles(context, "error_page.html")
         )
 
     app: FastAPI = get_admin(app)
