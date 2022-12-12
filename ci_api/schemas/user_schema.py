@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 
 from fastapi import Form
@@ -11,15 +12,8 @@ def slice_phone_to_format(phone: str) -> str:
     """Delete from phone number like `8 (123) 456-7890` or something
     all extra symbols. Return clean phone number like `1234567890`
     """
-
-    phone: str = (
-        phone
-        .strip()
-        .replace('(', '')
-        .replace(')', '')
-        .replace('-', '')
-        .replace(' ', '')[-10:]
-    )
+    pattern = r'[^\d]'
+    phone: str = re.sub(pattern, '', phone)[-10:]
 
     is_phone_valid: bool = len(phone) == 10 and phone.isdigit()
     if not is_phone_valid:
