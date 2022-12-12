@@ -39,6 +39,13 @@ class Complex(MySQLModel, table=True):
         return 1 if not next_complex else next_complex.id
 
     @classmethod
+    async def get_next_complex(cls, complex_id: int) -> 'Complex':
+        query = select(cls).where(cls.id == complex_id)
+        current_complex: Complex = await get_first(query)
+
+        return await current_complex.next_complex_id()
+
+    @classmethod
     async def add_new(
             cls: 'Complex',
             number: int,
@@ -172,6 +179,14 @@ class User(UserModel, table=True):
 
     def __str__(self):
         return f"{self.email}"
+
+    async def level_up(self, next_complex_id: int) -> 'User':
+        if self.level < 10:
+            self.current_complex = next_complex_id
+            self.progress = 0
+            self.level += 1
+            await self.save()
+        return self
 
 
 class Rate(MySQLModel, table=True):

@@ -79,17 +79,17 @@ async def videos_list(
         "videos_list.html", context=get_page_titles(context, "videos_list.html"))
 
 
-@router.get("/level_up", response_class=HTMLResponse)
-async def level_up(
-        context: dict = Depends(get_logged_user_context),
-        user: User = Depends(get_user_from_context)
-):
-    await user.level_up()
-    current_complex: Complex = await Complex.get_by_id(user.current_complex)
-    await ViewedComplex.add_viewed(user.id, user.current_complex)
-    user.current_complex = await current_complex.next_complex_id()
-    await user.save()
-
-    return templates.TemplateResponse(
-        "come_tomorrow.html", context=get_page_titles(context, "come_tomorrow.html")
-    )
+# @router.get("/level_up", response_class=HTMLResponse)
+# async def level_up(
+#         context: dict = Depends(get_logged_user_context),
+#         user: User = Depends(get_user_from_context)
+# ):
+#     await user.level_up()
+#     current_complex: Complex = await Complex.get_by_id(user.current_complex)
+#     await ViewedComplex.add_viewed(user.id, user.current_complex)
+#     user.current_complex = await current_complex.next_complex_id()
+#     await user.save()
+#
+#     return templates.TemplateResponse(
+#         "come_tomorrow.html", context=get_page_titles(context, "come_tomorrow.html")
+#     )
