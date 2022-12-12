@@ -1,6 +1,7 @@
 from exc.exceptions import UserNotFoundError
 from models.models import User, Video, Complex, ViewedComplex
 from services.complexes_and_videos import is_video_viewed_before, check_level_up
+from services.utils import convert_seconds_to_time
 from services.web_context_class import WebContext
 
 
@@ -52,7 +53,15 @@ async def get_viewed_complex_response(
     result = {"level_up": False}
     if not await ViewedComplex.is_viewed_complex(user_id=user.id, complex_id=complex_id):
         await ViewedComplex.add_viewed(user_id=user.id, complex_id=complex_id)
-        user: User = await user.level_up()
-        result.update({"level_up": True, "new_level": user.level})
+        next_complex: Complex = await Complex.get_next_complex(user.current_complex)
+        user: User = await user.level_up(next_complex.id)
+        next_complex_duration = convert_seconds_to_time(next_complex.duration)
+        result.update(
+            {
+                "level_up": True,
+                "new_level": user.level,
+                "next_complex_duration": next_complex_duration
+            }
+        )
 
     return result
