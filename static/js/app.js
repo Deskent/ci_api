@@ -246,8 +246,8 @@ const complex_id = Array.from(urlPath).pop();
 
 
 document.addEventListener("DOMContentLoaded", async (evt) => {
-   const response = await fetch('http://127.0.0.1:8000/api/v1/videos/complex_viewed/' + complex_id, {
-   // const response = await fetch('http://energy.qidoctor.ru/api/v1/videos/complex_viewed/' + complex_id, {
+   // const response = await fetch('http://127.0.0.1:8000/api/v1/videos/complex_viewed/' + complex_id, {
+   const response = await fetch('http://energy.qidoctor.ru/api/v1/videos/complex_viewed/' + complex_id, {
       method: 'GET',
       headers: {
       'Content-Type': 'application/json;charset=utf-8',
