@@ -17,19 +17,19 @@ async def current_progress(
     Return current user views progress
     """
     return user
-
-
-@router.put("/", response_model=UserProgress)
-async def video_viewed(
-        user: User = Depends(get_logged_user),
-):
-    """
-    Calculate and return current progress and level after video viewed. Need authorization.
-
-    :return: Current user view progress
-    """
-
-    return await check_level_up(user=user)
+#
+#
+# @router.put("/", response_model=UserProgress)
+# async def video_viewed(
+#         user: User = Depends(get_logged_user),
+# ):
+#     """
+#     Calculate and return current progress and level after video viewed. Need authorization.
+#
+#     :return: Current user view progress
+#     """
+#
+#     return await check_level_up(user=user)
 
 
 @router.get("/{complex_id}", response_model=ComplexData)
