@@ -57,10 +57,14 @@ class SMSru:
                 sms_id: str = data['sms'][phone].get('sms_id')
                 if not sms_id:
                     logger.warning(f"Sms service error: {data}")
-                    error_text = 'Неправильно указан номер телефона получателя'
-                    if error_text in data['sms'][phone].get('status_text'):
-                        raise SMSException(error_text)
-                    raise SMSException("SMS service error: No sms_id received.")
+                    status_test = data['sms'][phone].get('status_text')
+                    error_text = "SMS service error: No sms_id received."
+                    if 'Неправильно указан номер телефона получателя' in status_test:
+                        error_text = 'Неправильно указан номер телефона получателя'
+                    elif 'Имя отправителя не зарегистрировано у оператора получателя данного сообщения.' in status_test:
+                        error_text = 'Имя отправителя не зарегистрировано у оператора получателя данного сообщения.'
+
+                    raise SMSException(error_text)
 
                 return sms_id
 
