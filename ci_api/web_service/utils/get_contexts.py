@@ -9,6 +9,7 @@ from exc.exceptions import UserNotLoggedError, ComeTomorrowException
 from models.models import User, Rate
 from services.depends import get_context_with_request
 from services.emails import send_email_message, EmailException
+from services.rates_cache import RatesCache
 from services.utils import represent_phone
 
 
@@ -92,7 +93,7 @@ async def get_profile_page_context(
 ) -> dict:
     user: User = context['user']
     user.expired_at = present_user_expired_at_day_and_month(user.expired_at)
-    rate: Rate = await Rate.get_by_id(user.rate_id)
+    rate: Rate = await RatesCache.get_by_id(user.rate_id)
     context.update(max_level=MAX_LEVEL, user=user, rate=rate)
 
     return context

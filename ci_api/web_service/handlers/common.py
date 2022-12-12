@@ -66,7 +66,7 @@ async def restore_password(
     await user.save()
     context.update(success=f"Новый пароль выслан на почту {user.email}")
     return templates.TemplateResponse(
-        "entry.html", context=get_page_titles(context, "entry.html"))
+        "entry_sms.html", context=get_page_titles(context, "entry_sms.html"))
 
 
 async def set_new_password(

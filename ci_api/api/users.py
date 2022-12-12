@@ -4,6 +4,7 @@ from config import logger
 from models.models import User, Alarm, Notification, Rate
 from schemas.alarms import AlarmBase
 from services.depends import get_logged_user
+from services.rates_cache import RatesCache
 from services.weekdays import WeekDay
 
 router = APIRouter(prefix="/users", tags=['Users'])
@@ -50,7 +51,7 @@ async def get_all_rates():
     :return List of rates
     """
 
-    rates: list[Rate] = await Rate.get_all()
+    rates: list[Rate] = await RatesCache.get_all()
     logger.info(f"Rates requested")
 
     return rates

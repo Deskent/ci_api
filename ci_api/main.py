@@ -15,6 +15,7 @@ from exc.exceptions import UserNotLoggedError, ComeTomorrowException
 from models.models import User
 from routers import main_router
 from services.notification_scheduler import create_notifications_for_not_viewed_users
+from services.rates_cache import RatesCache
 from web_service.router import router as web_router
 from web_service.utils.get_contexts import get_base_context, \
     get_session_token, get_session_user, get_logged_user_context
@@ -43,6 +44,7 @@ def get_application():
         await recreate_db()
         await create_default_admin()
         await create_fake_data()
+        await RatesCache.initialise()
         scheduler.start()
 
     @app.on_event('shutdown')
@@ -61,17 +63,6 @@ def get_application():
             "entry_via_phone.html", context=get_page_titles(context, "entry_via_phone.html")
         )
 
-    @app.exception_handler(status.HTTP_500_INTERNAL_SERVER_ERROR)
-    async def status_500_exception_handler(
-            request: Request, exc: Exception
-    ):
-        context: dict = get_base_context({"request": request})
-        logger.error(f"Status 500 error: \n{request.url}")
-
-        return templates.TemplateResponse(
-            "error_page.html", context=get_page_titles(context, "error_page.html")
-        )
-
     @app.exception_handler(ComeTomorrowException)
     async def user_not_active_exception_handler(
             request: Request, exc: ComeTomorrowException,
@@ -85,6 +76,18 @@ def get_application():
         context.update(max_level=MAX_LEVEL)
         return templates.TemplateResponse(
             "profile.html", context=get_page_titles(context, "profile.html")
+        )
+
+    @app.exception_handler(status.HTTP_500_INTERNAL_SERVER_ERROR)
+    async def status_500_exception_handler(
+            request: Request, exc: Exception
+    ):
+        context: dict = get_base_context({"request": request})
+        logger.error(f"Status 500 error: \n{request.url}\n{exc}\n")
+        logger.exception(exc)
+
+        return templates.TemplateResponse(
+            "error_page.html", context=get_page_titles(context, "error_page.html")
         )
 
     app: FastAPI = get_admin(app)
