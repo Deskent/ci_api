@@ -13,6 +13,10 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap&_v=20220828141206"
               rel="stylesheet">
+
+        <!-- стили для слайдера swiper -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css"/>
+
         <link rel="stylesheet" href="/static/css/unsubscribe.css">
         <link rel="stylesheet" href="/static/css/verificationCode.css">
         <link rel="stylesheet" href="/static/css/complexes_list.css">
@@ -108,10 +112,14 @@
         </div>
     {% endblock wrapper %}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js?_v=20220828141206"></script>
-
-    <script type="text/javascript"
-            src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.js?_v=20220828141206"></script>
+    <!-- слайдер swiper -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
+    <!-- слайдер slick -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.js?_v=20220828141206"></script>
     <script src="/static/js/app.js?_v=20220828141206"></script>
+    <!-- Маска для поля с телефоном -->
+    <script src="/static/js/mask.js"></script>
+
     </body>
 {% endblock body %}
 </html>

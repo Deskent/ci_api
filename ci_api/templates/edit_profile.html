@@ -11,34 +11,61 @@
                     <fieldset class="profile-editing__form-fieldset">
                         <legend class="profile-editing__form-legend">Редактирование профиля</legend>
 
-                        <input class="profile-editing__form-input" type="text" placeholder="Имя"
+                        <div class="profile-editing__form-box-input">
+                            <input id="username" class="profile-editing__form-input" type="text" placeholder="Имя"
                                name="username" value="{{ user.username }}" required>
-                        <input class="profile-editing__form-input" type="text"
-                               placeholder="Фамилия" name="last_name" required
+                            <label class="profile-editing__form-label" for="username">Имя</label>
+                        </div>
+                        <div class="profile-editing__form-box-input">
+                            <input id="last_name" class="profile-editing__form-input" type="text" placeholder="Фамилия" name="last_name" required
                                value="{{ user.last_name }}">
-                        <input class="profile-editing__form-input" type="text"
+                            <label class="profile-editing__form-label"  for="last_name">Фамилия</label>
+                        </div>
+                        <div class="profile-editing__form-box-input">
+                            <input id="third_name" class="profile-editing__form-input" type="text"
                                placeholder="Отчество" name="third_name"
                                value="{{ user.third_name }}" required>
-                        <input class="profile-editing__form-input" type="email" placeholder="Почта"
+                            <label class="profile-editing__form-label"  for="third_name">Отчество</label>
+                        </div>
+                        <div class="profile-editing__form-box-input">
+                            <input id="email" class="profile-editing__form-input" type="email" placeholder="Почта"
                                name="email" required
                                pattern={{ email_pattern }} value="{{ user.email }}">
-                        <input class="profile-editing__form-input" type="tel"
-                               placeholder="Телефон" pattern="[0-9]{10}"
-                               id="registrationPhone" name="phone" required
-                               value="{{ user.phone }}">
+                            <label class="profile-editing__form-label"  for="email">Email</label>
+                        </div>
+
+                        <!-- TODO: маска на номере телефона провалидировать на сервере -->
+                        <div class="profile-editing__form-box-input">
+                            <input class="profile-editing__form-input" type="tel"
+                                placeholder="Телефон" 
+                                id="registrationPhone" name="phone" pattern="[0-9]{1}" required
+                                value="{{ user.phone }}">
+                                <!-- для подключения маски data-phone-pattern = "+7 (___) ___-__-__" вставить в качестве атрибута в input type="tel"-->
+                            <label class="profile-editing__form-label"  for="registrationPhone">Телефон</label>
+                        </div>
                         <input class="profile-editing__form-submit" type="submit" value="Сохранить">
                     </fieldset>
                 </form>
 
                 <form action="/newPassword" method="POST" class="profile profile-editing__form">
                     <fieldset class="profile-editing__form-fieldset">
+                        
                         <legend class="profile-editing__form-legend">Поменять пароль</legend>
-                        <input class="profile-editing__form-input" type="password"
-                               placeholder="Старый пароль" name="old_password" required>
-                        <input class="profile-editing__form-input" type="password"
-                               placeholder="Новый пароль" name="password" required>
-                        <input class="profile-editing__form-input" type="password"
-                               placeholder="Подтвердить новый пароль" name="password2" required>
+                        <div class="profile-editing__form-box-input">
+                            <input id="old_password" class="profile-editing__form-input" type="password"
+                               placeholder="Введите старый пароль" name="old_password" required>
+                            <label class="profile-editing__form-label"  for="old_password">Старый пароль</label>
+                        </div>
+                        <div class="profile-editing__form-box-input">
+                            <input id="password" class="profile-editing__form-input" type="password"
+                               placeholder="Введите новый пароль" name="password" required>
+                            <label class="profile-editing__form-label"  for="password">Новый пароль</label>
+                        </div>
+                        <div class="profile-editing__form-box-input">
+                            <input id="password2" class="profile-editing__form-input" type="password"
+                               placeholder="Подтвердите новый пароль" name="password2" required>
+                            <label class="profile-editing__form-label"  for="password2">Подтвердить новый пароль</label>
+                        </div>
                         <input class="profile-editing__form-submit" type="submit"
                                value="Изменить пароль">
                     </fieldset>
