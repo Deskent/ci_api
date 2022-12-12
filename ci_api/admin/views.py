@@ -73,7 +73,7 @@ class UserView(ModelView, model=User):
     column_list = [
         User.id, User.username, User.third_name, User.last_name, User.email, User.phone,
         User.expired_at, User.level, User.created_at, User.is_active,
-        User.is_verified
+        User.is_verified, User.sms_message, User.sms_call_code, User.email_code
     ]
     column_labels = {
         User.username: "Имя",
