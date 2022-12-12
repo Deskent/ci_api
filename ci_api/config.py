@@ -16,6 +16,9 @@ class Database(BaseSettings):
     def get_db_name(self):
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
 
+    def get_test_db(self):
+        return f"postgresql+asyncpg://test:test@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/test"
+
     class Config:
         env_file = ".env"
 
