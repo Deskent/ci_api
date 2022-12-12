@@ -30,7 +30,7 @@ class WebContext:
             return user
 
         logger.warning(f"User is not in context:\n{self.context}")
-        self.template = "entry.html"
+        self.template = "entry_sms.html"
         self.to_raise = UserNotFoundError
 
     @property
