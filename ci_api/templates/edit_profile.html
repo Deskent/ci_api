@@ -35,21 +35,15 @@
                         </div>
 
                         <!-- TODO: маска на номере телефона провалидировать на сервере -->
-                        <div class="profile-editing__form-box-input">
-                            <input class="profile-editing__form-input" type="tel"
-                                placeholder="Телефон" 
-                                id="registrationPhone" name="phone" pattern="[0-9]{1}" required
-                                value="{{ user.phone }}">
-                                <!-- для подключения маски data-phone-pattern = "+7 (___) ___-__-__" вставить в качестве атрибута в input type="tel"-->
-                            <label class="profile-editing__form-label"  for="registrationPhone">Телефон</label>
-                        </div>
+                        {% include 'form_fields/phone_edit_profile_field.html' %}
+
                         <input class="profile-editing__form-submit" type="submit" value="Сохранить">
                     </fieldset>
                 </form>
 
                 <form action="/newPassword" method="POST" class="profile profile-editing__form">
                     <fieldset class="profile-editing__form-fieldset">
-                        
+
                         <legend class="profile-editing__form-legend">Поменять пароль</legend>
                         <div class="profile-editing__form-box-input">
                             <input id="old_password" class="profile-editing__form-input" type="password"
