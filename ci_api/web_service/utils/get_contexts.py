@@ -56,6 +56,8 @@ async def get_logged_user_context(
         user: User = Depends(get_session_user),
         context: dict = Depends(get_base_context)
 ) -> dict:
+    if not user:
+        raise UserNotLoggedError
     context.update({
         "user": user,
         "user_present_phone": represent_phone(user.phone)
@@ -67,7 +69,10 @@ async def get_logged_user_context(
 def get_user_from_context(
         context: dict = Depends(get_logged_user_context)
 ) -> User:
-    return context['user']
+    user: User = context['user']
+    if user:
+        return user
+    raise UserNotLoggedError
 
 
 async def get_active_user_context(
