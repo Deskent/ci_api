@@ -1,12 +1,22 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 
 from models.models import User, Complex, Video
 from schemas.complexes_videos import ComplexData
 from schemas.user_schema import UserProgress
-from services.complexes_and_videos import check_level_up
 from services.depends import get_logged_user
+from web_service.utils.get_contexts import get_user_from_context
 
 router = APIRouter(prefix="/complex", tags=['Complexes'])
+
+
+@router.get("/list", response_model=dict)
+async def get_complexes_list(
+        user: User = Depends(get_user_from_context)
+):
+    """Return complexes list"""
+    complexes: list[Complex] = await Complex.get_all()
+
+    return dict(user=user, complexes=complexes)
 
 
 @router.get("/", response_model=UserProgress)
@@ -17,19 +27,6 @@ async def current_progress(
     Return current user views progress
     """
     return user
-#
-#
-# @router.put("/", response_model=UserProgress)
-# async def video_viewed(
-#         user: User = Depends(get_logged_user),
-# ):
-#     """
-#     Calculate and return current progress and level after video viewed. Need authorization.
-#
-#     :return: Current user view progress
-#     """
-#
-#     return await check_level_up(user=user)
 
 
 @router.get("/{complex_id}", response_model=ComplexData)
