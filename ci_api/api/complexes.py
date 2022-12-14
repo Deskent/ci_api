@@ -31,3 +31,14 @@ async def complex_data(
     videos: list[Video] = await Video.get_all_by_complex_id(complex_id)
 
     return ComplexData(**complex_.dict(), videos=videos)
+
+
+
+@router.get("/list", response_model=dict)
+async def get_complexes_list(
+        user: User = Depends(get_logged_user)
+):
+    """Return complexes list"""
+    complexes: list[Complex] = await Complex.get_all()
+
+    return dict(user=user, complexes=complexes)

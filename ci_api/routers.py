@@ -6,6 +6,7 @@ from api.videos import router as videos_router
 from api.complexes import router as complex_router
 from api.authorization import router as auth_router
 from api.payments import router as payments_router
+from api.web_api import router as web_api_router
 
 
 main_router = APIRouter(prefix="/api/v1")
@@ -16,3 +17,4 @@ main_router.include_router(complex_router)
 main_router.include_router(notifications_router)
 main_router.include_router(videos_router)
 main_router.include_router(payments_router)
+main_router.include_router(web_api_router)
