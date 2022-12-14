@@ -3,7 +3,7 @@ from pydantic import EmailStr
 
 from config import logger, PHONE_FORMAT
 from models.models import User
-from schemas.user_schema import UserPhoneCode, TokenUser
+from schemas.user_schema import UserPhoneCode, TokenUser, UserOutput
 from schemas.user_schema import UserRegistration, UserPhoneLogin, UserChangePassword
 from services.depends import get_logged_user
 from services.web_context_class import WebContext
@@ -14,7 +14,7 @@ from web_service.handlers.enter_with_sms import approve_sms_code
 router = APIRouter(prefix="/auth", tags=['Authorization'])
 
 
-@router.post("/register", response_model=User)
+@router.post("/register", response_model=UserOutput)
 async def register(
         user_data: UserRegistration,
 ):
@@ -56,7 +56,7 @@ async def register(
     )
 
 
-@router.get("/verify_email", status_code=status.HTTP_202_ACCEPTED, response_model=User)
+@router.get("/verify_email", status_code=status.HTTP_202_ACCEPTED, response_model=UserOutput)
 async def verify_email_token(
         token: str,
         email: EmailStr,
@@ -88,7 +88,7 @@ async def verify_email_token(
     return user
 
 
-@router.post("/verify_sms_code", status_code=status.HTTP_202_ACCEPTED, response_model=User)
+@router.post("/verify_sms_code", status_code=status.HTTP_202_ACCEPTED, response_model=UserOutput)
 async def verify_sms_code(
         request: Request,
         data: UserPhoneCode

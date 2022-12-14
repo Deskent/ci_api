@@ -142,6 +142,7 @@ class UserOutput(UserFullData):
 class UserProgress(BaseModel):
     level: int
     current_complex: int
+    max_level: int = MAX_LEVEL
 
 
 class EmailVerify(BaseModel):
