@@ -13,7 +13,7 @@ router = APIRouter(prefix="/web", tags=['WebApi'])
     status_code=status.HTTP_200_OK,
     response_model=dict
 )
-async def complex_viewed(
+async def complex_viewed_web(
         complex_id: int,
         user: User = Depends(get_user_from_context)
 ):
@@ -21,7 +21,7 @@ async def complex_viewed(
 
 
 @router.get("/list", response_model=dict)
-async def get_complexes_list(
+async def get_complexes_list_web(
         user: User = Depends(get_user_from_context)
 ):
     """Return complexes list"""

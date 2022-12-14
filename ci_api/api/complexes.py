@@ -4,6 +4,7 @@ from models.models import User, Complex, Video
 from schemas.complexes_videos import ComplexData
 from schemas.user_schema import UserProgress, UserOutput
 from services.depends import get_logged_user
+from services.videos_methods import get_viewed_complex_response
 
 router = APIRouter(prefix="/complex", tags=['Complexes'])
 
@@ -39,3 +40,15 @@ async def complex_data(
     videos: list[Video] = await Video.get_all_by_complex_id(complex_id)
 
     return ComplexData(**complex_.dict(), videos=videos)
+
+
+@router.get(
+    "/complex_viewed/{complex_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=dict
+)
+async def complex_viewed_api(
+        complex_id: int,
+        user: User = Depends(get_logged_user)
+):
+    return await get_viewed_complex_response(user=user, complex_id=complex_id)
