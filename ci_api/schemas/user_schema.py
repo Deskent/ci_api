@@ -143,3 +143,7 @@ class UserProgress(BaseModel):
 
 class EmailVerify(BaseModel):
     email: EmailStr
+
+
+class TokenUser(UserOutput):
+    token: str
