@@ -1,17 +1,10 @@
-from pathlib import Path
+from fastapi import APIRouter, status, Depends
 
-from fastapi import APIRouter, status, Depends, Request
-from fastapi.responses import FileResponse
+from fastapi import APIRouter, status, Depends
 
-from config import settings, logger
-from models.models import Video, User, ViewedComplex, Complex
-from schemas.complexes_videos import VideoViewed
-from schemas.user_schema import slice_phone_to_format
-from services.depends import get_logged_user
-from services.videos_methods import get_viewed_video_response, get_viewed_complex_response
-from services.web_context_class import WebContext
+from models.models import User, Complex
+from services.videos_methods import get_viewed_complex_response
 from web_service.utils.get_contexts import get_user_from_context
-from web_service.utils.web_utils import get_checked_video
 
 router = APIRouter(prefix="/web", tags=['WebApi'])
 
