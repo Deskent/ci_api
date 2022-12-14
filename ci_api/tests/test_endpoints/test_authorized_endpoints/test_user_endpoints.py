@@ -25,8 +25,10 @@ class TestUsers:
     def test_get_me(self):
         response = self.session.get(self.base_url + "/users/me", headers=self.headers)
         assert response.status_code == 200
-        user_id = response.json().get("id")
+        data: dict = response.json()
+        user_id = data.get("email")
         assert user_id is not None
+        assert data.get('max_level') is not None
         self.user_id = user_id
 
     @pytest.mark.server
