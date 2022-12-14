@@ -75,41 +75,41 @@ function makeBurgerMenu() {
 
 
 // slider
-function slider2Work() {
-    const chargingSlider2 = document.querySelector('.complexes-list-slider')
-    if (chargingSlider2) {
-        $(document).ready(function () {
-            $('.complexes-list-slider').slick({
-                slidesToShow: 3,
-                slidesToScroll: 1,
-                arrows: true,
-                dots: true,
-                // loop: false,
-                infinite: false,
-                responsive: [
-                    {
-                        breakpoint: 769,
-                        settings: {
-                            arrows: false,
-                        }
-                    },
-                    {
-                        breakpoint: 651,
-                        settings: {
-                            slidesToShow: 1,
-                            arrows: false,
-                        }
-                    },
-                ],
-            });
-        });
-    }
+// function slider2Work() {
+//     const chargingSlider2 = document.querySelector('.complexes-list-slider')
+//     if (chargingSlider2) {
+//         $(document).ready(function () {
+//             $('.complexes-list-slider').slick({
+//                 slidesToShow: 3,
+//                 slidesToScroll: 1,
+//                 arrows: true,
+//                 dots: true,
+//                 // loop: false,
+//                 infinite: false,
+//                 responsive: [
+//                     {
+//                         breakpoint: 769,
+//                         settings: {
+//                             arrows: false,
+//                         }
+//                     },
+//                     {
+//                         breakpoint: 651,
+//                         settings: {
+//                             slidesToShow: 1,
+//                             arrows: false,
+//                         }
+//                     },
+//                 ],
+//             });
+//         });
+//     }
 
-}
+// }
 activeInputs()
 showPassword()
 makeBurgerMenu()
-slider2Work()
+// slider2Work()
 
 
 // Popup
@@ -241,23 +241,26 @@ const urlPath = window.location.pathname;
 const complex_id = Array.from(urlPath).pop();
 
 
+
 // TODO: https://energy.qidoctor.ru/v1/api/... запрос на сервере отправлять сюда
 // TODO: для разработки на http://127.0.0.1:8000/api/v1/videos/viewed
+if(complex_id === Number) {
+    document.addEventListener("DOMContentLoaded", async (evt) => {
+        const response = await fetch('http://127.0.0.1:8000/api/v1/videos/complex_viewed/' + complex_id, {
+     //    const response = await fetch('http://energy.qidoctor.ru/api/v1/videos/complex_viewed/' + complex_id, {
+           method: 'GET',
+           headers: {
+           'Content-Type': 'application/json;charset=utf-8',
+           },
+        });
+     
+        let result = await response.json();
+        console.log(result);
+     
+     })
+     
+}
 
-
-document.addEventListener("DOMContentLoaded", async (evt) => {
-   // const response = await fetch('http://127.0.0.1:8000/api/v1/videos/complex_viewed/' + complex_id, {
-   const response = await fetch('http://energy.qidoctor.ru/api/v1/videos/complex_viewed/' + complex_id, {
-      method: 'GET',
-      headers: {
-      'Content-Type': 'application/json;charset=utf-8',
-      },
-   });
-
-   let result = await response.json();
-   console.log(result);
-
-})
 
 
 
@@ -276,7 +279,8 @@ document.addEventListener("DOMContentLoaded", async (evt) => {
 // Инициализируем слайдер для упражнений
    let swiper = new Swiper(".mySwiper", {
       slidesPerView: 3,
-      spaceBetween: 30,
+      centeredSlides: true,
+      spaceBetween: 60,
       speed: 400,
       grabCursor: true,
       autoHeight: true,
@@ -312,6 +316,45 @@ document.addEventListener("DOMContentLoaded", async (evt) => {
          }
       }
    });
+// Инициализируем слайдер для упражнений
+let swiper1 = new Swiper(".mySwiperComplex", {
+    slidesPerView: 3,
+    spaceBetween: 30,
+    speed: 400,
+    grabCursor: true,
+    autoHeight: true,
+    //отключение функционала если слайдов меньше чем нужно
+    watchOverflow: true,
+
+    device: {
+       ios: true,
+       android: true
+    },
+
+    pagination: {
+       el: ".swiper-pagination",
+       clickable: true,
+    },
+    navigation: {
+       nextEl: ".swiper-button-next",
+       prevEl: ".swiper-button-prev",
+    },
+    keyboard: {
+       enabled: true,
+       onlyInViewport: true,
+    },
+    breakpoints: {
+       50: {
+          slidesPerView: 1,
+       },
+       480: {
+          slidesPerView: 2,
+       },
+       768: {
+          slidesPerView: 3,
+       }
+    }
+ });
 
 
 
@@ -336,7 +379,7 @@ function modalVideoControls() {
          let targetVideoId = evt.target.dataset.id;
          let videoId = document.getElementById(targetVideoId);
 
-         let modalVideoWrapperId = videoId.closest(".slide__card-wrapper");
+         let modalVideoWrapperId = videoId?.closest(".slide__card-wrapper");
          let modalVideoPlay = modalVideoWrapperId.querySelector('.slide__play');
          let modalVideoPause = modalVideoWrapperId.querySelector('.slide__pause');
          let modalVideoViewed = modalVideoWrapperId.querySelector('.slide__viewed');

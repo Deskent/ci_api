@@ -1,35 +1,43 @@
 {% extends 'base_profile.html' %}
 
 {% block main %}
-    <table>
+<div class="payment-report__wrapper container">
+    <table class="payment-report">
         <thead>
-        <tr>
-            <th scope="col">Номер ордера</th>
-            <th scope="col">Телефон</th>
-            <th scope="col">Дата</th>
-            <th scope="col">Сумма</th>
-            <th scope="col">Метод оплаты</th>
+        <tr class="payment-report__row">
+            <th class="payment-report__header" scope="col">Номер ордера</th>
+            <th class="payment-report__header" scope="col">Телефон</th>
+            <th class="payment-report__header" scope="col">Дата</th>
+            <th class="payment-report__header" scope="col">Сумма</th>
+            <th class="payment-report__header" scope="col">Метод оплаты</th>
         </tr>
         </thead>
 
         <tbody>
+            {% for check in checks %}
 
-        {% for check in checks %}
-
-            <tr>
+            <tr class="payment-report__row">
                 <th scope="row">{{ check.order_id }}</th>
-                <td>{{ check.customer_phone }}</td>
-                <td>{{ check.date }}</td>
-                <td>{{ check.sum }}</td>
-                <td>{{ check.payment_type }}</td>
+                <td class="payment-report__cell">{{ check.customer_phone }}</td>
+                <td class="payment-report__cell">{{ check.date }}</td>
+                <td class="payment-report__cell">{{ check.sum }}</td>
+                <td class="payment-report__cell">{{ check.payment_type }}</td>
             </tr>
 
         {% endfor %}
+         
 
         </tbody>
 
     </table>
 
-    <a href="/download_checks/{{ download_file_link }}" download="">Скачать историю</a>
+    <a class="payment-report__download" href="/download_checks/{{ download_file_link }}" download="">
+        <span class="payment-report__download-text">Скачать историю</span>
+        <img class="payment-report__download-img" src="/static/img/icons/sub-download.svg" width="20px" height="20px"/>
+    </a>
+
+</div>
+
+
 
 {% endblock main %}

@@ -3,8 +3,8 @@
 {% block profile_content %}
 
     <section class="charging__content container">
+        <p class="charging__content-header">Ваш текущий <span>{{ current_complex.name }}</span></p>
 
-    <p class="charging__content-header">Ваш текущий <span>{{ current_complex.name }}</span></p>
 
         <!-- Slider main container -->
         <div class="swiper mySwiper">
@@ -14,30 +14,31 @@
 
                 {% for video in videos %}
 
+
                     <div class="swiper-slide slide__card-wrapper" data-id="{{ video.id }}" tabindex="0">
 
                         <div class="slide__wrapper">
-                            <div class="slide__time">
+                            <div class="slide__time"> 
                                 <span class="slide__time-text">{{ video.duration.minute }} мин</span>
-                                <img class="slide__time-img" src="/static/img/icons/clock.svg" width="20" height="20" alt="clock">
+                                <img class="slide__time-img" src="/static/img/icons/clock.svg" width="20px" height="20px" alt="clock">
                             </div>
                             <!-- {{video.file_name}} -->
                             <video id="{{ video.id }}" data-id="{{ video.id }}" class="slide lock"
-                                   src="/media/{{video.file_name}}"
-                                   poster="/static/img/charging-image.png"></video>
+                                   src="/media/complex1.mp4"
+                                   poster="/static/img/charging-image.png" controls></video>
                             <a href="#" data-id="{{ video.id }}" class="slide__viewed">
                                 <p class="slide__viewed-text">Станет доступно после выполнения предыдущего упражнения</p>
-                                <img class="slide__viewed-img" src="/static/img/icons/lock.svg" width="20" height="20">
+                                <img class="slide__viewed-img" src="/static/img/icons/lock.svg" width="20px" height="20px">
                             </a>
                         </div>
                         <button data-id="{{ video.id }}" class="slide__play">
                             <img data-id="{{ video.id }}"
-                                 src="/static/img/icons/charging-play-btn.svg" alt="">
+                                 src="/static/img/icons/charging-play-btn.svg" width="20px" height="20px" alt="">
                         </button>
 
                         <button data-id="{{ video.id }}" class="slide__pause hidden">
                             <img data-id="{{ video.id }}"
-                                 src="/static/img/icons/charging-pause-btn.svg" alt="">
+                                 src="/static/img/icons/charging-pause-btn.svg" width="20px" height="20px" alt="">
                         </button>
 
                         <h3 href="#" class="slide__title">{{ video.name }}</h3>
@@ -51,11 +52,11 @@
 
             <!-- If we need pagination -->
             <div class="swiper-pagination"></div>
-
+        
             <!-- If we need navigation buttons -->
             <div class="swiper-button-prev"></div>
             <div class="swiper-button-next"></div>
-
+        
             <!-- If we need scrollbar -->
             <div class="swiper-scrollbar"></div>
         </div>
