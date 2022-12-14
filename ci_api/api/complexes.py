@@ -1,13 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from models.models import User, Complex, Video
 from schemas.complexes_videos import ComplexData
-from schemas.user_schema import UserProgress
+from schemas.user_schema import UserProgress, UserOutput
 from services.depends import get_logged_user
-from web_service.utils.get_contexts import get_user_from_context
 
 router = APIRouter(prefix="/complex", tags=['Complexes'])
-
 
 
 @router.get("/", response_model=UserProgress)
@@ -18,6 +16,16 @@ async def current_progress(
     Return current user views progress
     """
     return user
+
+
+@router.get("/list", response_model=dict)
+async def complexes_list_get(
+        user: User = Depends(get_logged_user)
+):
+    """Return complexes list"""
+    complexes: list[Complex] = await Complex.get_all()
+
+    return dict(user=UserOutput(**user.dict()), complexes=complexes)
 
 
 @router.get("/{complex_id}", response_model=ComplexData)
@@ -31,14 +39,3 @@ async def complex_data(
     videos: list[Video] = await Video.get_all_by_complex_id(complex_id)
 
     return ComplexData(**complex_.dict(), videos=videos)
-
-
-
-@router.get("/list", response_model=dict)
-async def get_complexes_list(
-        user: User = Depends(get_logged_user)
-):
-    """Return complexes list"""
-    complexes: list[Complex] = await Complex.get_all()
-
-    return dict(user=user, complexes=complexes)

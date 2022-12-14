@@ -1,8 +1,7 @@
 from fastapi import APIRouter, status, Depends
 
-from fastapi import APIRouter, status, Depends
-
 from models.models import User, Complex
+from schemas.user_schema import UserOutput
 from services.videos_methods import get_viewed_complex_response
 from web_service.utils.get_contexts import get_user_from_context
 
@@ -28,4 +27,5 @@ async def get_complexes_list(
     """Return complexes list"""
     complexes: list[Complex] = await Complex.get_all()
 
-    return dict(user=user, complexes=complexes)
+    return dict(user=UserOutput(**user.dict()), complexes=complexes)
+
