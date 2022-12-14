@@ -3,7 +3,7 @@ from pydantic import EmailStr
 
 from config import logger, PHONE_FORMAT
 from models.models import User
-from schemas.user_schema import UserPhoneCode, TokenUser, UserOutput
+from schemas.user_schema import UserPhoneCode, TokenUser, UserOutput, UserSchema
 from schemas.user_schema import UserRegistration, UserPhoneLogin, UserChangePassword
 from services.depends import get_logged_user
 from services.web_context_class import WebContext
@@ -14,7 +14,7 @@ from web_service.handlers.enter_with_sms import approve_sms_code
 router = APIRouter(prefix="/auth", tags=['Authorization'])
 
 
-@router.post("/register", response_model=UserOutput)
+@router.post("/register", response_model=UserSchema)
 async def register(
         user_data: UserRegistration,
 ):
