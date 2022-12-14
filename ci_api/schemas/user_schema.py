@@ -145,5 +145,6 @@ class EmailVerify(BaseModel):
     email: EmailStr
 
 
-class TokenUser(UserOutput):
+class TokenUser(BaseModel):
     token: str
+    user: UserOutput
