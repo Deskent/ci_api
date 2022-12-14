@@ -5,7 +5,7 @@ from loguru import logger
 from starlette.requests import Request
 
 from config import settings
-from exc.exceptions import UserNotFoundError, SmsCodeNotValid
+from exc.exceptions import UserNotFoundError, SmsCodeNotValid, UserNotFoundErrorApi
 from models.models import User
 from schemas.user_schema import slice_phone_to_format
 from services.user import send_sms
@@ -87,7 +87,7 @@ async def approve_sms_code(
     if not user:
         obj.error = "Неверный номер телефона"
         obj.template = "entry_sms.html"
-        obj.to_raise = UserNotFoundError
+        obj.to_raise = UserNotFoundErrorApi
 
         return obj
 

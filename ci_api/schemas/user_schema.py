@@ -4,8 +4,9 @@ from datetime import datetime
 from fastapi import Form
 from pydantic import BaseModel, validator, EmailStr
 
-from config import logger
+from config import logger, MAX_LEVEL
 from exc.exceptions import PhoneNumberError, PasswordMatchError
+from models.models import User
 
 
 def slice_phone_to_format(phone: str) -> str:
@@ -44,6 +45,9 @@ class Password2(Password):
             logger.warning("Passwords dont match")
             raise PasswordMatchError
         return password
+
+class MaxLevel(BaseModel):
+    max_level: int = MAX_LEVEL
 
 
 class UserRegistration(Password2, PhoneNumber):
@@ -122,14 +126,19 @@ class UserChangePassword(Password2):
     old_password: str
 
 
+class UserSchema(User, MaxLevel):
+    pass
+
 class UserFullData(BaseModel):
     gender: bool
     phone: str
-    is_email_verified = False
+    level: int
+    # is_email_verified = False
     is_verified: bool = False
     is_active: bool = False
     current_complex: int = None
     expired_at: datetime = None
+    max_level: int = MAX_LEVEL
 
 
 class UserOutput(UserFullData):
@@ -137,7 +146,7 @@ class UserOutput(UserFullData):
     email: EmailStr = None
 
 
-class UserProgress(BaseModel):
+class UserProgress(MaxLevel):
     level: int
     current_complex: int
 

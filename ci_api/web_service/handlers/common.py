@@ -4,7 +4,7 @@ from pydantic import EmailStr
 from starlette.requests import Request
 
 from config import templates
-from exc.exceptions import UserNotFoundError
+from exc.exceptions import UserNotFoundErrorApi
 from models.models import User
 from schemas.user_schema import UserPhoneLogin
 from services.web_context_class import WebContext
@@ -39,7 +39,7 @@ async def user_login_via_phone(
 
     web_context.error = "Invalid user or password"
     web_context.template = "entry_via_phone.html"
-    web_context.to_raise = UserNotFoundError
+    web_context.to_raise = UserNotFoundErrorApi
 
     return web_context
 

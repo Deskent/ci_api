@@ -1,4 +1,4 @@
-from exc.exceptions import UserNotFoundError
+from exc.exceptions import UserNotFoundError, UserNotFoundErrorApi
 from models.models import User, Video, Complex, ViewedComplex
 from services.complexes_and_videos import is_video_viewed_before, check_level_up
 from services.utils import convert_seconds_to_time
@@ -9,7 +9,7 @@ async def get_viewed_video_response(user: User, video_id: int, context: dict) ->
     obj = WebContext(context=context)
     if not user:
         obj.template = "entry.html"
-        obj.to_raise = UserNotFoundError
+        obj.to_raise = UserNotFoundErrorApi
         return obj
 
     current_video: Video = await Video.get_by_id(video_id)

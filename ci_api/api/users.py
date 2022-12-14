@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from config import logger
 from models.models import User, Alarm, Notification, Rate
 from schemas.alarms import AlarmBase
+from schemas.user_schema import UserSchema
 from services.depends import get_logged_user
 from services.rates_cache import RatesCache
 from services.weekdays import WeekDay
@@ -10,7 +11,7 @@ from services.weekdays import WeekDay
 router = APIRouter(prefix="/users", tags=['Users'])
 
 
-@router.get("/alarms", response_model=list[AlarmBase])
+@router.get("/alarms/list", response_model=list[AlarmBase])
 async def get_user_alarms(
         user: User = Depends(get_logged_user),
 ):
@@ -75,7 +76,7 @@ async def delete_user(
     logger.info(f"User with id {user.id} deleted")
 
 
-@router.get("/me", response_model=User)
+@router.get("/me", response_model=UserSchema)
 async def get_me(
         user: User = Depends(get_logged_user)
 ):
