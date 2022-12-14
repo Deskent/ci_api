@@ -154,3 +154,13 @@ async def change_password(
     user.password = await user.get_hashed_password(data.password)
     await user.save()
     logger.info(f"User with id {user.id} change password")
+
+
+
+@router.put("/set_push_token", status_code=status.HTTP_202_ACCEPTED)
+async def change_password(
+        push_token: str,
+        user: User = Depends(get_logged_user),
+):
+    user.push_token = push_token
+    await user.save()
