@@ -3,7 +3,7 @@ from pydantic import validator
 
 from config import logger
 from config import templates
-from exc.exceptions import ApiRequestError, UserNotFoundError
+from exc.exceptions import ApiRequestError, UserNotFoundError, UserNotFoundErrorApi
 from models.models import User
 from web_service.utils.title_context_func import get_page_titles
 
@@ -31,7 +31,7 @@ class WebContext:
 
         logger.warning(f"User is not in context:\n{self.context}")
         self.template = "entry_sms.html"
-        self.to_raise = UserNotFoundError
+        self.to_raise = UserNotFoundErrorApi
 
     @property
     def template(self) -> str:
