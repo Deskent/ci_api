@@ -155,10 +155,12 @@ class User(UserModel, table=True):
         default=None, sa_column=Column(type_=TIMESTAMP(timezone=True))
     )
     is_verified: Optional[bool] = Field(default=False)
+    is_email_verified: Optional[bool] = Field(default=False)
     is_active: Optional[bool] = Field(default=False)
     email_code: Optional[str] = Field(nullable=True, default=None, description="Код верификации")
     sms_message: Optional[str] = Field(nullable=True, default=None, description="Сообщение из смс")
     sms_call_code: Optional[str] = Field(nullable=True, default=None, description="Код из звонка")
+    push_token: Optional[str] = Field(nullable=True, default=None, description="Токен для пуш-уведомлений")
 
     rate_id: int = Field(nullable=False, foreign_key='rates.id')
     current_complex: Optional[int] = Field(nullable=True, default=1, foreign_key='complexes.id')

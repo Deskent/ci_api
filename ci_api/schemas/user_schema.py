@@ -125,6 +125,7 @@ class UserChangePassword(Password2):
 class UserFullData(BaseModel):
     gender: bool
     phone: str
+    is_email_verified = False
     is_verified: bool = False
     is_active: bool = False
     current_complex: int = None
@@ -145,5 +146,6 @@ class EmailVerify(BaseModel):
     email: EmailStr
 
 
-class TokenUser(UserOutput):
+class TokenUser(BaseModel):
     token: str
+    user: UserOutput

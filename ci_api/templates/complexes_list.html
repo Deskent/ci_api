@@ -18,7 +18,7 @@
                     <!-- Slides -->
                     {% for complex in complexes %}
 
-                    <div class="swiper-slide complexes-list__wrapper">
+                    <div id="{{ complex.id }}" class="swiper-slide complexes-list__wrapper">
 
                         <div class="complexes-list-slide">
                             <div class="complexes-list-image__wrapper">
@@ -27,7 +27,7 @@
                                     <img class="complexes-list-image lock" src="/static/img/dragon.jpg" width="220px" height="330px" alt="dragon">
                                 </picture>
                                 <div class="complexes-list__time"> 
-                                    <span class="complexes-list__time-text">{{ complex.duration }} мин</span>
+                                    <span class="complexes-list__time-text"> мин</span>
                                     <img class="complexes-list__time-img" src="/static/img/icons/clock.svg" width="20px" height="20px" alt="clock">
                                 </div>
                                 <!-- "Посмотреть" менять на "Завершено" -->

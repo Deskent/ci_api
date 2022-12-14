@@ -73,43 +73,9 @@ function makeBurgerMenu() {
     }
 }
 
-
-// slider
-// function slider2Work() {
-//     const chargingSlider2 = document.querySelector('.complexes-list-slider')
-//     if (chargingSlider2) {
-//         $(document).ready(function () {
-//             $('.complexes-list-slider').slick({
-//                 slidesToShow: 3,
-//                 slidesToScroll: 1,
-//                 arrows: true,
-//                 dots: true,
-//                 // loop: false,
-//                 infinite: false,
-//                 responsive: [
-//                     {
-//                         breakpoint: 769,
-//                         settings: {
-//                             arrows: false,
-//                         }
-//                     },
-//                     {
-//                         breakpoint: 651,
-//                         settings: {
-//                             slidesToShow: 1,
-//                             arrows: false,
-//                         }
-//                     },
-//                 ],
-//             });
-//         });
-//     }
-
-// }
 activeInputs()
 showPassword()
 makeBurgerMenu()
-// slider2Work()
 
 
 // Popup
@@ -235,7 +201,37 @@ document.addEventListener("keydown", function (e) {
 
 
 
-// Отправляем запрос после загрузки страницы
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//videos_list/{номер комплекса}
+
+
+
+
+// Отправляем запрос после загрузки страницы videos_list
 
 const urlPath = window.location.pathname;
 const complex_id = Array.from(urlPath).pop();
@@ -248,7 +244,10 @@ if(complex_id === Number) {
     document.addEventListener("DOMContentLoaded", async (evt) => {
         const response = await fetch('http://127.0.0.1:8000/api/v1/videos/complex_viewed/' + complex_id, {
      //    const response = await fetch('http://energy.qidoctor.ru/api/v1/videos/complex_viewed/' + complex_id, {
-           method: 'GET',
+           method: 'POST',
+           body: {
+            complex_id: complex_id
+           },
            headers: {
            'Content-Type': 'application/json;charset=utf-8',
            },
@@ -262,16 +261,6 @@ if(complex_id === Number) {
 }
 
 
-
-
-
-
-
-
-
-
-
-// Сториз рилз
 
 
 
@@ -316,45 +305,6 @@ if(complex_id === Number) {
          }
       }
    });
-// Инициализируем слайдер для упражнений
-let swiper1 = new Swiper(".mySwiperComplex", {
-    slidesPerView: 3,
-    spaceBetween: 30,
-    speed: 400,
-    grabCursor: true,
-    autoHeight: true,
-    //отключение функционала если слайдов меньше чем нужно
-    watchOverflow: true,
-
-    device: {
-       ios: true,
-       android: true
-    },
-
-    pagination: {
-       el: ".swiper-pagination",
-       clickable: true,
-    },
-    navigation: {
-       nextEl: ".swiper-button-next",
-       prevEl: ".swiper-button-prev",
-    },
-    keyboard: {
-       enabled: true,
-       onlyInViewport: true,
-    },
-    breakpoints: {
-       50: {
-          slidesPerView: 1,
-       },
-       480: {
-          slidesPerView: 2,
-       },
-       768: {
-          slidesPerView: 3,
-       }
-    }
- });
 
 
 
@@ -380,33 +330,33 @@ function modalVideoControls() {
          let videoId = document.getElementById(targetVideoId);
 
          let modalVideoWrapperId = videoId?.closest(".slide__card-wrapper");
-         let modalVideoPlay = modalVideoWrapperId.querySelector('.slide__play');
-         let modalVideoPause = modalVideoWrapperId.querySelector('.slide__pause');
-         let modalVideoViewed = modalVideoWrapperId.querySelector('.slide__viewed');
-         let modalVideoTime = modalVideoWrapperId.querySelector('.slide__time');
-         let modalVideoTitle = modalVideoWrapperId.querySelector('.slide__title');
-         let modalVideoDescription = modalVideoWrapperId.querySelector('.slide__description');
+         let modalVideoPlay = modalVideoWrapperId?.querySelector('.slide__play');
+         let modalVideoPause = modalVideoWrapperId?.querySelector('.slide__pause');
+         let modalVideoViewed = modalVideoWrapperId?.querySelector('.slide__viewed');
+         let modalVideoTime = modalVideoWrapperId?.querySelector('.slide__time');
+         let modalVideoTitle = modalVideoWrapperId?.querySelector('.slide__title');
+         let modalVideoDescription = modalVideoWrapperId?.querySelector('.slide__description');
 
 
-        if (modalVideoPause.classList.contains('hidden')) {
-            modalVideoPlay.classList.add("hidden");
-            videoId.play();
-            if(videoId.classList.contains('viewed')) {
-               videoId.classList.remove("viewed");
+        if (modalVideoPause?.classList.contains('hidden')) {
+            modalVideoPlay?.classList.add("hidden");
+            videoId?.play();
+            if(videoId?.classList.contains('viewed')) {
+               videoId?.classList.remove("viewed");
             }
-            modalVideoPause.classList.remove("hidden");
-            modalVideoViewed.classList.add("hidden");
-            modalVideoTime.classList.add("hidden");
-            modalVideoTitle.classList.add("hidden");
-            modalVideoDescription.classList.add("hidden");
+            modalVideoPause?.classList.remove("hidden");
+            modalVideoViewed?.classList.add("hidden");
+            modalVideoTime?.classList.add("hidden");
+            modalVideoTitle?.classList.add("hidden");
+            modalVideoDescription?.classList.add("hidden");
 
         } else {
-            modalVideoPlay.classList.remove("hidden");
-            videoId.pause();
-            modalVideoPause.classList.add("hidden");
-            modalVideoViewed.classList.remove("hidden");
-            modalVideoTime.classList.remove("hidden");
-            modalVideoViewed.classList.add("hidden");
+            modalVideoPlay?.classList.remove("hidden");
+            videoId?.pause();
+            modalVideoPause?.classList.add("hidden");
+            modalVideoViewed?.classList.remove("hidden");
+            modalVideoTime?.classList.remove("hidden");
+            modalVideoViewed?.classList.add("hidden");
 
          }
       }
@@ -566,5 +516,115 @@ function closeModalNewLevelHandler () {
 
 close?.addEventListener("click", closeModalNewLevelHandler);
 repeatViewingBtn?.addEventListener("click", closeModalNewLevelHandler);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//complexes_list
+
+
+// Отправляем запрос после загрузки страницы complexes_list
+
+const complexesList = urlPath;
+console.log(complexesList);
+;
+
+
+// TODO: https://energy.qidoctor.ru/api/v1/complex/list/ запрос на сервере отправлять сюда
+// TODO: для разработки на http://127.0.0.1:8000/api/v1/complex/list/
+
+if(complexesList.includes("complexes_list")) {
+    document.addEventListener("DOMContentLoaded", async (evt) => {
+        const response = await fetch('http://127.0.0.1:8000/api/v1/complex/list/', {
+     //    const response = await fetch('http://energy.qidoctor.ru/api/v1/complex/list/', {
+           method: 'GET',
+           headers: {
+           'Content-Type': 'application/json;charset=utf-8',
+           },
+        });
+     
+        let result = await response.json();
+        // console.log(result);
+
+        const progressUser = result.user.progress;
+        const complexes = result.complexes;
+
+
+        let complexesListSlide = document.querySelectorAll(".complexes-list__wrapper");
+        let complexesListSlideArr = Array.from(complexesListSlide);
+
+        for(let i = 0; i <= complexesListSlideArr.length - 1; i++) {
+            let item = complexesListSlideArr[i];
+            // добавляем общее время комплекса в минутах каждой карточке комплекса
+            const time = complexes[i].duration / 60;
+
+            item.querySelector('.complexes-list__time-text').textContent = Math.ceil(time) + " мин";
+
+            if(i <= progressUser) {
+                item.querySelector('.complexes-list-slide__lock').style.display = "none";
+                item.querySelector('.complexes-list-slide__btn-box').style.display = "flex";
+                item.querySelector('.complexes-list-image').classList.remove('lock');
+            }
+        }
+    })
+}
+
+// Инициализируем слайдер для комплексов
+let swiper1 = new Swiper(".mySwiperComplex", {
+    slidesPerView: 3,
+    spaceBetween: 30,
+    speed: 400,
+    grabCursor: true,
+    autoHeight: true,
+    //отключение функционала если слайдов меньше чем нужно
+    watchOverflow: true,
+
+    device: {
+       ios: true,
+       android: true
+    },
+
+    pagination: {
+       el: ".swiper-pagination",
+       clickable: true,
+    },
+    navigation: {
+       nextEl: ".swiper-button-next",
+       prevEl: ".swiper-button-prev",
+    },
+    keyboard: {
+       enabled: true,
+       onlyInViewport: true,
+    },
+    breakpoints: {
+       50: {
+          slidesPerView: 1,
+       },
+       480: {
+          slidesPerView: 2,
+       },
+       768: {
+          slidesPerView: 3,
+       }
+    }
+ });
 
 
