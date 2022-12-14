@@ -78,17 +78,17 @@ def get_application():
             "profile.html", context=get_page_titles(context, "profile.html")
         )
 
-    @app.exception_handler(status.HTTP_500_INTERNAL_SERVER_ERROR)
-    async def status_500_exception_handler(
-            request: Request, exc: Exception
-    ):
-        context: dict = get_base_context({"request": request})
-        logger.error(f"Status 500 error: \n{request.url}\n{exc}\n")
-        logger.exception(exc)
-
-        return templates.TemplateResponse(
-            "error_page.html", context=get_page_titles(context, "error_page.html")
-        )
+    # @app.exception_handler(status.HTTP_500_INTERNAL_SERVER_ERROR)
+    # async def status_500_exception_handler(
+    #         request: Request, exc: Exception
+    # ):
+    #     context: dict = get_base_context({"request": request})
+    #     logger.error(f"Status 500 error: \n{request.url}\n{exc}\n")
+    #     logger.exception(exc)
+    #
+    #     return templates.TemplateResponse(
+    #         "error_page.html", context=get_page_titles(context, "error_page.html")
+    #     )
 
     app: FastAPI = get_admin(app)
     app.add_middleware(SessionMiddleware, secret_key=settings.SECRET)
