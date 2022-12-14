@@ -129,7 +129,7 @@ async def login(
     user: User = web_context.api_data['user']
     token: str = await user.get_user_token()
     logger.info(f"User with id {user.id} got Bearer token")
-    return TokenUser(token=token, **user.dict())
+    return TokenUser(token=token, user=user.dict())
 
 
 @router.put("/change_password", status_code=status.HTTP_202_ACCEPTED)
