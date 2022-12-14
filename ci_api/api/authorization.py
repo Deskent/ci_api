@@ -3,7 +3,7 @@ from pydantic import EmailStr
 
 from config import logger, PHONE_FORMAT
 from models.models import User
-from schemas.user_schema import UserPhoneCode
+from schemas.user_schema import UserPhoneCode, TokenUser
 from schemas.user_schema import UserRegistration, UserPhoneLogin, UserChangePassword
 from services.depends import get_logged_user
 from services.web_context_class import WebContext
@@ -110,7 +110,7 @@ async def verify_sms_code(
 
 
 
-@router.post("/login", response_model=dict)
+@router.post("/login", response_model=TokenUser)
 async def login(
         user_data: UserPhoneLogin
 ):
@@ -120,7 +120,7 @@ async def login(
 
     :param password: string - Password
 
-     :return: Authorization token as JSON
+     :return: Authorization token as JSON and user as JSON
     """
     web_context: WebContext = await user_login_via_phone(context={}, form_data=user_data)
     if web_context.to_raise:
@@ -129,8 +129,7 @@ async def login(
     user: User = web_context.api_data['user']
     token: str = await user.get_user_token()
     logger.info(f"User with id {user.id} got Bearer token")
-
-    return {"token": token}
+    return TokenUser(token=token, **user.dict())
 
 
 @router.put("/change_password", status_code=status.HTTP_202_ACCEPTED)
