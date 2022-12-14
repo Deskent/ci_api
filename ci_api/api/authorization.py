@@ -158,7 +158,7 @@ async def change_password(
 
 
 @router.put("/set_push_token", status_code=status.HTTP_202_ACCEPTED)
-async def change_password(
+async def set_push_token(
         push_token: str,
         user: User = Depends(get_logged_user),
 ):
