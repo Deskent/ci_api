@@ -120,7 +120,7 @@ async def login(
 
     :param password: string - Password
 
-     :return: Authorization token as JSON
+     :return: Authorization token as JSON and user as JSON
     """
     web_context: WebContext = await user_login_via_phone(context={}, form_data=user_data)
     if web_context.to_raise:
@@ -130,7 +130,7 @@ async def login(
     token: str = await user.get_user_token()
     logger.info(f"User with id {user.id} got Bearer token")
 
-    return {"token": token}
+    return {'token': token, 'user': user}
 
 
 @router.put("/change_password", status_code=status.HTTP_202_ACCEPTED)
