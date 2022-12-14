@@ -4,7 +4,7 @@ from datetime import datetime
 from fastapi import Form
 from pydantic import BaseModel, validator, EmailStr
 
-from config import logger
+from config import logger, MAX_LEVEL
 from exc.exceptions import PhoneNumberError, PasswordMatchError
 
 
@@ -125,11 +125,13 @@ class UserChangePassword(Password2):
 class UserFullData(BaseModel):
     gender: bool
     phone: str
+    level: int
     is_email_verified = False
     is_verified: bool = False
     is_active: bool = False
     current_complex: int = None
     expired_at: datetime = None
+    max_level: int = MAX_LEVEL
 
 
 class UserOutput(UserFullData):

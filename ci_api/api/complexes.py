@@ -9,15 +9,6 @@ from web_service.utils.get_contexts import get_user_from_context
 router = APIRouter(prefix="/complex", tags=['Complexes'])
 
 
-@router.get("/list", response_model=dict)
-async def get_complexes_list(
-        user: User = Depends(get_user_from_context)
-):
-    """Return complexes list"""
-    complexes: list[Complex] = await Complex.get_all()
-
-    return dict(user=user, complexes=complexes)
-
 
 @router.get("/", response_model=UserProgress)
 async def current_progress(
