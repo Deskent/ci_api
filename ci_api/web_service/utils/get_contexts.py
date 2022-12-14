@@ -9,6 +9,7 @@ from exc.exceptions import UserNotLoggedError, ComeTomorrowException
 from models.models import User, Rate
 from services.depends import get_context_with_request
 from services.emails import send_email_message, EmailException
+from services.rates_cache import RatesCache
 from services.utils import represent_phone
 
 
@@ -55,7 +56,8 @@ async def get_logged_user_context(
         user: User = Depends(get_session_user),
         context: dict = Depends(get_base_context)
 ) -> dict:
-
+    if not user:
+        raise UserNotLoggedError
     context.update({
         "user": user,
         "user_present_phone": represent_phone(user.phone)
@@ -67,19 +69,28 @@ async def get_logged_user_context(
 def get_user_from_context(
         context: dict = Depends(get_logged_user_context)
 ) -> User:
-    return context['user']
+    user: User = context['user']
+    if user:
+        return user
+    raise UserNotLoggedError
+
 
 async def get_active_user_context(
         user: User = Depends(get_user_from_context),
         context: dict = Depends(get_logged_user_context)
 ):
-    # TODO прописать во всех ендпоинтах в проде
+    # TODO прописать во всех ендпоинтах где зарядка
     if user.is_active:
         return context
     raise ComeTomorrowException
 
+
 def present_user_expired_at_day_and_month(date: datetime) -> str:
-    return f'Подписка автоматически продлится: {date.strftime("%d-%m")}' if date is not None else 'Нет подписки'
+    return (
+        f'Подписка автоматически продлится: {date.strftime("%d-%m")}'
+        if date is not None
+        else 'Нет подписки'
+    )
 
 
 async def get_profile_page_context(
@@ -87,7 +98,7 @@ async def get_profile_page_context(
 ) -> dict:
     user: User = context['user']
     user.expired_at = present_user_expired_at_day_and_month(user.expired_at)
-    rate: Rate = await Rate.get_by_id(user.rate_id)
+    rate: Rate = await RatesCache.get_by_id(user.rate_id)
     context.update(max_level=MAX_LEVEL, user=user, rate=rate)
 
     return context

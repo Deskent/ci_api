@@ -11,7 +11,8 @@ from schemas.user_schema import slice_phone_to_format
 from services.user import send_sms
 from services.web_context_class import WebContext
 from web_service.services.sms_class import sms_service, SMSException
-from web_service.utils.get_contexts import get_base_context, update_user_session_token
+from web_service.utils.get_contexts import get_base_context, update_user_session_token, \
+    get_profile_page_context
 
 
 async def entry_via_sms_or_call(
@@ -24,7 +25,7 @@ async def entry_via_sms_or_call(
     user: User = await User.get_by_phone(phone)
     if not user:
         web_context.error = "Пользователь с таким номером телефона не найден"
-        web_context.template = "entry.html"
+        web_context.template = "entry_sms.html"
         return web_context
 
     web_context.context.update(user=user)
@@ -85,7 +86,7 @@ async def approve_sms_code(
 
     if not user:
         obj.error = "Неверный номер телефона"
-        obj.template = "entry.html"
+        obj.template = "entry_sms.html"
         obj.to_raise = UserNotFoundError
 
         return obj
@@ -109,6 +110,7 @@ async def approve_sms_code(
     await cleaner()
     await user.set_verified()
     await update_user_session_token(request, user)
+    obj.context = await get_profile_page_context(obj.context)
     obj.template = "profile.html"
 
     return obj
