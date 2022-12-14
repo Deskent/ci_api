@@ -55,7 +55,7 @@ async def create_alarm(
     response_model=AlarmFull,
     status_code=200
 )
-async def get_alarm(
+async def get_alarm_by_id(
         alarm_id: int,
         user: User = Depends(get_logged_user),
 ):
@@ -64,7 +64,6 @@ async def get_alarm(
         alarm.weekdays = WeekDay(alarm.weekdays).as_list
         return alarm
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Alarm not found")
-
 
 @router.delete(
     "/{alarm_id}",
