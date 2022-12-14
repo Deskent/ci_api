@@ -37,11 +37,6 @@ class TestUsers:
         assert token is not None
 
     @pytest.mark.server
-    def test_get_user_alarms(self):
-        response = self.session.get(self.base_url + "/users/alarms", headers=self.headers)
-        assert response.status_code == 200
-
-    @pytest.mark.server
     def test_change_password(self):
         payload = {
             "old_password": self.user_payload["password"],
@@ -97,6 +92,11 @@ class TestUsers:
     @pytest.mark.server
     def test_all_for_complex_id(self):
         response = self.session.get(self.base_url + "/videos/all_for/1", headers=self.headers)
+        assert response.status_code == 200
+
+    @pytest.mark.server
+    def test_get_alarms_list(self):
+        response = self.session.get(self.base_url + "/users/alarms/list", headers=self.headers)
         assert response.status_code == 200
 
     # TODO исправить

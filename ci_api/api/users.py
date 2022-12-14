@@ -10,7 +10,7 @@ from services.weekdays import WeekDay
 router = APIRouter(prefix="/users", tags=['Users'])
 
 
-@router.get("/alarms", response_model=list[AlarmBase])
+@router.get("/alarms/list", response_model=list[AlarmBase])
 async def get_user_alarms(
         user: User = Depends(get_logged_user),
 ):
