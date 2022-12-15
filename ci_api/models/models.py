@@ -32,18 +32,20 @@ class Complex(MySQLModel, table=True):
         query = select(cls).order_by(cls.number)
         return await get_first(query)
 
-    async def next_complex_id(self) -> int:
+    async def next_complex(self) -> 'Complex':
         query = select(Complex).where(Complex.number == self.number + 1)
         next_complex: Complex = await get_first(query)
+        if not next_complex:
+            return await Complex.get_first()
 
-        return 1 if not next_complex else next_complex.id
+        return next_complex
 
     @classmethod
     async def get_next_complex(cls, complex_id: int) -> 'Complex':
         query = select(cls).where(cls.id == complex_id)
         current_complex: Complex = await get_first(query)
 
-        return await current_complex.next_complex_id()
+        return await current_complex.next_complex()
 
     @classmethod
     async def add_new(

@@ -30,8 +30,8 @@ async def test_complex_update():
 
 async def test_get_next_complex():
     complex_data: Complex = await Complex.get_by_id(1)
-    next_complex_id: int = await Complex.next_complex_id(complex_data)
-    assert next_complex_id == 2
+    next_complex: Complex = await Complex.next_complex(complex_data)
+    assert next_complex.id == 2
 
 
 async def test_complex_delete():
