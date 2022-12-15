@@ -135,6 +135,18 @@ class Video(MySQLModel, table=True):
         await self.delete()
 
 
+class Avatar(MySQLModel, table=True):
+    __tablename__ = 'avatars'
+
+    id: int = Field(default=None, primary_key=True, index=True)
+    file_name: str = Field(nullable=False, description="Имя файла аватарки")
+
+    @classmethod
+    async def get_first_id(cls):
+        query = select(cls.id).order_by(cls.id)
+        return await get_first(query)
+
+
 class User(UserModel, table=True):
     __tablename__ = 'users'
 
@@ -162,6 +174,7 @@ class User(UserModel, table=True):
     sms_call_code: Optional[str] = Field(nullable=True, default=None, description="Код из звонка")
     push_token: Optional[str] = Field(nullable=True, default=None, description="Токен для пуш-уведомлений")
 
+    avatar: int = Field(nullable=True, default=None, foreign_key='avatars.id')
     rate_id: int = Field(nullable=False, foreign_key='rates.id')
     current_complex: Optional[int] = Field(nullable=True, default=1, foreign_key='complexes.id')
 
@@ -178,7 +191,6 @@ class User(UserModel, table=True):
     viewed_videos: List['ViewedVideo'] = Relationship(
         back_populates="users", sa_relationship_kwargs={"cascade": "delete"})
 
-
     def __str__(self):
         return f"{self.email}"
 
@@ -190,6 +202,13 @@ class User(UserModel, table=True):
             await self.save()
         return self
 
+    @classmethod
+    async def create(cls, data: dict) -> 'User':
+        data['password'] = await cls.get_hashed_password(data['password'])
+        data['avatar'] = await Avatar.get_first_id()
+        user = cls(**data)
+
+        return await user.save()
 
 class Rate(MySQLModel, table=True):
     __tablename__ = 'rates'

@@ -15,7 +15,7 @@ router = APIRouter(tags=['web', 'charging'])
 
 
 @router.get("/complexes_list", response_class=HTMLResponse)
-async def complexes_list(
+async def complexes_list_web(
         context: dict = Depends(get_logged_user_context),
         user: User = Depends(get_user_from_context)
 
@@ -43,7 +43,7 @@ async def complexes_list(
 
 @router.get("/videos_list/{complex_id}", response_class=HTMLResponse)
 @router.post("/videos_list/{complex_id}", response_class=HTMLResponse)
-async def videos_list(
+async def videos_list_web(
         complex_id: int,
         context: dict = Depends(get_logged_user_context),
         user: User = Depends(get_user_from_context),
