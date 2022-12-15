@@ -8,9 +8,10 @@ from config import logger
 from database.db import get_db_session
 from models.models import User, ViewedComplex, Notification
 from models.methods import get_all
+from services.notification_sender import send_push_messages
 
 today = datetime.today()
-text = "Зарядка не выполнена, не забудьте выполнить упражнения"
+message_text = "Зарядка не выполнена, не забудьте выполнить упражнения"
 
 
 async def _get_users_for_notification(
@@ -54,7 +55,7 @@ async def _get_notifications_for_create(users: list[int]) -> list[Notification]:
     """Return notifications list for users without notifications"""
 
     return [
-        Notification(user_id=user, created_at=today, text=text)
+        Notification(user_id=user, created_at=today, text=message_text)
         for user in users
     ]
 
@@ -68,7 +69,7 @@ async def _get_notifications_for_update(
     for user in users:
         notifications: list = await Notification.get_all_by_user_id(user)
         for notification in notifications:
-            notification.text = text
+            notification.text = message_text
             notification.created_at = today
             for_update.append(notification)
 
@@ -82,6 +83,13 @@ async def create_and_update_notifications(notifications: list[Notification]) -> 
         session.add_all(notifications)
         await session.commit()
 
+
+async def _get_tokens_from_with_notifications() -> list[str]:
+    """Return list of user tokens user having notification"""
+
+    query = select(User.push_token).join(Notification).where(User.push_token is not None)
+
+    return await get_all(query)
 
 async def create_notifications_for_not_viewed_users():
     """Create notifications for user not viewed complex today"""
@@ -109,7 +117,8 @@ async def create_notifications_for_not_viewed_users():
     notifications_for_update.extend(notifications_for_create)
 
     await create_and_update_notifications(notifications_for_update)
-
+    # user_tokens: list[str] = await _get_tokens_from_with_notifications()
+    # await send_push_messages(message=message_text, tokens=user_tokens)
 
 if __name__ == '__main__':
     asyncio.run(create_notifications_for_not_viewed_users())
