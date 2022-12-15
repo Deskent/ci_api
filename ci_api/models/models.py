@@ -29,8 +29,8 @@ class Complex(MySQLModel, table=True):
 
     @classmethod
     async def get_first(cls) -> 'Complex':
-        query = select(cls)
-        return min(await get_all(query), key=lambda x: x.number)
+        query = select(cls).order_by(cls.number)
+        return await get_first(query)
 
     async def next_complex_id(self) -> int:
         query = select(Complex).where(Complex.number == self.number + 1)
