@@ -22,7 +22,7 @@ async def form_payments_report(
     logger.info(checks)
     download_file_link: str = save_to_excel_file(checks, rates, user)
 
-    obj.api_data = dict(payload=checks)
+    obj.api_data.update(payload=checks)
     obj.template = 'payment_report.html'
     obj.context.update(checks=checks, download_file_link=download_file_link)
 
