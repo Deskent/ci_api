@@ -243,18 +243,7 @@ class Administrator(AdminModel, table=True):
     name: str = Field(nullable=True, default=None)
 
 
-class UserDataModels(MySQLModel):
-
-    @classmethod
-    async def get_all_by_user_id(cls, user_id: int) -> list[MySQLModel]:
-        """Join cls rows with User table where User.id == user_id"""
-
-        query = select(cls).join(User).where(User.id == user_id)
-
-        return await get_all(query)
-
-
-class Alarm(UserDataModels, table=True):
+class Alarm(MySQLModel, table=True):
     __tablename__ = 'alarms'
 
     id: int = Field(default=None, primary_key=True, index=True)
@@ -271,8 +260,15 @@ class Alarm(UserDataModels, table=True):
     def __str__(self):
         return f"{self.text}"
 
+    @classmethod
+    async def get_all_by_user_id(cls, user_id: int) -> list[MySQLModel]:
+        """Join cls rows with User table where User.id == user_id"""
 
-class Notification(UserDataModels, table=True):
+        query = select(cls).join(User).where(User.id == user_id).order_by(cls.alarm_time)
+
+        return await get_all(query)
+
+class Notification(MySQLModel, table=True):
     __tablename__ = 'notifications'
 
     id: int = Field(default=None, primary_key=True, index=True)
@@ -283,6 +279,14 @@ class Notification(UserDataModels, table=True):
 
     def __str__(self):
         return f"{self.text}"
+
+    @classmethod
+    async def get_all_by_user_id(cls, user_id: int) -> list[MySQLModel]:
+        """Join cls rows with User table where User.id == user_id"""
+
+        query = select(cls).join(User).where(User.id == user_id)
+
+        return await get_all(query)
 
 
 class ViewedComplex(MySQLModel, table=True):
