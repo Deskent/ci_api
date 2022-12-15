@@ -2,24 +2,24 @@ import datetime
 
 import uvicorn
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from fastapi import FastAPI, Request, status
-
+from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
 from admin.utils import create_default_admin
 from admin.views import get_admin
-from config import settings, templates, MAX_LEVEL, logger
+from config import settings, MAX_LEVEL, logger
 from create_data import create_fake_data, recreate_db
 from exc.exceptions import UserNotLoggedError, ComeTomorrowException
 from models.models import User
 from routers import main_router
 from services.notification_scheduler import create_notifications_for_not_viewed_users
 from services.rates_cache import RatesCache
+from services.web_context_class import WebContext
 from web_service.router import router as web_router
 from web_service.utils.get_contexts import get_base_context, \
     get_session_token, get_session_user, get_logged_user_context
-from web_service.utils.title_context_func import get_page_titles
+
 
 def get_application():
     scheduler = AsyncIOScheduler()
@@ -58,10 +58,10 @@ def get_application():
         logger.debug("Raised user_not_logged_exception_handler")
 
         request.session.clear()
-        context: dict = get_base_context({"request": request})
-        return templates.TemplateResponse(
-            "entry_via_phone.html", context=get_page_titles(context, "entry_via_phone.html")
-        )
+        web_context = WebContext(context=get_base_context({"request": request}))
+        web_context.template = "entry_via_phone.html"
+
+        return web_context.web_render()
 
     @app.exception_handler(ComeTomorrowException)
     async def user_not_active_exception_handler(
@@ -74,9 +74,10 @@ def get_application():
         base_context: dict = get_base_context({"request": request})
         context: dict = await get_logged_user_context(user, base_context)
         context.update(max_level=MAX_LEVEL)
-        return templates.TemplateResponse(
-            "profile.html", context=get_page_titles(context, "profile.html")
-        )
+        web_context = WebContext(context=get_base_context({"request": request}))
+        web_context.template = "profile.html"
+
+        return web_context.web_render()
 
     # @app.exception_handler(status.HTTP_500_INTERNAL_SERVER_ERROR)
     # async def status_500_exception_handler(
