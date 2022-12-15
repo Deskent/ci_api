@@ -49,6 +49,8 @@ async def edit_profile_post(
         username=username, last_name=last_name, third_name=third_name, email=email, phone=phone)
     web_context: WebContext = await get_edit_profile_web_context(
         context=context, user_data=user_data, user=user)
+    web_context.context = await get_profile_page_context(web_context.context)
+
     return web_context.web_render()
 
 
