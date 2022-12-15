@@ -50,11 +50,14 @@ class MaxLevel(BaseModel):
     max_level: int = MAX_LEVEL
 
 
-class UserRegistration(Password2, PhoneNumber):
+class UserEditProfile(PhoneNumber):
     username: str
     last_name: str = ''
     third_name: str = ''
     email: EmailStr
+
+
+class UserRegistration(Password2, UserEditProfile):
     gender: bool = True
 
     @classmethod
