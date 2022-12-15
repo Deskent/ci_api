@@ -48,6 +48,7 @@ async def entry_sms(
 ):
     web_context = WebContext(context=context)
     web_context.template = "entry_sms.html"
+
     return web_context.web_render()
 
 
@@ -73,4 +74,6 @@ async def login_with_sms(
     code: SmsCode = SmsCode(code=''.join((sms_input_1, sms_input_2, sms_input_3, sms_input_4)))
     web_context: WebContext = await approve_sms_code(
         request=request, context=context, user_id=user_id, code=code.code)
+    web_context.context = await get_profile_page_context(web_context.context)
+
     return web_context.web_render()

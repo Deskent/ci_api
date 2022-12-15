@@ -27,9 +27,6 @@ class PhoneNumber(BaseModel):
     phone: str
 
     _normalize_name = validator('phone', allow_reuse=True)(slice_phone_to_format)
-    # @validator('phone')
-    # def check_valid_phone(cls, phone: str):
-    #     return slice_phone_to_format(phone)
 
 
 class Password(BaseModel):
@@ -50,11 +47,14 @@ class MaxLevel(BaseModel):
     max_level: int = MAX_LEVEL
 
 
-class UserRegistration(Password2, PhoneNumber):
+class UserEditProfile(PhoneNumber):
     username: str
     last_name: str = ''
     third_name: str = ''
     email: EmailStr
+
+
+class UserRegistration(Password2, UserEditProfile):
     gender: bool = True
 
     @classmethod

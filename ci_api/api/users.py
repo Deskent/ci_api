@@ -3,10 +3,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from config import logger
 from models.models import User, Alarm, Notification, Rate
 from schemas.alarms import AlarmBase
-from schemas.user_schema import UserSchema
+from schemas.user_schema import UserSchema, UserEditProfile
 from services.depends import get_logged_user
 from services.rates_cache import RatesCache
 from services.weekdays import WeekDay
+from web_service.handlers.profile_web_contexts import get_edit_profile_web_context
 
 router = APIRouter(prefix="/users", tags=['Users'])
 
@@ -91,36 +92,35 @@ async def get_me(
     return user
 
 
-# @router.put(
-#     path="/{user_id}",
-#     response_model=UserOutput,
-#     dependencies=[Depends(check_access), Depends(check_user_is_admin)]
-# )
-# async def update_user(
-#         user_id: int,
-#         data: UserUpdate,
-#         session: AsyncSession = Depends(get_session),
-# ):
-#     """
-#     Update user in database from optional parameters.
-#     For user self and admins only.
-#
-#     :param username: string - Username
-#
-#     :param email: string - E-mail (Unique)
-#
-#     :param password: string - Password
-#
-#     :param expired_at: string - Date subscribe expiration in format "2022-11-30[T]09:20[:31.777132]"
-#
-#     :param is_admin: bool - Flag is user admin
-#
-#     :param is_active: bool - Flag is user have active subscibe
-#
-#     :param current_video: int - ID next video in database
-#
-#     :return: User updated information as JSON
-#     """
+@router.put(
+    "/edit",
+    response_model=UserSchema,
+    status_code=status.HTTP_200_OK
+)
+async def edit_user_api(
+        user_data: UserEditProfile,
+        user: User = Depends(get_logged_user)
+):
+    """
+    Update user in database from optional parameters.
+    For user self and admins only.
+
+    :param username: string - Имя
+
+    :param last_name: string - Фамилия
+
+    :param third_name: string - Отчество
+
+    :param email: string - E-mail (Unique)
+
+    :param phone: string - Password (Unique)
+
+    :return: User updated information as JSON
+    """
+
+    web_context = await get_edit_profile_web_context(context={}, user_data=user_data, user=user)
+    return web_context.api_render()
+
 #
 #     if not (user := await session.get(User, user_id)):
 #         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
