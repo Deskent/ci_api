@@ -11,7 +11,7 @@ from services.web_context_class import WebContext
 
 async def update_web_context_with_phone(
         web_context: WebContext, user_data: UserEditProfile, user: User
-) -> tuple[WebContext, UserEditProfile, User]:
+) -> tuple[WebContext, User]:
     """Check user phone exists, send sms to new phone, update web_context and user
     Not updating web_context template
     """
@@ -20,7 +20,7 @@ async def update_web_context_with_phone(
         web_context.error = PhoneExistsError.detail
         web_context.to_raise = PhoneExistsError
 
-        return web_context, user_data, user
+        return web_context, user
 
     result: dict = await send_sms(user_data.phone)
     if sms_message := result.get('sms_message'):
@@ -32,12 +32,12 @@ async def update_web_context_with_phone(
         web_context.error = error
         web_context.to_raise = SmsServiceError
 
-    return web_context, user_data, user
+    return web_context, user
 
 
 async def update_web_context_with_email(
         web_context: WebContext, user_data: UserEditProfile, user: User
-) -> tuple[WebContext, UserEditProfile, User]:
+) -> tuple[WebContext, User]:
     """Check user email exists, send code to new email,
     update web_context and user
     Not updating web_context template
@@ -49,7 +49,7 @@ async def update_web_context_with_email(
         web_context.error = EmailExistsError.detail
         web_context.to_raise = EmailExistsError
 
-        return web_context, user_data, user
+        return web_context, user
     try:
         code: str = await send_verification_mail(user_data.email)
         logger.debug(f"Email code: {code}")
@@ -61,12 +61,12 @@ async def update_web_context_with_email(
         web_context.error = "Неверный адрес почты"
         web_context.to_raise = EmailError
 
-    return web_context, user_data, user
+    return web_context, user
 
 
 async def _check_phone_changed(
         web_context: WebContext, user_data: UserEditProfile, user: User
-) -> tuple[WebContext, UserEditProfile, User]:
+) -> tuple[WebContext, User]:
     """Check user phone changed"""
 
     logger.debug(f"Check phone changed {user_data}")
@@ -74,24 +74,22 @@ async def _check_phone_changed(
     if user_data.phone:
         phone: str = slice_phone_to_format(user_data.phone)
         if user.phone != phone:
-            web_context, user_data, user = await update_web_context_with_phone(web_context, user_data, user)
-            web_context.template = "edit_profile.html"
+            web_context, user = await update_web_context_with_phone(web_context, user_data, user)
+            web_context.template = 'forget2.html'
 
-    return web_context, user_data, user
-
+    return web_context, user
 
 
 async def _check_email_changed(
         web_context: WebContext, user_data: UserEditProfile, user: User
-) -> tuple[WebContext, UserEditProfile, User]:
+) -> tuple[WebContext, User]:
     """Check user email changed"""
 
     logger.debug(f"Check email changed {user_data}")
     if user_data.email and user.email != user_data.email:
-        web_context, user_data, user = await update_web_context_with_email(web_context, user_data, user)
-        web_context.template = "edit_profile.html"
+        web_context, user = await update_web_context_with_email(web_context, user_data, user)
 
-    return web_context, user_data, user
+    return web_context, user
 
 
 async def get_edit_profile_web_context(
@@ -108,18 +106,21 @@ async def get_edit_profile_web_context(
     if user_data.third_name:
         user.third_name = user_data.third_name
 
-    web_context, user_data, user = await _check_phone_changed(web_context, user_data, user)
+    web_context, user = await _check_phone_changed(web_context, user_data, user)
     if web_context.error:
+        web_context.template = "edit_profile.html"
         return web_context
 
-    web_context, user_data, user = await _check_email_changed(web_context, user_data, user)
+    web_context, user = await _check_email_changed(web_context, user_data, user)
     if web_context.error:
+        web_context.template = "edit_profile.html"
         return web_context
 
     user = await user.save()
     web_context.context.update(user=user)
     web_context.api_data.update(payload=user)
     web_context.success = 'Профиль успешно изменен'
-    web_context.template = "forget2.html"
+    if not web_context.template:
+        web_context.template = "profile.html"
 
     return web_context
