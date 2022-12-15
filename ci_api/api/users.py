@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Body
+from pydantic import EmailStr
 
 from config import logger
 from models.models import User, Alarm, Notification, Rate
