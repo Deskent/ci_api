@@ -49,8 +49,7 @@ async def videos_list_web(
         user: User = Depends(get_user_from_context),
 ):
     current_complex: Complex = await Complex.get_by_id(complex_id)
-    next_complex_id: int = await current_complex.next_complex_id()
-    next_complex: Complex = await Complex.get_by_id(next_complex_id)
+    next_complex: Complex = await current_complex.next_complex()
     next_complex.duration = convert_seconds_to_time(next_complex.duration)
 
     # Calculate video number to next level for current complex
