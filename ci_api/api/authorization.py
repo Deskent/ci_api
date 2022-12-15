@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Request, Body
 from pydantic import EmailStr
 
 from config import logger, PHONE_FORMAT
@@ -148,7 +148,7 @@ async def change_password(
 
 @router.put("/set_push_token", status_code=status.HTTP_202_ACCEPTED)
 async def set_push_token(
-        push_token: str,
+        push_token: str = Body(...),
         user: User = Depends(get_logged_user),
 ):
     user.push_token = push_token
