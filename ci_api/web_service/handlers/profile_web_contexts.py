@@ -1,51 +1,70 @@
-from fastapi import Form, Depends
 from loguru import logger
-from pydantic import EmailStr
 
+from exc.exceptions import EmailError
+from exc.register import SmsServiceError, PhoneExistsError, EmailExistsError
 from models.models import User
-from schemas.user_schema import slice_phone_to_format
+from schemas.user_schema import slice_phone_to_format, UserEditProfile
 from services.emails import send_verification_mail, EmailException
+from services.user import send_sms, check_user_phone_exists, check_email_exists
 from services.web_context_class import WebContext
-from web_service.utils.get_contexts import get_logged_user_context, get_user_from_context, \
-    get_profile_page_context
 
 
 async def get_edit_profile_web_context(
-        username: str = Form(),
-        last_name: str = Form(),
-        third_name: str = Form(),
-        email: EmailStr = Form(),
-        phone: str = Form(),
-        context: dict = Depends(get_logged_user_context),
-        user: User = Depends(get_user_from_context)
+        context: dict,
+        user_data: UserEditProfile,
+        user: User
 ) -> WebContext:
-    obj = WebContext(context=context)
+    web_context = WebContext(context=context)
 
-    user.username = username
-    user.last_name = last_name
-    user.third_name = third_name
-    phone: str = slice_phone_to_format(phone)
+    user.username = user_data.username
+    user.last_name = user_data.last_name
+    user.third_name = user_data.third_name
+    phone: str = slice_phone_to_format(user_data.phone)
     if user.phone != phone:
-        # TODO send sms to verify ?
-        pass
+
+        if await check_user_phone_exists(user_data.phone):
+            web_context.error = PhoneExistsError.detail
+            web_context.template = "edit_profile.html"
+            web_context.to_raise = PhoneExistsError
+            return web_context
+
+        result: dict = await send_sms(user_data.phone)
+        if sms_message := result.get('sms_message'):
+            logger.debug(f"Sms_message code: {sms_message}")
+            user.sms_message = sms_message
+        elif error := result.get('error'):
+            web_context.error = error
+            web_context.template = "edit_profile.html"
+            web_context.to_raise = SmsServiceError
+
+            return web_context
+
     user.phone = phone
-    if user.email != email:
+    if user.email != user_data.email:
+        if await check_email_exists(user_data.email):
+            web_context.error = EmailExistsError.detail
+            web_context.template = "edit_profile.html"
+            web_context.to_raise = EmailExistsError
+
+            return web_context
         try:
-            code: str = await send_verification_mail(email)
+            code: str = await send_verification_mail(user_data.email)
             logger.debug(f"Email code: {code}")
             user.email_code = code
             user.is_verified = False
             user.expired_at = None
-            user.email = email
+            user.email = user_data.email
         except EmailException:
-            obj.error = "Неверный адрес почты"
-            obj.template = "edit_profile.html"
+            web_context.error = "Неверный адрес почты"
+            web_context.template = "edit_profile.html"
+            web_context.to_raise = EmailError
 
-            return obj
+            return web_context
 
-    await user.save()
-    obj.context = await get_profile_page_context(obj.context)
-    obj.success = 'Профиль успешно изменен'
-    obj.template = "profile.html"
+    user = await user.save()
+    web_context.context.update(user=user)
+    web_context.api_data.update(payload=user)
+    web_context.success = 'Профиль успешно изменен'
+    web_context.template = "forget2.html"
 
-    return obj
+    return web_context
