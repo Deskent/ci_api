@@ -131,26 +131,28 @@ class TestUsers:
         assert data.get('complexes') is not None
 
     @pytest.mark.server
-    def test_set_viewed_complex(self):
-        response = self.session.get(self.base_url + "/complex/complex_viewed/1", headers=self.headers)
-        assert response.status_code == 200
-        data = response.json()
-        assert data.get('level_up') is not None
-
-    @pytest.mark.server
     def test_edit_user_profile(self):
         new_username = "new_test_name"
+        new_third_name = "new_third_name"
         payload = {
             "username": new_username,
-            "last_name": self.user_create.last_name,
-            "third_name": self.user_create.third_name,
-            "email": self.user_create.email,
-            "phone": self.user_create.phone
+            "third_name": new_third_name
         }
-        response = self.session.put(self.base_url + "/users/edit", headers=self.headers, json=payload)
+        response = self.session.put(
+            self.base_url + "/users/edit", headers=self.headers, json=payload
+        )
         assert response.status_code == 200
         data: dict = response.json()
         assert data.get('username') == new_username
+        assert data.get('third_name') == new_third_name
+
+    @pytest.mark.skip("Not delete relations viewed complexes")
+    def test_set_viewed_complex(self):
+        response = self.session.get(
+            self.base_url + "/complex/complex_viewed/1", headers=self.headers)
+        assert response.status_code == 200
+        data = response.json()
+        assert data.get('level_up') is not None
 
     # TODO исправить
     @pytest.mark.skip("Not delete relations viewed video")
