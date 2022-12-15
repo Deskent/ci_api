@@ -46,18 +46,6 @@ class TestUsers:
             self.base_url + "/auth/change_password", json=payload, headers=self.headers)
         assert response.status_code == 202
 
-    @pytest.mark.skip('Need activate user')
-    def test_get_video_by_id(self, event_loop):
-        response = self.session.get(self.base_url + f"/complex/1/", headers=self.headers)
-        assert response.status_code == 200
-        complexes: dict = response.json()
-        video_id: int = complexes['videos'][0].get('id')
-        response = self.session.get(self.base_url + f"/videos/{video_id}/", headers=self.headers)
-        assert response.status_code == 200
-        data: dict = response.json()
-        assert data is not None
-        assert data.get('id') is not None
-
     @pytest.mark.server
     def test_create_notification(self):
         payload = {
@@ -145,6 +133,18 @@ class TestUsers:
         data: dict = response.json()
         assert data.get('username') == new_username
         assert data.get('third_name') == new_third_name
+
+    @pytest.mark.skip('Need activate user')
+    def test_get_video_by_id(self, event_loop):
+        response = self.session.get(self.base_url + f"/complex/1/", headers=self.headers)
+        assert response.status_code == 200
+        complexes: dict = response.json()
+        video_id: int = complexes['videos'][0].get('id')
+        response = self.session.get(self.base_url + f"/videos/{video_id}/", headers=self.headers)
+        assert response.status_code == 200
+        data: dict = response.json()
+        assert data is not None
+        assert data.get('id') is not None
 
     @pytest.mark.skip("Not delete relations viewed complexes")
     def test_set_viewed_complex(self):

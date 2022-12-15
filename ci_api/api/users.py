@@ -3,7 +3,7 @@ from pydantic import EmailStr
 
 from config import logger
 from models.models import User, Alarm, Notification, Rate
-from schemas.alarms import AlarmBase
+from schemas.alarms import AlarmBase, AlarmFull
 from schemas.user_schema import UserSchema, UserEditProfile
 from services.depends import get_logged_user
 from services.rates_cache import RatesCache
@@ -13,7 +13,7 @@ from web_service.handlers.profile_web_contexts import get_edit_profile_web_conte
 router = APIRouter(prefix="/users", tags=['Users'])
 
 
-@router.get("/alarms/list", response_model=list[AlarmBase])
+@router.get("/alarms/list", response_model=list[AlarmFull])
 async def get_user_alarms(
         user: User = Depends(get_logged_user),
 ):
@@ -21,7 +21,6 @@ async def get_user_alarms(
 
     :return List of alarms as JSON
     """
-
     alarms_data: list = await Alarm.get_all_by_user_id(user.id)
     alarms: list[dict] = [elem.dict() for elem in alarms_data]
     for alarm in alarms:
