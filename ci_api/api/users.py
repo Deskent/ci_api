@@ -120,29 +120,3 @@ async def edit_user_api(
 
     web_context = await get_edit_profile_web_context(context={}, user_data=user_data, user=user)
     return web_context.api_render()
-
-#
-#     if not (user := await session.get(User, user_id)):
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-#     updated_data: dict = await get_data_for_update(data.dict())
-#
-#     if updated_data.get('expired_at'):
-#         updated_data['expired_at'] = updated_data['expired_at'].replace(tzinfo=None)
-#
-#     password: str = updated_data.get('password')
-#     if password:
-#         updated_data['password'] = auth_handler.get_password_hash(password)
-#
-#     email: EmailStr = updated_data.get('email')
-#     if email:
-#         if await User.get_user_by_email(session, email):
-#             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already exists")
-#
-#     if updated_data.get('current_video') == 0:
-#         updated_data['current_video'] = user.current_video
-#
-#     await session.execute(update(User).where(User.id == user_id).values(**updated_data))
-#     session.add(user)
-#     await session.commit()
-#
-#     return user
