@@ -2,7 +2,7 @@ from datetime import datetime, time
 from typing import Optional, List
 
 from pydantic import EmailStr
-from sqlalchemy import Column, TIMESTAMP
+from sqlalchemy import Column, TIMESTAMP, desc
 from sqlmodel import Field, Relationship, select
 
 from models.methods import MySQLModel, UserModel, get_all, get_first, AdminModel
@@ -264,7 +264,7 @@ class Alarm(MySQLModel, table=True):
     async def get_all_by_user_id(cls, user_id: int) -> list[MySQLModel]:
         """Join cls rows with User table where User.id == user_id"""
 
-        query = select(cls).join(User).where(User.id == user_id).order_by(cls.alarm_time)
+        query = select(cls).join(User).where(User.id == user_id).order_by(desc(cls.id))
 
         return await get_all(query)
 
