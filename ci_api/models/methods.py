@@ -99,7 +99,7 @@ class AdminModel(MySQLModel):
         return auth_handler.encode_token(self.id)
 
     @classmethod
-    async def create(cls, data: dict) -> 'User':
+    async def create(cls, data: dict) -> 'Administrator':
         data['password'] = await cls.get_hashed_password(data['password'])
         user = cls(**data)
 

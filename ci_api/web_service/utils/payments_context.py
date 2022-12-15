@@ -46,7 +46,7 @@ async def get_subscribe_by_rate_id(
     if not user:
         return obj
 
-    api_data = await _get_rate_date(user)
+    api_data: dict = await _get_rate_date(user)
     obj.context.update(**api_data)
     obj.api_data.update(payload=api_data)
 
@@ -68,7 +68,7 @@ async def get_subscribe_by_rate_id(
         return obj
 
     obj.redirect = link
-    obj.api_data = dict(payload=link)
+    obj.api_data.update(payload=dict(link=link))
     return obj
 
 
@@ -120,7 +120,7 @@ async def check_payment_result(
         await payment.save()
 
     user.expired_at = present_user_expired_at_day_and_month(user.expired_at)
-    obj.api_data = dict(payload=user)
+    obj.api_data.update(payload=user)
     obj.success = "Подписка успешна оформлена"
     obj.template = "profile.html"
 

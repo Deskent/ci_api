@@ -3,9 +3,12 @@ from pydantic import EmailStr
 from starlette.datastructures import FormData
 
 from config import logger
+from exc.exceptions import PasswordMatchError
+from exc.register import EmailExistsError, PhoneExistsError, SmsServiceError
 from models.models import User, Administrator, Rate, Complex
 from schemas.user_schema import UserRegistration, UserLogin, PhoneNumber, UserPhoneLogin
 from services.utils import generate_four_random_digits_string
+from services.web_context_class import WebContext
 from web_service.services.sms_class import sms_service, SMSException
 
 
@@ -36,45 +39,8 @@ async def check_phone_and_password_correct(user_data: UserPhoneLogin) -> User:
         if await user_found.is_password_valid(user_data.password):
             return user_found
 
-async def register_new_user(user_data: UserRegistration) -> tuple[User | None, dict]:
-    errors = {}
-    if await check_email_exists(user_data.email):
-        errors = {'error': 'Пользователь с таким email уже существует'}
-        return None, errors
-
-    if await check_user_phone_exists(user_data.phone):
-        errors = {'error': 'Пользователь с таким телефоном уже существует'}
-        return None, errors
-
-    data: dict = user_data.dict()
-    result: dict = await send_sms(user_data.phone)
-    if sms_message := result.get('sms_message'):
-        logger.debug(f"Sms_message code: {sms_message}")
-        data['sms_message'] = sms_message
-    elif result.get('error'):
-        errors.update(**result)
-        return None, errors
-
-    # except EmailException:
-    #     logger.warning(f"Wrong email {user_data.email}")
-    #     errors = {'error': "Неверный адрес почты"}
-    #     return None, errors
-    first_complex: Complex = await Complex.get_first()
-    if first_complex:
-        data['current_complex'] = first_complex.id
-
-    free_rate: Rate = await Rate.get_free()
-    if free_rate:
-        data['rate_id'] = free_rate.id
-    user: User = await User.create(data)
-
-    logger.info(f"User with id {user.id} created. Rate set: {user.rate_id}")
-
-    return user, errors
-
 
 async def validate_logged_user_data(form: FormData) -> tuple[UserLogin | None, dict]:
-
     try:
         user_data = UserLogin(email=form['email'], password=form['password'])
 
@@ -98,3 +64,54 @@ async def send_sms(phone: str) -> dict:
         result.update(error=err)
 
     return result
+
+
+async def register_new_user_web_context(
+        context: dict,
+        user_data: UserRegistration
+):
+    web_context = WebContext(context)
+    if not user_data:
+        web_context.error = 'Пароли не совпадают'
+        web_context.template = "registration.html"
+        web_context.to_raise = PasswordMatchError
+        return web_context
+
+    if await check_email_exists(user_data.email):
+        web_context.error = 'Пользователь с таким email уже существует'
+        web_context.template = "registration.html"
+        web_context.to_raise = EmailExistsError
+        return web_context
+
+    if await check_user_phone_exists(user_data.phone):
+        web_context.error = 'Пользователь с таким телефоном уже существует'
+        web_context.template = "registration.html"
+        web_context.to_raise = PhoneExistsError
+        return web_context
+
+    data: dict = user_data.dict()
+    result: dict = await send_sms(user_data.phone)
+    if sms_message := result.get('sms_message'):
+        logger.debug(f"Sms_message code: {sms_message}")
+        data['sms_message'] = sms_message
+    elif error := result.get('error'):
+        web_context.error = error
+        web_context.template = "registration.html"
+        web_context.to_raise = SmsServiceError
+        return web_context
+
+    first_complex: Complex = await Complex.get_first()
+    if first_complex:
+        data['current_complex'] = first_complex.id
+
+    free_rate: Rate = await Rate.get_free()
+    if free_rate:
+        data['rate_id'] = free_rate.id
+    user: User = await User.create(data)
+
+    logger.info(f"User with id {user.id} created. Rate set: {user.rate_id}")
+    web_context.context.update(user=user)
+    web_context.api_data.update(payload=user)
+    web_context.template = "forget2.html"
+
+    return web_context

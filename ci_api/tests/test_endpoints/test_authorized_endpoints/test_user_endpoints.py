@@ -1,9 +1,6 @@
-import asyncio
 import datetime
 
 import pytest
-
-from models.models import User
 
 
 class TestUsers:

@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from admin.utils import create_default_admin
 from config import logger, settings
 from database.db import drop_db, create_db
-from models.models import User, Alarm, Notification, Video, Complex, Rate
+from models.models import User, Alarm, Notification, Video, Complex, Rate, Avatar
 
 
 async def create_complexes(data: list[dict] = None):
@@ -114,6 +114,7 @@ async def create_users(data: list[dict] = None):
             free_rate: Rate = await Rate.get_free()
             if free_rate:
                 user_data['rate_id'] = free_rate.id
+        user_data['avatar'] = await Avatar.get_first_id()
         await User.create(user_data)
 
 
@@ -195,6 +196,17 @@ async def create_rates(data: list[dict] = None):
         elem = Rate(**elem)
         await elem.save()
 
+async def create_avatars(data: list[dict] = None):
+    if not data:
+        data = [
+            {
+                'file_name': 'dragon.jpg',
+            },
+        ]
+    for elem in data:
+        elem = Avatar(**elem)
+        await elem.save()
+
 
 async def create_fake_data(flag: bool = False):
     """Create fake data in database"""
@@ -204,6 +216,7 @@ async def create_fake_data(flag: bool = False):
         if await User.get_by_id(1):
             return
         await create_rates()
+        await create_avatars()
         await create_complexes()
         await create_videos()
         await create_users()
