@@ -95,8 +95,9 @@ async def get_me(
 @router.put(
     "/edit",
     response_model=UserSchema,
+    status_code=status.HTTP_200_OK
 )
-async def update_user(
+async def edit_user_api(
         user_data: UserEditProfile,
         user: User = Depends(get_logged_user)
 ):
