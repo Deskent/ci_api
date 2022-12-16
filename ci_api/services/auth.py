@@ -42,7 +42,7 @@ class AuthHandler:
         except jwt.ExpiredSignatureError:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail='Expired signature')
-        except jwt.InvalidTokenError:
+        except (jwt.InvalidTokenError, KeyError):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid token')
 
