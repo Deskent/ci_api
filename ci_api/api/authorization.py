@@ -18,7 +18,7 @@ router = APIRouter(prefix="/auth", tags=['Authorization'])
 async def register(
         user_data: UserRegistration,
 ):
-    f"""
+    """
     Create new user in database if not exists
 
     :param username: string - Username
@@ -50,7 +50,7 @@ async def verify_email_token(
         token: str,
         email: EmailStr,
 ):
-    f"""Verify user via email code (not using)
+    """Verify user via email code (not using)
 
     :param email: string - Email
 
@@ -83,7 +83,7 @@ async def verify_sms_code(
         data: UserPhoneCode
 ):
 
-    f"""Verify user via sms code
+    """Verify user via sms code
 
     :param phone: string - phone number in format: 9998887766
 
