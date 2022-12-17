@@ -54,3 +54,11 @@ class ComplexData(BaseModel):
     name: str
     description: str
     videos: list[VideoInfo] = []
+
+
+class ComplexesListWithViewedAndNot(BaseModel):
+    user: dict
+    viewed_complexes: list[dict]
+    today_complex: dict
+    not_viewed_complexes: list[dict]
+    complexes: list[dict] = []  # Deprecation
