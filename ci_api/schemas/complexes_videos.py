@@ -59,6 +59,5 @@ class ComplexData(BaseModel):
 class ComplexesListWithViewedAndNot(BaseModel):
     user: dict
     viewed_complexes: list[dict]
-    today_complex: dict
     not_viewed_complexes: list[dict]
-    complexes: list[dict] = []  # Deprecation
+    today_complex: dict = {}
