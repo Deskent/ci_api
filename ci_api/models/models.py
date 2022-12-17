@@ -212,6 +212,11 @@ class User(UserModel, table=True):
 
         return await user.save()
 
+    async def get_alarm_by_id(self, alarm_id: int) -> 'Alarm':
+        query = select(Alarm).where(Alarm.user_id == self.id).where(Alarm.id == alarm_id)
+        return await get_first(query)
+
+
 class Rate(MySQLModel, table=True):
     __tablename__ = 'rates'
 
