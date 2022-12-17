@@ -15,7 +15,7 @@ router = APIRouter(tags=['web', 'charging'])
 
 
 @router.get("/complexes_list", response_class=HTMLResponse)
-async def complexes_list(
+async def complexes_list_web(
         context: dict = Depends(get_logged_user_context),
         user: User = Depends(get_user_from_context)
 
@@ -43,14 +43,13 @@ async def complexes_list(
 
 @router.get("/videos_list/{complex_id}", response_class=HTMLResponse)
 @router.post("/videos_list/{complex_id}", response_class=HTMLResponse)
-async def videos_list(
+async def videos_list_web(
         complex_id: int,
         context: dict = Depends(get_logged_user_context),
         user: User = Depends(get_user_from_context),
 ):
     current_complex: Complex = await Complex.get_by_id(complex_id)
-    next_complex_id: int = await current_complex.next_complex_id()
-    next_complex: Complex = await Complex.get_by_id(next_complex_id)
+    next_complex: Complex = await current_complex.next_complex()
     next_complex.duration = convert_seconds_to_time(next_complex.duration)
 
     # Calculate video number to next level for current complex

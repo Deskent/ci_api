@@ -1,11 +1,12 @@
 from models.models import Rate
-
+from config import logger
 
 class RatesCache:
     rates = {}
 
     @classmethod
     async def update_rates(cls, rates: list[Rate]) -> None:
+        logger.debug(f"Rates updated: {rates}")
         cls.rates = {rate.id: rate for rate in rates}
 
     @classmethod
@@ -20,4 +21,11 @@ class RatesCache:
 
     @classmethod
     async def get_all(cls) -> list[Rate]:
-        return [rate for rate in cls.rates.values()]
+        result: list[Rate] = [rate for rate in cls.rates.values()]
+        if not result:
+            all_rates: list[Rate] = await Rate.get_all()
+            await cls.update_rates(all_rates)
+            result: list[Rate] = [rate for rate in cls.rates.values()]
+
+        return result
+

@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 
-from models.models import User, Complex, Video
+from models.models import User, Complex, Video, ViewedComplex
 from schemas.complexes_videos import ComplexData
 from schemas.user_schema import UserProgress, UserOutput
 from services.depends import get_logged_user
@@ -23,13 +23,29 @@ async def current_progress(
 async def complexes_list_get(
         user: User = Depends(get_logged_user)
 ):
-    """Return complexes list"""
+    """Return user and complexes list as JSON"""
     complexes: list[Complex] = await Complex.get_all()
 
     return dict(user=UserOutput(**user.dict()), complexes=complexes)
 
 
-@router.get("/{complex_id}", response_model=ComplexData)
+@router.get("/viewed/list", response_model=dict)
+async def complexes_list_get(
+        user: User = Depends(get_logged_user)
+):
+    """Return user, complexes list and viewed_complexes list as JSON"""
+
+    complexes: list[Complex] = await Complex.get_all()
+    viewed: list[ViewedComplex] = await ViewedComplex.get_all_viewed_complexes(user.id)
+
+    return dict(user=UserOutput(**user.dict()), complexes=complexes, viewed=viewed)
+
+
+@router.get(
+    "/{complex_id}",
+    response_model=ComplexData,
+    dependencies=[Depends(get_logged_user)]
+)
 async def complex_data(
         complex_id: int,
 ):
@@ -51,4 +67,10 @@ async def complex_viewed_api(
         complex_id: int,
         user: User = Depends(get_logged_user)
 ):
+    """
+    Checks complex was viewed and user get new level. Need authorization.
+    :param complex_id: integer - Viewed complex ID
+    :return: JSON like: {"level_up": True or False}["new_level": user.level,
+                "next_complex_duration": next_complex_duration]
+    """
     return await get_viewed_complex_response(user=user, complex_id=complex_id)

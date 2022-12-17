@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Request, Body
 from pydantic import EmailStr
 
 from config import logger, PHONE_FORMAT
@@ -6,8 +6,8 @@ from models.models import User
 from schemas.user_schema import UserPhoneCode, TokenUser, UserOutput, UserSchema
 from schemas.user_schema import UserRegistration, UserPhoneLogin, UserChangePassword
 from services.depends import get_logged_user
+from services.user import register_new_user_web_context
 from services.web_context_class import WebContext
-from services.user import register_new_user
 from web_service.handlers.common import user_login_via_phone
 from web_service.handlers.enter_with_sms import approve_sms_code
 
@@ -41,19 +41,8 @@ async def register(
 
     :return: User created information as JSON
     """
-
-    user, errors = await register_new_user(user_data)
-    if user:
-        return user
-    if errors:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=errors['error']
-        )
-    raise HTTPException(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        detail='New user registration unrecognized error'
-    )
+    web_context: WebContext = await register_new_user_web_context(context={}, user_data=user_data)
+    return web_context.api_render()
 
 
 @router.get("/verify_email", status_code=status.HTTP_202_ACCEPTED, response_model=UserOutput)
@@ -126,7 +115,7 @@ async def login(
     if web_context.to_raise:
         raise web_context.to_raise
 
-    user: User = web_context.api_data['user']
+    user: User = web_context.api_data['payload']
     token: str = await user.get_user_token()
     logger.info(f"User with id {user.id} got Bearer token")
     return TokenUser(token=token, user=user.dict())
@@ -159,7 +148,7 @@ async def change_password(
 
 @router.put("/set_push_token", status_code=status.HTTP_202_ACCEPTED)
 async def set_push_token(
-        push_token: str,
+        push_token: str = Body(...),
         user: User = Depends(get_logged_user),
 ):
     user.push_token = push_token

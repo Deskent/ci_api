@@ -2,7 +2,7 @@ from datetime import datetime, time
 from typing import Optional, List
 
 from pydantic import EmailStr
-from sqlalchemy import Column, TIMESTAMP
+from sqlalchemy import Column, TIMESTAMP, desc
 from sqlmodel import Field, Relationship, select
 
 from models.methods import MySQLModel, UserModel, get_all, get_first, AdminModel
@@ -29,21 +29,23 @@ class Complex(MySQLModel, table=True):
 
     @classmethod
     async def get_first(cls) -> 'Complex':
-        query = select(cls)
-        return min(await get_all(query), key=lambda x: x.number)
+        query = select(cls).order_by(cls.number)
+        return await get_first(query)
 
-    async def next_complex_id(self) -> int:
+    async def next_complex(self) -> 'Complex':
         query = select(Complex).where(Complex.number == self.number + 1)
         next_complex: Complex = await get_first(query)
+        if not next_complex:
+            return await Complex.get_first()
 
-        return 1 if not next_complex else next_complex.id
+        return next_complex
 
     @classmethod
     async def get_next_complex(cls, complex_id: int) -> 'Complex':
         query = select(cls).where(cls.id == complex_id)
         current_complex: Complex = await get_first(query)
 
-        return await current_complex.next_complex_id()
+        return await current_complex.next_complex()
 
     @classmethod
     async def add_new(
@@ -135,6 +137,18 @@ class Video(MySQLModel, table=True):
         await self.delete()
 
 
+class Avatar(MySQLModel, table=True):
+    __tablename__ = 'avatars'
+
+    id: int = Field(default=None, primary_key=True, index=True)
+    file_name: str = Field(nullable=False, description="Имя файла аватарки")
+
+    @classmethod
+    async def get_first_id(cls):
+        query = select(cls.id).order_by(cls.id)
+        return await get_first(query)
+
+
 class User(UserModel, table=True):
     __tablename__ = 'users'
 
@@ -162,6 +176,7 @@ class User(UserModel, table=True):
     sms_call_code: Optional[str] = Field(nullable=True, default=None, description="Код из звонка")
     push_token: Optional[str] = Field(nullable=True, default=None, description="Токен для пуш-уведомлений")
 
+    avatar: int = Field(nullable=True, default=None, foreign_key='avatars.id')
     rate_id: int = Field(nullable=False, foreign_key='rates.id')
     current_complex: Optional[int] = Field(nullable=True, default=1, foreign_key='complexes.id')
 
@@ -178,7 +193,6 @@ class User(UserModel, table=True):
     viewed_videos: List['ViewedVideo'] = Relationship(
         back_populates="users", sa_relationship_kwargs={"cascade": "delete"})
 
-
     def __str__(self):
         return f"{self.email}"
 
@@ -189,6 +203,18 @@ class User(UserModel, table=True):
             self.level += 1
             await self.save()
         return self
+
+    @classmethod
+    async def create(cls, data: dict) -> 'User':
+        data['password'] = await cls.get_hashed_password(data['password'])
+        data['avatar'] = await Avatar.get_first_id()
+        user = cls(**data)
+
+        return await user.save()
+
+    async def get_alarm_by_id(self, alarm_id: int) -> 'Alarm':
+        query = select(Alarm).where(Alarm.user_id == self.id).where(Alarm.id == alarm_id)
+        return await get_first(query)
 
 
 class Rate(MySQLModel, table=True):
@@ -222,18 +248,7 @@ class Administrator(AdminModel, table=True):
     name: str = Field(nullable=True, default=None)
 
 
-class UserDataModels(MySQLModel):
-
-    @classmethod
-    async def get_all_by_user_id(cls, user_id: int) -> list[MySQLModel]:
-        """Join cls rows with User table where User.id == user_id"""
-
-        query = select(cls).join(User).where(User.id == user_id)
-
-        return await get_all(query)
-
-
-class Alarm(UserDataModels, table=True):
+class Alarm(MySQLModel, table=True):
     __tablename__ = 'alarms'
 
     id: int = Field(default=None, primary_key=True, index=True)
@@ -250,8 +265,15 @@ class Alarm(UserDataModels, table=True):
     def __str__(self):
         return f"{self.text}"
 
+    @classmethod
+    async def get_all_by_user_id(cls, user_id: int) -> list[MySQLModel]:
+        """Join cls rows with User table where User.id == user_id"""
 
-class Notification(UserDataModels, table=True):
+        query = select(cls).join(User).where(User.id == user_id).order_by(desc(cls.id))
+
+        return await get_all(query)
+
+class Notification(MySQLModel, table=True):
     __tablename__ = 'notifications'
 
     id: int = Field(default=None, primary_key=True, index=True)
@@ -262,6 +284,14 @@ class Notification(UserDataModels, table=True):
 
     def __str__(self):
         return f"{self.text}"
+
+    @classmethod
+    async def get_all_by_user_id(cls, user_id: int) -> list[MySQLModel]:
+        """Join cls rows with User table where User.id == user_id"""
+
+        query = select(cls).join(User).where(User.id == user_id)
+
+        return await get_all(query)
 
 
 class ViewedComplex(MySQLModel, table=True):

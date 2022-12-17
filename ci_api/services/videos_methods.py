@@ -17,14 +17,14 @@ async def get_viewed_video_response(user: User, video_id: int, context: dict) ->
 
     if not next_video_id:
         obj.template = "come_tomorrow.html"
-        obj.api_data = dict(payload={"result": "come tomorrow"})
+        obj.api_data.update(payload=dict(result="come tomorrow"))
 
         return obj
 
     videos: list[Video] = await Video.get_all_by_complex_id(user.current_complex)
     data = dict(next_video_id=next_video_id, videos=videos)
-    obj.context.update(data)
-    obj.api_data['payload'] = data
+    obj.context.update(**data)
+    obj.api_data.update(payload=data)
 
     if await is_video_viewed_before(user, video_id):
         obj.redirect = f"/startCharging/{next_video_id}"

@@ -1,9 +1,13 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Form
 from fastapi.responses import HTMLResponse
+from pydantic import EmailStr
 
+from models.models import User
+from schemas.user_schema import UserEditProfile
 from services.web_context_class import WebContext
 from web_service.handlers.profile_web_contexts import get_edit_profile_web_context
-from web_service.utils.get_contexts import get_logged_user_context, get_profile_page_context
+from web_service.utils.get_contexts import get_logged_user_context, get_profile_page_context, \
+    get_user_from_context
 
 router = APIRouter(tags=['web', 'profile'])
 
@@ -33,8 +37,20 @@ async def edit_profile(
 
 @router.post("/edit_profile", response_class=HTMLResponse)
 async def edit_profile_post(
-    web_context: WebContext = Depends(get_edit_profile_web_context)
+        username: str = Form(),
+        last_name: str = Form(),
+        third_name: str = Form(),
+        email: EmailStr = Form(),
+        phone: str = Form(),
+        context: dict = Depends(get_logged_user_context),
+        user: User = Depends(get_user_from_context)
 ):
+    user_data = UserEditProfile(
+        username=username, last_name=last_name, third_name=third_name, email=email, phone=phone)
+    web_context: WebContext = await get_edit_profile_web_context(
+        context=context, user_data=user_data, user=user)
+    web_context.context = await get_profile_page_context(web_context.context)
+
     return web_context.web_render()
 
 

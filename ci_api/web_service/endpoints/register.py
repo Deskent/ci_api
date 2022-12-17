@@ -1,13 +1,10 @@
-from fastapi import Depends, HTTPException, APIRouter
-from loguru import logger
-from starlette import status
+from fastapi import Depends, APIRouter
 from starlette.responses import HTMLResponse
 
-from config import templates
 from schemas.user_schema import UserRegistration
-from services.user import register_new_user
+from services.user import register_new_user_web_context
+from services.web_context_class import WebContext
 from web_service.utils.get_contexts import get_base_context
-from web_service.utils.title_context_func import get_page_titles
 
 router = APIRouter(tags=['web', 'register'])
 
@@ -17,8 +14,9 @@ async def web_register(
         context: dict = Depends(get_base_context)
 ):
     context.update(personal_data="/personal_data_info")
-    return templates.TemplateResponse(
-        "registration.html", context=get_page_titles(context, "registration.html"))
+    web_context: WebContext = WebContext(context)
+    web_context.template = "registration.html"
+    return web_context.web_render()
 
 
 @router.post("/registration", response_class=HTMLResponse)
@@ -26,26 +24,9 @@ async def web_register_post(
         context: dict = Depends(get_base_context),
         form_data: UserRegistration = Depends(UserRegistration.as_form)
 ):
-    if not form_data:
-        errors = {'error': 'Пароли не совпадают'}
-        context.update(**errors)
-        logger.info(f'Field validation error: {errors["error"]}')
 
-        return templates.TemplateResponse(
-            "registration.html", context=get_page_titles(context, "registration.html"))
+    web_context: WebContext = await register_new_user_web_context(context, form_data)
+    return web_context.web_render()
 
-    user, errors = await register_new_user(form_data)
-    if user:
-        context.update(user=user)
-        return templates.TemplateResponse(
-            "forget2.html", context=get_page_titles(context, "forget2.html"))
 
-    if errors:
-        context.update(**errors)
-        return templates.TemplateResponse(
-            "registration.html", context=get_page_titles(context, "registration.html"))
 
-    raise HTTPException(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        detail='New user registration unrecognized error'
-    )
