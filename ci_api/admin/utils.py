@@ -1,17 +1,15 @@
 import shutil
 import subprocess
-from datetime import datetime, timedelta
 from pathlib import Path
 
 from fastapi import UploadFile, HTTPException
 from loguru import logger
-from sqlalchemy import select
 from starlette import status
 
 from config import MAX_VIDEO, settings
-from database.db import get_db_session
 from models.models import Video, Complex, Administrator
 from schemas.complexes_videos import VideoUpload
+from services.models_cache.base_cache import AllCache
 
 
 @logger.catch
@@ -54,8 +52,7 @@ async def upload_file(
     """Check max videos in complex. Check video format. Save video file.
     Calculate video duration. Save row to database."""
 
-
-    current_complex: Complex = await Complex.get_by_id(file_form.complex_id)
+    current_complex: Complex = await AllCache.get_by_id(Complex, file_form.complex_id)
     if not current_complex:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Complex with id {file_form.complex_id} not found")
