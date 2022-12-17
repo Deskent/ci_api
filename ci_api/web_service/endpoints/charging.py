@@ -25,11 +25,9 @@ async def complexes_list_web(
         return RedirectResponse("/come_tomorrow")
 
     complexes: list[Complex] = await Complex.get_all()
-    viewed_complexes: list[
-        ViewedComplex] = await ViewedComplex.get_all_viewed_complexes(user.id)
+    viewed_complexes_ids: list[int] = await ViewedComplex.get_all_viewed_complexes_ids(user.id)
     for complex_ in complexes:
         complex_.duration = convert_to_minutes(complex_.duration)
-    viewed_complexes_ids: tuple[int] = tuple(elem.complex_id for elem in viewed_complexes)
     videos_to_next_level: int = calculate_videos_to_next_level(user, videos)
 
     context.update(
