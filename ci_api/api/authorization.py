@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Body
 from pydantic import EmailStr
 
-from config import logger, PHONE_FORMAT
+from config import logger
 from models.models import User
 from schemas.user_schema import UserPhoneCode, TokenUser, UserOutput, UserSchema
 from schemas.user_schema import UserRegistration, UserPhoneLogin, UserChangePassword
@@ -29,7 +29,7 @@ async def register(
 
     :param email: string - E-mail
 
-    :param phone: string - Phone number in format: {PHONE_FORMAT}
+    :param phone: string - Phone number in format: 9998887766
 
     :param password: string - Password
 
@@ -85,7 +85,7 @@ async def verify_sms_code(
 
     f"""Verify user via sms code
 
-    :param phone: string - phone number in format: {PHONE_FORMAT}
+    :param phone: string - phone number in format: 9998887766
 
     :param code: string - Code from sms
 
@@ -103,9 +103,9 @@ async def verify_sms_code(
 async def login(
         user_data: UserPhoneLogin
 ):
-    f"""Get user authorization token
+    """Get user authorization token
 
-    :param phone: string - phone number in format: {PHONE_FORMAT}
+    :param phone: string - phone number in format: 9998887766
 
     :param password: string - Password
 
