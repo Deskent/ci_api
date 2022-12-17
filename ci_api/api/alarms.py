@@ -1,9 +1,11 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status
 
 from config import logger
 from models.models import Alarm, User
-from schemas.alarms import AlarmCreate, AlarmFull
+from schemas.alarms import AlarmCreate, AlarmFull, AlarmUpdate
+from services.alarms_web_context import get_update_alarm_web_context, get_alarm_or_raise
 from services.depends import get_logged_user
+from services.web_context_class import WebContext
 from services.weekdays import WeekDay
 
 router = APIRouter(prefix="/alarms", tags=['Alarms'])
@@ -11,7 +13,8 @@ router = APIRouter(prefix="/alarms", tags=['Alarms'])
 
 @router.post(
     "/",
-    response_model=AlarmFull
+    response_model=AlarmFull,
+    status_code=status.HTTP_200_OK
 )
 async def create_alarm(
         data: AlarmCreate,
@@ -50,28 +53,35 @@ async def create_alarm(
     return alarm
 
 
-@router.get(
+@router.put(
     "/{alarm_id}",
     response_model=AlarmFull,
-    status_code=200
+    status_code=status.HTTP_200_OK
 )
-async def get_alarm_by_id(
+async def update_alarm(
         alarm_id: int,
-        user: User = Depends(get_logged_user),
+        data: AlarmUpdate,
+        user: User = Depends(get_logged_user)
 ):
-    alarm: Alarm = await Alarm.get_by_id(alarm_id)
-    if alarm and alarm.user_id == user.id:
-        alarm.weekdays = WeekDay(alarm.weekdays).as_list
-        return alarm
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Alarm not found")
+    """Update alarm by its id and data. Need authorization.
+
+    :param alarm_id: integer - Alarm id in database
+
+    :return: Alarm as JSON
+    """
+
+    alarm: Alarm = await get_alarm_or_raise(alarm_id, user)
+    web_context: WebContext = await get_update_alarm_web_context({}, alarm, data)
+    return web_context.api_render()
+
 
 @router.delete(
     "/{alarm_id}",
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(get_logged_user)]
 )
 async def delete_alarm(
         alarm_id: int,
+        user: User = Depends(get_logged_user)
 ):
     """Delete alarm by its id. Need authorization.
 
@@ -80,8 +90,27 @@ async def delete_alarm(
     :return: None
     """
 
-    alarm: Alarm = await Alarm.get_by_id(alarm_id)
-    if not alarm:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Alarm not found")
+    alarm: Alarm = await get_alarm_or_raise(alarm_id, user)
     await alarm.delete()
     logger.info(f"Alarm with id {alarm_id} deleted")
+
+
+@router.get(
+    "/{alarm_id}",
+    response_model=AlarmFull,
+    status_code=status.HTTP_200_OK
+)
+async def get_alarm_by_id(
+        alarm_id: int,
+        user: User = Depends(get_logged_user),
+):
+    """Return alarm by its id. Need authorization.
+
+    :param alarm_id: integer - Alarm id in database
+
+    :return: Alarm as JSON
+    """
+
+    alarm: Alarm = await get_alarm_or_raise(alarm_id, user)
+    alarm.weekdays = WeekDay(alarm.weekdays).as_list
+    return alarm
