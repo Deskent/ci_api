@@ -1,0 +1,271 @@
+.registration__logo {
+  -webkit-box-flex: 0;
+      -ms-flex: 0 0 110px;
+          flex: 0 0 110px;
+  width: 130px;
+  background: url(../img/logo.svg) center/cover no-repeat;
+  margin-bottom: 30px;
+  -ms-flex-item-align: center;
+      -ms-grid-row-align: center;
+      align-self: center;
+}
+
+.registration__logo img {
+  width: 100%;
+  height: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+
+.registration__form {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+          width: 100%;
+}
+
+.registration__label {
+  position: relative;
+  width: 100%;
+  height: 50px;
+  display: flex;
+  transition: 0.3s;
+  cursor: pointer;
+  border: 1px solid #D42C20;
+  border-radius: 40px;
+  margin-bottom: 10px;
+}
+
+.registration__label.filled {
+  opacity: 1;
+  border: 1px solid rgba(212, 44, 32, 0.3);
+}
+
+.registration__label.active {
+  opacity: 1;
+  border: 1px solid #D42C20;
+}
+
+.registration__label.active input::-webkit-input-placeholder {
+  color: rgba(0, 0, 0, 0.2);
+}
+
+.registration__label.active input::-moz-placeholder {
+  color: rgba(0, 0, 0, 0.2);
+}
+
+.registration__label.active input:-ms-input-placeholder {
+  color: rgba(0, 0, 0, 0.2);
+}
+
+.registration__label.active input::-ms-input-placeholder {
+  color: rgba(0, 0, 0, 0.2);
+}
+
+.registration__label.active input::placeholder {
+  color: rgba(0, 0, 0, 0.2);
+}
+
+.registration__label-icon {
+  position: absolute;
+  left: 5%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.registration__password-icon {
+  position: absolute;
+  right: 5%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.registration__label + .registration__label {
+  margin-bottom: 10px;
+}
+
+.registration__input {
+  width: 100%;
+  height: 100%;
+  border-radius: 40px;
+  font-size: 16px;
+  color: #000;
+  background-color: transparent;
+  padding-left: 15%;
+}
+
+/* input:-webkit-autofill,
+input:-webkit-autofill:focus {
+  transition: background-color 600000s 0s, color 600000s 0s;
+  font-size: 16px;
+} */
+/* 
+input:-internal-autofill-selected {
+  font-size: 16px;
+} */
+
+
+.registration__input::-webkit-input-placeholder {
+  font-size: 16px;
+  color: #373737;
+  -webkit-transition: 0.3s;
+  transition: 0.3s;
+}
+
+.registration__input::-moz-placeholder {
+  font-size: 16px;
+  color: #373737;
+  -moz-transition: 0.3s;
+  transition: 0.3s;
+}
+
+.registration__input:-ms-input-placeholder {
+  font-size: 16px;
+  color: #373737;
+  -ms-transition: 0.3s;
+  transition: 0.3s;
+}
+
+.registration__input::-ms-input-placeholder {
+  font-size: 16px;
+  color: #373737;
+  -ms-transition: 0.3s;
+  transition: 0.3s;
+}
+
+.registration__input::placeholder {
+  font-size: 16px;
+  color: #373737;
+  -webkit-transition: 0.3s;
+  -o-transition: 0.3s;
+  transition: 0.3s;
+}
+
+.registration__input_password-icon {
+  position: absolute;
+  right: 5%;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+.registration__btn {
+  width: 100%;
+  height: 57px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  border-radius: 40px;
+  color: #fff;
+  font-size: 18px;
+  margin-bottom: 20px;
+
+  background: -webkit-gradient(linear, right top, left top, from(#D32A1E), to(#EB5E54));
+  background: -o-linear-gradient(right, #D32A1E 0%, #EB5E54 100%);
+  background: linear-gradient(270deg, #D32A1E 0%, #EB5E54 100%);
+  -webkit-box-shadow: 0px 2px 20px rgba(113, 7, 7, 0.25);
+          box-shadow: 0px 2px 20px rgba(113, 7, 7, 0.25);
+  padding: 0 50px;
+  
+}
+
+.registration__text {
+  max-width: 340px;
+}
+
+.registration__text a {
+  text-decoration: underline;
+  color: #000;
+}
+
+.registration-gender {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  font-size: 16px;
+  -ms-flex-item-align: start;
+      align-self: flex-start;
+  margin-top: 15px;
+  margin-bottom: 30px;
+}
+
+.registration-gender__input {
+  opacity: 0;
+}
+
+.registration-gender__input:checked + label::before {
+  border: 1px solid #EB5E54;
+}
+
+.registration-gender__input:checked + label::after {
+  opacity: 1;
+}
+
+.registration-gender__label {
+  position: relative;
+  margin-left: 35px;
+  cursor: pointer;
+}
+
+.registration-gender__label:before {
+  content: "";
+  display: block;
+  width: 30px;
+  height: 30px;
+  border: 1px solid #D2D2D2;
+  border-radius: 10px;
+  position: absolute;
+  top: -6px;
+  left: -35px;
+  -webkit-transition: 0.3s;
+  -o-transition: 0.3s;
+  transition: 0.3s;
+}
+
+.registration-gender__label input:checked {
+  color: red;
+}
+
+.registration-gender__label:after {
+  content: "";
+  display: block;
+  width: 30px;
+  height: 30px;
+  background: url(../img/icons/ok.svg) center/auto no-repeat;
+  position: absolute;
+  top: -6px;
+  left: -35px;
+  opacity: 0;
+  -webkit-transition: 0.3s;
+  -o-transition: 0.3s;
+  transition: 0.3s;
+}
+
+
+
+
+@media (max-width: 375px) {
+  .registration__label {
+    width: calc(270px + 30 * (100vw - 320px) / 55);
+  }
+
+  .registration__btn {
+    width: calc(270px + 30 * (100vw - 320px) / 55);
+  }
+
+  .registration__text {
+    width: calc(270px + 30 * (100vw - 320px) / 55);
+  }
+
+}
+

@@ -3,51 +3,38 @@
 
 {% block profile_content %}
 
-    <section class="complexes-list__content">
-        <div class="complexes-list-container">
-            <div class="complexes-list__title">
-                Комплекс <span>1</span>
-            </div>
-            <div class="complexes-list-slider">
 
-                {% for complex in complexes %}
-                    <div class="complexes-list-slide {{ 'unlock' if user.level >= complex.number else 'lock' }}">
 
-                    <div class="complexes-list-slide__wrapper">
-                        <div class="complexes-list-slide__image complexes-list-image">
+    <section class="complexes-list__content container">
+        <p class="complexes-list__title">Вам доступен комплекс упражнений<span class="complexes-list__number-complex"></span></p>
 
-                            {% if complex.id in viewed_complexes %}
-                                <div class="complexes-list-image__wrapper viewed">
-                            {% else %}
-                                <div class="complexes-list-image__wrapper">
-                            {% endif %}
+            <div class="swiper mySwiperComplex">
+                <div class="swiper-wrapper">
 
-                            <picture>
-                                <source srcset="/static/img/dragon.jpg"
-                                        type="image/webp">
-                                <img class="complexes-list-image__wrapper-img"
-                                     src="/static/img/dragon.jpg" alt="dragon">
-                            </picture>
-                            <div class="complexes-list-image__time">{{ complex.duration }} мин</div>
-                        </div>
+                    {% for complex in complexes %}
 
-                            {% if complex.id in viewed_complexes %}
-                                <div class="complexes-list-image__remained">
-                                    Завершено
+                    <div id="{{ complex.id }}" class="swiper-slide complexes-list__wrapper">
+
+                        <div class="complexes-list-slide">
+                            <div class="complexes-list-image__wrapper">
+                                    <img class="complexes-list-image lock" src="/static/img/reg__bg-red.svg" width="220px" height="330px" alt="dragon">
+                                <div class="complexes-list__time"> 
+                                    <span class="complexes-list__time-text"> мин</span>
+                                    <img class="complexes-list__time-img" src="/static/img/icons/clock.svg" width="20px" height="20px" alt="clock">
                                 </div>
-                                <a href="/videos_list/{{ complex.id }}"
-                                   class="complexes-list-slide__btn">
-                                    Посмотреть еще раз
+                                <a href="/videos_list/{{ complex.id }}" class="complexes-list-slide__btn-box">
+                                    <span class="complexes-list-slide__btn-text">Посмотреть</span>
+                                    <img class="complexes-list-slide__btn-img" src="/static/img/icons/plus.svg" alt="plus">
                                 </a>
 
-                            {% else %}
-                                <a href="/videos_list/{{ complex.id }}"
-                                   class="complexes-list-slide__btn">
-                                    Посмотреть
-                                </a>
-                            {% endif %}
+                                <div class="complexes-list-slide__lock">
+                                    <p class="complexes-list-slide__lock-text">Станет доступно на {{ complex.number }} уровне, до {{ complex.number }} уровня, нужно полностью выполнить <span>{{ complex.number }}</span> комплекс"</p>
+                                    <img class="complexes-list-slide__lock-img" src="/static/img/icons/lock.svg" width="20px" height="20px">
 
+                                </div>
                             </div>
+
+                            
                             <div class="complexes-list-slide__text">
                                 <div class="complexes-list-slide__title">
                                     {{ complex.name }}
@@ -56,21 +43,21 @@
                                     {{ complex.description }}
                                 </div>
                             </div>
-                            <div class="complexes-list-slide__lock">Станет доступно
-                                на {{ complex.number }}
-                                уровне
-                                {% if complex.number - user.level == 1 %}
-                                    , до {{ complex.number }} уровня осталось {{ to_next_level }}
-                                    упражнений
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
 
+                        </div>
+
+                    </div>
+                    {% endfor %}
                 </div>
+
+                <div class="swiper-pagination"></div>
+            
+                <div class="swiper-button-prev"></div>
+                <div class="swiper-button-next"></div>
+            
+                <div class="swiper-scrollbar"></div>
+
             </div>
-        </div>
     </section>
 
 {% endblock profile_content %}

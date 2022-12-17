@@ -15,23 +15,29 @@
                             <input id="username" class="profile-editing__form-input" type="text" placeholder="Имя"
                                name="username" value="{{ user.username }}" required>
                             <label class="profile-editing__form-label" for="username">Имя</label>
+                            <img class="profile-editing__form-icon" src="/static/img/icons/profile.svg" width="20" height="20" alt="">
+
                         </div>
                         <div class="profile-editing__form-box-input">
                             <input id="last_name" class="profile-editing__form-input" type="text" placeholder="Фамилия" name="last_name" required
                                value="{{ user.last_name }}">
                             <label class="profile-editing__form-label"  for="last_name">Фамилия</label>
+                            <img class="profile-editing__form-icon" src="/static/img/icons/profile.svg" width="20" height="20" alt="">
+
                         </div>
                         <div class="profile-editing__form-box-input">
                             <input id="third_name" class="profile-editing__form-input" type="text"
                                placeholder="Отчество" name="third_name"
                                value="{{ user.third_name }}" required>
                             <label class="profile-editing__form-label"  for="third_name">Отчество</label>
+                            <img class="profile-editing__form-icon" src="/static/img/icons/profile.svg" width="20" height="20" alt="">
                         </div>
                         <div class="profile-editing__form-box-input">
                             <input id="email" class="profile-editing__form-input" type="email" placeholder="Почта"
                                name="email" required
                                pattern={{ email_pattern }} value="{{ user.email }}">
                             <label class="profile-editing__form-label"  for="email">Email</label>
+                            <img class="profile-editing__form-icon" src="/static/img/icons/email.svg" width="20" height="20" alt="">
                         </div>
 
                         <!-- TODO: маска на номере телефона провалидировать на сервере -->
@@ -49,16 +55,23 @@
                             <input id="old_password" class="profile-editing__form-input" type="password"
                                placeholder="Введите старый пароль" name="old_password" required>
                             <label class="profile-editing__form-label"  for="old_password">Старый пароль</label>
+                            <img class="profile-editing__form-icon" src="/static/img/icons/labelPassword.svg" width="20" height="20" alt="">
+                            <img class="profile-editing__form-icon-password password__show" src="/static/img/icons/eye.svg" width="20" height="20" alt="">
+
                         </div>
                         <div class="profile-editing__form-box-input">
                             <input id="password" class="profile-editing__form-input" type="password"
                                placeholder="Введите новый пароль" name="password" required>
                             <label class="profile-editing__form-label"  for="password">Новый пароль</label>
+                            <img class="profile-editing__form-icon" src="/static/img/icons/labelPassword.svg" width="20" height="20" alt="">
+                            <img class="profile-editing__form-icon-password password__show" src="/static/img/icons/eye.svg" width="20" height="20" alt="">
                         </div>
                         <div class="profile-editing__form-box-input">
                             <input id="password2" class="profile-editing__form-input" type="password"
                                placeholder="Подтвердите новый пароль" name="password2" required>
                             <label class="profile-editing__form-label"  for="password2">Подтвердить новый пароль</label>
+                            <img class="profile-editing__form-icon" src="/static/img/icons/labelPassword.svg" width="20" height="20" alt="">
+                            <img class="profile-editing__form-icon-password password__show" src="/static/img/icons/eye.svg" width="20" height="20" alt="">
                         </div>
                         <input class="profile-editing__form-submit" type="submit"
                                value="Изменить пароль">

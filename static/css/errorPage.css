@@ -1,14 +1,8 @@
-.success-box {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.success_header {
+.error-page {
   font-size: 24px;
   line-height: 140%;
   text-align: center;
   background: linear-gradient(270deg, #D32A1E 0%, #EB5E54 100%);
   background-clip: text;
-  text-align: center;
   margin-bottom: 30px;
 }

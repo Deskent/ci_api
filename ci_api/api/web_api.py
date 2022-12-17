@@ -20,11 +20,12 @@ async def complex_viewed_web(
     return await get_viewed_complex_response(user=user, complex_id=complex_id)
 
 
-@router.get("/list", response_model=dict)
+@router.get("/complex/list", response_model=dict)
 async def get_complexes_list_web(
         user: User = Depends(get_user_from_context)
 ):
     """Return complexes list"""
+
     complexes: list[Complex] = await Complex.get_all()
 
     return dict(user=UserOutput(**user.dict()), complexes=complexes)

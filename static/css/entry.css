@@ -1,0 +1,19 @@
+.entry__link_forget {
+  margin: 18px 0;
+  color: #EB5E54;
+  text-decoration: none;
+}
+
+.entry__link_sms span {
+  background: -webkit-gradient(linear, right top, left top, from(#D32A1E), to(#EB5E54));
+  background: -o-linear-gradient(right, #D32A1E 0%, #EB5E54 100%);
+  background: linear-gradient(270deg, #D32A1E 0%, #EB5E54 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+}
+
+.entry_main {
+  background-color: #fff;
+}

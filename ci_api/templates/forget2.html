@@ -27,7 +27,7 @@
                         <div class="forget2-form-box">
                             {% for index in range(1, 5) %}
                                 <input class="forget-form__input" id="forgetInput{{ index }}" maxlength="1"
-                                    type="text" name="sms_input_{{ index }}" required pattern="[0-9]{1}">
+                                    type="text" name="sms_input_{{ index }}" required pattern="[0-9]{1}" tabindex="{{ index }}" autofocus value="">
                             {% endfor %}
                         </div>
                             <input type="text" name="user_id" value="{{ user.id }}" hidden>

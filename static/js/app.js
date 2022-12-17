@@ -37,18 +37,22 @@ function activeInputs() {
     }
 }
 
+// было registration__input_password_btn
+
 function showPassword() {
-    const viewPasswordBtn = document.querySelector('.registration__input_password_btn')
-    if (viewPasswordBtn) {
-        viewPasswordBtn.addEventListener("click", (e) => {
-            const input = e.target.parentNode.querySelector('input');
-            if (input.type == 'password') {
-                input.type = "text"
-            } else {
-                input.type = "password"
-            }
-        })
-    }
+    const viewPasswordBtn = document.querySelectorAll('.password__show')
+    viewPasswordBtn.forEach((item) => {
+        if (item) {
+            item.addEventListener("click", (evt) => {
+                const input = evt.target.parentNode.querySelector('input');
+                if (input.type == 'password') {
+                    input.type = "text"
+                } else {
+                    input.type = "password"
+                }
+            })
+        }
+    })
 }
 
 function makeBurgerMenu() {
@@ -61,7 +65,7 @@ function makeBurgerMenu() {
             burger.classList.toggle("active")
             menu.classList.toggle("active")
             cover.classList.toggle("active")
-            body.classList.toggle("lock")
+            // body.classList.toggle("lock")
         }
 
         burger.addEventListener("click", () => {
@@ -73,139 +77,105 @@ function makeBurgerMenu() {
     }
 }
 
-
-// slider
-function slider2Work() {
-    const chargingSlider2 = document.querySelector('.complexes-list-slider')
-    if (chargingSlider2) {
-        $(document).ready(function () {
-            $('.complexes-list-slider').slick({
-                slidesToShow: 3,
-                slidesToScroll: 1,
-                arrows: true,
-                dots: true,
-                // loop: false,
-                infinite: false,
-                responsive: [
-                    {
-                        breakpoint: 769,
-                        settings: {
-                            arrows: false,
-                        }
-                    },
-                    {
-                        breakpoint: 651,
-                        settings: {
-                            slidesToShow: 1,
-                            arrows: false,
-                        }
-                    },
-                ],
-            });
-        });
-    }
-
-}
 activeInputs()
 showPassword()
 makeBurgerMenu()
-slider2Work()
 
 
 // Popup
-const popupLinks = document.querySelectorAll(".modal__link");
-const body = document.querySelector("body");
-const lockPadding = document.querySelectorAll(".lock-padding");
-const popupCloseIcon = document.querySelectorAll(".modal__close");
+// const popupLinks = document.querySelectorAll(".modal__link");
+// const body = document.querySelector("body");
+// const lockPadding = document.querySelectorAll(".lock-padding");
+// const popupCloseIcon = document.querySelectorAll(".modal__close");
 
-let unlock = true;
+// let unlock = true;
 
-const timeout = 500;
+// const timeout = 500;
 
-if (popupLinks.length > 0) {
-    for (let index = 0; index < popupLinks.length; index++) {
-        const popupLink = popupLinks[index];
-        popupLink.addEventListener("click", function (e) {
-            const popupName = popupLink.getAttribute('href').replace('#', '');
-            const curentPopup = document.getElementById(popupName);
-            popupOpen(curentPopup);
-            e.preventDefault();
-        });
-    }
-}
+// if (popupLinks.length > 0) {
+//     for (let index = 0; index < popupLinks.length; index++) {
+//         const popupLink = popupLinks[index];
+//         popupLink.addEventListener("click", function (e) {
+//             const popupName = popupLink.getAttribute('href').replace('#', '');
+//             const curentPopup = document.getElementById(popupName);
+//             popupOpen(curentPopup);
+//             e.preventDefault();
+//         });
+//     }
+// }
 
-if (popupCloseIcon.length > 0) {
-    for (let index = 0; index < popupCloseIcon.length; index++) {
-        const el = popupCloseIcon[index];
-        el.addEventListener("click", function (e) {
-            popupClose(el.closest(".modal"));
-            e.preventDefault();
-        });
-    }
-}
+// if (popupCloseIcon.length > 0) {
+//     for (let index = 0; index < popupCloseIcon.length; index++) {
+//         const el = popupCloseIcon[index];
+//         el.addEventListener("click", function (e) {
+//             popupClose(el.closest(".modal"));
+//             e.preventDefault();
+//         });
+//     }
+// }
 
-function popupOpen(curentPopup) {
-    if (curentPopup && unlock) {
-        const popupActive = document.querySelector(".modal.open");
-        if (popupActive) {
-            popupClose(popupActive, false);
-        } else {
-            bodyLock();
-        }
-        curentPopup.classList.add("open");
-        curentPopup.addEventListener("click", function (e) {
-            if (!e.target.closest(".modal__content")) {
-                popupClose(e.target.closest(".modal"));
-            }
-        })
-    }
-}
+// function popupOpen(curentPopup) {
+//     if (curentPopup && unlock) {
+//         const popupActive = document.querySelector(".modal.open");
+//         if (popupActive) {
+//             popupClose(popupActive, false);
+//         } else {
+//             bodyLock();
+//         }
+//         curentPopup.classList.add("open");
+//         curentPopup.addEventListener("click", function (e) {
+//             if (!e.target.closest(".modal__content")) {
+//                 popupClose(e.target.closest(".modal"));
+//             }
+//         })
+//     }
+// }
 
-function popupClose(popupActive, doUnlock = true) {
-    if (unlock) {
-        popupActive.classList.remove("open");
-        if (doUnlock) {
-            bodyUnLock();
-        }
-    }
-}
+// function popupClose(popupActive, doUnlock = true) {
+//     if (unlock) {
+//         popupActive.classList.remove("open");
+//         if (doUnlock) {
+//             bodyUnLock();
+//         }
+//     }
+// }
 
-function bodyLock() {
-    const lockPaddingValue = "17px";
+// function bodyLock() {
+//     const lockPaddingValue = "17px";
 
-    if (lockPadding.length > 0) {
-        for (let index = 0; index < lockPadding.length; index++) {
-            const el = lockPadding[index];
-            el.style.paddingRight = lockPaddingValue;
-        }
-    }
-    body.style.paddingRight = lockPaddingValue;
-    body.classList.add("lock");
+//     if (lockPadding.length > 0) {
+//         for (let index = 0; index < lockPadding.length; index++) {
+//             const el = lockPadding[index];
+//             el.style.paddingRight = lockPaddingValue;
+//         }
+//     }
+//     body.style.paddingRight = lockPaddingValue;
+//     body.classList.add("lock");
 
 
-    unlock = false;
-    setTimeout(function () {
-        unlock = true;
-    }, timeout);
-}
+//     unlock = false;
+//     setTimeout(function () {
+//         unlock = true;
+//     }, timeout);
+// }
 
-function bodyUnLock() {
-    setTimeout(function () {
-        if (lockPadding.length > 0) {
-            for (let index; index < lockPadding.length; index++) {
-                const el = lockPadding[index];
-                el.style.paddingRight = "0px";
-            }
-        }
-        body.style.paddingRight = "0px";
-        body.classList.remove("lock");
-    }, timeout);
+// function bodyUnLock() {
+//     setTimeout(function () {
+//         if (lockPadding.length > 0) {
+//             for (let index; index < lockPadding.length; index++) {
+//                 const el = lockPadding[index];
+//                 el.style.paddingRight = "0px";
+//             }
+//         }
+//         body.style.paddingRight = "0px";
+//         body.classList.remove("lock");
+//     }, timeout);
 
-    unlock = false;
-    setTimeout(function () {
-        unlock = true;
-    }, timeout)
-}
+//     unlock = false;
+//     setTimeout(function () {
+//         unlock = true;
+//     }, timeout)
+// }
 
 document.addEventListener("keydown", function (e) {
     if (e.which === 27) {
@@ -235,29 +205,6 @@ document.addEventListener("keydown", function (e) {
 
 
 
-// Отправляем запрос после загрузки страницы
-
-const urlPath = window.location.pathname;
-const complex_id = Array.from(urlPath).pop();
-
-
-// TODO: https://energy.qidoctor.ru/v1/api/... запрос на сервере отправлять сюда
-// TODO: для разработки на http://127.0.0.1:8000/api/v1/videos/viewed
-
-
-document.addEventListener("DOMContentLoaded", async (evt) => {
-   // const response = await fetch('http://127.0.0.1:8000/api/v1/videos/complex_viewed/' + complex_id, {
-   const response = await fetch('http://energy.qidoctor.ru/api/v1/videos/complex_viewed/' + complex_id, {
-      method: 'GET',
-      headers: {
-      'Content-Type': 'application/json;charset=utf-8',
-      },
-   });
-
-   let result = await response.json();
-   console.log(result);
-
-})
 
 
 
@@ -268,7 +215,29 @@ document.addEventListener("DOMContentLoaded", async (evt) => {
 
 
 
-// Сториз рилз
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//videos_list/{номер комплекса}
+
+
+
+
+
+
+
 
 
 
@@ -276,7 +245,8 @@ document.addEventListener("DOMContentLoaded", async (evt) => {
 // Инициализируем слайдер для упражнений
    let swiper = new Swiper(".mySwiper", {
       slidesPerView: 3,
-      spaceBetween: 30,
+      // centeredSlides: true,
+      spaceBetween: 60,
       speed: 400,
       grabCursor: true,
       autoHeight: true,
@@ -316,8 +286,7 @@ document.addEventListener("DOMContentLoaded", async (evt) => {
 
 
 
-
-
+const urlPath = window.location.pathname;
 const modalVideos = document.querySelectorAll('.slide');
 const modalVideoBox = document.querySelector(".swiper-wrapper");
 const modalNewLevel = document.querySelector('.new-level-box');
@@ -336,34 +305,34 @@ function modalVideoControls() {
          let targetVideoId = evt.target.dataset.id;
          let videoId = document.getElementById(targetVideoId);
 
-         let modalVideoWrapperId = videoId.closest(".slide__card-wrapper");
-         let modalVideoPlay = modalVideoWrapperId.querySelector('.slide__play');
-         let modalVideoPause = modalVideoWrapperId.querySelector('.slide__pause');
-         let modalVideoViewed = modalVideoWrapperId.querySelector('.slide__viewed');
-         let modalVideoTime = modalVideoWrapperId.querySelector('.slide__time');
-         let modalVideoTitle = modalVideoWrapperId.querySelector('.slide__title');
-         let modalVideoDescription = modalVideoWrapperId.querySelector('.slide__description');
+         let modalVideoWrapperId = videoId?.closest(".slide__card-wrapper");
+         let modalVideoPlay = modalVideoWrapperId?.querySelector('.slide__play');
+         let modalVideoPause = modalVideoWrapperId?.querySelector('.slide__pause');
+         let modalVideoViewed = modalVideoWrapperId?.querySelector('.slide__viewed');
+         let modalVideoTime = modalVideoWrapperId?.querySelector('.slide__time');
+         let modalVideoTitle = modalVideoWrapperId?.querySelector('.slide__title');
+         let modalVideoDescription = modalVideoWrapperId?.querySelector('.slide__description');
 
 
-        if (modalVideoPause.classList.contains('hidden')) {
-            modalVideoPlay.classList.add("hidden");
-            videoId.play();
-            if(videoId.classList.contains('viewed')) {
-               videoId.classList.remove("viewed");
+        if (modalVideoPause?.classList.contains('hidden')) {
+            modalVideoPlay?.classList.add("hidden");
+            videoId?.play();
+            if(videoId?.classList.contains('viewed')) {
+               videoId?.classList.remove("viewed");
             }
-            modalVideoPause.classList.remove("hidden");
-            modalVideoViewed.classList.add("hidden");
-            modalVideoTime.classList.add("hidden");
-            modalVideoTitle.classList.add("hidden");
-            modalVideoDescription.classList.add("hidden");
+            modalVideoPause?.classList.remove("hidden");
+            modalVideoViewed?.classList.add("hidden");
+            modalVideoTime?.classList.add("hidden");
+            modalVideoTitle?.classList.add("hidden");
+            modalVideoDescription?.classList.add("hidden");
 
         } else {
-            modalVideoPlay.classList.remove("hidden");
-            videoId.pause();
-            modalVideoPause.classList.add("hidden");
-            modalVideoViewed.classList.remove("hidden");
-            modalVideoTime.classList.remove("hidden");
-            modalVideoViewed.classList.add("hidden");
+            modalVideoPlay?.classList.remove("hidden");
+            videoId?.pause();
+            modalVideoPause?.classList.add("hidden");
+            modalVideoViewed?.classList.remove("hidden");
+            modalVideoTime?.classList.remove("hidden");
+            modalVideoViewed?.classList.add("hidden");
 
          }
       }
@@ -498,6 +467,26 @@ function modalVideoEnded() {
             if(modalNewLevel.classList.contains('hidden')) {
                modalNewLevel.classList.remove('hidden');
             }
+
+            // Отправляем запрос после просмотра последнего видео
+
+            const complex_id = Array.from(urlPath).pop();
+
+            // TODO: https://energy.qidoctor.ru/v1/api/... запрос на сервере отправлять сюда
+            // TODO: для разработки на http://127.0.0.1:8000/api/v1/videos/viewed
+
+                // if(complex_id === Number) {
+            const response = await fetch('http://127.0.0.1:8000/api/v1/web/complex_viewed/' + complex_id, {
+                //    const response = await fetch('http://energy.qidoctor.ru/api/v1/web/complex_viewed/' + complex_id, {
+                    method: 'GET',
+                    headers: {
+                    'Content-Type': 'application/json;charset=utf-8',
+                    },
+                });
+
+                let result = await response.json();
+                console.log(result);
+            // }
          }
       });
    })
@@ -523,5 +512,129 @@ function closeModalNewLevelHandler () {
 
 close?.addEventListener("click", closeModalNewLevelHandler);
 repeatViewingBtn?.addEventListener("click", closeModalNewLevelHandler);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//complexes_list
+
+
+// Отправляем запрос после загрузки страницы complexes_list
+
+const complexesList = urlPath;
+
+
+
+// TODO: https://energy.qidoctor.ru/api/v1/complex/list/ запрос на сервере отправлять сюда
+// TODO: для разработки на http://127.0.0.1:8000/api/v1/complex/list/
+
+if(complexesList.includes("complexes_list")) {
+    document.addEventListener("DOMContentLoaded", async (evt) => {
+        const response = await fetch('http://127.0.0.1:8000/api/v1/web/complex/list', {
+     //    const response = await fetch('http://energy.qidoctor.ru/api/v1/web/complex/list', {
+           method: 'GET',
+           headers: {
+           'Content-Type': 'application/json;charset=utf-8',
+           },
+        });
+
+        let result = await response.json();
+        console.log(result);
+
+        const progressUser = result.user.level;
+        const complexes = result.complexes;
+
+        let numberComplexTag = document.querySelector(".complexes-list__number-complex");
+        numberComplexTag.textContent = " " + (progressUser + 1);
+        let complexesListSlide = document.querySelectorAll(".complexes-list__wrapper");
+        let complexesListSlideArr = Array.from(complexesListSlide);
+
+        for(let i = 0; i <= complexesListSlideArr.length - 1; i++) {
+            let item = complexesListSlideArr[i];
+            // добавляем общее время комплекса в минутах каждой карточке комплекса
+            const time = complexes[i].duration / 60;
+
+            item.querySelector('.complexes-list__time-text').textContent = Math.ceil(time) + " мин";
+
+            if(i <= progressUser) {
+                item.querySelector('.complexes-list-slide__lock').style.display = "none";
+                item.querySelector('.complexes-list-slide__btn-box').style.display = "flex";
+                item.querySelector('.complexes-list-image').classList.remove('lock');
+            }
+        }
+    })
+}
+
+// Инициализируем слайдер для комплексов
+let swiper1 = new Swiper(".mySwiperComplex", {
+    slidesPerView: 3,
+    spaceBetween: 30,
+    speed: 400,
+    grabCursor: true,
+    autoHeight: true,
+    //отключение функционала если слайдов меньше чем нужно
+    watchOverflow: true,
+
+    device: {
+       ios: true,
+       android: true
+    },
+
+    pagination: {
+       el: ".swiper-pagination",
+       clickable: true,
+    },
+    navigation: {
+       nextEl: ".swiper-button-next",
+       prevEl: ".swiper-button-prev",
+    },
+    keyboard: {
+       enabled: true,
+       onlyInViewport: true,
+    },
+    breakpoints: {
+       50: {
+          slidesPerView: 1,
+       },
+       480: {
+          slidesPerView: 2,
+       },
+       768: {
+          slidesPerView: 3,
+       }
+    }
+ });
+
+let forgetFormInput = document.querySelectorAll(".forget-form__input");
+console.log(forgetFormInput);
+
+forgetFormInput.forEach((item, index) => {
+   item.addEventListener("keydown", (evt) => {
+      // evt.preventDefault();
+      if (item.value == Number) {
+         console.log(item.value);
+         item[index + 1].focus();
+      }
+    });
+})
+
 
 
