@@ -79,7 +79,7 @@ class TestUsers:
 
     @pytest.mark.server
     def test_get_rates(self):
-        response = self.session.get(self.base_url + "/users/rates")
+        response = self.session.get(self.base_url + "/users/rates", headers=self.headers)
         assert response.status_code == 200
         data: list = response.json()
         assert data is not None
