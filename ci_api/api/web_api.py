@@ -1,16 +1,15 @@
 import base64
 
-from fastapi import APIRouter, status, Depends, Body
+from fastapi import APIRouter, status, Depends
 
-from models.models import User, Complex, ViewedComplex
+from config import logger
+from models.models import User
 from schemas.avatar import AvatarBase
 from schemas.complexes_videos import ComplexesListWithViewedAndNot
-from schemas.user_schema import UserOutput
 from services.complexes_web_context import get_complexes_list_web_context
 from services.videos_methods import get_viewed_complex_response
 from services.web_context_class import WebContext
 from web_service.utils.get_contexts import get_user_from_context
-from config import logger
 
 router = APIRouter(prefix="/web", tags=['WebApi'])
 

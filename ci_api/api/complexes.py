@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 
 from models.models import User, Complex, Video, ViewedComplex
-from schemas.complexes_videos import ComplexData
+from schemas.complexes_videos import ComplexData, ComplexesListWithViewedAndNot
 from schemas.user_schema import UserProgress, UserOutput
+from services.complexes_web_context import get_complexes_list_web_context
 from services.depends import get_logged_user
 from services.models_cache.base_cache import AllCache
 from services.videos_methods import get_viewed_complex_response
+from services.web_context_class import WebContext
 
 router = APIRouter(prefix="/complex", tags=['Complexes'])
 
@@ -20,18 +22,18 @@ async def current_progress(
     return user
 
 
-@router.get("/list", response_model=dict)
-async def complexes_list_get(
+@router.get("/list", response_model=ComplexesListWithViewedAndNot)
+async def get_complexes_list_api(
         user: User = Depends(get_logged_user)
 ):
-    """Return user and complexes list as JSON"""
-    complexes: list[Complex] = await AllCache.get_all(Complex)
+    """Return viewed_complexes, today_complex, not_viewed_complexes, user"""
 
-    return dict(user=UserOutput(**user.dict()), complexes=complexes)
+    web_context: WebContext = await get_complexes_list_web_context({}, user)
+    return web_context.api_render()
 
 
 @router.get("/viewed/list", response_model=dict)
-async def complexes_list_get(
+async def get_viewed_complexes_api(
         user: User = Depends(get_logged_user)
 ):
     """Return user, complexes list and viewed_complexes list as JSON"""

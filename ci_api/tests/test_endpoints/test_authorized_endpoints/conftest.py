@@ -139,6 +139,3 @@ def setup_class(
     test_data.create()
     yield test_data
     test_data.delete_user()
-
-
-
