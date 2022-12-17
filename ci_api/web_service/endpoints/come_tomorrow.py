@@ -1,8 +1,7 @@
 from fastapi import Depends, APIRouter
 from starlette.responses import HTMLResponse
 
-from config import templates
-from web_service.utils.title_context_func import get_page_titles
+from services.web_context_class import WebContext
 from web_service.utils.get_contexts import get_logged_user_context
 
 
@@ -13,6 +12,7 @@ router = APIRouter(tags=['web', 'tomorrow'])
 async def come_tomorrow(
         context: dict = Depends(get_logged_user_context),
 ):
-    return templates.TemplateResponse(
-        "come_tomorrow.html", context=get_page_titles(context, "come_tomorrow.html")
-    )
+    web_context = WebContext(context)
+    web_context.template = "come_tomorrow.html"
+
+    return web_context.web_render()
