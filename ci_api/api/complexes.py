@@ -41,7 +41,11 @@ async def complexes_list_get(
     return dict(user=UserOutput(**user.dict()), complexes=complexes, viewed=viewed)
 
 
-@router.get("/{complex_id}", response_model=ComplexData, dependencies=[Depends(get_logged_user)])
+@router.get(
+    "/{complex_id}",
+    response_model=ComplexData,
+    dependencies=[Depends(get_logged_user)]
+)
 async def complex_data(
         complex_id: int,
 ):
