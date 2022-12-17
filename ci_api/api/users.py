@@ -12,7 +12,12 @@ from web_service.handlers.profile_web_contexts import get_edit_profile_web_conte
 router = APIRouter(prefix="/users", tags=['Users'])
 
 
-@router.get("/alarms/list", response_model=list[AlarmFull])
+@router.get(
+    "/alarms/list",
+    response_model=list[AlarmFull],
+    status_code=status.HTTP_200_OK,
+    tags=['Alarms']
+)
 async def get_user_alarms(
         user: User = Depends(get_logged_user),
 ):
@@ -30,7 +35,12 @@ async def get_user_alarms(
     return alarms
 
 
-@router.get("/notifications", response_model=list[Notification])
+@router.get(
+    "/notifications",
+    response_model=list[Notification],
+    status_code=status.HTTP_200_OK,
+    tags=["Notifications"]
+)
 async def get_user_notifications(
         user: User = Depends(get_logged_user),
 ):
@@ -45,7 +55,13 @@ async def get_user_notifications(
     return notifications
 
 
-@router.get("/rates", response_model=list[Rate], tags=['Rates'], dependencies=[Depends(get_logged_user)])
+@router.get(
+    "/rates",
+    response_model=list[Rate],
+    dependencies=[Depends(get_logged_user)],
+    status_code=status.HTTP_200_OK,
+    tags=['Rates']
+)
 async def get_all_rates():
     """Get all rates.
 
@@ -58,7 +74,10 @@ async def get_all_rates():
     return rates
 
 
-@router.delete("/", status_code=status.HTTP_204_NO_CONTENT, dependencies=[])
+@router.delete(
+    "/",
+    status_code=status.HTTP_204_NO_CONTENT
+)
 async def delete_user(
         logged_user: User = Depends(get_logged_user),
 ):
@@ -76,7 +95,11 @@ async def delete_user(
     logger.info(f"User with id {user.id} deleted")
 
 
-@router.get("/me", response_model=UserSchema)
+@router.get(
+    "/me",
+    response_model=UserSchema,
+    status_code=status.HTTP_200_OK
+)
 async def get_me(
         user: User = Depends(get_logged_user)
 ):
