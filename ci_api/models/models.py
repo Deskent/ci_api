@@ -334,6 +334,15 @@ class ViewedComplex(MySQLModel, table=True):
         return await get_all(query)
 
     @classmethod
+    async def get_all_viewed_complexes_ids(
+            cls,
+            user_id: int
+    ) -> list[int]:
+
+        query = select(cls.id).where(cls.user_id == user_id)
+        return await get_all(query)
+
+    @classmethod
     async def is_viewed_complex(
             cls,
             user_id: int,
