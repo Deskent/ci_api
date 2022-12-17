@@ -5,7 +5,7 @@ from models.models import User, Alarm, Notification, Rate
 from schemas.alarms import AlarmFull
 from schemas.user_schema import UserSchema, UserEditProfile
 from services.depends import get_logged_user
-from services.rates_cache import RatesCache
+from services.models_cache.base_cache import AllCache
 from services.weekdays import WeekDay
 from web_service.handlers.profile_web_contexts import get_edit_profile_web_context
 
@@ -68,7 +68,7 @@ async def get_all_rates():
     :return List of rates
     """
 
-    rates: list[Rate] = await RatesCache.get_all()
+    rates: list[Rate] = await AllCache.get_all(Rate)
     logger.info(f"Rates requested")
 
     return rates
