@@ -7,7 +7,7 @@ from exc.exceptions import (
 )
 from exc.payment.pay_exceptions import PaymentServiceError, SubscribeExistsError
 from models.models import User, Rate, Payment
-from services.rates_cache import RatesCache
+from services.models_cache.base_cache import AllCache
 from services.web_context_class import WebContext
 from services.utils import get_current_datetime
 from web_service.services.send_payment_request import get_payment_link
@@ -15,8 +15,8 @@ from web_service.utils.get_contexts import present_user_expired_at_day_and_month
 
 
 async def _get_rate_date(user: User) -> dict:
-    rates: list[Rate] = await RatesCache.get_all()
-    current_rate: Rate = await RatesCache.get_by_id(user.rate_id)
+    rates: list[Rate] = await AllCache.get_all(Rate)
+    current_rate: Rate = await AllCache.get_by_id(Rate, user.rate_id)
 
     return dict(rates=rates, current_rate=current_rate)
 
@@ -50,7 +50,7 @@ async def get_subscribe_by_rate_id(
     obj.context.update(**api_data)
     obj.api_data.update(payload=api_data)
 
-    rate: Rate = await RatesCache.get_by_id(rate_id)
+    rate: Rate = await AllCache.get_by_id(Rate, rate_id)
 
     if await Payment.get_by_user_and_rate_id(user_id=user.id, rate_id=rate.id):
         obj.error = SubscribeExistsError.detail
@@ -99,7 +99,7 @@ async def check_payment_result(
 
     rate_id: int = payform_order_id
 
-    if not await RatesCache.get_by_id(rate_id):
+    if not await AllCache.get_by_id(Rate, rate_id):
         obj.error = "Тариф не найден",
         obj.template = "subscribe.html",
         obj.to_raise = RateNotFound

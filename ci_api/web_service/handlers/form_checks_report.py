@@ -6,7 +6,7 @@ from loguru import logger
 
 from config import settings
 from models.models import PaymentCheck, User, Rate
-from services.rates_cache import RatesCache
+from services.models_cache.base_cache import AllCache
 from services.utils import to_isoformat
 from services.web_context_class import WebContext
 
@@ -17,7 +17,7 @@ async def form_payments_report(
 ) -> WebContext:
     obj = WebContext(context=context)
     checks: list[PaymentCheck] = await PaymentCheck.get_all_by_user_id(user.id)
-    rates: list[Rate] = await RatesCache.get_all()
+    rates: list[Rate] = await AllCache.get_all(Rate)
 
     logger.info(checks)
     download_file_link: str = save_to_excel_file(checks, rates, user)

@@ -27,7 +27,7 @@ async def get_first(query):
     return result.scalars().first()
 
 
-class MySQLModel(SQLModel):
+class BaseSQLModel(SQLModel):
     id: int = None
 
     async def save(self):
@@ -37,7 +37,7 @@ class MySQLModel(SQLModel):
         return self
 
     @classmethod
-    async def get_by_id(cls, id_: int) -> 'MySQLModel':
+    async def get_by_id(cls, id_: int) -> 'SQLModel':
         query = select(cls).where(cls.id == id_)
         return await get_first(query)
 
@@ -69,7 +69,7 @@ class MySQLModel(SQLModel):
         return await instance.save()
 
 
-class AdminModel(MySQLModel):
+class AdminModel(BaseSQLModel):
     email: EmailStr
     password: str
 
