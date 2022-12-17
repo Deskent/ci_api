@@ -29,7 +29,7 @@ function activeInputs() {
                         item.classList.add("filled")
                     } else {
                         item.classList.remove("filled")
-                    }      
+                    }
                 })
                 label.classList.add("active")
             })
@@ -475,21 +475,18 @@ function modalVideoEnded() {
             // TODO: https://energy.qidoctor.ru/v1/api/... запрос на сервере отправлять сюда
             // TODO: для разработки на http://127.0.0.1:8000/api/v1/videos/viewed
 
-                if(complex_id === Number) {
-                    const response = await fetch('http://127.0.0.1:8000/api/v1/web/complex_viewed/' + complex_id, {
+                // if(complex_id === Number) {
+            const response = await fetch('http://127.0.0.1:8000/api/v1/web/complex_viewed/' + complex_id, {
                 //    const response = await fetch('http://energy.qidoctor.ru/api/v1/web/complex_viewed/' + complex_id, {
                     method: 'GET',
-                    body: {
-                        complex_id: complex_id
-                    },
                     headers: {
                     'Content-Type': 'application/json;charset=utf-8',
                     },
                 });
-                
+
                 let result = await response.json();
-               //  console.log(result);
-            }
+                console.log(result);
+            // }
          }
       });
    })
@@ -551,14 +548,14 @@ const complexesList = urlPath;
 
 if(complexesList.includes("complexes_list")) {
     document.addEventListener("DOMContentLoaded", async (evt) => {
-        const response = await fetch('http://127.0.0.1:8000/api/v1/web/list', {
-     //    const response = await fetch('http://energy.qidoctor.ru/aapi/v1/web/list', {
+        const response = await fetch('http://127.0.0.1:8000/api/v1/web/complex/list', {
+     //    const response = await fetch('http://energy.qidoctor.ru/api/v1/web/complex/list', {
            method: 'GET',
            headers: {
            'Content-Type': 'application/json;charset=utf-8',
            },
         });
-     
+
         let result = await response.json();
         console.log(result);
 
@@ -632,12 +629,12 @@ console.log(forgetFormInput);
 forgetFormInput.forEach((item, index) => {
    item.addEventListener("keydown", (evt) => {
       // evt.preventDefault();
-      if (item.value == Number) { 
+      if (item.value == Number) {
          console.log(item.value);
          item[index + 1].focus();
       }
     });
 })
- 
+
 
 
