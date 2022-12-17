@@ -32,16 +32,16 @@ async def get_complexes_list_api(
     return web_context.api_render()
 
 
-# @router.get("/viewed/list", response_model=dict)
-# async def get_viewed_complexes_api(
-#         user: User = Depends(get_logged_user)
-# ):
-#     """Return user, complexes list and viewed_complexes list as JSON"""
-#
-#     complexes: list[Complex] = await AllCache.get_all(Complex)
-#     viewed: list[ViewedComplex] = await ViewedComplex.get_all_viewed_complexes(user.id)
-#
-#     return dict(user=UserOutput(**user.dict()), complexes=complexes, viewed=viewed)
+@router.get("/viewed/list", response_model=dict)
+async def get_viewed_complexes_api(
+        user: User = Depends(get_logged_user)
+):
+    """Return user, complexes list and viewed_complexes list as JSON"""
+
+    complexes: list[Complex] = await AllCache.get_all(Complex)
+    viewed: list[ViewedComplex] = await ViewedComplex.get_all_viewed_complexes(user.id)
+
+    return dict(user=UserOutput(**user.dict()), complexes=complexes, viewed=viewed)
 
 
 @router.get(
