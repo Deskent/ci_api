@@ -2,16 +2,16 @@
 
 {% block profile_content %}
     <div class="new-level">
-        <span class="unsubscribe_header">Поздравляем! Вы перешли на {{ user.level }}-ой уровень!</span>
-        <div class="successCharge-modal__level">
+        <span class="new-level__header">Поздравляем! Вы перешли на {{ user.level }}-ой уровень!</span>
+        <div class="new-level__background">
             <div>
                 <span class="bigred">{{ user.level }}</span><span>/{{ max_level }}</span>
             </div>
         </div>
-        <span class="unsubscribe_text">
+        <span class="new-level__text">
             Завтрашний комплекс займет {{ current_complex.duration }} минут
         </span>
-        <a href="/come_tomorrow" class="successCharge-modal__link modal__close">
+        <a href="/come_tomorrow" class="new-level__link">
             Отлично
         </a>
     </div>

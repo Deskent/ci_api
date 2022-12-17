@@ -148,6 +148,23 @@
     background: transparent;
 }
 
+.new-level__background {
+    background: url(../img/icons/successCharge-modal-bg.svg) center/auto no-repeat;
+    -webkit-box-flex: 0;
+        -ms-flex: 0 0 220px;
+            flex: 0 0 220px;
+    width: 220px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
+    -webkit-box-pack: center;
+        -ms-flex-pack: center;
+            justify-content: center;
+}
+
 
 @media (max-width: 768px) {
     .new-level {

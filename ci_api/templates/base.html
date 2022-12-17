@@ -4,7 +4,6 @@
     <head>
         <meta charset="UTF-8">
 {#        <link href="{{ url_for('static', path='css/style.css') }}" rel="stylesheet">#}
-{#        <link href="{{ url_for('static', path='css/style.min.css') }}" rel="stylesheet">#}
 {#        <link href="{{ url_for('static', path='js/app.js') }}" rel="stylesheet">#}
 {#        <link href="{{ url_for('static', path='js/app.min.js') }}" rel="stylesheet">#}
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -21,10 +20,9 @@
         <link rel="stylesheet" href="/static/css/unsubscribe.css">
         <link rel="stylesheet" href="/static/css/verificationCode.css">
         <link rel="stylesheet" href="/static/css/complexes_list.css">
-        <link rel="stylesheet" href="/static/css/charging.css">
 
-{#        # TODO нет импорта файла chargingComplex.css - он нужен? #}
 
+        <link rel="stylesheet" href="/static/css/header.css">
         <link rel="stylesheet" href="/static/css/profileEditing.css">
         <link rel="stylesheet" href="/static/css/confidential.css">
         <link rel="stylesheet" href="/static/css/user_agree.css">
@@ -34,7 +32,28 @@
         <link rel="stylesheet" href="/static/css/success.css">
         <link rel="stylesheet" href="/static/css/errorMessage.css">
         <link rel="stylesheet" href="/static/css/payment_report.css">
+        <link rel="stylesheet" href="/static/css/registration.css">
+        <link rel="stylesheet" href="/static/css/footer.css">
+        <link rel="stylesheet" href="/static/css/forget.css">
+
+
+
+        <link rel="stylesheet" href="/static/css/croppie.css">
+        <link rel="stylesheet" href="/static/css/profile.css">
+
+
+        <link rel="stylesheet" href="/static/css/entry.css">
+        <link rel="stylesheet" href="/static/css/notifications.css">
+        <link rel="stylesheet" href="/static/css/profileMenu.css">
+
+
+
+
+
         <link rel="stylesheet" href="/static/css/style.css">
+
+
+
 
         <title>{{ title }}</title>
     </head>
@@ -116,11 +135,13 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js?_v=20220828141206"></script>
     <!-- слайдер swiper -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
-    <!-- слайдер slick -->
-    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.js?_v=20220828141206"></script> -->
     <script src="/static/js/app.js?_v=20220828141206"></script>
     <!-- Маска для поля с телефоном -->
     <script src="/static/js/mask.js"></script>
+
+    <!-- Скрипт для аватарки -->
+    <script src="/static/js/libs/croppie.js"></script>
+    <script src="/static/js/avatar.js"></script>
 
     </body>
 {% endblock body %}

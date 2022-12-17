@@ -1,0 +1,58 @@
+.forget2-form-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.forget2-form {
+  display: flex;
+  justify-content: space-around;
+  flex-direction: row;
+}
+
+.forget__sketch_right {
+  bottom: none !important;
+}
+
+.forget__title {
+  font-size: 20px;
+  margin-bottom: 25px;
+}
+
+.forget__text {
+  color: rgba(102, 102, 102, 0.5);
+  font-size: 18px;
+  max-width: 326px;
+  text-align: center;
+}
+
+.forget-form {
+  display: flex;
+  margin-top: 25px;
+}
+
+.forget-form__input {
+  font-size: 18px;
+  padding-left: 20px;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  border: 1px solid #EB5E54;
+}
+
+.forget-form__input + .forget-form__input {
+  margin-left: 15px;
+}
+
+@media (max-width: 400px) {
+  .forget__text {
+    text-align: left;
+  }
+
+  .forget__content {
+    -webkit-box-align: start;
+        -ms-flex-align: start;
+            align-items: flex-start;
+  }
+}

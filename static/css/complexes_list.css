@@ -53,8 +53,13 @@
 
 .complexes-list-image__wrapper {
   position: relative;
-  background-color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* background-color: #fff; */
+  background: linear-gradient(270deg, rgba(211, 42, 30, 0.25) 0%, rgba(211, 42, 30, 0.2) 100%);
   border-radius: 40px;
+  min-height: 450px;
   overflow: hidden;
   padding: 10px;
   z-index: 1;

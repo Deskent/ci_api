@@ -2,15 +2,11 @@
 
 {% block profile_content %}
 
-    <section class="charging__content container">
-        <p class="charging__content-header">Ваш текущий <span>{{ current_complex.name }}</span></p>
+    <section class="videos__list-contetn container">
+        <p class="videos__list-header">Ваш текущий <span>{{ current_complex.name }}</span></p>
 
-
-        <!-- Slider main container -->
         <div class="swiper mySwiper">
-            <!-- Additional required wrapper -->
             <div class="swiper-wrapper">
-                <!-- Slides -->
 
                 {% for video in videos %}
 
@@ -24,8 +20,8 @@
                             </div>
                             <!-- {{video.file_name}} -->
                             <video id="{{ video.id }}" data-id="{{ video.id }}" class="slide lock"
-                                   src="/media/complex1.mp4"
-                                   poster="/static/img/charging-image.png" controls></video>
+                                   src="/media/{{video.file_name}}"
+                                   poster="/static/img/video-image.png" controls></video>
                             <a href="#" data-id="{{ video.id }}" class="slide__viewed">
                                 <p class="slide__viewed-text">Станет доступно после выполнения предыдущего упражнения</p>
                                 <img class="slide__viewed-img" src="/static/img/icons/lock.svg" width="20px" height="20px">
@@ -33,12 +29,12 @@
                         </div>
                         <button data-id="{{ video.id }}" class="slide__play">
                             <img data-id="{{ video.id }}"
-                                 src="/static/img/icons/charging-play-btn.svg" width="20px" height="20px" alt="">
+                                 src="/static/img/icons/video-play-btn.svg" width="20px" height="20px" alt="">
                         </button>
 
                         <button data-id="{{ video.id }}" class="slide__pause hidden">
                             <img data-id="{{ video.id }}"
-                                 src="/static/img/icons/charging-pause-btn.svg" width="20px" height="20px" alt="">
+                                 src="/static/img/icons/video-pause-btn.svg" width="20px" height="20px" alt="">
                         </button>
 
                         <h3 href="#" class="slide__title">{{ video.name }}</h3>
@@ -50,14 +46,11 @@
 
             </div>
 
-            <!-- If we need pagination -->
             <div class="swiper-pagination"></div>
         
-            <!-- If we need navigation buttons -->
             <div class="swiper-button-prev"></div>
             <div class="swiper-button-next"></div>
         
-            <!-- If we need scrollbar -->
             <div class="swiper-scrollbar"></div>
         </div>
 

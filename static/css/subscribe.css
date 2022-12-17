@@ -26,6 +26,7 @@
 .subscribe-card {
   position: relative;
   width: 30vw;
+  max-width: 30%;
   background: linear-gradient(270deg, #D32A1E 0%, #EB5E54 100%);
   border-radius: 40px;
   margin-right: 30px;
@@ -169,6 +170,7 @@
 
   .subscribe-card {
     width: 100%;
+    max-width: 100%;
     margin-bottom: 20px;
   }
 

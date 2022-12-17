@@ -2,17 +2,18 @@
 
 
 {% block profile_content %}
-    <section class="profile-content">
-        <div class="container">
+    <section class="profile-content container">
             <div class="profile-content__row">
                 <div class="profile-content__profile user-profile">
                     <div class="user-profile__info">
-                        <div class="user-profile__image">
-                            <picture>
-                                <source srcset="/static/img/dragon-avatar.webp"
-                                        type="image/webp">
-                                <img src="/static/img/dragon-avatar.jpg" width="90" height="90"
-                                     alt=""></picture>
+                        <div class="user-profile__image-wrapper">
+                            <img class="user-profile__img" id="resizer-demo" src="/static/img/icons/avatar.svg" width="80px" height="80px" alt="">
+                            <input class="user-profile__img-input" type="file" accept="image/png, image/jpg" name="file" value="file">
+                            <button class="vanilla-result">Сохранить</button>
+                            <button class="vanilla-rotate" data-deg="-90">Повернуть</button>
+                            <div class="user-profile__image-icon-box">
+                                <img class="user-profile__image-icon" src="/static/img/icons/photo.svg" width="30px" height="30px" alt="photo-icon">
+                            </div>
                         </div>
                         <div class="user-profile__contacts">
                             <div class="user-profile__name user-profile__name_input">
@@ -29,7 +30,7 @@
 
                     <form action="/edit_profile" method="GET" class="user-profile__form">
                         <button type="submit"
-                                class="registration__btn reg-banner__link_entry">
+                                class="user-profile__btn">
                             Редактировать профиль
                         </button>
                     </form>
@@ -42,7 +43,7 @@
                             <div class="profile-card__icon"><img
                                     src="/static/img/icons/credit-card.svg"
                                     alt=""></div>
-                            <div class="profile-card__number">Ваш тариф: {{ rate.name }}</div>
+                            <div class="profile-card__number">Ваш тариф: <span class="profile-card__tarrif">{{ rate.name }}</span></div>
                         </div>
                         <a href="{{ subscribe_info }}" class="profile-card__link">Подробнее</a>
                     </div>
@@ -70,6 +71,5 @@
                        class="profile-card__link_adapt">Подробнее</a>
                 </div>
             </div>
-        </div>
     </section>
 {% endblock profile_content %}

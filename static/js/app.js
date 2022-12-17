@@ -29,7 +29,7 @@ function activeInputs() {
                         item.classList.add("filled")
                     } else {
                         item.classList.remove("filled")
-                    }
+                    }      
                 })
                 label.classList.add("active")
             })
@@ -37,18 +37,22 @@ function activeInputs() {
     }
 }
 
+// было registration__input_password_btn
+
 function showPassword() {
-    const viewPasswordBtn = document.querySelector('.registration__input_password_btn')
-    if (viewPasswordBtn) {
-        viewPasswordBtn.addEventListener("click", (e) => {
-            const input = e.target.parentNode.querySelector('input');
-            if (input.type == 'password') {
-                input.type = "text"
-            } else {
-                input.type = "password"
-            }
-        })
-    }
+    const viewPasswordBtn = document.querySelectorAll('.password__show')
+    viewPasswordBtn.forEach((item) => {
+        if (item) {
+            item.addEventListener("click", (evt) => {
+                const input = evt.target.parentNode.querySelector('input');
+                if (input.type == 'password') {
+                    input.type = "text"
+                } else {
+                    input.type = "password"
+                }
+            })
+        }
+    })
 }
 
 function makeBurgerMenu() {
@@ -61,7 +65,7 @@ function makeBurgerMenu() {
             burger.classList.toggle("active")
             menu.classList.toggle("active")
             cover.classList.toggle("active")
-            body.classList.toggle("lock")
+            // body.classList.toggle("lock")
         }
 
         burger.addEventListener("click", () => {
@@ -79,99 +83,99 @@ makeBurgerMenu()
 
 
 // Popup
-const popupLinks = document.querySelectorAll(".modal__link");
-const body = document.querySelector("body");
-const lockPadding = document.querySelectorAll(".lock-padding");
-const popupCloseIcon = document.querySelectorAll(".modal__close");
+// const popupLinks = document.querySelectorAll(".modal__link");
+// const body = document.querySelector("body");
+// const lockPadding = document.querySelectorAll(".lock-padding");
+// const popupCloseIcon = document.querySelectorAll(".modal__close");
 
-let unlock = true;
+// let unlock = true;
 
-const timeout = 500;
+// const timeout = 500;
 
-if (popupLinks.length > 0) {
-    for (let index = 0; index < popupLinks.length; index++) {
-        const popupLink = popupLinks[index];
-        popupLink.addEventListener("click", function (e) {
-            const popupName = popupLink.getAttribute('href').replace('#', '');
-            const curentPopup = document.getElementById(popupName);
-            popupOpen(curentPopup);
-            e.preventDefault();
-        });
-    }
-}
+// if (popupLinks.length > 0) {
+//     for (let index = 0; index < popupLinks.length; index++) {
+//         const popupLink = popupLinks[index];
+//         popupLink.addEventListener("click", function (e) {
+//             const popupName = popupLink.getAttribute('href').replace('#', '');
+//             const curentPopup = document.getElementById(popupName);
+//             popupOpen(curentPopup);
+//             e.preventDefault();
+//         });
+//     }
+// }
 
-if (popupCloseIcon.length > 0) {
-    for (let index = 0; index < popupCloseIcon.length; index++) {
-        const el = popupCloseIcon[index];
-        el.addEventListener("click", function (e) {
-            popupClose(el.closest(".modal"));
-            e.preventDefault();
-        });
-    }
-}
+// if (popupCloseIcon.length > 0) {
+//     for (let index = 0; index < popupCloseIcon.length; index++) {
+//         const el = popupCloseIcon[index];
+//         el.addEventListener("click", function (e) {
+//             popupClose(el.closest(".modal"));
+//             e.preventDefault();
+//         });
+//     }
+// }
 
-function popupOpen(curentPopup) {
-    if (curentPopup && unlock) {
-        const popupActive = document.querySelector(".modal.open");
-        if (popupActive) {
-            popupClose(popupActive, false);
-        } else {
-            bodyLock();
-        }
-        curentPopup.classList.add("open");
-        curentPopup.addEventListener("click", function (e) {
-            if (!e.target.closest(".modal__content")) {
-                popupClose(e.target.closest(".modal"));
-            }
-        })
-    }
-}
+// function popupOpen(curentPopup) {
+//     if (curentPopup && unlock) {
+//         const popupActive = document.querySelector(".modal.open");
+//         if (popupActive) {
+//             popupClose(popupActive, false);
+//         } else {
+//             bodyLock();
+//         }
+//         curentPopup.classList.add("open");
+//         curentPopup.addEventListener("click", function (e) {
+//             if (!e.target.closest(".modal__content")) {
+//                 popupClose(e.target.closest(".modal"));
+//             }
+//         })
+//     }
+// }
 
-function popupClose(popupActive, doUnlock = true) {
-    if (unlock) {
-        popupActive.classList.remove("open");
-        if (doUnlock) {
-            bodyUnLock();
-        }
-    }
-}
+// function popupClose(popupActive, doUnlock = true) {
+//     if (unlock) {
+//         popupActive.classList.remove("open");
+//         if (doUnlock) {
+//             bodyUnLock();
+//         }
+//     }
+// }
 
-function bodyLock() {
-    const lockPaddingValue = "17px";
+// function bodyLock() {
+//     const lockPaddingValue = "17px";
 
-    if (lockPadding.length > 0) {
-        for (let index = 0; index < lockPadding.length; index++) {
-            const el = lockPadding[index];
-            el.style.paddingRight = lockPaddingValue;
-        }
-    }
-    body.style.paddingRight = lockPaddingValue;
-    body.classList.add("lock");
+//     if (lockPadding.length > 0) {
+//         for (let index = 0; index < lockPadding.length; index++) {
+//             const el = lockPadding[index];
+//             el.style.paddingRight = lockPaddingValue;
+//         }
+//     }
+//     body.style.paddingRight = lockPaddingValue;
+//     body.classList.add("lock");
 
 
-    unlock = false;
-    setTimeout(function () {
-        unlock = true;
-    }, timeout);
-}
+//     unlock = false;
+//     setTimeout(function () {
+//         unlock = true;
+//     }, timeout);
+// }
 
-function bodyUnLock() {
-    setTimeout(function () {
-        if (lockPadding.length > 0) {
-            for (let index; index < lockPadding.length; index++) {
-                const el = lockPadding[index];
-                el.style.paddingRight = "0px";
-            }
-        }
-        body.style.paddingRight = "0px";
-        body.classList.remove("lock");
-    }, timeout);
+// function bodyUnLock() {
+//     setTimeout(function () {
+//         if (lockPadding.length > 0) {
+//             for (let index; index < lockPadding.length; index++) {
+//                 const el = lockPadding[index];
+//                 el.style.paddingRight = "0px";
+//             }
+//         }
+//         body.style.paddingRight = "0px";
+//         body.classList.remove("lock");
+//     }, timeout);
 
-    unlock = false;
-    setTimeout(function () {
-        unlock = true;
-    }, timeout)
-}
+//     unlock = false;
+//     setTimeout(function () {
+//         unlock = true;
+//     }, timeout)
+// }
 
 document.addEventListener("keydown", function (e) {
     if (e.which === 27) {
@@ -231,34 +235,7 @@ document.addEventListener("keydown", function (e) {
 
 
 
-// Отправляем запрос после загрузки страницы videos_list
 
-const urlPath = window.location.pathname;
-const complex_id = Array.from(urlPath).pop();
-
-
-
-// TODO: https://energy.qidoctor.ru/v1/api/... запрос на сервере отправлять сюда
-// TODO: для разработки на http://127.0.0.1:8000/api/v1/videos/viewed
-if(complex_id === Number) {
-    document.addEventListener("DOMContentLoaded", async (evt) => {
-        const response = await fetch('http://127.0.0.1:8000/api/v1/videos/complex_viewed/' + complex_id, {
-     //    const response = await fetch('http://energy.qidoctor.ru/api/v1/videos/complex_viewed/' + complex_id, {
-           method: 'POST',
-           body: {
-            complex_id: complex_id
-           },
-           headers: {
-           'Content-Type': 'application/json;charset=utf-8',
-           },
-        });
-     
-        let result = await response.json();
-        console.log(result);
-     
-     })
-     
-}
 
 
 
@@ -268,7 +245,7 @@ if(complex_id === Number) {
 // Инициализируем слайдер для упражнений
    let swiper = new Swiper(".mySwiper", {
       slidesPerView: 3,
-      centeredSlides: true,
+      // centeredSlides: true,
       spaceBetween: 60,
       speed: 400,
       grabCursor: true,
@@ -309,8 +286,7 @@ if(complex_id === Number) {
 
 
 
-
-
+const urlPath = window.location.pathname;
 const modalVideos = document.querySelectorAll('.slide');
 const modalVideoBox = document.querySelector(".swiper-wrapper");
 const modalNewLevel = document.querySelector('.new-level-box');
@@ -491,6 +467,29 @@ function modalVideoEnded() {
             if(modalNewLevel.classList.contains('hidden')) {
                modalNewLevel.classList.remove('hidden');
             }
+
+            // Отправляем запрос после просмотра последнего видео
+
+            const complex_id = Array.from(urlPath).pop();
+
+            // TODO: https://energy.qidoctor.ru/v1/api/... запрос на сервере отправлять сюда
+            // TODO: для разработки на http://127.0.0.1:8000/api/v1/videos/viewed
+
+                if(complex_id === Number) {
+                    const response = await fetch('http://127.0.0.1:8000/api/v1/web/complex_viewed/' + complex_id, {
+                //    const response = await fetch('http://energy.qidoctor.ru/api/v1/web/complex_viewed/' + complex_id, {
+                    method: 'GET',
+                    body: {
+                        complex_id: complex_id
+                    },
+                    headers: {
+                    'Content-Type': 'application/json;charset=utf-8',
+                    },
+                });
+                
+                let result = await response.json();
+               //  console.log(result);
+            }
          }
       });
    })
@@ -544,8 +543,7 @@ repeatViewingBtn?.addEventListener("click", closeModalNewLevelHandler);
 // Отправляем запрос после загрузки страницы complexes_list
 
 const complexesList = urlPath;
-console.log(complexesList);
-;
+
 
 
 // TODO: https://energy.qidoctor.ru/api/v1/complex/list/ запрос на сервере отправлять сюда
@@ -553,8 +551,8 @@ console.log(complexesList);
 
 if(complexesList.includes("complexes_list")) {
     document.addEventListener("DOMContentLoaded", async (evt) => {
-        const response = await fetch('http://127.0.0.1:8000/api/v1/complex/list/', {
-     //    const response = await fetch('http://energy.qidoctor.ru/api/v1/complex/list/', {
+        const response = await fetch('http://127.0.0.1:8000/api/v1/web/list', {
+     //    const response = await fetch('http://energy.qidoctor.ru/aapi/v1/web/list', {
            method: 'GET',
            headers: {
            'Content-Type': 'application/json;charset=utf-8',
@@ -562,12 +560,13 @@ if(complexesList.includes("complexes_list")) {
         });
      
         let result = await response.json();
-        // console.log(result);
+        console.log(result);
 
-        const progressUser = result.user.progress;
+        const progressUser = result.user.level;
         const complexes = result.complexes;
 
-
+        let numberComplexTag = document.querySelector(".complexes-list__number-complex");
+        numberComplexTag.textContent = " " + (progressUser + 1);
         let complexesListSlide = document.querySelectorAll(".complexes-list__wrapper");
         let complexesListSlideArr = Array.from(complexesListSlide);
 
@@ -626,5 +625,19 @@ let swiper1 = new Swiper(".mySwiperComplex", {
        }
     }
  });
+
+let forgetFormInput = document.querySelectorAll(".forget-form__input");
+console.log(forgetFormInput);
+
+forgetFormInput.forEach((item, index) => {
+   item.addEventListener("keydown", (evt) => {
+      // evt.preventDefault();
+      if (item.value == Number) { 
+         console.log(item.value);
+         item[index + 1].focus();
+      }
+    });
+})
+ 
 
 

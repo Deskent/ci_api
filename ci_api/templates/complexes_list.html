@@ -6,31 +6,22 @@
 
 
     <section class="complexes-list__content container">
-        <p class="complexes-list__title">Комплекс <span>1</span></p>
-        <p>Прогресc юзера {{user.level}}</p>
+        <p class="complexes-list__title">Вам доступен комплекс упражнений<span class="complexes-list__number-complex"></span></p>
 
-
-            <!-- Slider main container -->
             <div class="swiper mySwiperComplex">
-                <!-- Additional required wrapper -->
                 <div class="swiper-wrapper">
 
-                    <!-- Slides -->
                     {% for complex in complexes %}
 
                     <div id="{{ complex.id }}" class="swiper-slide complexes-list__wrapper">
 
                         <div class="complexes-list-slide">
                             <div class="complexes-list-image__wrapper">
-                                <picture>
-                                    <source srcset="/static/img/dragon.jpg" type="image/webp">
-                                    <img class="complexes-list-image lock" src="/static/img/dragon.jpg" width="220px" height="330px" alt="dragon">
-                                </picture>
+                                    <img class="complexes-list-image lock" src="/static/img/reg__bg-red.svg" width="220px" height="330px" alt="dragon">
                                 <div class="complexes-list__time"> 
                                     <span class="complexes-list__time-text"> мин</span>
                                     <img class="complexes-list__time-img" src="/static/img/icons/clock.svg" width="20px" height="20px" alt="clock">
                                 </div>
-                                <!-- "Посмотреть" менять на "Завершено" -->
                                 <a href="/videos_list/{{ complex.id }}" class="complexes-list-slide__btn-box">
                                     <span class="complexes-list-slide__btn-text">Посмотреть</span>
                                     <img class="complexes-list-slide__btn-img" src="/static/img/icons/plus.svg" alt="plus">
@@ -59,14 +50,11 @@
                     {% endfor %}
                 </div>
 
-                <!-- If we need pagination -->
                 <div class="swiper-pagination"></div>
             
-                <!-- If we need navigation buttons -->
                 <div class="swiper-button-prev"></div>
                 <div class="swiper-button-next"></div>
             
-                <!-- If we need scrollbar -->
                 <div class="swiper-scrollbar"></div>
 
             </div>

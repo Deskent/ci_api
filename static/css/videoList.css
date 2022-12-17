@@ -1,9 +1,9 @@
-.charging__content {
+.videos__list-contetn {
   width: 100%;
   height: 100%;
 }
 
-.charging__content-header {
+.videos__list-header {
   font-family: 'Evolventa';
   font-style: normal;
   font-weight: 400;
@@ -223,9 +223,9 @@
 }
 
 
-.swiper-slide.slide__card-wrapper.swiper-slide-active {
+/* .swiper-slide.slide__card-wrapper.swiper-slide-active {
   transform: scale(1.2);
-}
+} */
 
 .swiper-slide video {
   display: block;
@@ -299,15 +299,15 @@
 
 @media (max-width: 768px) {
 
-  .swiper-slide.slide__card-wrapper.swiper-slide-active {
+  /* .swiper-slide.slide__card-wrapper.swiper-slide-active {
     transform: scale(0.9);
-  }
+  } */
 
-  .charging__content {
+  .videos__list-contetn {
     padding-top: 0;
   }
 
-  .charging__content-header {
+  .videos__list-header {
     font-size: 22px;
   }
 
