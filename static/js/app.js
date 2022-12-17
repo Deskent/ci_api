@@ -548,7 +548,7 @@ const complexesList = urlPath;
 
 if(complexesList.includes("complexes_list")) {
     document.addEventListener("DOMContentLoaded", async (evt) => {
-        const response = await fetch('http://ci_api/api/v1/web/complex/list', {
+        const response = await fetch('http://ci_api:8000/api/v1/web/complex/list', {
      //    const response = await fetch('http://energy.qidoctor.ru/api/v1/web/complex/list', {
            method: 'GET',
            headers: {
