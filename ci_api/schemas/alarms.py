@@ -16,9 +16,14 @@ class AlarmCreate(AlarmBase):
     pass
 
 
-class AlarmUpdate(AlarmCreate):
-    pass
-
-
 class AlarmFull(AlarmBase):
     id: int
+
+
+class AlarmUpdate(BaseModel):
+    alarm_time: time = None
+    weekdays: list[str] = None
+    sound_name: str = None
+    volume: int = None
+    vibration: bool = False
+    text: str = None
