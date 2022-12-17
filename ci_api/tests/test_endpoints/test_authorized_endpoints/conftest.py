@@ -1,13 +1,8 @@
 from datetime import datetime, timedelta
 
 import pytest
-
 from pydantic import EmailStr
 from pydantic.dataclasses import dataclass
-
-from database.db import get_db_session
-from models.models import User
-from services.auth import AuthHandler
 
 
 @dataclass
@@ -20,6 +15,7 @@ class CreateUser:
     password: str = "testpassword"
     password2: str = "testpassword"
     gender: bool = True
+    test: bool = True
 
     def as_dict(self):
         return self.__dict__
