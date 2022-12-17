@@ -32,16 +32,16 @@ async def get_complexes_list_api(
     return web_context.api_render()
 
 
-@router.get("/viewed/list", response_model=dict)
-async def get_viewed_complexes_api(
-        user: User = Depends(get_logged_user)
-):
-    """Return user, complexes list and viewed_complexes list as JSON"""
-
-    complexes: list[Complex] = await AllCache.get_all(Complex)
-    viewed: list[ViewedComplex] = await ViewedComplex.get_all_viewed_complexes(user.id)
-
-    return dict(user=UserOutput(**user.dict()), complexes=complexes, viewed=viewed)
+# @router.get("/viewed/list", response_model=dict)
+# async def get_viewed_complexes_api(
+#         user: User = Depends(get_logged_user)
+# ):
+#     """Return user, complexes list and viewed_complexes list as JSON"""
+#
+#     complexes: list[Complex] = await AllCache.get_all(Complex)
+#     viewed: list[ViewedComplex] = await ViewedComplex.get_all_viewed_complexes(user.id)
+#
+#     return dict(user=UserOutput(**user.dict()), complexes=complexes, viewed=viewed)
 
 
 @router.get(
@@ -72,8 +72,11 @@ async def complex_viewed_api(
 ):
     """
     Checks complex was viewed and user get new level. Need authorization.
+
     :param complex_id: integer - Viewed complex ID
-    :return: JSON like: {"level_up": True or False}["new_level": user.level,
-                "next_complex_duration": next_complex_duration]
+
+    :return: JSON like: {"level_up": False} or
+    {"level_up": False, "new_level": user.level, "next_complex_duration": next_complex_duration}
     """
+
     return await get_viewed_complex_response(user=user, complex_id=complex_id)

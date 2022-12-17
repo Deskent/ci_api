@@ -151,5 +151,10 @@ async def set_push_token(
         push_token: str = Body(...),
         user: User = Depends(get_logged_user),
 ):
+    """Get and save token to user
+
+    :return None
+    """
+
     user.push_token = push_token
     await user.save()
