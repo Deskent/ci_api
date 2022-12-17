@@ -1,9 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Body
-from pydantic import EmailStr
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from config import logger
 from models.models import User, Alarm, Notification, Rate
-from schemas.alarms import AlarmBase, AlarmFull
+from schemas.alarms import AlarmFull
 from schemas.user_schema import UserSchema, UserEditProfile
 from services.depends import get_logged_user
 from services.rates_cache import RatesCache
