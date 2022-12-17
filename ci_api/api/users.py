@@ -46,7 +46,7 @@ async def get_user_notifications(
     return notifications
 
 
-@router.get("/rates", response_model=list[Rate])
+@router.get("/rates", response_model=list[Rate], tags=['Rates'], dependencies=[Depends(get_logged_user)])
 async def get_all_rates():
     """Get all rates.
 
