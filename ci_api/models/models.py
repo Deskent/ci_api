@@ -5,10 +5,10 @@ from pydantic import EmailStr
 from sqlalchemy import Column, TIMESTAMP, desc
 from sqlmodel import Field, Relationship, select
 
-from models.methods import MySQLModel, UserModel, get_all, get_first, AdminModel
+from models.methods import BaseSQLModel, UserModel, get_all, get_first, AdminModel
 
 
-class Complex(MySQLModel, table=True):
+class Complex(BaseSQLModel, table=True):
     __tablename__ = 'complexes'
 
     id: int = Field(default=None, primary_key=True, index=True)
@@ -65,7 +65,7 @@ class Complex(MySQLModel, table=True):
         return new_complex
 
 
-class Video(MySQLModel, table=True):
+class Video(BaseSQLModel, table=True):
     __tablename__ = 'videos'
 
     id: int = Field(default=None, primary_key=True, index=True)
@@ -137,7 +137,7 @@ class Video(MySQLModel, table=True):
         await self.delete()
 
 
-class Avatar(MySQLModel, table=True):
+class Avatar(BaseSQLModel, table=True):
     __tablename__ = 'avatars'
 
     id: int = Field(default=None, primary_key=True, index=True)
@@ -217,7 +217,7 @@ class User(UserModel, table=True):
         return await get_first(query)
 
 
-class Rate(MySQLModel, table=True):
+class Rate(BaseSQLModel, table=True):
     __tablename__ = 'rates'
 
     id: int = Field(default=None, primary_key=True, index=True)
@@ -248,7 +248,7 @@ class Administrator(AdminModel, table=True):
     name: str = Field(nullable=True, default=None)
 
 
-class Alarm(MySQLModel, table=True):
+class Alarm(BaseSQLModel, table=True):
     __tablename__ = 'alarms'
 
     id: int = Field(default=None, primary_key=True, index=True)
@@ -266,14 +266,14 @@ class Alarm(MySQLModel, table=True):
         return f"{self.text}"
 
     @classmethod
-    async def get_all_by_user_id(cls, user_id: int) -> list[MySQLModel]:
+    async def get_all_by_user_id(cls, user_id: int) -> list[BaseSQLModel]:
         """Join cls rows with User table where User.id == user_id"""
 
         query = select(cls).join(User).where(User.id == user_id).order_by(desc(cls.id))
 
         return await get_all(query)
 
-class Notification(MySQLModel, table=True):
+class Notification(BaseSQLModel, table=True):
     __tablename__ = 'notifications'
 
     id: int = Field(default=None, primary_key=True, index=True)
@@ -286,7 +286,7 @@ class Notification(MySQLModel, table=True):
         return f"{self.text}"
 
     @classmethod
-    async def get_all_by_user_id(cls, user_id: int) -> list[MySQLModel]:
+    async def get_all_by_user_id(cls, user_id: int) -> list[BaseSQLModel]:
         """Join cls rows with User table where User.id == user_id"""
 
         query = select(cls).join(User).where(User.id == user_id)
@@ -294,7 +294,7 @@ class Notification(MySQLModel, table=True):
         return await get_all(query)
 
 
-class ViewedComplex(MySQLModel, table=True):
+class ViewedComplex(BaseSQLModel, table=True):
     __tablename__ = 'viewed_complexes'
 
     id: int = Field(default=None, primary_key=True, index=True)
@@ -367,7 +367,7 @@ class ViewedComplex(MySQLModel, table=True):
             return current_day == last.viewed_at.day
 
 
-class ViewedVideo(MySQLModel, table=True):
+class ViewedVideo(BaseSQLModel, table=True):
     __tablename__ = 'viewed_videos'
 
     id: int = Field(default=None, primary_key=True, index=True)
@@ -397,7 +397,7 @@ class ViewedVideo(MySQLModel, table=True):
         return await get_all(query)
 
 
-class Payment(MySQLModel, table=True):
+class Payment(BaseSQLModel, table=True):
     __tablename__ = 'payments'
 
     id: int = Field(default=None, primary_key=True, index=True)
@@ -417,7 +417,7 @@ class Payment(MySQLModel, table=True):
         return result
 
 
-class PaymentCheck(MySQLModel, table=True):
+class PaymentCheck(BaseSQLModel, table=True):
     __tablename__ = 'payment_checks'
 
     id: int = Field(default=None, primary_key=True, index=True)
