@@ -43,3 +43,21 @@ class AllCache:
     @classmethod
     def __get_model_name(cls, model: models_types) -> str:
         return model.__name__.lower()
+
+
+class A:
+
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+
+if __name__ == '__main__':
+    import pickle
+    a = A('andy', 15)
+    with open('test.pickle', 'wb') as f:
+        pickle.dump(a, f, pickle.HIGHEST_PROTOCOL)
+
+    with open('test.pickle', 'rb') as f:
+        b = pickle.load(f)
+    print(b.name)
