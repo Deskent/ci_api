@@ -1,10 +1,10 @@
 import base64
 
-from fastapi import APIRouter, status, Depends, Request
+from fastapi import APIRouter, status, Depends, Request, UploadFile, HTTPException
 
-from config import logger
-from models.models import User
-from schemas.avatar import AvatarBase
+from admin.utils import save_uploaded_file
+from config import logger, settings
+from models.models import User, Avatar
 from schemas.complexes_videos import ComplexesListWithViewedAndNot
 from services.complexes_web_context import get_complexes_list_web_context
 from services.videos_methods import get_viewed_complex_response
@@ -36,17 +36,37 @@ async def get_complexes_list_web(
     return web_context.api_render()
 
 
+async def set_avatar_from_file_web_context(
+    context: dict,
+    user: User
+):
+    pass
+
+
 @router.post("/upload_avatar_as_file", status_code=status.HTTP_202_ACCEPTED)
-async def set_avatar(
-        request: Request,
+async def upload_avatar_as_file(
+        request: Request
+        # file: UploadFile,
         # user: User = Depends(get_user_from_context)
 ):
-    form = await request.form()
-    logger.info(form)
+    logger.info(await request.body())
+    # file_path = settings.MEDIA_DIR / 'avatars' /file.filename
+    # if file_path.exists():
+    #     error_text = f'File with name {file_path} exists.'
+    #     logger.warning(error_text)
+    #     raise HTTPException(
+    #         status_code=status.HTTP_409_CONFLICT,
+    #         detail=error_text
+    #     )
+    # save_uploaded_file(file_path, file)
+    # avatar: Avatar = await Avatar.create(data=dict(file_name=str(file.filename)))
+    # logger.info(avatar)
+    # user.avatar = avatar.id
+    # await user.save()
 
 
 @router.post("/upload_avatar_as_string", status_code=status.HTTP_202_ACCEPTED)
-async def set_avatar(
+async def upload_avatar_as_string(
         request: Request,
         # user: User = Depends(get_user_from_context)
 ):
