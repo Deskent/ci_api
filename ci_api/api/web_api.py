@@ -36,14 +36,21 @@ async def get_complexes_list_web(
     return web_context.api_render()
 
 
-@router.post("/set_avatar", status_code=204)
+@router.post("/upload_avatar_as_file", status_code=204)
 async def set_avatar(
-        # avatar: AvatarBase,
         request: Request,
-        user: User = Depends(get_user_from_context)
+        # user: User = Depends(get_user_from_context)
 ):
+    form = await request.form()
+    logger.info(form)
 
-    logger.info(await request.body())
+
+@router.post("/upload_avatar_as_string", status_code=204)
+async def set_avatar(
+        request: Request,
+        # user: User = Depends(get_user_from_context)
+):
+    logger.info(f"BODY: {await request.body()}")
     # coded_string = avatar.as_bytes
     # result = base64.b64decode(coded_string)
     # logger.info(f'DECODED: {result}')
