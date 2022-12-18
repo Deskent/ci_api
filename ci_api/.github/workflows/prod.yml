@@ -9,6 +9,8 @@ name: ci_api
 on:
   pull_request:
     branches: [ main develop ]
+  push:
+    branches: [ main develop ]
 jobs:
   create_docker_build:
     runs-on: ubuntu-latest
