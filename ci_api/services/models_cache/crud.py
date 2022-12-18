@@ -131,7 +131,9 @@ class UserCrud(AdminCrud):
     async def create(self, data: dict) -> User | Administrator:
         data['password'] = await self.get_hashed_password(data['password'])
         data['avatar'] = await CRUD.avatar.get_first_id()
-        return await self.create(data)
+        user = self.model(**data)
+
+        return await self.save(user)
 
     async def get_by_phone(self, phone: str) -> User:
         query = select(self.model).where(self.model.phone == phone)
