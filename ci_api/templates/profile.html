@@ -8,9 +8,15 @@
                     <div class="user-profile__info">
                         <div class="user-profile__image-wrapper">
                             <img class="user-profile__img" id="resizer-demo" src="/static/img/icons/avatar.svg" width="80px" height="80px" alt="">
-                            <input class="user-profile__img-input" type="file" accept="image/png, image/jpg" name="file" value="file">
+
+                            <form class="user-profile__img-form" action="api/v1/web/upload_avatar_as_file" method="POST" enctype="multipart/form-data">
+                                <input class="user-profile__img-input" type="file" accept="image/png, image/jpg" name="file">
+                                <input type="submit">
+                            </form>
+
                             <button class="vanilla-result">Сохранить</button>
                             <button class="vanilla-rotate" data-deg="-90">Повернуть</button>
+
                             <div class="user-profile__image-icon-box">
                                 <img class="user-profile__image-icon" src="/static/img/icons/photo.svg" width="30px" height="30px" alt="photo-icon">
                             </div>

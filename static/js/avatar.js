@@ -49,21 +49,28 @@ image?.addEventListener("click", () => {
         uploadResultBtn.style.display = "none";
         rotateBtn.style.display = "none";
         imageInput.style.zIndex = "2";
-    // console.log(Base64Avatar);
+    console.log(typeof Base64Avatar);
+    // as_bytes: toString(Base64Avatar),
+
 
     // Отправляем на сервер обрезанное фото в формате base64
+    const userProfileImgForm = document.querySelector(".user-profile__img-form");
 
-    // const response = await fetch('http://127.0.0.1:8000/api/v1/web/...........', {
-    //     //    const response = await fetch('http://energy.qidoctor.ru/aapi/v1/web/.........', {
-    //           method: 'POST',
-    //           Base64Avatar: Base64Avatar,
-    //           headers: {
-    //           'Content-Type': 'application/json;charset=utf-8',
-    //           },
-    //        });
+
+
+    const response = await fetch('http://127.0.0.1:8000/api/v1/web/upload_avatar_as_string', {
+        //    const response = await fetch('http://energy.qidoctor.ru/aapi/v1/web/.........', {
+              method: 'POST',
+              body: {
+                as_bytes: Base64Avatar,
+              }, 
+              headers: {
+              'Content-Type': 'application/json;charset=utf-8',
+              },
+           });
         
-    // let answer = await response.json();
-    // console.log(answer);
+    let answer = await response.json();
+    console.log(answer);
    
     })
 
