@@ -1,8 +1,7 @@
-import json
+import pickle
 from abc import abstractmethod
 
 import aioredis
-
 
 from models.models import User, Complex, Avatar, Rate
 from config import logger, REDIS_CLIENT
@@ -30,12 +29,11 @@ class RedisBase:
             self.id_ = model.id
         else:
             self.id_ = None
+        self.key: str = ''
         if key:
             self.key: str = key
         elif model:
-            self.key: str = f"{model.__class__.__name__.lower()}_{id_}"
-        else:
-            raise ValueError("Key or model field required")
+            self.key: str = model.__name__.lower()
         self.redis = client
         self.model = model
 
@@ -50,8 +48,8 @@ class RedisOperator(RedisBase):
                           f"\n {err}")
         except aioredis.exceptions.ConnectionError as err:
             error_text = f"Connection error: {err}"
-        except Exception as err:
-            error_text = f"Exception Error: {err}"
+        # except Exception as err:
+        #     error_text = f"Exception Error: {err}"
 
         raise RedisException(error_text)
 
@@ -62,15 +60,14 @@ class RedisOperator(RedisBase):
 
 class SetRedisDB(RedisOperator):
 
-    def __init__(self,data: list | dict = None, timeout_sec: int = 24 * 60 * 60, *args, **kwargs):
+    def __init__(self, data: list | dict, timeout_sec: int = 60, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.timeout_sec: int = timeout_sec
         self._data: list | dict = data
 
     async def execute(self) -> None:
-        return await self.redis.set(
-            name=self.key, value=json.dumps(self._data), ex=self.timeout_sec
-        )
+        value: bytes = pickle.dumps(self._data)
+        return await self.redis.set(name=self.key, value=value, ex=self.timeout_sec)
 
 
 class GetRedisDB(RedisOperator):
@@ -79,8 +76,8 @@ class GetRedisDB(RedisOperator):
         super().__init__(*args, **kwargs)
 
     async def execute(self) -> dict:
-        data: str = await self.redis.get(self.key)
-        return {"data": json.loads(data)}
+        data: bytes = await self.redis.get(self.key)
+        return {"data": pickle.loads(bytes(data))}
 
 
 class DeleteRedisDB(RedisOperator):
@@ -117,24 +114,37 @@ class RedisDB(RedisBase):
 
     """
 
-    def __init__(self, key: str = None, model=None, id_: int = None, client: aioredis.Redis = REDIS_CLIENT):
+    def __init__(
+            self,
+            key: str = None,
+            model: MODEL_TYPES = None,
+            id_: int = None,
+            client: aioredis.Redis = REDIS_CLIENT
+    ):
         super().__init__(key=key, model=model, id_=id_, client=client)
 
-    async def save(self, data: list | dict, timeout_sec: int = 0) -> None:
+    def __check_key(self):
+        # TODO сделать декоратором
+        if not self.key:
+            raise ValueError('Key or model required')
+
+    async def save(self, data: list | dict, timeout_sec: int = 1) -> None:
+        self.__check_key()
         return await SetRedisDB(
             key=self.key, model=self.model, data=data, timeout_sec=timeout_sec).run()
 
     async def load(self) -> dict[str, list | dict]:
+        self.__check_key()
         return await GetRedisDB(key=self.key, model=self.model).run()
 
     async def delete_key(self) -> None:
+        self.__check_key()
         return await DeleteRedisDB(key=self.key, model=self.model).run()
 
     async def health_check(self):
         """Проверяет работу Редис"""
-
+        self.__check_key()
         logger.info("Redis checking...")
-
         test_data = ['test']
         await self.save(test_data, 60)
         return await self.load()
