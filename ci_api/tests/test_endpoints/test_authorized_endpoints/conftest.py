@@ -108,13 +108,13 @@ class CreateEndpointUserData:
 
         return alarm_id
 
-    async def get_email_confirm_token(self) -> str:
+    # async def get_email_confirm_token(self) -> str:
     #     async for session in get_db_session():
     #         user = await User.get_by_email(session, self.user_create.email)
     #         self.email_token = user.email_code
         # self.email_token = AuthHandler().get_email_token(self.test_user)
 
-        return self.email_token
+        # return self.email_token
 
     def delete_user(self) -> None:
         response = self.session.delete(self.base_url + "/users",
@@ -124,7 +124,7 @@ class CreateEndpointUserData:
     def create(self) -> None:
         self.create_user()
         self.login_user()
-        self.get_email_confirm_token()
+        # self.get_email_confirm_token()
         self.create_alarm()
 
 
