@@ -6,7 +6,7 @@ from starlette.requests import Request
 
 from config import MAX_LEVEL
 from exc.exceptions import UserNotLoggedError, ComeTomorrowException
-from models.models import User, Rate
+from models.models import User, Rate, Avatar
 from services.depends import get_context_with_request
 from services.emails import send_email_message, EmailException
 from services.models_cache.base_cache import AllCache
@@ -58,7 +58,9 @@ async def get_logged_user_context(
 ) -> dict:
     if not user:
         raise UserNotLoggedError
+    avatar: Avatar = await AllCache.get_by_id(Avatar, user.avatar)
     context.update({
+        "avatar": avatar,
         "user": user,
         "user_present_phone": represent_phone(user.phone)
     })
