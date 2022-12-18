@@ -526,6 +526,22 @@ function modalVideoEnded() {
 modalVideoEnded();
 
 
+// Слушаем модальное окно new-level для комплекс лист
+let close = modalNewLevel?.querySelector(".new-level__close");
+let repeatViewingBtn = modalNewLevel?.querySelector(".new-level__repeat-btn");
+let newLevelHeaderLevel = modalNewLevel?.querySelector(".new-level_header-level");
+let newLevelHeader = modalNewLevel?.querySelector(".new-level_header");
+
+
+function closeModalNewLevelHandler () {
+   modalNewLevel.classList.add("hidden");
+   close.removeEventListener("click", closeModalNewLevelHandler);
+}
+
+close?.addEventListener("click", closeModalNewLevelHandler);
+
+
+
 
 
 
@@ -586,61 +602,77 @@ if(complexesList.includes("complexes_list")) {
         console.log(result);
 
         const levelUser = result.user.level;
-        const notViewedComplexes = result.not_viewed_complexes;
-        const todayComplex = result.today_complex.id;
-
+      //   const notViewedComplexes = result.not_viewed_complexes;
+        const todayComplex = result.today_complex;
         const viewedComplexes = result.viewed_complexes;
+        console.log(todayComplex);
+
+
+
+
+      
 
 
 
       let complexesListSlide = document.querySelectorAll(".complexes-list__wrapper");
       let complexesListSlideArr = Array.from(complexesListSlide);
 
+
+
+
       
 
       for(let i = 0; i <= complexesListSlideArr.length-1; i++) {
+
+         let idViewedComplexes = viewedComplexes[i]; 
          let item = complexesListSlideArr[i];
 
-         // let slide = item.querySelector(".complexes-list-slide__btn-box");
+      
+         if(i <= levelUser) {
+               item.querySelector('.complexes-list-slide__lock').style.display = "none";
+               item.querySelector('.complexes-list-slide__btn-box').style.display = "flex";
+               item.querySelector('.complexes-list-image').classList.remove('lock');
+         }
+         if(i < levelUser && (idViewedComplexes.id - 1) == i) {
+            item.querySelector('.complexes-list-slide__btn-text').textContent = "Просмотрено";
+            // complexesListSlideArr[i+1].querySelector('.complexes-list-slide__btn-box').classList.add("active-btn");
+            // var link = complexesListSlideArr[i+1].querySelector('.complexes-list-slide__btn-box').getAttribute('href');
+            // complexesListSlideArr[i+1].querySelector('.complexes-list-slide__btn-box').removeAttribute('href');
+         } else {
+            item.querySelector('.complexes-list-slide__btn-text').textContent = "Посмотреть";
 
-            if(i < levelUser) {
-                item.querySelector('.complexes-list-slide__lock').style.display = "none";
-                item.querySelector('.complexes-list-slide__btn-box').style.display = "flex";
-                item.querySelector('.complexes-list-image').classList.remove('lock');
-                item.querySelector('.complexes-list-slide__btn-text').textContent = "Посмотреть";
+            let btns = document.querySelectorAll(".complexes-list-slide__btn-box");
+            console.log(Object.keys(todayComplex).length)
+            let modal = document.querySelectorAll(".new-level-box");
 
-            }
+            
+      
+            btns.forEach((el) => {
+               el.addEventListener("click", (evt) => {
+                  if(Object.keys(todayComplex).length === 0) {
+                     evt.stopPropagation();
+                     evt.preventDefault();
+
+                     modal.classList.remove("hidden");
+
+                  } 
+               })
+      
+            })
+
+         }
       }
 
-      complexesListSlideArr.map((slide, index) => {
-         if((index + 1) == todayComplex) {
-            slide.querySelector('.complexes-list-slide__btn-text').textContent = "Посмотреть";
-         } else {
-            slide.querySelector('.complexes-list-slide__btn-text').textContent = "Просмотрено";
-         }
-      })
 
 
-//         let numberComplexTag = document.querySelector(".complexes-list__number-complex");
-//         numberComplexTag.textContent = " " + (progressUser + 1);
-//         let complexesListSlide = document.querySelectorAll(".complexes-list__wrapper");
-//         let complexesListSlideArr = Array.from(complexesListSlide);
 
-//         for(let i = 0; i <= complexesListSlideArr.length - 1; i++) {
-//             let item = complexesListSlideArr[i];
-//             // добавляем общее время комплекса в минутах каждой карточке комплекса
-//             const time = complexes[i].duration / 60;
-
-//             item.querySelector('.complexes-list__time-text').textContent = Math.ceil(time) + " мин";
-
-//             if(i <= progressUser) {
-//                 item.querySelector('.complexes-list-slide__lock').style.display = "none";
-//                 item.querySelector('.complexes-list-slide__btn-box').style.display = "flex";
-//                 item.querySelector('.complexes-list-image').classList.remove('lock');
-//             }
-//         }
     })
 }
+
+
+
+
+
 
 // Инициализируем слайдер для комплексов
 let swiper1 = new Swiper(".mySwiperComplex", {
