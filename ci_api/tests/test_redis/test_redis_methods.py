@@ -23,7 +23,7 @@ async def test_redis_value_error(redis):
         await redis.health_check()
 
 
-@pytest.mark.server
+@pytest.mark.skip
 async def test_redis_save_rates():
     rates = await Rate.get_all()
     redis = RedisDB(client=REDIS_CLIENT, model=Rate)
