@@ -30,7 +30,7 @@ async def set_avatar_from_file_web_context(
     logger.info(avatar)
     user.avatar = avatar.id
     await user.save()
-    web_context.context.update(user=user)
-    web_context.api_data.update(payload=user)
+    web_context.context.update(user=user, avatar=avatar)
+    web_context.api_data.update(payload=dict(user=user, avatar=avatar))
 
     return web_context
