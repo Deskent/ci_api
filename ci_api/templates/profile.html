@@ -23,10 +23,10 @@
                         </div>
                         <div class="user-profile__contacts">
                             <div class="user-profile__name user-profile__name_input">
-                                {{ user.username }} {{ user.last_name }}
+                                <!-- {{ user.username }} {{ user.last_name }} -->
                             </div>
                             <div class="user-profile__phone">
-                                {{ user_present_phone }}
+                                <!-- {{ user_present_phone }} -->
                             </div>
                         </div>
                     </div>
@@ -43,15 +43,15 @@
 
                     <div class="user-profile__card profile-card">
                         <div class="profile-card__title">
-                            {{ user.expired_at }}
+                            <!-- {{ user.expired_at }} -->
                         </div>
                         <div class="profile-card__info">
                             <div class="profile-card__icon"><img
                                     src="/static/img/icons/credit-card.svg"
                                     alt=""></div>
-                            <div class="profile-card__number">Ваш тариф: <span class="profile-card__tarrif">{{ rate.name }}</span></div>
+                            <!-- <div class="profile-card__number">Ваш тариф: <span class="profile-card__tarrif">{{ rate.name }}</span></div> -->
                         </div>
-                        <a href="{{ subscribe_info }}" class="profile-card__link">Подробнее</a>
+                        <!-- <a href="{{ subscribe_info }}" class="profile-card__link">Подробнее</a> -->
                     </div>
                 </div>
                 <div class="profile-content__progress profile-progress">
@@ -61,7 +61,7 @@
                     <div class="profile-progress__circle_bg">
                         <div class="profile-progress__circle">
                             <div class="profile-progress__circle_info">
-                                <span class="bigRed">{{ user.level }}</span><span>/{{ max_level }}</span>
+                                <!-- <span class="bigRed">{{ user.level }}</span><span>/{{ max_level }}</span> -->
                                 <span class="profile-progress__level">Уровень</span>
                             </div>
                         </div>
@@ -70,10 +70,10 @@
                 <div class="profile-card__adapt">
 
                     <div class="profile-card__title">
-                        {{ user.expired_at }}
+                        <!-- {{ user.expired_at }} -->
                     </div>
 
-                    <a href="{{ subscribe_info }}"
+                    <!-- <a href="{{ subscribe_info }}" -->
                        class="profile-card__link_adapt">Подробнее</a>
                 </div>
             </div>
