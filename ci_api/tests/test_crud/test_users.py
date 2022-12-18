@@ -63,7 +63,7 @@ async def test_crud_activate_user(user_data):
 
 async def test_crud_get_alarm_by_id():
     user: User = await CRUD.user.get_by_id(1)
-    alarm: Alarm = await CRUD.user.get_alarm_by_id(user, 1)
+    alarm: Alarm = await CRUD.user.get_alarm_by_alarm_id(user, 1)
     assert alarm.id == 1
 
 
