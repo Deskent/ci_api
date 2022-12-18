@@ -98,4 +98,4 @@ logger.add(level=30, sink=settings.LOGS_DIR / 'errors.log')
 
 templates = Jinja2Templates(directory=settings.TEMPLATES_DIR, auto_reload=True)
 
-REDIS_CLIENT = aioredis.from_url(url=db.REDIS_DB, encoding="utf-8", decode_responses=True)
+REDIS_CLIENT = aioredis.from_url(url=db.REDIS_DB)#, encoding="utf-8", decode_responses=True)
