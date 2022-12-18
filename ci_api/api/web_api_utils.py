@@ -1,3 +1,5 @@
+import datetime
+
 from fastapi import UploadFile
 from loguru import logger
 
@@ -16,7 +18,7 @@ async def set_avatar_from_file_web_context(
     web_context = WebContext(context)
     file_path = settings.MEDIA_DIR / 'avatars' / file.filename
     if file_path.exists():
-        random_symbols: str = services.utils.generate_four_random_digits_string()
+        random_symbols = int(datetime.datetime.now().timestamp())
         file_path = settings.MEDIA_DIR / 'avatars' / f"{random_symbols}_{file.filename}"
 
     save_uploaded_file(file_path, file)
