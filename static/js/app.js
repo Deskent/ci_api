@@ -476,8 +476,8 @@ function modalVideoEnded() {
             // TODO: для разработки на http://127.0.0.1:8000/api/v1/videos/viewed
 
                 // if(complex_id === Number) {
-            // const response = await fetch('http://127.0.0.1:8000/api/v1/web/complex_viewed/' + complex_id, {
-                   const response = await fetch('https://energy.qidoctor.ru/api/v1/web/complex_viewed/' + complex_id, {
+            const response = await fetch('http://127.0.0.1:8000/api/v1/web/complex_viewed/' + complex_id, {
+                  //  const response = await fetch('https://energy.qidoctor.ru/api/v1/web/complex_viewed/' + complex_id, {
                     method: 'GET',
                     headers: {
                     'Content-Type': 'application/json;charset=utf-8',
@@ -548,8 +548,8 @@ const complexesList = urlPath;
 
 if(complexesList.includes("complexes_list")) {
     document.addEventListener("DOMContentLoaded", async (evt) => {
-        // const response = await fetch('http://127.0.0.1:8000/api/v1/web/complex/list', {
-        const response = await fetch('https://energy.qidoctor.ru/api/v1/web/complex/list', {
+        const response = await fetch('http://127.0.0.1:8000/api/v1/web/complex/list', {
+      //   const response = await fetch('https://energy.qidoctor.ru/api/v1/web/complex/list', {
            method: 'GET',
            headers: {
            'Content-Type': 'application/json;charset=utf-8',
