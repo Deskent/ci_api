@@ -21,8 +21,6 @@ async def complexes_list_web(
         user: User = Depends(get_user_from_context)
 ):
     videos: list[Video] = await Video.get_all_by_complex_id(user.current_complex)
-    if await ViewedComplex.is_last_viewed_today(user.id):
-        return RedirectResponse("/come_tomorrow")
 
     complexes: list[Complex] = await AllCache.get_all(Complex)
     viewed_complexes_ids: list[int] = await ViewedComplex.get_all_viewed_complexes_ids(user.id)
