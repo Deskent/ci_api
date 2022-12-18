@@ -1,0 +1,13 @@
+#name: ci_api_tests
+#on:
+#  push:
+#    branches: [ develop ]
+#
+#jobs:
+#  running_tests:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#      - name: Testing
+#        run: |
+#          VERSION="test" APPNAME="test" docker-compose run --rm app pytest -k server tests/
