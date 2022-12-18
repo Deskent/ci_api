@@ -50,27 +50,41 @@ image?.addEventListener("click", () => {
         rotateBtn.style.display = "none";
         imageInput.style.zIndex = "2";
     console.log(typeof Base64Avatar);
-    // as_bytes: toString(Base64Avatar),
-
 
     // Отправляем на сервер обрезанное фото в формате base64
     const userProfileImgForm = document.querySelector(".user-profile__img-form");
+    console.log(userProfileImgForm);
 
+    const url = "/api/v1/web/upload_avatar_as_file";
+    const method = "POST";
+    userProfileImgForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
 
-
-    const response = await fetch('http://127.0.0.1:8000/api/v1/web/upload_avatar_as_string', {
-        //    const response = await fetch('http://energy.qidoctor.ru/aapi/v1/web/.........', {
-              method: 'POST',
-              body: {
-                as_bytes: Base64Avatar,
-              }, 
-              headers: {
-              'Content-Type': 'application/json;charset=utf-8',
-              },
-           });
+        const data = new FormData(event.target);
+        console.log(data);
         
+        const response = await fetch(url, {
+          method,
+          body: data,
+        });
+    })
+
     let answer = await response.json();
     console.log(answer);
+
+    // const response = await fetch('http://127.0.0.1:8000/api/v1/web/set_avatar', {
+    //     //    const response = await fetch('http://energy.qidoctor.ru/aapi/v1/web/.........', {
+    //           method: 'POST',
+    //           body: {
+    //             as_bytes: Base64Avatar,
+    //           },
+    //           headers: {
+    //           'Content-Type': 'application/json;charset=utf-8',
+    //           },
+    //        });
+        
+    // let answer = await response.json();
+    // console.log(answer);
    
     })
 
