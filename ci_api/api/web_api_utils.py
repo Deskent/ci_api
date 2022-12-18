@@ -1,6 +1,5 @@
-from fastapi import UploadFile, HTTPException
+from fastapi import UploadFile
 from loguru import logger
-from starlette import status
 
 import services.utils
 from admin.utils import save_uploaded_file
