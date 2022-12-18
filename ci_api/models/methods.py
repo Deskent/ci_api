@@ -37,7 +37,7 @@ class BaseSQLModel(SQLModel):
         return self
 
     @classmethod
-    async def get_by_id(cls, id_: int) -> 'SQLModel':
+    async def get_by_id(cls, id_: int) -> 'BaseSQLModel':
         query = select(cls).where(cls.id == id_)
         return await get_first(query)
 

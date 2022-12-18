@@ -11,7 +11,7 @@ from admin.views import get_admin
 from config import settings, MAX_LEVEL, logger
 from create_data import create_fake_data, recreate_db
 from exc.exceptions import UserNotLoggedError, ComeTomorrowException
-from models.models import User, Complex, Rate
+from models.models import User, Complex, Rate, Avatar
 from routers import main_router
 from services.notification_scheduler import create_notifications_for_not_viewed_users
 from services.models_cache.base_cache import AllCache
@@ -47,6 +47,7 @@ def get_application():
         await create_fake_data()
         await AllCache.initialise(Rate)
         await AllCache.initialise(Complex)
+        await AllCache.initialise(Avatar)
         scheduler.start()
 
     @app.on_event('shutdown')
