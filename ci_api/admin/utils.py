@@ -13,12 +13,12 @@ from services.models_cache.base_cache import AllCache
 
 
 @logger.catch
-def save_video(path: str, file: UploadFile):
-    """Save video by path"""
+def save_uploaded_file(file_path: str, file: UploadFile):
+    """Save file by path"""
 
-    with open(path, 'wb') as buffer:
+    with open(file_path, 'wb') as buffer:
         shutil.copyfileobj(file.file, buffer)
-    logger.info(f'Video file saved to {path}')
+    logger.info(f'Uploaded file saved to {file_path}')
 
 
 def get_video_duration(video_path: str) -> int:
@@ -79,7 +79,7 @@ async def upload_file(
             status_code=status.HTTP_409_CONFLICT,
             detail=error_text
         )
-    save_video(str(file_path), file_form.file)
+    save_uploaded_file(str(file_path), file_form.file)
 
     duration: int = get_video_duration(str(file_path))
     file_form.duration = duration
