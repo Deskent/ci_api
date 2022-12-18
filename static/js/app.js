@@ -624,7 +624,7 @@ let swiper1 = new Swiper(".mySwiperComplex", {
  });
 
 let forgetFormInput = document.querySelectorAll(".forget-form__input");
-console.log(forgetFormInput);
+// console.log(forgetFormInput);
 
 forgetFormInput.forEach((item, index) => {
    item.addEventListener("keydown", (evt) => {
