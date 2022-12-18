@@ -1,9 +1,10 @@
 import datetime
 from pathlib import Path
 
+import aioredis
 from fastapi.templating import Jinja2Templates
 from loguru import logger
-from pydantic import BaseSettings, EmailStr
+from pydantic import BaseSettings, EmailStr, RedisDsn
 
 
 class Database(BaseSettings):
@@ -12,6 +13,7 @@ class Database(BaseSettings):
     POSTGRES_PORT: int
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
+    REDIS_DB: RedisDsn = "redis://127.0.0.1:6379/0"
 
     def get_db_name(self):
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
@@ -95,3 +97,5 @@ logger.add(level=log_level, sink=settings.LOGS_DIR / 'ci_api.log')
 logger.add(level=30, sink=settings.LOGS_DIR / 'errors.log')
 
 templates = Jinja2Templates(directory=settings.TEMPLATES_DIR, auto_reload=True)
+
+REDIS_CLIENT = aioredis.from_url(url=db.REDIS_DB)#, encoding="utf-8", decode_responses=True)
