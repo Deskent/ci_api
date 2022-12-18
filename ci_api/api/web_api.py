@@ -1,6 +1,6 @@
 import base64
 
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status, Depends, Request
 
 from config import logger
 from models.models import User
@@ -38,10 +38,12 @@ async def get_complexes_list_web(
 
 @router.post("/set_avatar", status_code=204)
 async def set_avatar(
-        avatar: AvatarBase,
+        # avatar: AvatarBase,
+        request: Request,
         user: User = Depends(get_user_from_context)
 ):
-    logger.info(avatar)
-    coded_string = avatar.as_bytes
-    result = base64.b64decode(coded_string)
-    logger.info(f'DECODED: {result}')
+
+    logger.info(await request.body())
+    # coded_string = avatar.as_bytes
+    # result = base64.b64decode(coded_string)
+    # logger.info(f'DECODED: {result}')
