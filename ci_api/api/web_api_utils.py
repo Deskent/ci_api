@@ -17,7 +17,7 @@ async def set_avatar_from_file_web_context(
     file_path = settings.MEDIA_DIR / 'avatars' / file.filename
     if file_path.exists():
         random_symbols: str = services.utils.generate_four_random_digits_string()
-        file_path = settings.MEDIA_DIR / 'avatars' / f"{file.filename}_{random_symbols}"
+        file_path = settings.MEDIA_DIR / 'avatars' / f"{random_symbols}_{file.filename}"
 
     save_uploaded_file(file_path, file)
     avatar: Avatar = await Avatar.create(data=dict(file_name=file_path.name))
