@@ -37,16 +37,13 @@ async def get_complexes_list_web(
 @router.post(
     "/upload_avatar_as_file",
     status_code=status.HTTP_202_ACCEPTED,
-    response_model=dict
 )
 async def upload_avatar_as_file(
-        request: Request,
         file: UploadFile,
         user: User = Depends(get_user_from_context)
 ):
-    logger.info(await request.body())
-    # web_context: WebContext = await set_avatar_from_file_web_context(context={}, user=user, file=file)
-    # return web_context.api_render()
+    web_context: WebContext = await set_avatar_from_file_web_context(context={}, user=user, file=file)
+    return web_context.api_render()
 
 
 @router.post(

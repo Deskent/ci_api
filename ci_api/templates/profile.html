@@ -7,7 +7,7 @@
                 <div class="profile-content__profile user-profile">
                     <div class="user-profile__info">
                         <div class="user-profile__image-wrapper">
-                            <img class="user-profile__img" id="resizer-demo" src="/static/img/icons/avatar.svg" width="80px" height="80px" alt="">
+                            <img class="user-profile__img" id="resizer-demo" src="/media/avatars/{{ avatar.file_name }}" width="80px" height="80px" alt="">
 
                             <form class="user-profile__img-form" method="POST" enctype="multipart/form-data">
                                 <input class="user-profile__img-input" id="avatar" type="file" accept="image/png, image/jpg" name="avatar">
@@ -18,7 +18,7 @@
                             <button class="vanilla-rotate" data-deg="-90">Повернуть</button>
 
                             <div class="user-profile__image-icon-box">
-                                <img class="user-profile__image-icon" src="/static/img/icons/photo.svg" width="30px" height="30px" alt="photo-icon">
+                                <img class="user-profile__image-icon" src="/media/avatars/{{ avatar.file_name }}" width="30px" height="30px" alt="photo-icon">
                             </div>
                         </div>
                         <div class="user-profile__contacts">
