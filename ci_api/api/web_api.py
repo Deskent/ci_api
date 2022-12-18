@@ -36,7 +36,7 @@ async def get_complexes_list_web(
     return web_context.api_render()
 
 
-@router.post("/upload_avatar_as_file", status_code=204)
+@router.post("/upload_avatar_as_file", status_code=status.HTTP_202_ACCEPTED)
 async def set_avatar(
         request: Request,
         # user: User = Depends(get_user_from_context)
@@ -45,7 +45,7 @@ async def set_avatar(
     logger.info(form)
 
 
-@router.post("/upload_avatar_as_string", status_code=204)
+@router.post("/upload_avatar_as_string", status_code=status.HTTP_202_ACCEPTED)
 async def set_avatar(
         request: Request,
         # user: User = Depends(get_user_from_context)
