@@ -10,6 +10,7 @@ from config import MAX_VIDEO, settings
 from models.models import Video, Complex, Administrator
 from schemas.complexes_videos import VideoUpload
 from services.models_cache.base_cache import AllCache
+from services.models_cache.crud import CRUD
 
 
 @logger.catch
@@ -87,7 +88,8 @@ async def upload_file(
 
     data: dict = file_form.dict()
     del data['file']
-    video = await Video.add_new(**data)
+    # REFACTORED 18 dec 23:41
+    video = await CRUD.video.create(data)
 
     logger.info(f"Video {file_form.file_name} for complex {file_form.complex_id} uploaded.")
 
