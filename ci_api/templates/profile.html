@@ -9,9 +9,9 @@
                         <div class="user-profile__image-wrapper">
                             <img class="user-profile__img" id="resizer-demo" src="/static/img/icons/avatar.svg" width="80px" height="80px" alt="">
 
-                            <form class="user-profile__img-form" action="api/v1/web/upload_avatar_as_file" method="POST" enctype="multipart/form-data">
-                                <input class="user-profile__img-input" type="file" accept="image/png, image/jpg" name="file">
-                                <input type="submit">
+                            <form class="user-profile__img-form" method="POST" enctype="multipart/form-data">
+                                <input class="user-profile__img-input" id="avatar" type="file" accept="image/png, image/jpg" name="avatar">
+                                <input type="submit" class="user-profile__img-submit">
                             </form>
 
                             <button class="vanilla-result">Сохранить</button>
