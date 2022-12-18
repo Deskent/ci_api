@@ -9,4 +9,5 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Testing
-        run: VERSION="test" APPNAME="test" docker-compose run --rm app pytest -k server tests/'
+        run: |
+          VERSION="test" APPNAME="test" docker-compose run --rm app pytest -k server tests/
