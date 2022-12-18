@@ -10,7 +10,11 @@ spam
 .editorconfig
 *.zip
 **/traefik
-**nginx
+**spam
+/redis/data/
+
+# DS_Store
+**.DS_Store
 
 
 # Byte-compiled / optimized / DLL files
@@ -143,6 +147,3 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-
-# DS_Store
-**.DS_Store

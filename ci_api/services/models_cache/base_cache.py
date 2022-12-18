@@ -25,12 +25,11 @@ class AllCache:
         key: str = cls.__get_model_name(model)
         if not cls.__data.get(key, {}):
             await cls.initialise(model)
-        if id_ in cls.__data[key]:
-            result: models_types = cls.__data[key][id_]
-            if not result:
-                result: models_types = await model.get_by_id(id_)
+        result: model = cls.__data[key].get(id_, None)
+        if not result:
+            result: models_types = await model.get_by_id(id_)
 
-            return result
+        return result
 
     @classmethod
     async def get_all(cls, model: models_types) -> list[models_types]:

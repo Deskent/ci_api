@@ -6,6 +6,7 @@ from admin.utils import create_default_admin
 from config import logger, settings
 from database.db import drop_db, create_db
 from models.models import User, Alarm, Notification, Video, Complex, Rate, Avatar
+from services.models_cache.crud import CRUD
 
 
 async def create_complexes(data: list[dict] = None):
@@ -38,7 +39,7 @@ async def create_complexes(data: list[dict] = None):
         ]
 
     for compl in data:
-        await Complex.add_new(**compl)
+        await CRUD.complex.create(compl)
 
 
 async def create_videos(data: list[dict] = None):
@@ -69,7 +70,7 @@ async def create_videos(data: list[dict] = None):
         data.extend(data2)
 
     for video in data:
-        await Video.add_new(**video)
+        await CRUD.video.create(video)
 
 
 async def create_users(data: list[dict] = None):
@@ -108,14 +109,14 @@ async def create_users(data: list[dict] = None):
             },
         ]
     for user_data in data:
-        first_complex: Complex = await Complex.get_first()
+        first_complex: Complex = await CRUD.complex.get_first()
         user_data['current_complex'] = first_complex.id
         if not user_data.get('rate_id'):
-            free_rate: Rate = await Rate.get_free()
+            free_rate: Rate = await CRUD.rate.get_free()
             if free_rate:
                 user_data['rate_id'] = free_rate.id
-        user_data['avatar'] = await Avatar.get_first_id()
-        await User.create(user_data)
+        user_data['avatar'] = await CRUD.avatar.get_first_id()
+        await CRUD.user.create(user_data)
 
 
 async def create_alarms(data: list[dict] = None):
@@ -138,8 +139,7 @@ async def create_alarms(data: list[dict] = None):
             },
         ]
     for alarm in data:
-        alarm = Alarm(**alarm)
-        await alarm.save()
+        await CRUD.alarm.create(alarm)
 
 
 async def create_notifications(data: list[dict] = None):
@@ -164,8 +164,7 @@ async def create_notifications(data: list[dict] = None):
             },
         ]
     for notification in data:
-        elem = Notification(**notification)
-        await elem.save()
+        await CRUD.notification.create(notification)
 
 
 async def create_rates(data: list[dict] = None):
@@ -193,19 +192,20 @@ async def create_rates(data: list[dict] = None):
             }
         ]
     for elem in data:
-        elem = Rate(**elem)
-        await elem.save()
+        await CRUD.rate.create(elem)
 
 async def create_avatars(data: list[dict] = None):
     if not data:
         data = [
             {
-                'file_name': 'dragon.jpg',
+                'file_name': 'avatar.svg',
             },
         ]
     for elem in data:
-        elem = Avatar(**elem)
-        await elem.save()
+        path = settings.MEDIA_DIR / 'avatars' / elem['file_name']
+        if not path.exists():
+            raise ValueError(f"Avatar default file not found: {path}")
+        await CRUD.avatar.create(elem)
 
 
 async def create_fake_data(flag: bool = False):

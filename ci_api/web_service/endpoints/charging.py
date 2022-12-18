@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from starlette.responses import HTMLResponse, RedirectResponse
+from starlette.responses import HTMLResponse
 
 from config import templates
 from models.models import ViewedComplex, User, Complex, Video
@@ -52,11 +52,11 @@ async def videos_list_web(
     videos: list[Video] = await Video.get_all_by_complex_id(complex_id)
     if videos:
         viewed_videos: tuple[int] = await get_viewed_videos_ids(user)
-        
+
         videos_to_next_level: int = calculate_videos_to_next_level(user, videos)
 
         context.update(
-            to_next_level=videos_to_next_level, 
+            to_next_level=videos_to_next_level,
             viewed_videos=viewed_videos
         )
     for video in videos:
