@@ -59,17 +59,3 @@ services:
       - ci_postgres
       - redis
     restart: on-failure
-
-#  nginx:
-#    image: nginx:latest
-#    container_name: nginx
-#    ports:
-#      - '80:80'
-#      - '8080:8080'
-#      - '443:443'
-#    volumes:
-#      - ./nginx/config/:/etc/nginx/conf.d
-##      - ./static:/www/data/static
-#    depends_on:
-#      - ci_api
-#    restart: always
