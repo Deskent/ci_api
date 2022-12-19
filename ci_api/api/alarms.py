@@ -48,6 +48,7 @@ async def create_alarm(
     alarm: Alarm = Alarm(**payload)
     await alarm.save()
     alarm.weekdays = week_days.as_list
+    alarm.alarm_time = alarm.alarm_time.strftime("%H:%M")
     logger.info(f"Alarm with id {alarm.id} created")
 
     return alarm
