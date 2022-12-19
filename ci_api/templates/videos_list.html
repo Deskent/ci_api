@@ -18,7 +18,6 @@
                                 <span class="slide__time-text">{{ video.duration.minute }} мин</span>
                                 <img class="slide__time-img" src="/static/img/icons/clock.svg" width="20px" height="20px" alt="clock">
                             </div>
-                            <!-- {{video.file_name}} -->
                             <video id="{{ video.id }}" data-id="{{ video.id }}" class="slide lock"
                                    src="/media/{{video.file_name}}"
                                    poster="/static/img/video-image.png" controls></video>
@@ -73,8 +72,8 @@
                             </defs>
                         </svg>
                     </button>
-
-                    <span class="new-level_header">Поздравляем! Вы перешли на {{ user.level + 1 if user.level < 10 else 10 }} уровень!</span>
+                    <!-- user.level + 1 if user.level < 10 else 10  -->
+                    <p class="new-level_header">Поздравляем! Вы перешли на <span class="new-level_header-level">новый</span> уровень!</p>
                     <div class="new-level-modal__level">
                         <div>
                             <span class="bigred">{{ user.level + 1 if user.level < 10 else 10 }}</span><span>/ 10</span>
@@ -83,9 +82,9 @@
                     <span class="new-level__text">
                         Завтрашний комплекс займет {{ next_complex.duration }} минут
                     </span>
-                    <a href="/complexes_list" class="new-level__link">
+                    <!-- <a href="/complexes_list" class="new-level__link">
                         Отлично
-                    </a>
+                    </a> -->
                     <button type="button" class="new-level__repeat-btn">Посмотреть еще раз</button>
                 </div>
             </div>

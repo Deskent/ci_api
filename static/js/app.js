@@ -472,8 +472,8 @@ function modalVideoEnded() {
 
             const complex_id = Array.from(urlPath).pop();
 
-            // TODO: https://energy.qidoctor.ru/v1/api/... запрос на сервере отправлять сюда
-            // TODO: для разработки на http://127.0.0.1:8000/api/v1/videos/viewed
+            // TODO: https://energy.qidoctor.ru/api/v1/web/complex_viewed/' + complex_id запрос на сервере отправлять сюда
+            // TODO: для разработки на http://127.0.0.1:8000/api/v1/web/complex_viewed/' + complex_id
 
                 // if(complex_id === Number) {
             const response = await fetch('http://127.0.0.1:8000/api/v1/web/complex_viewed/' + complex_id, {
@@ -486,7 +486,38 @@ function modalVideoEnded() {
 
                 let result = await response.json();
                 console.log(result);
+
+                let levelUpForModal = result.new_level;
+                let levelUp = result.level_up;
+
+                console.log(levelUpForModal);
             // }
+
+            // Слушаем модальное окно new-level
+            let close = modalNewLevel?.querySelector(".new-level__close");
+            let repeatViewingBtn = modalNewLevel?.querySelector(".new-level__repeat-btn");
+            let newLevelHeaderLevel = modalNewLevel?.querySelector(".new-level_header-level");
+            let newLevelHeader = modalNewLevel?.querySelector(".new-level_header");
+
+            if(levelUp === true) {
+               newLevelHeaderLevel.textContent = levelUpForModal;
+            } else {
+               newLevelHeader.textContent = "Просмотрено повторно";
+            }
+
+            
+            function closeModalNewLevelHandler () {
+               modalNewLevel.classList.add("hidden");
+
+               for(let i = 0; i < modalVideos.length; i++) {
+                  swiperButtonPrev.click();
+               }
+               close.removeEventListener("click", closeModalNewLevelHandler);
+               repeatViewingBtn.removeEventListener("click", closeModalNewLevelHandler);
+            }
+
+            close?.addEventListener("click", closeModalNewLevelHandler);
+            repeatViewingBtn?.addEventListener("click", closeModalNewLevelHandler);
          }
       });
    })
@@ -495,23 +526,22 @@ function modalVideoEnded() {
 modalVideoEnded();
 
 
-// Слушаем модальное окно new-level
-
-let close = modalNewLevel?.querySelector(".new-level__close");
-let repeatViewingBtn = modalNewLevel?.querySelector(".new-level__repeat-btn");
 
 
-function closeModalNewLevelHandler () {
-   modalNewLevel.classList.add("hidden");
-   for(let i = 0; i < modalVideos.length; i++) {
-      swiperButtonPrev.click();
-   }
-   close.removeEventListener("click", closeModalNewLevelHandler);
-   repeatViewingBtn.removeEventListener("click", closeModalNewLevelHandler);
-}
 
-close?.addEventListener("click", closeModalNewLevelHandler);
-repeatViewingBtn?.addEventListener("click", closeModalNewLevelHandler);
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -537,14 +567,25 @@ repeatViewingBtn?.addEventListener("click", closeModalNewLevelHandler);
 //complexes_list
 
 
+
+// Слушаем модальное окно new-level для комплекс лист
+let close = modalNewLevel?.querySelector(".new-level__close");
+
+function closeModalNewLevelHandler () {
+   modalNewLevel.classList.add("hidden");
+}
+
+close?.addEventListener("click", closeModalNewLevelHandler);
+
+
 // Отправляем запрос после загрузки страницы complexes_list
 
 const complexesList = urlPath;
 
 
 
-// TODO: https://energy.qidoctor.ru/api/v1/complex/list/ запрос на сервере отправлять сюда
-// TODO: для разработки на http://127.0.0.1:8000/api/v1/complex/list/
+// TODO: https://energy.qidoctor.ru/api/v1/web/complex/list запрос на сервере отправлять сюда
+// TODO: для разработки на http://127.0.0.1:8000/api/v1/web/complex/list
 
 if(complexesList.includes("complexes_list")) {
     document.addEventListener("DOMContentLoaded", async (evt) => {
@@ -559,29 +600,70 @@ if(complexesList.includes("complexes_list")) {
         let result = await response.json();
         console.log(result);
 
-        const progressUser = result.user.level;
-        const complexes = result.complexes;
+        const levelUser = await result.user.level;
+      //   const notViewedComplexes = result.not_viewed_complexes;
+        const todayComplex = result.today_complex;
+        const viewedComplexes = await result.viewed_complexes;
 
-        let numberComplexTag = document.querySelector(".complexes-list__number-complex");
-        numberComplexTag.textContent = " " + (progressUser + 1);
-        let complexesListSlide = document.querySelectorAll(".complexes-list__wrapper");
-        let complexesListSlideArr = Array.from(complexesListSlide);
+      let complexesListSlide = document.querySelectorAll(".complexes-list__wrapper");
+      let complexesListSlideArr = Array.from(complexesListSlide);
+      console.log(complexesListSlideArr);
 
-        for(let i = 0; i <= complexesListSlideArr.length - 1; i++) {
-            let item = complexesListSlideArr[i];
-            // добавляем общее время комплекса в минутах каждой карточке комплекса
-            const time = complexes[i].duration / 60;
 
-            item.querySelector('.complexes-list__time-text').textContent = Math.ceil(time) + " мин";
 
-            if(i <= progressUser) {
-                item.querySelector('.complexes-list-slide__lock').style.display = "none";
-                item.querySelector('.complexes-list-slide__btn-box').style.display = "flex";
-                item.querySelector('.complexes-list-image').classList.remove('lock');
+
+      
+
+      for(let i = 0; i <= complexesListSlideArr.length-1; i++) {
+
+         // let idViewedComplexes = viewedComplexesArr[i]; 
+         let item = complexesListSlideArr[i];
+
+         console.log(item);
+
+      
+         if(i < levelUser) {
+               item.querySelector('.complexes-list-slide__lock').style.display = "none";
+               item.querySelector('.complexes-list-slide__btn-box').style.display = "flex";
+               item.querySelector('.complexes-list-image').classList.remove('lock');
+         }
+         if(i < viewedComplexes.length) {
+            item.querySelector('.complexes-list-slide__btn-text').textContent = "Просмотрено";
+            complexesListSlideArr[i+1].querySelector(".complexes-list-slide__btn-box").classList.add("active-btn");
+            // complexesListSlideArr[i+1].querySelector('.complexes-list-slide__btn-text').classList.add("active-btn");
+
+         } 
+         if(i == todayComplex.length) {
+            item.querySelector('.complexes-list-slide__btn-text').textContent = "Посмотреть";
+         }
+
+      }
+
+
+
+      let btns = document.querySelectorAll(".complexes-list-slide__btn-box");
+      const btnsArr = Array.from(btns);
+
+      let modal = document.querySelector(".new-level-box");
+
+      btnsArr.forEach((el, index) => {
+        let next = Object.keys(todayComplex).length; 
+         el.addEventListener("click", (evt) => {
+            if((el.classList.contains("active-btn") && next === 0) ) {
+               evt.preventDefault();
+               evt.stopPropagation();
+               modal.classList.remove("hidden");
             }
-        }
+         })
+
+      })
     })
 }
+
+
+
+
+
 
 // Инициализируем слайдер для комплексов
 let swiper1 = new Swiper(".mySwiperComplex", {
@@ -623,18 +705,18 @@ let swiper1 = new Swiper(".mySwiperComplex", {
     }
  });
 
-let forgetFormInput = document.querySelectorAll(".forget-form__input");
-console.log(forgetFormInput);
+// let forgetFormInput = document.querySelectorAll(".forget-form__input");
+// // console.log(forgetFormInput);
 
-forgetFormInput.forEach((item, index) => {
-   item.addEventListener("keydown", (evt) => {
-      // evt.preventDefault();
-      if (item.value == Number) {
-         console.log(item.value);
-         item[index + 1].focus();
-      }
-    });
-})
+// forgetFormInput.forEach((item, index) => {
+//    item.addEventListener("keydown", (evt) => {
+//       // evt.preventDefault();
+//       if (item.value == Number) {
+//          console.log(item.value);
+//          item[index + 1].focus();
+//       }
+//     });
+// })
 
 
 

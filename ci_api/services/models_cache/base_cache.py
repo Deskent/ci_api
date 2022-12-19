@@ -1,8 +1,8 @@
-from models.models import Rate, Complex, User, Video
 from config import logger
+from models.models import BaseSQLModel, Rate, Complex, User, Video, Avatar
 
 
-models_types = Rate | Complex | User | Video
+models_types = BaseSQLModel | Rate | Complex | User | Video | Avatar
 
 
 class AllCache:
@@ -23,10 +23,13 @@ class AllCache:
     @classmethod
     async def get_by_id(cls, model: models_types, id_: int) -> models_types:
         key: str = cls.__get_model_name(model)
-        if not cls.__data[key]:
+        if not cls.__data.get(key, {}):
             await cls.initialise(model)
-        if id_ in cls.__data[key]:
-            return cls.__data[key][id_]
+        result: model = cls.__data[key].get(id_, None)
+        if not result:
+            result: models_types = await model.get_by_id(id_)
+
+        return result
 
     @classmethod
     async def get_all(cls, model: models_types) -> list[models_types]:
