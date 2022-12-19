@@ -476,8 +476,8 @@ function modalVideoEnded() {
             // TODO: для разработки на http://127.0.0.1:8000/api/v1/web/complex_viewed/' + complex_id
 
                 // if(complex_id === Number) {
-            const response = await fetch('http://127.0.0.1:8000/api/v1/web/complex_viewed/' + complex_id, {
-                  //  const response = await fetch('https://energy.qidoctor.ru/api/v1/web/complex_viewed/' + complex_id, {
+            // const response = await fetch('http://127.0.0.1:8000/api/v1/web/complex_viewed/' + complex_id, {
+                   const response = await fetch('https://energy.qidoctor.ru/api/v1/web/complex_viewed/' + complex_id, {
                     method: 'GET',
                     headers: {
                     'Content-Type': 'application/json;charset=utf-8',
@@ -505,7 +505,7 @@ function modalVideoEnded() {
                newLevelHeader.textContent = "Просмотрено повторно";
             }
 
-            
+
             function closeModalNewLevelHandler () {
                modalNewLevel.classList.add("hidden");
 
@@ -589,8 +589,8 @@ const complexesList = urlPath;
 
 if(complexesList.includes("complexes_list")) {
     document.addEventListener("DOMContentLoaded", async (evt) => {
-        const response = await fetch('http://127.0.0.1:8000/api/v1/web/complex/list', {
-      //   const response = await fetch('https://energy.qidoctor.ru/api/v1/web/complex/list', {
+        // const response = await fetch('http://127.0.0.1:8000/api/v1/web/complex/list', {
+        const response = await fetch('https://energy.qidoctor.ru/api/v1/web/complex/list', {
            method: 'GET',
            headers: {
            'Content-Type': 'application/json;charset=utf-8',
@@ -612,16 +612,16 @@ if(complexesList.includes("complexes_list")) {
 
 
 
-      
+
 
       for(let i = 0; i <= complexesListSlideArr.length-1; i++) {
 
-         // let idViewedComplexes = viewedComplexesArr[i]; 
+         // let idViewedComplexes = viewedComplexesArr[i];
          let item = complexesListSlideArr[i];
 
          console.log(item);
 
-      
+
          if(i < levelUser) {
                item.querySelector('.complexes-list-slide__lock').style.display = "none";
                item.querySelector('.complexes-list-slide__btn-box').style.display = "flex";
@@ -632,7 +632,7 @@ if(complexesList.includes("complexes_list")) {
             complexesListSlideArr[i+1].querySelector(".complexes-list-slide__btn-box").classList.add("active-btn");
             // complexesListSlideArr[i+1].querySelector('.complexes-list-slide__btn-text').classList.add("active-btn");
 
-         } 
+         }
          if(i == todayComplex.length) {
             item.querySelector('.complexes-list-slide__btn-text').textContent = "Посмотреть";
          }
@@ -647,7 +647,7 @@ if(complexesList.includes("complexes_list")) {
       let modal = document.querySelector(".new-level-box");
 
       btnsArr.forEach((el, index) => {
-        let next = Object.keys(todayComplex).length; 
+        let next = Object.keys(todayComplex).length;
          el.addEventListener("click", (evt) => {
             if((el.classList.contains("active-btn") && next === 0) ) {
                evt.preventDefault();
