@@ -124,17 +124,20 @@ async def create_alarms(data: list[dict] = None):
             {
                 'alarm_time': '10:00',
                 'text': 'alarm1',
-                'user_id': 1
+                'user_id': 1,
+                'weekdays': ['all']
             },
             {
                 'alarm_time': '11:00',
                 'text': 'alarm2',
-                'user_id': 1
+                'user_id': 1,
+                'weekdays': ['all']
             },
             {
                 'alarm_time': '13:00',
                 'text': 'alarm3',
-                'user_id': 2
+                'user_id': 2,
+                'weekdays': ['all']
             },
         ]
     for alarm in data:
