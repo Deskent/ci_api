@@ -6,6 +6,7 @@ from schemas.user_schema import UserProgress, UserOutput
 from services.complexes_web_context import get_complexes_list_web_context
 from services.depends import get_logged_user
 from services.models_cache.base_cache import AllCache
+from services.models_cache.crud import CRUD
 from services.videos_methods import get_viewed_complex_response
 from services.web_context_class import WebContext
 
@@ -38,8 +39,8 @@ async def get_viewed_complexes_api(
 ):
     """Return user, complexes list and viewed_complexes list as JSON"""
 
-    complexes: list[Complex] = await AllCache.get_all(Complex)
-    viewed: list[ViewedComplex] = await ViewedComplex.get_all_viewed_complexes(user.id)
+    complexes: list[Complex] = await CRUD.complex.get_all()
+    viewed: list[ViewedComplex] = await CRUD.viewed_complex.get_all_viewed_complexes(user.id)
 
     return dict(user=UserOutput(**user.dict()), complexes=complexes, viewed=viewed)
 
@@ -54,9 +55,9 @@ async def complex_data(
 ):
     """Return complex info"""
 
-    if not (complex_ := await AllCache.get_by_id(Complex, complex_id)):
+    if not (complex_ := await CRUD.complex.get_by_id(complex_id)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Complex not found")
-    videos: list[Video] = await Video.get_all_by_complex_id(complex_id)
+    videos: list[Video] = await CRUD.video.get_all_by_complex_id(complex_id)
 
     return ComplexData(**complex_.dict(), videos=videos)
 

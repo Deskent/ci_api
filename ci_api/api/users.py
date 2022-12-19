@@ -5,7 +5,6 @@ from models.models import User, Alarm, Notification, Rate
 from schemas.alarms import AlarmFull
 from schemas.user_schema import UserSchema, UserEditProfile
 from services.depends import get_logged_user
-from services.models_cache.base_cache import AllCache
 from services.models_cache.crud import CRUD
 from services.weekdays import WeekDay
 from web_service.handlers.profile_web_contexts import get_edit_profile_web_context
@@ -51,7 +50,7 @@ async def get_user_notifications(
     :return List of notifications
     """
 
-    notifications: list = await Notification.get_all_by_user_id(user.id)
+    notifications: list[Notification] = await CRUD.notification.get_all_by_user_id(user.id)
     logger.info(f"User with id {user.id} request notifications")
 
     return notifications
@@ -70,7 +69,7 @@ async def get_all_rates():
     :return List of rates
     """
 
-    rates: list[Rate] = await AllCache.get_all(Rate)
+    rates: list[Rate] = await CRUD.rate.get_all()
     logger.info(f"Rates requested")
 
     return rates

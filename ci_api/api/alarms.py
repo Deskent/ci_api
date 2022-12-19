@@ -5,8 +5,9 @@ from models.models import Alarm, User
 from schemas.alarms import AlarmCreate, AlarmFull, AlarmUpdate
 from services.alarms_web_context import get_update_alarm_web_context, get_alarm_or_raise
 from services.depends import get_logged_user
+from services.models_cache.crud import CRUD
 from services.web_context_class import WebContext
-from services.weekdays import WeekDay
+
 
 router = APIRouter(prefix="/alarms", tags=['Alarms'])
 
@@ -43,12 +44,8 @@ async def create_alarm(
 
     payload: dict = data.dict()
     payload.update({"user_id": user.id})
-    week_days: WeekDay = WeekDay(data.weekdays)
-    payload.update(weekdays=week_days.as_string)
-    alarm: Alarm = Alarm(**payload)
-    await alarm.save()
-    alarm.weekdays = week_days.as_list
-    alarm.alarm_time = alarm.alarm_time.strftime("%H:%M")
+    alarm: Alarm = await CRUD.alarm.create(payload)
+    alarm: Alarm = await CRUD.alarm.for_response(alarm)
     logger.info(f"Alarm with id {alarm.id} created")
 
     return alarm
@@ -113,6 +110,4 @@ async def get_alarm_by_id(
     """
 
     alarm: Alarm = await get_alarm_or_raise(alarm_id, user)
-    alarm.weekdays = WeekDay(alarm.weekdays).as_list
-    alarm.alarm_time = alarm.alarm_time.strftime("%H:%M")
-    return alarm
+    return await CRUD.alarm.for_response(alarm)
