@@ -1,11 +1,10 @@
 import asyncio
 from datetime import datetime, timedelta
 
-
 from admin.utils import create_default_admin
 from config import logger, settings
 from database.db import drop_db, create_db
-from models.models import User, Alarm, Notification, Video, Complex, Rate, Avatar
+from models.models import User, Complex, Rate
 from services.models_cache.crud import CRUD
 
 
@@ -180,16 +179,6 @@ async def create_rates(data: list[dict] = None):
                 'price': 999,
                 'duration': 30
             },
-            {
-                'name': 'Инь-ян',
-                'price': 1990,
-                'duration': 30
-            },
-            {
-                'name': 'Энергия жизни',
-                'price': 2900,
-                'duration': 30 * 6
-            }
         ]
     for elem in data:
         await CRUD.rate.create(elem)
