@@ -1,5 +1,6 @@
 from typing import AsyncGenerator
 
+import asyncpg
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlmodel import SQLModel
@@ -8,9 +9,10 @@ from config import db, logger, settings
 
 
 DATABASE_URL: str = db.get_db_name()
-# TEST_DB_URL: str = db.get_test_db()
+#  asyncpg.exceptions.CannotConnectNowError
+# if settings.STAGE == 'test':
+#     DATABASE_URL: str = db.get_test_db()
 engine = create_async_engine(DATABASE_URL, echo=settings.ECHO, future=True)
-# test_engine = create_async_engine(TEST_DB_URL, echo=False, future=True)
 
 async def drop_db() -> None:
     logger.warning("DROP ALL tables from database.")
@@ -37,6 +39,3 @@ async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
         raise
     finally:
         await session.close()
-
-
-# TODO сделать тестовую бд
