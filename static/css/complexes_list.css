@@ -57,7 +57,8 @@
   justify-content: center;
   align-items: center;
   /* background-color: #fff; */
-  background: linear-gradient(270deg, rgba(211, 42, 30, 0.25) 0%, rgba(211, 42, 30, 0.2) 100%);
+  /* background: linear-gradient(270deg, rgba(211, 42, 30, 0.25) 0%, rgba(211, 42, 30, 0.2) 100%); */
+  background: linear-gradient(270deg, #D32A1E 0%, #EB5E54 100%);
   border-radius: 40px;
   min-height: 450px;
   overflow: hidden;
