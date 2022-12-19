@@ -526,19 +526,7 @@ function modalVideoEnded() {
 modalVideoEnded();
 
 
-// Слушаем модальное окно new-level для комплекс лист
-let close = modalNewLevel?.querySelector(".new-level__close");
-let repeatViewingBtn = modalNewLevel?.querySelector(".new-level__repeat-btn");
-let newLevelHeaderLevel = modalNewLevel?.querySelector(".new-level_header-level");
-let newLevelHeader = modalNewLevel?.querySelector(".new-level_header");
 
-
-function closeModalNewLevelHandler () {
-   modalNewLevel.classList.add("hidden");
-   close.removeEventListener("click", closeModalNewLevelHandler);
-}
-
-close?.addEventListener("click", closeModalNewLevelHandler);
 
 
 
@@ -579,6 +567,17 @@ close?.addEventListener("click", closeModalNewLevelHandler);
 //complexes_list
 
 
+
+// Слушаем модальное окно new-level для комплекс лист
+let close = modalNewLevel?.querySelector(".new-level__close");
+
+function closeModalNewLevelHandler () {
+   modalNewLevel.classList.add("hidden");
+}
+
+close?.addEventListener("click", closeModalNewLevelHandler);
+
+
 // Отправляем запрос после загрузки страницы complexes_list
 
 const complexesList = urlPath;
@@ -601,21 +600,14 @@ if(complexesList.includes("complexes_list")) {
         let result = await response.json();
         console.log(result);
 
-        const levelUser = result.user.level;
+        const levelUser = await result.user.level;
       //   const notViewedComplexes = result.not_viewed_complexes;
         const todayComplex = result.today_complex;
-        const viewedComplexes = result.viewed_complexes;
-        console.log(todayComplex);
-
-
-
-
-      
-
-
+        const viewedComplexes = await result.viewed_complexes;
 
       let complexesListSlide = document.querySelectorAll(".complexes-list__wrapper");
       let complexesListSlideArr = Array.from(complexesListSlide);
+      console.log(complexesListSlideArr);
 
 
 
@@ -624,48 +616,47 @@ if(complexesList.includes("complexes_list")) {
 
       for(let i = 0; i <= complexesListSlideArr.length-1; i++) {
 
-         let idViewedComplexes = viewedComplexes[i]; 
+         // let idViewedComplexes = viewedComplexesArr[i]; 
          let item = complexesListSlideArr[i];
 
+         console.log(item);
+
       
-         if(i <= levelUser) {
+         if(i < levelUser) {
                item.querySelector('.complexes-list-slide__lock').style.display = "none";
                item.querySelector('.complexes-list-slide__btn-box').style.display = "flex";
                item.querySelector('.complexes-list-image').classList.remove('lock');
          }
-         if(i < levelUser && (idViewedComplexes.id - 1) == i) {
+         if(i < viewedComplexes.length) {
             item.querySelector('.complexes-list-slide__btn-text').textContent = "Просмотрено";
-            // complexesListSlideArr[i+1].querySelector('.complexes-list-slide__btn-box').classList.add("active-btn");
-            // var link = complexesListSlideArr[i+1].querySelector('.complexes-list-slide__btn-box').getAttribute('href');
-            // complexesListSlideArr[i+1].querySelector('.complexes-list-slide__btn-box').removeAttribute('href');
-         } else {
+            complexesListSlideArr[i+1].querySelector(".complexes-list-slide__btn-box").classList.add("active-btn");
+            // complexesListSlideArr[i+1].querySelector('.complexes-list-slide__btn-text').classList.add("active-btn");
+
+         } 
+         if(i == todayComplex.length) {
             item.querySelector('.complexes-list-slide__btn-text').textContent = "Посмотреть";
-
-            let btns = document.querySelectorAll(".complexes-list-slide__btn-box");
-            console.log(Object.keys(todayComplex).length)
-            let modal = document.querySelectorAll(".new-level-box");
-
-            
-      
-            btns.forEach((el) => {
-               el.addEventListener("click", (evt) => {
-                  if(Object.keys(todayComplex).length === 0) {
-                     evt.stopPropagation();
-                     evt.preventDefault();
-
-                     modal.classList.remove("hidden");
-
-                  } 
-               })
-      
-            })
-
          }
+
       }
 
 
 
+      let btns = document.querySelectorAll(".complexes-list-slide__btn-box");
+      const btnsArr = Array.from(btns);
 
+      let modal = document.querySelector(".new-level-box");
+
+      btnsArr.forEach((el, index) => {
+        let next = Object.keys(todayComplex).length; 
+         el.addEventListener("click", (evt) => {
+            if((el.classList.contains("active-btn") && next === 0) ) {
+               evt.preventDefault();
+               evt.stopPropagation();
+               modal.classList.remove("hidden");
+            }
+         })
+
+      })
     })
 }
 
