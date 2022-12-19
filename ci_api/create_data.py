@@ -200,6 +200,49 @@ async def create_avatars(data: list[dict] = None):
 async def create_fake_data(flag: bool = False):
     """Create fake data in database"""
 
+    videos_data = [
+        {
+            "complex_id": 1,
+            'file_name': 'e1c1.mp4',
+            'description': f'описание видео {1}',
+            'name': f'Видео № {1}',
+            'duration': 75,
+            'number': 1
+        },
+        {
+            "complex_id": 1,
+            'file_name': 'e2c1.mp4',
+            'description': f'описание видео {2}',
+            'name': f'Видео № {2}',
+            'duration': 66,
+            'number': 2
+        },
+        {
+            "complex_id": 1,
+            'file_name': 'e3c1.mp4',
+            'description': f'описание видео {3}',
+            'name': f'Видео № {3}',
+            'duration': 90,
+            'number': 3
+        },
+        {
+            "complex_id": 1,
+            'file_name': 'e4c1.mp4',
+            'description': f'описание видео {4}',
+            'name': f'Видео № {4}',
+            'duration': 75,
+            'number': 4
+        },
+        {
+            "complex_id": 1,
+            'file_name': 'e5c1.mp4',
+            'description': f'описание видео {5}',
+            'name': f'Видео № {5}',
+            'duration': 66,
+            'number': 5
+        },
+    ]
+
     if settings.CREATE_FAKE_DATA or flag:
         logger.debug("Create fake data to DB")
         if await User.get_by_id(1):
@@ -207,7 +250,7 @@ async def create_fake_data(flag: bool = False):
         await create_rates()
         await create_avatars()
         await create_complexes()
-        await create_videos()
+        await create_videos(videos_data)
         await create_users()
         await create_alarms()
         await create_notifications()

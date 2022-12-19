@@ -99,9 +99,10 @@ async def get_profile_page_context(
         context: dict = Depends(get_logged_user_context)
 ) -> dict:
     user: User = context['user']
+    avatar: Avatar = await AllCache.get_by_id(Avatar, user.avatar)
     user.expired_at = present_user_expired_at_day_and_month(user.expired_at)
     rate: Rate = await AllCache.get_by_id(Rate, user.rate_id)
-    context.update(max_level=MAX_LEVEL, user=user, rate=rate)
+    context.update(max_level=MAX_LEVEL, user=user, rate=rate, avatar=avatar)
 
     return context
 
