@@ -104,6 +104,7 @@ async def approve_sms_code(
         url_path = f"{request.url.path}.html"
         web_context.template = url_path
         web_context.to_raise = SmsCodeNotValid
+
         return web_context
 
     await cleaner()
