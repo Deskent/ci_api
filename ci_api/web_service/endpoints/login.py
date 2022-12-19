@@ -69,7 +69,6 @@ async def login_with_sms(
         sms_input_4: str = Form(...),
         user_id: int = Form(...),
         context: dict = Depends(get_base_context)
-
 ):
     code: SmsCode = SmsCode(code=''.join((sms_input_1, sms_input_2, sms_input_3, sms_input_4)))
     web_context: WebContext = await approve_sms_code(
