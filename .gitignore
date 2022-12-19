@@ -12,7 +12,7 @@ spam
 **/traefik
 **spam
 /redis/data/
-
+***.rdb
 # DS_Store
 **.DS_Store
 
