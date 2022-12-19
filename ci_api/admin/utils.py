@@ -9,7 +9,6 @@ from starlette import status
 from config import MAX_VIDEO, settings
 from models.models import Video, Complex, Administrator
 from schemas.complexes_videos import VideoUpload
-from services.models_cache.base_cache import AllCache
 from services.models_cache.crud import CRUD
 
 
@@ -53,12 +52,12 @@ async def upload_file(
     """Check max videos in complex. Check video format. Save video file.
     Calculate video duration. Save row to database."""
 
-    current_complex: Complex = await AllCache.get_by_id(Complex, file_form.complex_id)
+    current_complex: Complex = await CRUD.complex.get_by_id(file_form.complex_id)
     if not current_complex:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Complex with id {file_form.complex_id} not found")
 
-    videos: list[Video] = await Video.get_all_by_complex_id(current_complex.id)
+    videos: list[Video] = await CRUD.video.get_all_by_complex_id(current_complex.id)
     if len(videos) >= MAX_VIDEO:
         logger.warning(f"For complex {file_form.complex_id} exists {MAX_VIDEO} videos")
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE,
@@ -97,7 +96,7 @@ async def upload_file(
 
 
 async def create_default_admin() -> None:
-    admins: list[Administrator] = await Administrator.get_all()
+    admins: list[Administrator] = await CRUD.admin.get_all()
 
     if not admins and settings.CREATE_ADMIN:
         logger.warning("No admins found. Creating new admin.")

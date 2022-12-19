@@ -8,10 +8,9 @@ from sqlmodel.engine.result import Result
 from config import logger
 from database.db import get_db_session
 from exc.exceptions import ComplexNotFoundError
-from schemas.alarms import AlarmFull
 from services.auth import auth_handler
-from services.models_cache.ci_types import *
 from services.models_cache.base_cache import AllCache
+from services.models_cache.ci_types import *
 from services.weekdays import WeekDay
 
 
