@@ -31,6 +31,7 @@ async def get_update_alarm_web_context(
 
     await alarm.save()
     alarm.weekdays = WeekDay(alarm.weekdays).as_list
+    alarm.alarm_time = alarm.alarm_time.strftime("%H:%M")
     web_context.api_data.update(payload=alarm)
 
     return web_context

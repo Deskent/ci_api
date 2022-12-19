@@ -19,6 +19,9 @@ class AlarmCreate(AlarmBase):
 class AlarmFull(AlarmBase):
     id: int
 
+    def without_seconds(self):
+        self.alarm_time = self.alarm_time.strftime('%H:%M')
+        return self
 
 class AlarmUpdate(BaseModel):
     alarm_time: time = None

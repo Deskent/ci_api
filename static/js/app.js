@@ -720,14 +720,7 @@ let swiper1 = new Swiper(".mySwiperComplex", {
 
 
 
-// Отправляем форму после того как input изменился
-let formAvatar = document.querySelector(".user-profile__img-form");
-let formAvatarInput = formAvatar.querySelector(".user-profile__img-input");
-let formAvatarBtn =  formAvatar.querySelector(".user-profile__img-submit");
 
-formAvatarInput.addEventListener("change" , (env) => {
-   formAvatarBtn.click();
-})
 
 
 
