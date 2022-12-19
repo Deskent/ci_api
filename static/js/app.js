@@ -1,41 +1,41 @@
-(function isWebP() {
-    function testWebP(callback) {
-        let webP = new Image();
-        webP.onload = webP.onerror = function () {
-            callback(webP.height == 2);
-        };
-        webP.src = "data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA";
-    }
+// (function isWebP() {
+//     function testWebP(callback) {
+//         let webP = new Image();
+//         webP.onload = webP.onerror = function () {
+//             callback(webP.height == 2);
+//         };
+//         webP.src = "data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA";
+//     }
 
-    testWebP(function (support) {
+//     testWebP(function (support) {
 
-        if (support == true) {
-            document.querySelector('html').classList.add('webp');
-        } else {
-            document.querySelector('html').classList.add('no-webp');
-        }
-    });
-})()
+//         if (support == true) {
+//             document.querySelector('html').classList.add('webp');
+//         } else {
+//             document.querySelector('html').classList.add('no-webp');
+//         }
+//     });
+// })()
 
-function activeInputs() {
-    const registrationLabels = document.querySelectorAll('.registration__label');
-    if (registrationLabels.length > 0) {
-        registrationLabels.forEach(label => {
-            label.addEventListener("click", () => {
-                registrationLabels.forEach(item => {
-                    item.classList.remove("active")
-                    const input = item.querySelector("input")
-                    if (input.value) {
-                        item.classList.add("filled")
-                    } else {
-                        item.classList.remove("filled")
-                    }
-                })
-                label.classList.add("active")
-            })
-        })
-    }
-}
+// function activeInputs() {
+//     const registrationLabels = document.querySelectorAll('.registration__label');
+//     if (registrationLabels.length > 0) {
+//         registrationLabels.forEach(label => {
+//             label.addEventListener("click", () => {
+//                 registrationLabels.forEach(item => {
+//                     item.classList.remove("active")
+//                     const input = item.querySelector("input")
+//                     if (input.value) {
+//                         item.classList.add("filled")
+//                     } else {
+//                         item.classList.remove("filled")
+//                     }
+//                 })
+//                 label.classList.add("active")
+//             })
+//         })
+//     }
+// }
 
 // было registration__input_password_btn
 
@@ -77,7 +77,7 @@ function makeBurgerMenu() {
     }
 }
 
-activeInputs()
+// activeInputs()
 showPassword()
 makeBurgerMenu()
 
@@ -476,8 +476,8 @@ function modalVideoEnded() {
             // TODO: для разработки на http://127.0.0.1:8000/api/v1/web/complex_viewed/' + complex_id
 
                 // if(complex_id === Number) {
-            // const response = await fetch('http://127.0.0.1:8000/api/v1/web/complex_viewed/' + complex_id, {
-                   const response = await fetch('https://energy.qidoctor.ru/api/v1/web/complex_viewed/' + complex_id, {
+            const response = await fetch('http://127.0.0.1:8000/api/v1/web/complex_viewed/' + complex_id, {
+                  //  const response = await fetch('https://energy.qidoctor.ru/api/v1/web/complex_viewed/' + complex_id, {
                     method: 'GET',
                     headers: {
                     'Content-Type': 'application/json;charset=utf-8',
@@ -589,8 +589,8 @@ const complexesList = urlPath;
 
 if(complexesList.includes("complexes_list")) {
     document.addEventListener("DOMContentLoaded", async (evt) => {
-        // const response = await fetch('http://127.0.0.1:8000/api/v1/web/complex/list', {
-        const response = await fetch('https://energy.qidoctor.ru/api/v1/web/complex/list', {
+        const response = await fetch('http://127.0.0.1:8000/api/v1/web/complex/list', {
+      //   const response = await fetch('https://energy.qidoctor.ru/api/v1/web/complex/list', {
            method: 'GET',
            headers: {
            'Content-Type': 'application/json;charset=utf-8',
@@ -619,7 +619,7 @@ if(complexesList.includes("complexes_list")) {
          // let idViewedComplexes = viewedComplexesArr[i];
          let item = complexesListSlideArr[i];
 
-         console.log(item);
+         // console.log(item);
 
 
          if(i < levelUser) {
@@ -704,19 +704,6 @@ let swiper1 = new Swiper(".mySwiperComplex", {
        }
     }
  });
-
-// let forgetFormInput = document.querySelectorAll(".forget-form__input");
-// // console.log(forgetFormInput);
-
-// forgetFormInput.forEach((item, index) => {
-//    item.addEventListener("keydown", (evt) => {
-//       // evt.preventDefault();
-//       if (item.value == Number) {
-//          console.log(item.value);
-//          item[index + 1].focus();
-//       }
-//     });
-// })
 
 
 
