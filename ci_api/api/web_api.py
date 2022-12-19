@@ -42,6 +42,8 @@ async def upload_avatar_as_file(
         file: UploadFile,
         user: User = Depends(get_user_from_context)
 ):
+
+    logger.debug(f"File received: {file.filename}")
     web_context: WebContext = await set_avatar_from_file_web_context(context={}, user=user, file=file)
     return web_context.api_render()
 
@@ -55,7 +57,7 @@ async def upload_avatar_as_string(
         request: Request,
         # user: User = Depends(get_user_from_context)
 ):
-    logger.info(f"BODY: {await request.body()}")
+    logger.info(f"upload_avatar_as_string BODY: {await request.body()}")
     # coded_string = avatar.as_bytes
     # result = base64.b64decode(coded_string)
     # logger.info(f'DECODED: {result}')
