@@ -6,6 +6,7 @@ from schemas.alarms import AlarmFull
 from schemas.user_schema import UserSchema, UserEditProfile
 from services.depends import get_logged_user
 from services.models_cache.base_cache import AllCache
+from services.models_cache.crud import CRUD
 from services.weekdays import WeekDay
 from web_service.handlers.profile_web_contexts import get_edit_profile_web_context
 
@@ -25,10 +26,11 @@ async def get_user_alarms(
 
     :return List of alarms as JSON
     """
-    alarms_data: list = await Alarm.get_all_by_user_id(user.id)
+    alarms_data: list[Alarm] = await CRUD.alarm.get_all_by_user_id(user.id)
     alarms: list[dict] = [elem.dict() for elem in alarms_data]
     for alarm in alarms:
         alarm['weekdays'] = WeekDay(alarm['weekdays']).as_list
+        alarm['alarm_time'] = alarm['alarm_time'].strftime("%H:%M")
 
     logger.info(f"User with id {user.id} request alarms")
 
