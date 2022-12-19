@@ -4,6 +4,7 @@ from fastapi import Request
 from models.models import User, Administrator
 from schemas.user_schema import UserLogin
 from services.auth import auth_handler
+from services.models_cache.crud import CRUD
 
 
 async def get_logged_user(
@@ -11,7 +12,7 @@ async def get_logged_user(
 ) -> User:
     """Returns authenticated with Bearer user instance"""
 
-    if user := await User.get_by_id(logged_user):
+    if user := await CRUD.user.get_by_id(logged_user):
         return user
 
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
@@ -21,12 +22,12 @@ async def get_logged_user(
 async def check_admin_credentials(user_data: UserLogin) -> Administrator:
     """Check user and password is correct. Return user instance"""
 
-    admin: Administrator = await Administrator.get_by_email(user_data.email)
+    admin: Administrator = await CRUD.admin.get_by_email(user_data.email)
     if not admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
             detail='Incorrect username or password')
 
-    is_password_correct: bool = await admin.is_password_valid(user_data.password)
+    is_password_correct: bool = await CRUD.admin.is_password_valid(admin, user_data.password)
     if not is_password_correct:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid username or password')
