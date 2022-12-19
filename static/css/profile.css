@@ -35,21 +35,23 @@
 }
 
 .user-profile__img-input {
-  width: 250%;
+  width: 123%;
+  left: 0;
   height: 100%;
-  opacity: 1;
-  /* background-color: transparent; */
+  opacity: 0;
+  background-color: transparent;
   cursor: pointer;
   margin-bottom: 20px;
+  position: absolute;
+  z-index: 2;
 }
 
 .user-profile__img-submit {
   width: 100%;
   height: 30px;
-  opacity: 1;
-  background-color: red;
+  opacity: 0;
+  background-color: transparent;
   cursor: pointer;
-  margin-bottom: 50px;
 }
 
 .user-profile__btn {
@@ -123,11 +125,11 @@
 
 .user-profile__image-icon-box {
   position: absolute;
-  right: -20px;
+  right: -5px;
   display: flex;
   justify-content: center;
   align-items: center;
-  bottom: 0;
+  bottom: 7px;
   width: 40px;
   height: 40px;
   background: linear-gradient(270deg, #D32A1E 0%, #EB5E54 100%);
