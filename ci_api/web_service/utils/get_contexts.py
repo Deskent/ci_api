@@ -9,7 +9,7 @@ from exc.exceptions import UserNotLoggedError, ComeTomorrowException
 from models.models import User, Rate, Avatar
 from services.depends import get_context_with_request
 from services.emails import send_email_message, EmailException
-from services.models_cache.base_cache import AllCache
+from services.models_cache.crud import CRUD
 from services.utils import represent_phone
 
 
@@ -40,7 +40,7 @@ async def get_session_user(
         token: str = Depends(get_session_token),
 ) -> User:
     if token:
-        return await User.get_by_token(token)
+        return await CRUD.user.get_by_token(token)
     raise UserNotLoggedError
 
 
@@ -58,7 +58,7 @@ async def get_logged_user_context(
 ) -> dict:
     if not user:
         raise UserNotLoggedError
-    avatar: Avatar = await AllCache.get_by_id(Avatar, user.avatar)
+    avatar: Avatar = await CRUD.avatar.get_by_id(user.avatar)
     context.update({
         "avatar": avatar,
         "user": user,
@@ -99,9 +99,9 @@ async def get_profile_page_context(
         context: dict = Depends(get_logged_user_context)
 ) -> dict:
     user: User = context['user']
-    avatar: Avatar = await AllCache.get_by_id(Avatar, user.avatar)
+    avatar: Avatar = await CRUD.avatar.get_by_id(user.avatar)
     user.expired_at = present_user_expired_at_day_and_month(user.expired_at)
-    rate: Rate = await AllCache.get_by_id(Rate, user.rate_id)
+    rate: Rate = await CRUD.rate.get_by_id(user.rate_id)
     context.update(max_level=MAX_LEVEL, user=user, rate=rate, avatar=avatar)
 
     return context
@@ -121,5 +121,5 @@ async def update_user_session_token(request: Request, user: User) -> None:
     """Clean and set new user token to request session"""
     if request:
         request.session.clear()
-        login_token: str = await user.get_user_token()
+        login_token: str = await CRUD.user.get_user_token(user)
         request.session.update(token=login_token)

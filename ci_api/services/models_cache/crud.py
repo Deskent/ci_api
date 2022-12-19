@@ -9,7 +9,9 @@ from config import logger
 from database.db import get_db_session
 from exc.exceptions import ComplexNotFoundError
 from services.auth import auth_handler
+from services.models_cache.base_cache import AllCache
 from services.models_cache.ci_types import *
+from services.weekdays import WeekDay
 
 
 async def get_session_response(query) -> Result:
@@ -43,12 +45,21 @@ class BaseCrud:
         return obj
 
     async def get_by_id(self, id_: int) -> MODEL_TYPES:
+        result: MODEL_TYPES = await AllCache.get_by_id(self.model, id_)
+        if result:
+            return result
         query = select(self.model).where(self.model.id == id_)
         return await get_first(query)
 
     async def get_all(self) -> list[MODEL_TYPES]:
+        result: list[MODEL_TYPES] = await AllCache.get_all(self.model)
+        if result:
+            return result
         query = select(self.model).order_by(self.model.id)
-        return await get_all(query)
+        result: list[MODEL_TYPES] = await get_all(query)
+        await AllCache.update_data(self.model, result)
+
+        return result
 
     @staticmethod
     async def delete(obj: MODEL_TYPES) -> None:
@@ -57,7 +68,7 @@ class BaseCrud:
             await session.commit()
             logger.debug(f"Object: {obj} deleted")
 
-    async def create(self, data: dict):
+    async def create(self, data: dict) -> MODEL_TYPES:
         instance = self.model(**data)
         return await instance.save()
 
@@ -277,6 +288,12 @@ class AlarmCrud(BaseCrud):
     def __init__(self, model: Type[Alarm]):
         super().__init__(model)
 
+    async def create(self, data: dict) -> Alarm:
+        week_days: WeekDay = WeekDay(data['weekdays'])
+        data.update(weekdays=week_days.as_string)
+
+        return await self.save(Alarm(**data))
+
     async def get_all_by_user_id(self, user_id: int) -> list[Alarm]:
         """Return all user alarms"""
 
@@ -287,6 +304,13 @@ class AlarmCrud(BaseCrud):
         )
 
         return await get_all(query)
+
+    async def for_response(self, obj: Alarm) -> Alarm:
+        week_days: WeekDay = WeekDay(obj.weekdays)
+        obj.weekdays = week_days.as_list
+        obj.alarm_time = obj.alarm_time.strftime("%H:%M")
+
+        return obj
 
 
 class NotificationCrud(BaseCrud):

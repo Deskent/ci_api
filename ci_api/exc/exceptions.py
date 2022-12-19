@@ -30,6 +30,11 @@ RateNotFound = HTTPException(
     detail="Invalid rate id"
 )
 
+AlarmNotFound = HTTPException(
+    status_code=status.HTTP_404_NOT_FOUND,
+    detail="Alarm not found"
+)
+
 FileNotFoundError = HTTPException(
     status_code=status.HTTP_404_NOT_FOUND,
     detail="File not found"

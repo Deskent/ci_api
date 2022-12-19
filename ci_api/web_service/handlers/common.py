@@ -7,6 +7,7 @@ from config import templates
 from exc.exceptions import UserNotFoundErrorApi
 from models.models import User
 from schemas.user_schema import UserPhoneLogin
+from services.models_cache.crud import CRUD
 from services.web_context_class import WebContext
 from services.user import check_phone_and_password_correct
 from services.utils import generate_random_password
@@ -48,7 +49,7 @@ async def restore_password(
         context: dict = Depends(get_base_context),
         email: EmailStr = Form(...),
 ):
-    user: User = await User.get_by_email(email)
+    user: User = await CRUD.user.get_by_email(email)
     if not user:
         context.update(error='Неверный адрес почты')
         return templates.TemplateResponse(
@@ -62,8 +63,8 @@ async def restore_password(
             "forget1.html", context=get_page_titles(context, "forget1.html"))
 
     logger.debug(f"New password: {new_password}")
-    user.password = await user.get_hashed_password(new_password)
-    await user.save()
+    user.password = await CRUD.user.get_hashed_password(new_password)
+    await CRUD.user.save(user)
     context.update(success=f"Новый пароль выслан на почту {user.email}")
     return templates.TemplateResponse(
         "entry_sms.html", context=get_page_titles(context, "entry_sms.html"))
@@ -78,7 +79,7 @@ async def set_new_password(
     user: User = context.get('user')
 
     context = get_page_titles(context, "edit_profile.html")
-    if not await user.is_password_valid(old_password):
+    if not await CRUD.user.is_password_valid(user, old_password):
         context.update(error="Неверный пароль")
         return templates.TemplateResponse("edit_profile.html", context=context)
 
@@ -91,8 +92,8 @@ async def set_new_password(
         return templates.TemplateResponse("edit_profile.html", context=context)
 
     context.update(success="Пароль успешно изменен.")
-    user.password = await user.get_hashed_password(password)
-    await user.save()
+    user.password = await CRUD.user.get_hashed_password(password)
+    await CRUD.user.save(user)
 
     return templates.TemplateResponse(
         "profile.html", context=get_page_titles(context, "profile.html"))
