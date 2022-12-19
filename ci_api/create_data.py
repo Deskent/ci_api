@@ -241,7 +241,6 @@ async def create_fake_data(flag: bool = False):
             'duration': 66,
             'number': 5
         },
-
     ]
 
     if settings.CREATE_FAKE_DATA or flag:
