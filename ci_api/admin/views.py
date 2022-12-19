@@ -8,7 +8,7 @@ from admin.auth import authentication_backend
 from admin.utils import upload_file
 from config import logger, settings
 from database.db import engine
-from models.models import User, Video, Complex, Rate, Administrator, Payment, PaymentCheck
+from models.models import User, Video, Complex, Rate, Administrator, Payment, PaymentCheck, Avatar
 from schemas.complexes_videos import VideoUpload
 from services.utils import convert_seconds_to_time
 
@@ -73,7 +73,7 @@ class UserView(ModelView, model=User):
     column_list = [
         User.id, User.username, User.third_name, User.last_name, User.email, User.phone,
         User.expired_at, User.level, User.created_at, User.is_active,
-        User.is_verified, User.sms_message, User.sms_call_code, User.email_code, User.push_token
+        User.is_verified, User.sms_message, User.sms_call_code, User.email_code, User.push_token, User.avatar
     ]
     column_labels = {
         User.username: "Имя",
@@ -91,6 +91,7 @@ class UserView(ModelView, model=User):
         User.alarms: "Будильники",
         User.notifications: "Оповещения",
         User.current_complex: "Текущий комплекс",
+        User.avatar: "ID аватара",
     }
     column_formatters = {
         User.expired_at: lambda m, a: date_format(m.expired_at),
@@ -98,7 +99,7 @@ class UserView(ModelView, model=User):
         User.gender: lambda m, a: "Male" if m.gender else "Female"
     }
     column_formatters_detail = column_formatters
-    form_columns = [*column_labels.keys(), User.gender]
+    form_columns = [*column_labels.keys(), User.gender, User.avatar]
     column_searchable_list = [User.username, User.email]
     column_sortable_list = [User.id, User.username, User.expired_at]
     column_default_sort = [(User.expired_at, True), (User.id, True)]
@@ -159,6 +160,13 @@ class RateView(ModelView, model=Rate):
         Rate.duration: "Длительность (дней)",
     }
 
+class AvatarView(ModelView, model=Avatar):
+    name = "Аватар"
+    name_plural = "Аватары"
+    column_list = [
+        Avatar.id, Avatar.file_name
+    ]
+
 
 class UploadVideo(BaseView):
     name = "Загрузить видео упражнения"
@@ -213,5 +221,6 @@ def get_admin(app: FastAPI) -> FastAPI:
     admin.add_view(VideoView)
     admin.add_view(PaymentView)
     admin.add_view(PaymentCheckView)
+    admin.add_view(AvatarView)
 
     return app
