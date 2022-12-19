@@ -113,4 +113,5 @@ async def get_alarm_by_id(
 
     alarm: Alarm = await get_alarm_or_raise(alarm_id, user)
     alarm.weekdays = WeekDay(alarm.weekdays).as_list
+    alarm.alarm_time = alarm.alarm_time.strftime("%H:%M")
     return alarm

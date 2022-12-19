@@ -18,6 +18,7 @@ class AlarmCreate(AlarmBase):
 
 class AlarmFull(AlarmBase):
     id: int
+    alarm_time: str
 
 
 class AlarmUpdate(BaseModel):
