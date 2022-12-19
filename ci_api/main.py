@@ -45,9 +45,6 @@ def get_application():
         await recreate_db()
         await create_default_admin()
         await create_fake_data()
-        await AllCache.initialise(Rate)
-        await AllCache.initialise(Complex)
-        await AllCache.initialise(Avatar)
         scheduler.start()
 
     @app.on_event('shutdown')
