@@ -12,7 +12,7 @@ spam
 **/traefik
 **spam
 /redis/data/
-***.rdb
+**.rdb
 # DS_Store
 **.DS_Store
 
@@ -147,3 +147,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+

@@ -35,10 +35,10 @@
 }
 
 .user-profile__img-input {
-  width: 250%;
+  width: 100%;
   height: 100%;
-  opacity: 1;
-  /* background-color: transparent; */
+  opacity: 0;
+  background-color: transparent;
   cursor: pointer;
   margin-bottom: 20px;
 }
