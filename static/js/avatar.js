@@ -39,8 +39,8 @@ formAvatarInput?.addEventListener('change', async (event) => {
     const formData = new FormData();
     formData.append('file', fileInput.files[0]);
 
-    const response = fetch('http://127.0.0.1:8000/api/v1/web/upload_avatar_as_file', {
-    // const response = fetch('https://energy.qidoctor.ru/api/v1/web/upload_avatar_as_file', {
+    // const response = fetch('http://127.0.0.1:8000/api/v1/web/upload_avatar_as_file', {
+    const response = fetch('https://energy.qidoctor.ru/api/v1/web/upload_avatar_as_file', {
         method: 'POST',
         body: formData,
     })
