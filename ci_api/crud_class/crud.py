@@ -3,36 +3,15 @@ from datetime import datetime, timedelta, timezone
 from pydantic import EmailStr
 from sqlalchemy import desc
 from sqlmodel import select
-from sqlmodel.engine.result import Result
 
 from config import logger
-from database.db import get_db_session
+from database.db import get_db_session, get_all, get_first
 from exc.exceptions import ComplexNotFoundError
 from services.auth import auth_handler
 # from services.models_cache.base_cache import AllCache
 from crud_class.ci_types import *
 from services.utils import get_current_datetime
 from services.weekdays import WeekDay
-
-
-async def get_session_response(query) -> Result:
-    result = None
-    async for session in get_db_session():
-        result = await session.execute(query)
-
-    return result
-
-
-async def get_all(query) -> list:
-    result = await get_session_response(query)
-
-    return result.scalars().all()
-
-
-async def get_first(query):
-    result = await get_session_response(query)
-
-    return result.scalars().first()
 
 
 class BaseCrud:
@@ -262,7 +241,7 @@ class VideoCrud(BaseCrud):
         return await get_all(query)
 
     async def get_all_by_complex_id(self, complex_id: int):
-        return await self.model.get_ordered_list(complex_id)
+        return await self.get_ordered_list(complex_id)
 
     async def create(self, data: dict) -> Video:
         """Create new row into DB and add video duration time (seconds)
