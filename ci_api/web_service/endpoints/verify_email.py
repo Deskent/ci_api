@@ -18,7 +18,7 @@ async def check_email(
         email: EmailStr = Form(...),
         email_token: str = Form(...)
 ):
-    user: User = await User.get_by_email(email)
+    user: User = await CRUD.user.get_by_email(email)
     if not user:
         error = 'Пользователь не найден'
         context.update(error=error)
@@ -31,7 +31,6 @@ async def check_email(
         return templates.TemplateResponse(
             "check_email.html", context=get_page_titles(context, "check_email.html"))
 
-    # TODO сделать поле для email_verify
     if not user.is_verified:
         user.is_verified = True
         await CRUD.user.save(user)

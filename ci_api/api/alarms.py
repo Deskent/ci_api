@@ -100,7 +100,7 @@ async def delete_alarm(
     """
 
     alarm: Alarm = await get_alarm_or_raise(alarm_id, user)
-    await alarm.delete()
+    await CRUD.alarm.delete(alarm)
     logger.info(f"Alarm with id {alarm_id} deleted")
 
 

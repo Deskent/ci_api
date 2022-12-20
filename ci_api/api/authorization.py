@@ -140,13 +140,6 @@ async def login(
     web_context: WebContext = await user_login_via_phone(context={}, form_data=user_data)
     web_context: WebContext = await update_user_token_to_web_context(web_context)
     return web_context.api_render()
-    # if web_context.to_raise:
-    #     raise web_context.to_raise
-    #
-    # user: User = web_context.api_data['payload']
-    # token: str = await CRUD.user.get_user_token(user)
-    # logger.info(f"User with id {user.id} got Bearer token")
-    # return TokenUser(token=token, user=user.dict())
 
 
 @router.put("/change_password", status_code=status.HTTP_202_ACCEPTED)

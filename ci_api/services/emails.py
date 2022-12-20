@@ -6,6 +6,7 @@ from fastapi_mail.errors import ConnectionErrors
 from pydantic import EmailStr, BaseModel
 
 from config import settings, logger
+from crud_class.crud import CRUD
 from models.models import User
 from services.auth import AuthHandler
 from services.utils import generate_four_random_digits_string
@@ -91,7 +92,7 @@ async def send_email_message(email: EmailStr, message: str):
 
 
 async def get_user_id_from_email_code(token: str) -> int:
-    user = await User.get_by_email_code(token)
+    user = await CRUD.user.get_by_email_code(token)
     if user:
         return user.id
 

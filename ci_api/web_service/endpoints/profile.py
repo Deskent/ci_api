@@ -12,10 +12,6 @@ from web_service.utils.get_contexts import get_logged_user_context, get_profile_
 router = APIRouter(tags=['web', 'profile'])
 
 
-# TODO привести к единому АПИ
-# TODO сделать отписку ?
-
-
 @router.get("/profile", response_class=HTMLResponse)
 @router.post("/profile", response_class=HTMLResponse)
 async def profile(

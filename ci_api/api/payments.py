@@ -2,7 +2,7 @@ import datetime
 import json
 from pathlib import Path
 
-from fastapi import APIRouter, Body, Request
+from fastapi import APIRouter, Body
 
 from config import logger, settings, prodamus
 from crud_class.crud import CRUD

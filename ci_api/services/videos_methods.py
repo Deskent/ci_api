@@ -35,7 +35,7 @@ async def get_viewed_video_response(user: User, video_id: int, context: dict) ->
     old_user_level: int = user.level
     new_user: User = await check_level_up(user)
     if new_user.level <= old_user_level:
-        current_complex: Complex = await Complex.get_by_id(user.current_complex)
+        current_complex: Complex = await CRUD.complex.get_by_id(user.current_complex)
         web_context.context.update(current_complex=current_complex)
         web_context.redirect = f"/startCharging/{next_video_id}"
         return web_context

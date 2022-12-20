@@ -3,7 +3,7 @@ import json
 import requests
 from loguru import logger
 
-from config import settings, prodamus
+from config import prodamus
 from models.models import User, Rate
 
 
