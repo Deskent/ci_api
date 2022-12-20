@@ -9,7 +9,7 @@ from config import logger
 from database.db import get_db_session
 from exc.exceptions import ComplexNotFoundError
 from services.auth import auth_handler
-from services.models_cache.base_cache import AllCache
+# from services.models_cache.base_cache import AllCache
 from services.models_cache.ci_types import *
 from services.weekdays import WeekDay
 
@@ -60,9 +60,14 @@ class BaseCrud:
         #         return result
         query = select(self.model).order_by(self.model.id)
         result: list[MODEL_TYPES] = await get_all(query)
-        await AllCache.update_data(self.model, result)
+        # await AllCache.update_data(self.model, result)
 
         return result
+
+    async def delete_by_id(self, id_: int):
+        obj: MODEL_TYPES = await self.get_by_id(id_)
+        if obj:
+            await self.delete(obj)
 
     @staticmethod
     async def delete(obj: MODEL_TYPES) -> None:
@@ -124,7 +129,7 @@ class ComplexCrud(BaseCrud):
         query = select(self.model).where(self.model.number == obj.number + 1)
         next_complex: Complex = await get_first(query)
         if not next_complex:
-            return await Complex.get_first()
+            return await CRUD.complex.get_first()
 
         return next_complex
 
