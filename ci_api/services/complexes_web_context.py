@@ -49,12 +49,12 @@ async def get_complexes_list_web_context(
     web_context.context.update(user=user)
 
     today_complex = {}
-    if not await ViewedComplex.is_last_viewed_today(user.id):
+    if not await CRUD.viewed_complex.is_last_viewed_today(user.id):
         today_complex: Complex = await CRUD.complex.get_by_id(user.current_complex)
         today_complex.duration = convert_seconds_to_time(today_complex.duration)
 
     complexes: list[Complex] = await CRUD.complex.get_all(use_cache=False)
-    user_viewed_complexes: list[int] = await ViewedComplex.get_all_viewed_complexes_ids(user.id)
+    user_viewed_complexes: list[int] = await CRUD.viewed_complex.get_all_viewed_complexes_ids(user.id)
     viewed_complexes: list[Complex] = _get_viewed_complexes(complexes, user_viewed_complexes)
     not_viewed_complexes: list[Complex] = _get_not_viewed_complexes(complexes, user_viewed_complexes)
 
