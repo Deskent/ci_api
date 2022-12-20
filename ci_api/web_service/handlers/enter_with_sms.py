@@ -67,22 +67,23 @@ async def enter_via_sms(web_context: WebContext, user: User) -> WebContext:
     return web_context
 
 
-async def approve_sms_code(
+async def approve_sms_code_or_call_code(
         context: dict,
         code: str,
         request: Request = None,
         user_id: int = None,
         phone: str = None,
+        check_call: bool = False
 ) -> WebContext:
 
     web_context = WebContext(context=context)
 
     user: User | None = None
     if user_id:
-        user: User = await User.get_by_id(user_id)
+        user: User = await CRUD.user.get_by_id(user_id)
     elif phone:
         phone = slice_phone_to_format(phone)
-        user: User = await User.get_by_phone(phone)
+        user: User = await CRUD.user.get_by_phone(phone)
 
     if not user:
         web_context.error = "Неверный номер телефона"
@@ -94,10 +95,10 @@ async def approve_sms_code(
     web_context.context.update(user=user)
     web_context.api_data.update(payload=user)
     user_code: str = user.sms_message
-    cleaner: Callable = user.clean_sms_code
-    if request.url.path == "/forget3":
+    if request.url.path == '/forget3':
+        check_call = True
+    if check_call:
         user_code: str = user.sms_call_code
-        cleaner: Callable = user.clean_sms_call_code
 
     if code != user_code:
         web_context.error = f"Неверный код: {code}"
@@ -108,8 +109,11 @@ async def approve_sms_code(
 
         return web_context
 
-    await cleaner()
-    await user.set_verified()
+    if check_call:
+        await CRUD.user.clean_sms_call_code(user)
+    else:
+        await CRUD.user.clean_sms_code(user)
+    await CRUD.user.set_verified(user)
     await update_user_session_token(request, user)
     web_context.template = "profile.html"
 

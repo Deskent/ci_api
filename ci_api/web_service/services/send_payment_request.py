@@ -25,9 +25,8 @@ async def get_payment_link(user: User, rate: Rate) -> str:
         f"&sys={prodamus.PRODAMUS_SYS_KEY}"
 
     )
-    # if settings.STAGE == 'test':
-    #     params += f"&demo_mode=1"
-    params += f"&demo_mode=1"
+    if prodamus.PRODAMUS_MODE == 'test':
+        params += f"&demo_mode=1"
     url = (
         f"https://box.payform.ru/?"
         f"do=link"
