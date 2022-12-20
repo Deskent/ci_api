@@ -1,7 +1,7 @@
-const orget2FormBox = document.querySelector(".forget2-form-box");
-const fields = document.querySelectorAll(".forget-form__input");
+const orget2FormBox = document?.querySelector(".forget2-form-box");
+const fields = document?.querySelectorAll(".forget-form__input");
 
-fields[0].focus();
+fields[0]?.focus();
 
 function handleInputField({ target }) {
   const value = target.value.slice(0, 1);
@@ -15,7 +15,7 @@ function handleInputField({ target }) {
 
   fields[focusToIndex].focus();
 }
-fields.forEach((field) => {
+fields?.forEach((field) => {
   field.addEventListener("input", handleInputField);
 });
 

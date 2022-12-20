@@ -54,9 +54,9 @@
   overflow: hidden;
 }
 
-.slide.lock {
+/* .slide.lock {
   opacity: 0.5;
-} 
+}  */
 
 
 .slide__play {
@@ -232,6 +232,9 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  background-image: url(/media/avatars/1.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 

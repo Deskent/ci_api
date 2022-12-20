@@ -46,7 +46,7 @@ formAvatarInput?.addEventListener('change', async (event) => {
     })
 
     const answer = await response.json;
-    console.log(answer);
+    // console.log(answer);
 })
 
 
