@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request, Body
 from pydantic import EmailStr
 
 from config import logger
+from exc.exceptions import UserNotFoundErrorApi
 from models.models import User
 from schemas.user_schema import UserPhoneCode, TokenUser, UserOutput, UserSchema
 from schemas.user_schema import UserRegistration, UserPhoneLogin, UserChangePassword
@@ -139,8 +140,7 @@ async def change_password(
     :return: None
     """
     if not await CRUD.user.is_password_valid(user, data.old_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid username or password')
+        raise UserNotFoundErrorApi
     user.password = await CRUD.user.get_hashed_password(data.password)
     await CRUD.user.save(user)
     logger.info(f"User with id {user.id} change password")

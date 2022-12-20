@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, status
 
+from exc.exceptions import ComplexNotFoundError
 from models.models import User, Complex, Video, ViewedComplex
 from schemas.complexes_videos import ComplexData, ComplexesListWithViewedAndNot
 from schemas.user_schema import UserProgress, UserOutput
 from services.complexes_web_context import get_complexes_list_web_context
 from services.depends import get_logged_user
-from services.models_cache.base_cache import AllCache
 from services.models_cache.crud import CRUD
 from services.videos_methods import get_viewed_complex_response
 from services.web_context_class import WebContext
@@ -56,7 +56,7 @@ async def complex_data(
     """Return complex info"""
 
     if not (complex_ := await CRUD.complex.get_by_id(complex_id)):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Complex not found")
+        raise ComplexNotFoundError
     videos: list[Video] = await CRUD.video.get_all_by_complex_id(complex_id)
 
     return ComplexData(**complex_.dict(), videos=videos)

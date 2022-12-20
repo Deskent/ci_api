@@ -1,5 +1,8 @@
 const imageInput = document.querySelector(".user-profile__img-input");
-const image = document.querySelector(".user-profile__img");
+const image1 = document.querySelector(".user-profile__img");
+const image2 = document.querySelector(".header-user__icon-img");
+const image3 = document.querySelector(".header-menu__img");
+
 const imageWrapper = document.querySelector(".user-profile__image-wrapper");
 
 // загружаем фото user и тут же его просматриваем без отправки на сервер, это нужно для редактирования с помощью Croppie
@@ -10,28 +13,25 @@ imageInput?.addEventListener("change", function () {
     const reader = new FileReader();
     reader.addEventListener("load", () => {
         uploadedImage = reader.result;
-        image.src = uploadedImage;
+        image1.src = uploadedImage;
+        image2.src = uploadedImage;
+        image3.src = uploadedImage;
+
     })
     reader.readAsDataURL(this.files[0]);
     imageInput.style.zIndex = "-1";
 })
 
-const userProfileImgForm = document.querySelector(".user-profile__img-form");
 
 
 // Отправляем форму после того как input изменился
 let formAvatar = document?.querySelector(".user-profile__img-form");
 let formAvatarInput = formAvatar?.querySelector(".user-profile__img-input");
-let formAvatarBtn = formAvatar?.querySelector(".user-profile__img-submit");
-
-formAvatarInput?.addEventListener("change", (env) => {
-    formAvatarBtn.click();
-})
 
 
 // отправляем на сервер фото, которое загрузил пользователь без редактирования
 
-userProfileImgForm?.addEventListener('submit', async (event) => {
+formAvatarInput?.addEventListener('change', async (event) => {
     event.preventDefault();
 
     const fileInput = document.querySelector('.user-profile__img-input');
@@ -46,7 +46,7 @@ userProfileImgForm?.addEventListener('submit', async (event) => {
     })
 
     const answer = await response.json;
-    console.log(answer);
+    // console.log(answer);
 })
 
 
