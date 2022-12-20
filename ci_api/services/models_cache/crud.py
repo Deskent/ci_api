@@ -35,8 +35,9 @@ async def get_first(query):
 
 
 class BaseCrud:
-    def __init__(self, model: MODEL_TYPES):
+    def __init__(self, model: MODEL_TYPES, use_cache: bool = True):
         self.model: MODEL_TYPES = model
+        self.use_cache: bool = use_cache
 
     async def save(self, obj: TYPES):
         async for session in get_db_session():
@@ -44,17 +45,19 @@ class BaseCrud:
             await session.commit()
         return obj
 
-    async def get_by_id(self, id_: int) -> MODEL_TYPES:
-        result: MODEL_TYPES = await AllCache.get_by_id(self.model, id_)
-        if result:
-            return result
+    async def get_by_id(self, id_: int, use_cache: bool = True) -> MODEL_TYPES:
+        # if self.use_cache or use_cache:
+        #     result: MODEL_TYPES = await AllCache.get_by_id(self.model, id_)
+        #     if result:
+        #         return result
         query = select(self.model).where(self.model.id == id_)
         return await get_first(query)
 
-    async def get_all(self) -> list[MODEL_TYPES]:
-        result: list[MODEL_TYPES] = await AllCache.get_all(self.model)
-        if result:
-            return result
+    async def get_all(self, use_cache: bool = True) -> list[MODEL_TYPES]:
+        # if self.use_cache or use_cache:
+        #     result: list[MODEL_TYPES] = await AllCache.get_all(self.model)
+        #     if result:
+        #         return result
         query = select(self.model).order_by(self.model.id)
         result: list[MODEL_TYPES] = await get_all(query)
         await AllCache.update_data(self.model, result)
