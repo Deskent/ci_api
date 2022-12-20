@@ -6,7 +6,8 @@ from schemas.user_schema import SmsCode
 from services.web_context_class import WebContext
 from web_service.handlers.common import user_login_via_phone, set_new_password
 from web_service.handlers.enter_with_sms import approve_sms_code, entry_via_sms_or_call
-from web_service.utils.get_contexts import get_base_context, get_profile_page_context
+from web_service.utils.get_contexts import get_base_context, get_profile_page_context, \
+    get_logged_user_context
 
 router = APIRouter(tags=['web', 'login'])
 
@@ -37,9 +38,16 @@ async def logout(request: Request):
 
 @router.post("/newPassword", response_class=HTMLResponse)
 async def newPassword(
-        set_new_password: dict = Depends(set_new_password),
+        context: dict = Depends(get_logged_user_context),
+        old_password: str = Form(...),
+        password: str = Form(...),
+        password2: str = Form(...)
 ):
-    return set_new_password
+    web_context: WebContext = await set_new_password(
+        context=context, old_password=old_password, password=password, password2=password2)
+    web_context.context = await get_profile_page_context(web_context.context)
+
+    return web_context.web_render()
 
 
 @router.get("/entry_sms", response_class=HTMLResponse)
