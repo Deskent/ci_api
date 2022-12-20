@@ -79,7 +79,7 @@ async def verify_email_token(
     return user
 
 
-@router.post("/verify_sms_code", status_code=status.HTTP_202_ACCEPTED, response_model=UserOutput)
+@router.post("/verify_sms_code", status_code=status.HTTP_202_ACCEPTED, response_model=UserSchema)
 async def verify_sms_code(
         request: Request,
         data: UserPhoneCode
@@ -100,7 +100,7 @@ async def verify_sms_code(
     return web_context.api_render()
 
 
-@router.post("/verify_call_code", status_code=status.HTTP_202_ACCEPTED, response_model=UserOutput)
+@router.post("/verify_call_code", status_code=status.HTTP_202_ACCEPTED, response_model=UserSchema)
 async def verify_call_code(
         request: Request,
         data: UserPhoneCode
