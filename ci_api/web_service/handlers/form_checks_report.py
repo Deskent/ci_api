@@ -6,7 +6,7 @@ from loguru import logger
 
 from config import settings
 from models.models import PaymentCheck, User, Rate
-from services.models_cache.crud import CRUD
+from crud_class.crud import CRUD
 from services.utils import to_isoformat
 from services.web_context_class import WebContext
 

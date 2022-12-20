@@ -7,7 +7,7 @@ from schemas.user_schema import UserEditProfile
 from services.web_context_class import WebContext
 from web_service.handlers.profile_web_contexts import get_edit_profile_web_context
 from web_service.utils.get_contexts import get_logged_user_context, get_profile_page_context, \
-    get_user_from_context
+    get_user_browser_session
 
 router = APIRouter(tags=['web', 'profile'])
 
@@ -43,7 +43,7 @@ async def edit_profile_post(
         email: EmailStr = Form(),
         phone: str = Form(),
         context: dict = Depends(get_logged_user_context),
-        user: User = Depends(get_user_from_context)
+        user: User = Depends(get_user_browser_session)
 ):
     user_data = UserEditProfile(
         username=username, last_name=last_name, third_name=third_name, email=email, phone=phone)

@@ -1,9 +1,7 @@
-from fastapi import status, HTTPException
-
 from exc.exceptions import AlarmNotFound
 from models.models import Alarm, User
 from schemas.alarms import AlarmUpdate
-from services.models_cache.crud import CRUD
+from crud_class.crud import CRUD
 from services.web_context_class import WebContext
 from services.weekdays import WeekDay
 
