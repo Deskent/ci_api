@@ -63,7 +63,9 @@ async def check_first_entry_or_new_user(
 ):
     """
     Return new_user = True if user registered now have first entry.
+
     Return today_first_entry = True and list of emojies if user first time entry today.
+
     Return user as JSON else.
 
     :param user: Logged user
