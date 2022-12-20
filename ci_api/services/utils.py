@@ -35,7 +35,9 @@ def convert_seconds_to_time(data: int) -> time:
     return time(hour, minute, second)
 
 
-def convert_to_minutes(data: int) -> int:
+def convert_to_minutes(data: int | time) -> int:
+    if isinstance(data, time):
+        return data.minute
     return convert_seconds_to_time(data).minute
 
 
