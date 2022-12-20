@@ -1,14 +1,12 @@
-import datetime
-
 from fastapi import APIRouter, status, Depends, UploadFile
 
 from api.web_api_utils import set_avatar_from_file_web_context
 from config import logger
+from crud_class.crud import CRUD
 from models.models import User, Mood
 from schemas.complexes_videos import ComplexesListWithViewedAndNot
 from schemas.user_schema import EntryModalWindow, UserMood
 from services.complexes_web_context import get_complexes_list_web_context
-from crud_class.crud import CRUD
 from services.utils import get_current_datetime
 from services.videos_methods import get_viewed_complex_response
 from services.web_context_class import WebContext
