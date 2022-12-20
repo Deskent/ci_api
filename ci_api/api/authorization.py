@@ -11,7 +11,8 @@ from services.models_cache.crud import CRUD
 from services.user import register_new_user_web_context
 from services.web_context_class import WebContext
 from web_service.handlers.common import user_login_via_phone
-from web_service.handlers.enter_with_sms import approve_sms_code_or_call_code
+from web_service.handlers.enter_with_sms import approve_sms_code_or_call_code, \
+    update_user_token_to_web_context
 
 router = APIRouter(prefix="/auth", tags=['Authorization'])
 
@@ -79,7 +80,7 @@ async def verify_email_token(
     return user
 
 
-@router.post("/verify_sms_code", status_code=status.HTTP_202_ACCEPTED, response_model=UserSchema)
+@router.post("/verify_sms_code", status_code=status.HTTP_202_ACCEPTED, response_model=TokenUser)
 async def verify_sms_code(
         request: Request,
         data: UserPhoneCode
@@ -97,10 +98,14 @@ async def verify_sms_code(
 
     web_context: WebContext = await approve_sms_code_or_call_code(request=request,
         context={}, phone=data.phone, code=data.code)
+    web_context: WebContext = await update_user_token_to_web_context(web_context)
     return web_context.api_render()
 
 
-@router.post("/verify_call_code", status_code=status.HTTP_202_ACCEPTED, response_model=UserSchema)
+@router.post(
+    "/verify_call_code",
+    status_code=status.HTTP_202_ACCEPTED,
+    response_model=TokenUser)
 async def verify_call_code(
         request: Request,
         data: UserPhoneCode
@@ -118,6 +123,7 @@ async def verify_call_code(
 
     web_context: WebContext = await approve_sms_code_or_call_code(request=request,
         context={}, phone=data.phone, code=data.code, check_call=True)
+    web_context: WebContext = await update_user_token_to_web_context(web_context)
     return web_context.api_render()
 
 
@@ -134,13 +140,15 @@ async def login(
      :return: Authorization token as JSON and user as JSON
     """
     web_context: WebContext = await user_login_via_phone(context={}, form_data=user_data)
-    if web_context.to_raise:
-        raise web_context.to_raise
-
-    user: User = web_context.api_data['payload']
-    token: str = await CRUD.user.get_user_token(user)
-    logger.info(f"User with id {user.id} got Bearer token")
-    return TokenUser(token=token, user=user.dict())
+    web_context: WebContext = await update_user_token_to_web_context(web_context)
+    return web_context.api_render()
+    # if web_context.to_raise:
+    #     raise web_context.to_raise
+    #
+    # user: User = web_context.api_data['payload']
+    # token: str = await CRUD.user.get_user_token(user)
+    # logger.info(f"User with id {user.id} got Bearer token")
+    # return TokenUser(token=token, user=user.dict())
 
 
 @router.put("/change_password", status_code=status.HTTP_202_ACCEPTED)
