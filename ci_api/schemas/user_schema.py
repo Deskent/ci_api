@@ -176,6 +176,10 @@ class TokenUser(BaseModel):
     user: UserOutput
 
 
+class UserMood(BaseModel):
+    mood_id: int
+
+
 class EntryModalWindow(BaseModel):
     user: dict
     emojies: list[dict] = []
