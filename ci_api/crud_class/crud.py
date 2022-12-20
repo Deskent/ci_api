@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 from pydantic import EmailStr
 from sqlalchemy import desc
@@ -10,7 +10,8 @@ from database.db import get_db_session
 from exc.exceptions import ComplexNotFoundError
 from services.auth import auth_handler
 # from services.models_cache.base_cache import AllCache
-from crud.ci_types import *
+from crud_class.ci_types import *
+from services.utils import get_current_datetime
 from services.weekdays import WeekDay
 
 
@@ -163,75 +164,87 @@ class UserCrud(AdminCrud):
         return await get_first(query)
 
     # TODO сделать декоратором
-    async def _get_instance(self, obj: User = None, id_: int = None) -> User:
-        if not obj and id_:
-            obj: User = await self.get_by_id(id_)
-        self.obj = obj
-        return self.obj
+    async def _get_instance(self, user: User = None, id_: int = None) -> User:
+        if not user and id_:
+            self.user: User = await self.get_by_id(id_)
 
-    async def _save_obj(self) -> User:
-        if self.obj:
-            return await self.save(self.obj)
+        return self.user
 
-    async def activate(self, obj: User = None, id_: int = None) -> User:
-        if await self._get_instance(obj, id_):
-            self.obj.is_active = True
-            return await self._save_obj()
+    async def activate(self, user: User = None, id_: int = None) -> User:
+        if await self._get_instance(user, id_):
+            self.user.is_active = True
+            return await self.save(self.user)
 
-    async def deactivate(self, obj: User = None, id_: int = None) -> User:
-        if await self._get_instance(obj, id_):
-            self.obj.is_active = False
-            return await self._save_obj()
+    async def deactivate(self, user: User = None, id_: int = None) -> User:
+        if await self._get_instance(user, id_):
+            self.user.is_active = False
+            return await self.save(self.user)
 
-    async def clean_sms_code(self, obj: User = None, id_: int = None) -> User:
-        if await self._get_instance(obj, id_):
-            self.obj.sms_message = ''
-            return await self._save_obj()
+    async def clean_sms_code(self, user: User = None, id_: int = None) -> User:
+        if await self._get_instance(user, id_):
+            self.user.sms_message = ''
+            return await self.save(self.user)
 
-    async def clean_sms_call_code(self, obj: User = None, id_: int = None) -> User:
-        if await self._get_instance(obj, id_):
-            self.obj.sms_call_code = ''
-            return await self._save_obj()
+    async def clean_sms_call_code(self, user: User = None, id_: int = None) -> User:
+        if await self._get_instance(user, id_):
+            self.user.sms_call_code = ''
+            return await self.save(self.user)
 
-    async def clean_email_code(self, obj: User = None, id_: int = None) -> User:
-        if await self._get_instance(obj, id_):
-            self.obj.email_code = ''
-            return await self._save_obj()
+    async def clean_email_code(self, user: User = None, id_: int = None) -> User:
+        if await self._get_instance(user, id_):
+            self.user.email_code = ''
+            return await self.save(self.user)
 
-    async def set_verified(self, obj: User = None, id_: int = None) -> User:
-        if await self._get_instance(obj, id_):
-            self.obj.is_verified = True
-            return await self._save_obj()
+    async def set_verified(self, user: User = None, id_: int = None) -> User:
+        if await self._get_instance(user, id_):
+            self.user.is_verified = True
+            return await self.save(self.user)
 
-    async def set_not_verified(self, obj: User = None, id_: int = None) -> User:
-        if await self._get_instance(obj, id_):
-            self.obj.is_verified = False
-            return await self._save_obj()
+    async def set_not_verified(self, user: User = None, id_: int = None) -> User:
+        if await self._get_instance(user, id_):
+            self.user.is_verified = False
+            return await self.save(self.user)
 
-    async def level_up(self, obj: User) -> User:
-        self.obj = obj
-        if self.obj.level < 10:
-            next_complex: Complex = await CRUD.complex.get_next_complex_by_id(obj.current_complex)
-            self.obj.current_complex = next_complex.id
-            self.obj.progress = 0
-            self.obj.level += 1
-            await self._save_obj()
-        return self.obj
+    async def level_up(self, user: User) -> User:
+        self.user = user
+        if self.user.level < 10:
+            next_complex: Complex = await CRUD.complex.get_next_complex_by_id(user.current_complex)
+            self.user.current_complex = next_complex.id
+            self.user.progress = 0
+            self.user.level += 1
+            await self.save(self.user)
+        return self.user
 
     @staticmethod
-    async def get_alarm_by_alarm_id(obj: User, alarm_id: int) -> Alarm:
+    async def get_alarm_by_alarm_id(user: User, alarm_id: int) -> Alarm:
         """Return user alarm by its id"""
 
-        query = select(Alarm).where(Alarm.user_id == obj.id).where(Alarm.id == alarm_id)
+        query = select(Alarm).where(Alarm.user_id == user.id).where(Alarm.id == alarm_id)
         return await get_first(query)
 
+    async def set_subscribe_to(self, days: int, user: User = None,  id_: int = None) -> User:
+        if await self._get_instance(user, id_):
+            if not user.expired_at or user.expired_at < get_current_datetime():
+                user.expired_at = get_current_datetime()
+            user.expired_at += timedelta(days=days)
+            user.is_active = True
+            user.last_entry = get_current_datetime()
+
+            return await self.save(self.user)
+
+    async def set_last_entry_today(self, user: User = None, id_: int = None) -> User:
+        """Set last entry user field today value"""
+
+        if await self._get_instance(user, id_):
+            user.last_entry = get_current_datetime()
+            return await self.save(user)
 
 class VideoCrud(BaseCrud):
     def __init__(self, model: Type[Video]):
         super().__init__(model)
 
-    async def next_video_id(self, obj: Video) -> int:
-        query = select(self.model).where(self.model.number == obj.number + 1)
+    async def next_video_id(self, video: Video) -> int:
+        query = select(self.model).where(self.model.number == video.number + 1)
         next_video: Video = await get_first(query)
 
         return 1 if not next_video else next_video.id
@@ -343,7 +356,7 @@ class ViewedComplexCrud(BaseCrud):
         complex_exists = await get_all(query)
         if not complex_exists:
             viewed_complex = self.model(
-                user_id=user_id, complex_id=complex_id, viewed_at=datetime.now(tz=None)
+                user_id=user_id, complex_id=complex_id, viewed_at=get_current_datetime()
             )
             return await self.save(viewed_complex)
 
@@ -376,7 +389,7 @@ class ViewedComplexCrud(BaseCrud):
         True if viewed  else False
         """
 
-        current_day = datetime.now(tz=None).day
+        current_day = get_current_datetime().day
         query = (
             select(self.model)
             .where(self.model.user_id == user_id)
@@ -448,3 +461,11 @@ class CRUD:
     viewed_complex = ViewedComplexCrud(model=ViewedComplex)
     viewed_video = ViewedVideoCrud(model=ViewedVideo)
     mood = MoodCrud(model=Mood)
+
+
+if __name__ == '__main__':
+    a = datetime(2022, 12, 20, 16, 27, 37, 693788, tzinfo=timezone.utc)
+    print(a)
+    b = datetime.now(tz=timezone.utc)
+    print(b)
+    print(a < b)
