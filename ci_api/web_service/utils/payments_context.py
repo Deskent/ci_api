@@ -22,52 +22,52 @@ async def _get_rate_date(user: User) -> dict:
 async def get_subscribe_context(
         context: dict
 ) -> WebContext:
-    obj = WebContext(context=context)
-    user: User = obj.is_user_in_context()
+    web_context = WebContext(context=context)
+    user: User = web_context.is_user_in_context()
     if not user:
-        return obj
+        return web_context
 
     api_data: dict = await _get_rate_date(user)
-    obj.context.update(**api_data)
-    obj.api_data.update(payload=api_data)
-    obj.template = "subscribe.html"
+    web_context.context.update(**api_data)
+    web_context.api_data.update(payload=api_data)
+    web_context.template = "subscribe.html"
 
-    return obj
+    return web_context
 
 
 async def get_subscribe_by_rate_id(
         context: dict,
         rate_id: int
 ) -> WebContext:
-    obj = WebContext(context=context)
-    user: User = obj.is_user_in_context()
+    web_context = WebContext(context=context)
+    user: User = web_context.is_user_in_context()
     if not user:
-        return obj
+        return web_context
 
     api_data: dict = await _get_rate_date(user)
-    obj.context.update(**api_data)
-    obj.api_data.update(payload=api_data)
+    web_context.context.update(**api_data)
+    web_context.api_data.update(payload=api_data)
 
     rate: Rate = await CRUD.rate.get_by_id(rate_id)
 
     if await Payment.get_by_user_and_rate_id(user_id=user.id, rate_id=rate.id):
-        obj.error = SubscribeExistsError.detail
-        obj.template = "subscribe.html"
-        obj.to_raise = SubscribeExistsError
+        web_context.error = SubscribeExistsError.detail
+        web_context.template = "subscribe.html"
+        web_context.to_raise = SubscribeExistsError
 
-        return obj
+        return web_context
 
     link: str = await get_payment_link(user, rate)
     if not link:
-        obj.error = PaymentServiceError.detail
-        obj.template = "subscribe.html"
-        obj.to_raise = PaymentServiceError
+        web_context.error = PaymentServiceError.detail
+        web_context.template = "subscribe.html"
+        web_context.to_raise = PaymentServiceError
 
-        return obj
+        return web_context
 
-    obj.redirect = link
-    obj.api_data.update(payload=dict(link=link))
-    return obj
+    web_context.redirect = link
+    web_context.api_data.update(payload=dict(link=link))
+    return web_context
 
 
 async def check_payment_result(
@@ -77,10 +77,10 @@ async def check_payment_result(
         payform_order_id: int,
         payform_sign: str
 ) -> WebContext:
-    obj = WebContext(context=context)
-    user: User = obj.is_user_in_context()
+    web_context = WebContext(context=context)
+    user: User = web_context.is_user_in_context()
     if not user:
-        return obj
+        return web_context
 
     if payform_status != 'success':
         logger.error(
@@ -89,20 +89,20 @@ async def check_payment_result(
             f"\nPayform order id: {payform_order_id}"
             f"\nPayform status: {payform_sign}"
         )
-        obj.error = "При попытке подписки произошла ошибка"
-        obj.template = "subscribe.html"
-        obj.to_raise = PaymentServiceError
+        web_context.error = "При попытке подписки произошла ошибка"
+        web_context.template = "subscribe.html"
+        web_context.to_raise = PaymentServiceError
 
-        return obj
+        return web_context
 
     rate_id: int = payform_order_id
 
     if not await CRUD.rate.get_by_id(rate_id):
-        obj.error = "Тариф не найден",
-        obj.template = "subscribe.html",
-        obj.to_raise = RateNotFound
+        web_context.error = "Тариф не найден",
+        web_context.template = "subscribe.html",
+        web_context.to_raise = RateNotFound
 
-        return obj
+        return web_context
 
     if not user.is_active:
         logger.debug(f"Activating user: {user.email}")
@@ -118,18 +118,18 @@ async def check_payment_result(
         await payment.save()
 
     user.expired_at = present_user_expired_at_day_and_month(user.expired_at)
-    obj.api_data.update(payload=user)
-    obj.success = "Подписка успешна оформлена"
-    obj.template = "profile.html"
+    web_context.api_data.update(payload=user)
+    web_context.success = "Подписка успешна оформлена"
+    web_context.template = "profile.html"
 
-    return obj
+    return web_context
 
 
 async def get_cancel_subscribe_context(context: dict) -> WebContext:
-    obj = WebContext(context=context)
-    user: User = obj.is_user_in_context()
+    web_context = WebContext(context=context)
+    user: User = web_context.is_user_in_context()
     if not user:
-        return obj
+        return web_context
 
     if user.is_active:
         user: User = await user.deactivate()
@@ -145,8 +145,8 @@ async def get_cancel_subscribe_context(context: dict) -> WebContext:
     user: User = await user.save()
 
     # TODO отписываться!!!
-    obj.template = "cancel_subscribe.html"
-    obj.api_data.update(payload=user)
+    web_context.template = "cancel_subscribe.html"
+    web_context.api_data.update(payload=user)
 
-    return obj
+    return web_context
 

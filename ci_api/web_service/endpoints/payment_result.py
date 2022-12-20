@@ -5,7 +5,8 @@ from models.models import User
 from services.web_context_class import WebContext
 from web_service.handlers.form_checks_report import form_payments_report
 from web_service.utils.payments_context import check_payment_result
-from web_service.utils.get_contexts import get_logged_user_context, get_user_from_context
+from web_service.utils.get_contexts import get_logged_user_context, get_user_from_context, \
+    get_profile_page_context
 from config import settings
 
 router = APIRouter(tags=['web', 'payments'])
@@ -13,7 +14,7 @@ router = APIRouter(tags=['web', 'payments'])
 
 @router.get("/payment_result", response_class=HTMLResponse)
 async def payment_result(
-        context: dict = Depends(get_logged_user_context),
+        context: dict = Depends(get_profile_page_context),
         _payform_status: str = None,
         _payform_id: int = None,
         _payform_order_id: int = None,
@@ -28,7 +29,7 @@ async def payment_result(
 
 @router.get("/payment_report", response_class=HTMLResponse)
 async def payment_result(
-        context: dict = Depends(get_logged_user_context),
+        context: dict = Depends(get_profile_page_context),
         user: User = Depends(get_user_from_context)
 ):
     web_context: WebContext = await form_payments_report(context=context, user=user)
