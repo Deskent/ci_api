@@ -50,6 +50,15 @@ class VideoUpload(VideoBase):
         )
 
 
+class ComplexTimeDuration(BaseModel):
+    id: int
+    number: int
+    name: str | None
+    description: str
+    duration: time
+    videos: list[VideoInfo] = []
+
+
 class ComplexData(BaseModel):
     name: str
     description: str

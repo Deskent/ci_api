@@ -6,34 +6,22 @@ from models.models import User, Complex, Video
 from services.complexes_and_videos import (
     get_viewed_videos_ids, calculate_videos_to_next_level
 )
+from services.complexes_web_context import get_all_complexes_web_context
 from services.models_cache.crud import CRUD
-from services.utils import convert_seconds_to_time, convert_to_minutes
+from services.utils import convert_seconds_to_time
+from services.web_context_class import WebContext
 from web_service.utils.get_contexts import get_logged_user_context, get_user_from_context
 from web_service.utils.title_context_func import get_page_titles
 
 router = APIRouter(tags=['web', 'charging'])
 
 
-@router.get("/complexes_list", response_class=HTMLResponse)
+@router.get("/complexes_list", response_class=HTMLResponse, dependencies=[Depends(get_user_from_context)])
 async def complexes_list_web(
-        context: dict = Depends(get_logged_user_context),
-        user: User = Depends(get_user_from_context)
+        context: dict = Depends(get_logged_user_context)
 ):
-    videos: list[Video] = await CRUD.video.get_all_by_complex_id(user.current_complex)
-
-    complexes: list[Complex] = await CRUD.complex.get_all()
-    viewed_complexes_ids: list[int] = await CRUD.viewed_complex.get_all_viewed_complexes_ids(user.id)
-    for complex_ in complexes:
-        complex_.duration = convert_to_minutes(complex_.duration)
-    videos_to_next_level: int = calculate_videos_to_next_level(user, videos)
-
-    context.update(
-        viewed_complexes=viewed_complexes_ids, complexes=complexes,
-        to_next_level=videos_to_next_level
-    )
-    return templates.TemplateResponse(
-        "complexes_list.html", context=get_page_titles(context, "complexes_list.html")
-    )
+    web_context: WebContext = await get_all_complexes_web_context(context)
+    return web_context.web_render()
 
 
 @router.get("/videos_list/{complex_id}", response_class=HTMLResponse)

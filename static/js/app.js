@@ -430,9 +430,11 @@ function modalVideoEnded() {
                 let repeatViewingBtn = modalNewLevel?.querySelector(".new-level__repeat-btn");
                 let newLevelHeaderLevel = modalNewLevel?.querySelector(".new-level_header-level");
                 let newLevelHeader = modalNewLevel?.querySelector(".new-level_header");
+                let bigred = modalNewLevel?.querySelector(".bigred");
 
                 if (levelUp === true) {
                     newLevelHeaderLevel.textContent = levelUpForModal;
+                    bigred.textContent = levelUpForModal;
                 } else {
                     newLevelHeader.textContent = "Просмотрено повторно";
                 }
