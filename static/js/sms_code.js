@@ -16,7 +16,7 @@ function handleInputField({ target }) {
   fields[focusToIndex].focus();
 }
 fields?.forEach((field) => {
-  field.addEventListener("input", handleInputField);
+  field?.addEventListener("input", handleInputField);
 });
 
 
