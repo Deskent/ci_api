@@ -6,6 +6,7 @@ from models.models import User
 from schemas.user_schema import UserPhoneCode, TokenUser, UserOutput, UserSchema
 from schemas.user_schema import UserRegistration, UserPhoneLogin, UserChangePassword
 from services.depends import get_logged_user
+from services.models_cache.crud import CRUD
 from services.user import register_new_user_web_context
 from services.web_context_class import WebContext
 from web_service.handlers.common import user_login_via_phone
@@ -60,7 +61,7 @@ async def verify_email_token(
 
     """
 
-    user: User = await User.get_by_email(email)
+    user: User = await CRUD.user.get_by_email(email)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
@@ -70,7 +71,7 @@ async def verify_email_token(
     if user and not user.is_verified:
         user.is_verified = True
         user.email_code = None
-        await user.save()
+        await CRUD.user.save(user)
         logger.info(f"User with id {user.id} verified")
     logger.debug(f"Verify email token: OK")
 
@@ -116,7 +117,7 @@ async def login(
         raise web_context.to_raise
 
     user: User = web_context.api_data['payload']
-    token: str = await user.get_user_token()
+    token: str = await CRUD.user.get_user_token(user)
     logger.info(f"User with id {user.id} got Bearer token")
     return TokenUser(token=token, user=user.dict())
 
@@ -137,11 +138,11 @@ async def change_password(
 
     :return: None
     """
-    if not await user.is_password_valid(data.old_password):
+    if not await CRUD.user.is_password_valid(user, data.old_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid username or password')
-    user.password = await user.get_hashed_password(data.password)
-    await user.save()
+    user.password = await CRUD.user.get_hashed_password(data.password)
+    await CRUD.user.save(user)
     logger.info(f"User with id {user.id} change password")
 
 
@@ -157,4 +158,4 @@ async def set_push_token(
     """
 
     user.push_token = push_token
-    await user.save()
+    await CRUD.user.save(user)

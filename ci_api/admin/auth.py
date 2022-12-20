@@ -4,6 +4,7 @@ from sqladmin.authentication import AuthenticationBackend
 from config import settings, logger
 from models.models import Administrator
 from services.depends import check_admin_credentials
+from services.models_cache.crud import CRUD
 from services.user import validate_logged_user_data
 
 
@@ -14,7 +15,7 @@ class MyBackend(AuthenticationBackend):
         logger.debug(f'User: {user_login.email} try to login as admin.')
         admin: Administrator = await check_admin_credentials(user_login)
         if admin:
-            token: str = await admin.get_user_token()
+            token: str = await CRUD.admin.get_user_token(admin)
             request.session.update({"token": token})
             logger.debug(f'Administrator: {admin.email} logged as admin.')
 

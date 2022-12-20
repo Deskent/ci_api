@@ -6,6 +6,7 @@ from fastapi.responses import FileResponse
 from config import settings, logger
 from models.models import Video
 from services.depends import get_logged_user
+from services.models_cache.crud import CRUD
 from web_service.utils.web_utils import get_checked_video
 
 router = APIRouter(prefix="/videos", tags=['Videos'])
@@ -52,5 +53,5 @@ async def get_all_videos_from_complex(
     :return: List of videos as JSON
 
     """
-    return await Video.get_all_by_complex_id(complex_id)
+    return await CRUD.video.get_all_by_complex_id(complex_id)
 
