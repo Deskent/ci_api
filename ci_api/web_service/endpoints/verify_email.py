@@ -3,6 +3,7 @@ from pydantic import EmailStr
 from starlette.responses import HTMLResponse
 
 from config import templates
+from crud_class.crud import CRUD
 from models.models import User
 from web_service.utils.title_context_func import get_page_titles
 from web_service.utils.get_contexts import get_base_context, get_logged_user_context
@@ -33,7 +34,7 @@ async def check_email(
     # TODO сделать поле для email_verify
     if not user.is_verified:
         user.is_verified = True
-        await user.save()
+        await CRUD.user.save(user)
 
     context: dict = await get_logged_user_context(user=user, context=context)
     context.update(success='Аккаунт верифицирован')

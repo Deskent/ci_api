@@ -1,6 +1,7 @@
 import pytest
 
 from api.payments import save_payment
+from crud_class.crud import CRUD
 from models.models import PaymentCheck
 
 @pytest.mark.skip("Manual")
@@ -26,5 +27,5 @@ async def test_save_payment():
 @pytest.mark.skip("Manual")
 async def test_get_all_checks_by_user_id():
     user_id = 1
-    checks: list[PaymentCheck] = await PaymentCheck.get_all_by_user_id(user_id)
+    checks: list[PaymentCheck] = await CRUD.payment_check.get_all_by_user_id(user_id)
     assert checks is not None

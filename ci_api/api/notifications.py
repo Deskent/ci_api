@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 
 from config import logger
+from crud_class.crud import CRUD
 from exc.exceptions import NotificationNotFound
 from models.models import Notification, User
 from schemas.notifications import NotificationUpdate, NotificationCreate
@@ -25,7 +26,7 @@ async def create_notification(
     """
     data = data.validate_datetime()
     notification: Notification = Notification(**data.dict(), user_id=user.id)
-    await notification.save()
+    await CRUD.notification.save(notification)
     logger.info(f"Notification with id {notification.id} created")
 
     return notification
@@ -45,7 +46,7 @@ async def get_notification(
 
     :return: Notification data as JSON
     """
-    notification = await Notification.get_by_id(notification_id)
+    notification = await CRUD.notification.get_by_id(notification_id)
     if notification and notification.user_id == user.id:
         return notification
     raise NotificationNotFound
@@ -65,9 +66,9 @@ async def delete_notification(
 
     :return: None
     """
-    notification: Notification = await Notification.get_by_id(notification_id)
+    notification: Notification = await CRUD.notification.get_by_id(notification_id)
     if not notification:
         raise NotificationNotFound
-    await notification.delete()
+    await CRUD.notification.delete(notification)
 
     logger.info(f"Notification with id {notification_id} deleted")

@@ -91,9 +91,9 @@ async def delete_user(
     :return: None
     """
 
-    if not (user := await User.get_by_id(logged_user.id)):
+    if not (user := await CRUD.user.get_by_id(logged_user.id)):
         raise UserNotFoundErrorApi
-    await user.delete()
+    await CRUD.user.delete(user)
     logger.info(f"User with id {user.id} deleted")
 
 

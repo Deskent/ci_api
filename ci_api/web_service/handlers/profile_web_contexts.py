@@ -1,5 +1,6 @@
 from loguru import logger
 
+from crud_class.crud import CRUD
 from exc.exceptions import EmailError
 from exc.register import SmsServiceError, PhoneExistsError, EmailExistsError
 from models.models import User
@@ -116,7 +117,7 @@ async def get_edit_profile_web_context(
         web_context.template = "edit_profile.html"
         return web_context
 
-    user = await user.save()
+    user = await CRUD.user.save(user)
     web_context.context.update(user=user)
     web_context.api_data.update(payload=user)
     web_context.success = 'Профиль успешно изменен'

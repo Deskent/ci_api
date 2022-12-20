@@ -5,6 +5,7 @@ from pathlib import Path
 from fastapi import APIRouter, Body, Request
 
 from config import logger, settings, prodamus
+from crud_class.crud import CRUD
 from exc.payment.pay_exceptions import PaymentServiceError
 from models.models import PaymentCheck, User
 from services.utils import get_current_datetime
@@ -32,15 +33,15 @@ async def save_payment(data: dict) -> PaymentCheck:
     user_id = int(data.pop('customer_extra'))
     if not user_id:
         raise PaymentServiceError
-    user: User = await User.get_by_id(user_id)
+    user: User = await CRUD.user.get_by_id(user_id)
     data['user_id'] = user.id
     if not data.get('customer_email'):
         data['customer_email'] = user.email
     data['rate_id'] = int(data.pop('order_num'))
-    check = await PaymentCheck().create(data)
+    check = await CRUD.payment_check.create(data)
     logger.debug(f"Check created: {check.dict()}")
     user.expired_at = check.date
-    await user.save()
+    await CRUD.user.save(user)
 
     return check
 

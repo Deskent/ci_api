@@ -58,7 +58,7 @@ class BaseCrud:
 
     async def create(self, data: dict) -> MODEL_TYPES:
         instance = self.model(**data)
-        return await instance.save()
+        return await self.save(instance)
 
 
 class AdminCrud(BaseCrud):
@@ -267,7 +267,7 @@ class VideoCrud(BaseCrud):
         current_complex.video_count -= 1
         current_complex.duration -= obj.duration
         await self.save(current_complex)
-        await self.delete(obj)
+        await super().delete(obj)
 
 
 class AvatarCrud(BaseCrud):

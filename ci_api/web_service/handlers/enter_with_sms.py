@@ -39,7 +39,7 @@ async def enter_via_phone_call(web_context: WebContext, user: User) -> WebContex
         code: str = await sms_service.send_call(phone=user.phone)
         if code:
             user.sms_call_code = str(code)
-            await user.save()
+            await CRUD.user.save(user)
             web_context.template = "forget3.html"
 
     except SMSException as err:
@@ -55,7 +55,7 @@ async def enter_via_sms(web_context: WebContext, user: User) -> WebContext:
     result: dict = await send_sms(user.phone)
     if sms_message := result.get('sms_message'):
         user.sms_message = sms_message
-        await user.save()
+        await CRUD.user.save(user)
     elif error := result.get('error'):
         web_context.error = error
 
