@@ -1,7 +1,9 @@
+import datetime
+
 import pytest
 
 from models.models import User, Rate, Complex, Alarm
-from crud.crud import CRUD
+from crud_class.crud import CRUD
 
 
 @pytest.fixture
@@ -67,7 +69,28 @@ async def test_crud_get_alarm_by_id():
     assert alarm.id == 1
 
 
+
+async def test_crud_set_subscribe_to():
+    user: User = await CRUD.user.get_by_id(1)
+    user: User = await CRUD.user.set_subscribe_to(-100, user)
+    user: User = await CRUD.user.set_subscribe_to(5, user)
+    assert user.expired_at.date() == (datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(days=5)).date()
+    user: User = await CRUD.user.set_subscribe_to(5, user)
+    assert user.expired_at.date() == (datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(days=10)).date()
+    user: User = await CRUD.user.set_subscribe_to(5, user)
+    assert user.expired_at.date() == (datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(days=15)).date()
+
+
+
+async def test_crud_set_last_entry_today():
+    user: User = await CRUD.user.get_by_id(1)
+    user: user = await CRUD.user.set_last_entry_today(user)
+    assert user.last_entry.day == datetime.datetime.now().day
+
+
 async def test_crud_delete_user(user_data):
     user: User = await CRUD.user.get_by_email(user_data['email'])
     if user:
         await CRUD.user.delete(user)
+
+
