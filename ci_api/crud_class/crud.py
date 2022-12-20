@@ -238,6 +238,11 @@ class UserCrud(AdminCrud):
             user.last_entry = get_current_datetime()
             return await self.save(user)
 
+    async def set_mood(self, mood_id: int, user: User = None,  id_: int = None) -> User:
+        if await self._get_instance(user, id_):
+            self.user.mood = mood_id
+            return await self.save(self.user)
+
 class VideoCrud(BaseCrud):
     def __init__(self, model: Type[Video]):
         super().__init__(model)
