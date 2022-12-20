@@ -429,6 +429,11 @@ class PaymentCheckCrud(BaseCrud):
         return await get_all(query)
 
 
+class MoodCrud(BaseCrud):
+    def __init__(self, model: Type[Mood]):
+        super().__init__(model)
+
+
 class CRUD:
     user = UserCrud(model=User)
     admin = AdminCrud(model=Administrator)
@@ -442,3 +447,4 @@ class CRUD:
     payment = PaymentCrud(model=Payment)
     viewed_complex = ViewedComplexCrud(model=ViewedComplex)
     viewed_video = ViewedVideoCrud(model=ViewedVideo)
+    mood = MoodCrud(model=Mood)
