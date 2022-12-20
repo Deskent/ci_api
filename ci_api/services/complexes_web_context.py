@@ -67,3 +67,18 @@ async def get_complexes_list_web_context(
     web_context.api_data.update(payload=result)
 
     return web_context
+
+
+async def get_all_complexes_web_context(
+        context: dict
+) -> WebContext:
+    web_context = WebContext(context)
+    complexes: list[Complex] = await CRUD.complex.get_all()
+    for complex_ in complexes:
+        complex_.duration = convert_to_minutes(complex_.duration)
+
+    web_context.context.update(complexes=complexes)
+    web_context.template = "complexes_list.html"
+    web_context.api_data.update(payload=complexes)
+
+    return web_context
