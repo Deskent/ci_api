@@ -1,7 +1,7 @@
 from exc.exceptions import AlarmNotFound
 from models.models import Alarm, User
 from schemas.alarms import AlarmUpdate
-from crud.crud import CRUD
+from crud_class.crud import CRUD
 from services.web_context_class import WebContext
 from services.weekdays import WeekDay
 

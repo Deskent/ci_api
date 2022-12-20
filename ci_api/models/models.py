@@ -6,6 +6,8 @@ from sqlalchemy import Column, TIMESTAMP, desc
 from sqlmodel import Field, Relationship, select
 
 from models.methods import BaseSQLModel, UserModel, get_all, get_first, AdminModel
+from services.utils import get_current_datetime
+
 
 class Complex(BaseSQLModel, table=True):
     __tablename__ = 'complexes'
@@ -295,7 +297,7 @@ class ViewedComplex(BaseSQLModel, table=True):
         complex_exists = await get_all(query)
         if not complex_exists:
             viewed_complex = cls(
-                user_id=user_id, complex_id=complex_id, viewed_at=datetime.now(tz=None)
+                user_id=user_id, complex_id=complex_id, viewed_at=get_current_datetime()
             )
             await viewed_complex.save()
 
@@ -337,7 +339,7 @@ class ViewedComplex(BaseSQLModel, table=True):
         True if viewed  else False
         """
 
-        current_day = datetime.now(tz=None).day
+        current_day = get_current_datetime().day
         query = select(cls).where(cls.user_id == user_id).order_by(cls.viewed_at)
         last: ViewedComplex = await get_first(query)
         if last and last.viewed_at:

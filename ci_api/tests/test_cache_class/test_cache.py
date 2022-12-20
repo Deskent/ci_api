@@ -1,7 +1,7 @@
 import pytest
 
 from models.models import Rate, Complex
-from crud.crud import CRUD
+from crud_class.crud import CRUD
 
 
 @pytest.mark.skip

@@ -9,7 +9,7 @@ from starlette import status
 from config import MAX_VIDEO, settings
 from models.models import Video, Complex, Administrator
 from schemas.complexes_videos import VideoUpload
-from crud.crud import CRUD
+from crud_class.crud import CRUD
 
 
 @logger.catch

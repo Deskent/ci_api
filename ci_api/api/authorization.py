@@ -7,7 +7,7 @@ from models.models import User
 from schemas.user_schema import UserPhoneCode, TokenUser, UserOutput, UserSchema
 from schemas.user_schema import UserRegistration, UserPhoneLogin, UserChangePassword
 from services.depends import get_logged_user
-from crud.crud import CRUD
+from crud_class.crud import CRUD
 from services.user import register_new_user_web_context
 from services.web_context_class import WebContext
 from web_service.handlers.common import user_login_via_phone

@@ -1,6 +1,6 @@
 from config import LEVEL_UP_PERCENTS, logger
 from models.models import User, Complex, Video, ViewedVideo
-from crud.crud import CRUD
+from crud_class.crud import CRUD
 
 
 async def check_level_up(user: User) -> User:
