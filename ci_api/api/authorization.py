@@ -92,8 +92,7 @@ async def verify_sms_code(
 
     :param code: string - Code from sms
 
-     :return: User data as JSON
-
+     :return: Authorization token as JSON and user as JSON
     """
 
     web_context: WebContext = await approve_sms_code_or_call_code(request=request,
@@ -117,8 +116,7 @@ async def verify_call_code(
 
     :param code: string - Code from phone call
 
-     :return: User data as JSON
-
+     :return: Authorization token as JSON and user as JSON
     """
 
     web_context: WebContext = await approve_sms_code_or_call_code(request=request,
