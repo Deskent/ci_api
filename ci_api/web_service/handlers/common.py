@@ -29,6 +29,7 @@ async def user_login_via_phone(
         web_context.context.update(user=user)
         web_context.api_data.update(payload=user)
         if not user.is_verified:
+            web_context.error = 'Пользователь не верифицирован'
             web_context.template = 'forget2.html'
 
             return web_context
@@ -38,7 +39,7 @@ async def user_login_via_phone(
 
         return web_context
 
-    web_context.error = "Invalid user or password"
+    web_context.error = UserNotFoundErrorApi.detail
     web_context.template = "entry_via_phone.html"
     web_context.to_raise = UserNotFoundErrorApi
 
@@ -71,29 +72,32 @@ async def restore_password(
 
 
 async def set_new_password(
-        context: dict = Depends(get_logged_user_context),
-        old_password: str = Form(...),
-        password: str = Form(...),
-        password2: str = Form(...),
+        context: dict,
+        old_password: str,
+        password: str,
+        password2: str,
 ):
     user: User = context.get('user')
-
-    context = get_page_titles(context, "edit_profile.html")
+    web_context = WebContext(context)
+    web_context.template = "edit_profile.html"
     if not await CRUD.user.is_password_valid(user, old_password):
-        context.update(error="Неверный пароль")
-        return templates.TemplateResponse("edit_profile.html", context=context)
+        web_context.error = "Неверный пароль"
+
+        return web_context
 
     if password == old_password:
-        context.update(error="Новый пароль не должен совпадать со старым")
-        return templates.TemplateResponse("edit_profile.html", context=context)
+        web_context.error = "Новый пароль не должен совпадать со старым"
+
+        return web_context
 
     if password != password2:
-        context.update(error="Пароли не совпадают")
-        return templates.TemplateResponse("edit_profile.html", context=context)
+        web_context.error = "Пароли не совпадают"
 
-    context.update(success="Пароль успешно изменен.")
+        return web_context
+
+    web_context.success = "Пароль успешно изменен."
     user.password = await CRUD.user.get_hashed_password(password)
     await CRUD.user.save(user)
+    web_context.template = "profile.html"
 
-    return templates.TemplateResponse(
-        "profile.html", context=get_page_titles(context, "profile.html"))
+    return web_context

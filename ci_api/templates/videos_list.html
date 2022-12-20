@@ -10,30 +10,36 @@
 
                 {% for video in videos %}
 
-
-                    <div class="swiper-slide slide__card-wrapper" data-id="{{ video.id }}" tabindex="0">
+                    <div class="swiper-slide slide__card-wrapper" data-id="{{ video.id }}"
+                         tabindex="0">
 
                         <div class="slide__wrapper">
                             <div class="slide__time">
                                 <span class="slide__time-text">{{ video.duration.minute }} мин</span>
-                                <img class="slide__time-img" src="/static/img/icons/clock.svg" width="20px" height="20px" alt="clock">
+                                <img class="slide__time-img" src="/static/img/icons/clock.svg"
+                                     width="20px" height="20px" alt="clock">
                             </div>
                             <video id="{{ video.id }}" data-id="{{ video.id }}" class="slide lock"
-                                   src="/media/{{video.file_name}}"  poster="/static/img/video-image.png"
-                                   controls></video>
+                                   src="/media/{{ video.file_name }}"
+                                   poster="/static/img/video-image.png" controls>
+                            </video>
                             <a href="#" data-id="{{ video.id }}" class="slide__viewed">
-                                <p class="slide__viewed-text">Станет доступно после выполнения предыдущего упражнения</p>
-                                <img class="slide__viewed-img" src="/static/img/icons/lock.svg" width="20px" height="20px">
+                                <p class="slide__viewed-text">Станет доступно после выполнения
+                                    предыдущего упражнения</p>
+                                <img class="slide__viewed-img" src="/static/img/icons/lock.svg"
+                                     width="20px" height="20px" alt="">
                             </a>
                         </div>
                         <button data-id="{{ video.id }}" class="slide__play">
                             <img data-id="{{ video.id }}"
-                                 src="/static/img/icons/video-play-btn.svg" width="20px" height="20px" alt="">
+                                 src="/static/img/icons/video-play-btn.svg" width="20px"
+                                 height="20px" alt="">
                         </button>
 
                         <button data-id="{{ video.id }}" class="slide__pause hidden">
                             <img data-id="{{ video.id }}"
-                                 src="/static/img/icons/video-pause-btn.svg" width="20px" height="20px" alt="">
+                                 src="/static/img/icons/video-pause-btn.svg" width="20px"
+                                 height="20px" alt="">
                         </button>
 
                         <h3 href="#" class="slide__title">{{ video.name }}</h3>
@@ -53,41 +59,38 @@
             <div class="swiper-scrollbar"></div>
         </div>
 
-
-
-
-
-
-            <!-- Модальное окно -->
-            <div class="new-level-box hidden">
-                <div class="new-level">
-                    <button type="button" class="new-level__close">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M15.2804 1.28033C15.5732 0.987437 15.5732 0.512563 15.2804 0.21967C14.9875 -0.0732233 14.5126 -0.0732233 14.2197 0.21967L7.75001 6.68935L1.28033 0.219673C0.987437 -0.0732203 0.512563 -0.0732203 0.21967 0.219673C-0.0732233 0.512566 -0.0732233 0.98744 0.21967 1.28033L6.68935 7.75001L0.219697 14.2197C-0.0731964 14.5126 -0.0731964 14.9874 0.219697 15.2803C0.51259 15.5732 0.987464 15.5732 1.28036 15.2803L7.75001 8.81067L14.2197 15.2803C14.5126 15.5732 14.9874 15.5732 15.2803 15.2803C15.5732 14.9874 15.5732 14.5126 15.2803 14.2197L8.81067 7.75002L15.2804 1.28033Z" fill="url(#paint0_linear_156_3297)" />
-                            <defs>
-                            <linearGradient id="paint0_linear_156_3297" x1="15.5" y1="7.89092" x2="-1.41322e-08" y2="7.89092" gradientUnits="userSpaceOnUse">
-                            <stop stop-color="#D32A1E"/>
-                            <stop offset="1" stop-color="#EB5E54"/>
+        <!-- Модальное окно -->
+        <div class="new-level-box hidden">
+            <div class="new-level">
+                <button type="button" class="new-level__close">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                         xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15.2804 1.28033C15.5732 0.987437 15.5732 0.512563 15.2804 0.21967C14.9875 -0.0732233 14.5126 -0.0732233 14.2197 0.21967L7.75001 6.68935L1.28033 0.219673C0.987437 -0.0732203 0.512563 -0.0732203 0.21967 0.219673C-0.0732233 0.512566 -0.0732233 0.98744 0.21967 1.28033L6.68935 7.75001L0.219697 14.2197C-0.0731964 14.5126 -0.0731964 14.9874 0.219697 15.2803C0.51259 15.5732 0.987464 15.5732 1.28036 15.2803L7.75001 8.81067L14.2197 15.2803C14.5126 15.5732 14.9874 15.5732 15.2803 15.2803C15.5732 14.9874 15.5732 14.5126 15.2803 14.2197L8.81067 7.75002L15.2804 1.28033Z"
+                              fill="url(#paint0_linear_156_3297)"/>
+                        <defs>
+                            <linearGradient id="paint0_linear_156_3297" x1="15.5" y1="7.89092"
+                                            x2="-1.41322e-08" y2="7.89092"
+                                            gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#D32A1E"/>
+                                <stop offset="1" stop-color="#EB5E54"/>
                             </linearGradient>
-                            </defs>
-                        </svg>
-                    </button>
-                    <!-- user.level + 1 if user.level < 10 else 10  -->
-                    <p class="new-level_header">Поздравляем! Вы перешли на <span class="new-level_header-level">новый</span> уровень!</p>
-                    <div class="new-level-modal__level">
-                        <div>
-                            <span class="bigred">{{ user.level + 1 if user.level < 10 else 10 }}</span><span>/ 10</span>
-                        </div>
+                        </defs>
+                    </svg>
+                </button>
+                <p class="new-level_header">Поздравляем! Вы перешли на <span
+                        class="new-level_header-level">{{ user.level }}</span> уровень!</p>
+                <div class="new-level-modal__level">
+                    <div>
+                        <span class="bigred">{{ user.level }}</span>
+                        <span>/ 10</span>
                     </div>
-                    <span class="new-level__text">
+                </div>
+                <span class="new-level__text">
                         Завтрашний комплекс займет {{ next_complex.duration }} минут
                     </span>
-                    <!-- <a href="/complexes_list" class="new-level__link">
-                        Отлично
-                    </a> -->
-                    <button type="button" class="new-level__repeat-btn">Посмотреть еще раз</button>
-                </div>
+                <button type="button" class="new-level__repeat-btn">Посмотреть еще раз</button>
             </div>
+        </div>
 
     </section>
 {% endblock profile_content %}

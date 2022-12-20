@@ -35,6 +35,11 @@ AlarmNotFound = HTTPException(
     detail="Alarm not found"
 )
 
+NotificationNotFound = HTTPException(
+    status_code=status.HTTP_404_NOT_FOUND,
+    detail="Notification not found"
+)
+
 FileNotFoundError = HTTPException(
     status_code=status.HTTP_404_NOT_FOUND,
     detail="File not found"

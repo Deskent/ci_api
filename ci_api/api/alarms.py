@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, status
+from pydantic import BaseModel
 
 from config import logger
+from exc.exceptions import AlarmNotFound
 from models.models import Alarm, User
 from schemas.alarms import AlarmCreate, AlarmFull, AlarmUpdate
 from services.alarms_web_context import get_update_alarm_web_context, get_alarm_or_raise
@@ -8,8 +10,11 @@ from services.depends import get_logged_user
 from services.models_cache.crud import CRUD
 from services.web_context_class import WebContext
 
-
 router = APIRouter(prefix="/alarms", tags=['Alarms'])
+
+
+class AlarmNotFoundErrorDetails(BaseModel):
+    detail: str = AlarmNotFound.detail
 
 
 @router.post(
@@ -54,7 +59,10 @@ async def create_alarm(
 @router.put(
     "/{alarm_id}",
     response_model=AlarmFull,
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
+    responses={AlarmNotFound.status_code: {
+        "model": AlarmNotFoundErrorDetails,
+    }}
 )
 async def update_alarm(
         alarm_id: int,
@@ -76,6 +84,9 @@ async def update_alarm(
 @router.delete(
     "/{alarm_id}",
     status_code=status.HTTP_204_NO_CONTENT,
+    responses={AlarmNotFound.status_code: {
+        "model": AlarmNotFoundErrorDetails,
+    }}
 )
 async def delete_alarm(
         alarm_id: int,
@@ -96,7 +107,10 @@ async def delete_alarm(
 @router.get(
     "/{alarm_id}",
     response_model=AlarmFull,
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
+    responses={AlarmNotFound.status_code: {
+        "model": AlarmNotFoundErrorDetails,
+    }}
 )
 async def get_alarm_by_id(
         alarm_id: int,

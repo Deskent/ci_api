@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 
 from config import logger
+from exc.exceptions import NotificationNotFound
 from models.models import Notification, User
 from schemas.notifications import NotificationUpdate, NotificationCreate
 from services.depends import get_logged_user
@@ -47,7 +48,7 @@ async def get_notification(
     notification = await Notification.get_by_id(notification_id)
     if notification and notification.user_id == user.id:
         return notification
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found")
+    raise NotificationNotFound
 
 
 @router.delete(
@@ -66,7 +67,7 @@ async def delete_notification(
     """
     notification: Notification = await Notification.get_by_id(notification_id)
     if not notification:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found")
+        raise NotificationNotFound
     await notification.delete()
 
     logger.info(f"Notification with id {notification_id} deleted")

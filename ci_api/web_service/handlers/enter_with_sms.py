@@ -8,6 +8,7 @@ from config import settings
 from exc.exceptions import SmsCodeNotValid, UserNotFoundErrorApi
 from models.models import User
 from schemas.user_schema import slice_phone_to_format
+from services.models_cache.crud import CRUD
 from services.user import send_sms
 from services.web_context_class import WebContext
 from web_service.services.sms_class import sms_service, SMSException
@@ -21,7 +22,7 @@ async def entry_via_sms_or_call(
 ) -> WebContext:
     web_context = WebContext(context=context)
     phone: str = slice_phone_to_format(phone)
-    user: User = await User.get_by_phone(phone)
+    user: User = await CRUD.user.get_by_phone(phone)
     if not user:
         web_context.error = "Пользователь с таким номером телефона не найден"
         web_context.template = "entry_sms.html"
