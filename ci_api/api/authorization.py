@@ -11,7 +11,7 @@ from services.models_cache.crud import CRUD
 from services.user import register_new_user_web_context
 from services.web_context_class import WebContext
 from web_service.handlers.common import user_login_via_phone
-from web_service.handlers.enter_with_sms import approve_sms_code
+from web_service.handlers.enter_with_sms import approve_sms_code_or_call_code
 
 router = APIRouter(prefix="/auth", tags=['Authorization'])
 
@@ -95,10 +95,30 @@ async def verify_sms_code(
 
     """
 
-    web_context: WebContext = await approve_sms_code(request=request,
+    web_context: WebContext = await approve_sms_code_or_call_code(request=request,
         context={}, phone=data.phone, code=data.code)
     return web_context.api_render()
 
+
+@router.post("/verify_call_code", status_code=status.HTTP_202_ACCEPTED, response_model=UserOutput)
+async def verify_call_code(
+        request: Request,
+        data: UserPhoneCode
+):
+
+    """Verify user via call code
+
+    :param phone: string - phone number in format: 9998887766
+
+    :param code: string - Code from phone call
+
+     :return: User data as JSON
+
+    """
+
+    web_context: WebContext = await approve_sms_code_or_call_code(request=request,
+        context={}, phone=data.phone, code=data.code, check_call=True)
+    return web_context.api_render()
 
 
 @router.post("/login", response_model=TokenUser)
