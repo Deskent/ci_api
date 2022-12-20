@@ -58,6 +58,7 @@ class Prodamus(BaseSettings):
     NOTIFICATION_URL: str
     SUCCESS_URL: str
     RETURN_URL: str
+    PRODAMUS_MODE: str = 'test'
 
 
 BASE_DIR = Path(__file__).parent
