@@ -100,10 +100,6 @@ async def set_user_mood(
     """
     Set mood for user
 
-    :param mood: {
-               "mood_id": 0
-           }
-    :param user: Logged user
     :return: null
     """
     await CRUD.user.set_mood(mood.mood_id, user=user)
