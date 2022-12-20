@@ -69,12 +69,8 @@ async def check_first_entry_or_new_user(
     Return user as JSON else.
 
     :param user: Logged user
-    :return: {
-            user: dict
-            emojies: list[dict] = []
-            new_user: bool = False
-            today_first_entry: bool = False
-        }
+
+    :return: JSON
     """
     new_user: bool = user.last_entry is None
     if new_user:
