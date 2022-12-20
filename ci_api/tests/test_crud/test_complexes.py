@@ -1,4 +1,5 @@
 from models.models import Complex
+from services.models_cache.crud import CRUD
 
 
 async def test_complex_create():
@@ -9,33 +10,33 @@ async def test_complex_create():
         "duration": 99
     }
     complex_data = Complex(**data)
-    await complex_data.save()
+    await CRUD.complex.save(complex_data)
     assert complex_data.id > 0
 
 
 async def test_complex_get_by_id():
-    complex_data = await Complex.get_by_id(1)
+    complex_data = await CRUD.complex.get_by_id(1)
     assert complex_data is not None
 
 
 async def test_complex_update():
-    all_complexes: list[Complex] = await Complex.get_all()
+    all_complexes: list[Complex] = await CRUD.complex.get_all()
     last_id: Complex = max(all_complexes, key=lambda x: x.id)
-    complex_data: Complex = await Complex.get_by_id(last_id.id)
+    complex_data: Complex = await CRUD.complex.get_by_id(last_id.id)
     assert complex_data.duration == 99
     complex_data.duration = 100
-    new_data: Complex = await complex_data.save()
+    new_data: Complex = await CRUD.complex.save(complex_data)
     assert new_data.duration == 100
 
 
 async def test_get_next_complex():
-    complex_data: Complex = await Complex.get_by_id(1)
-    next_complex: Complex = await Complex.next_complex(complex_data)
+    complex_data: Complex = await CRUD.complex.get_by_id(1)
+    next_complex: Complex = await CRUD.complex.next_complex(complex_data)
     assert next_complex.id == 2
 
 
 async def test_complex_delete():
-    deleting_complexes: list[Complex] = await Complex.get_all()
+    deleting_complexes: list[Complex] = await CRUD.complex.get_all()
     last_id: Complex = max(deleting_complexes, key=lambda x: x.id)
-    complex_data = await Complex.delete_by_id(last_id.id)
+    complex_data = await CRUD.complex.delete_by_id(last_id.id)
     assert complex_data is None

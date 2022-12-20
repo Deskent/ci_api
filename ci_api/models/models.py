@@ -7,7 +7,6 @@ from sqlmodel import Field, Relationship, select
 
 from models.methods import BaseSQLModel, UserModel, get_all, get_first, AdminModel
 
-
 class Complex(BaseSQLModel, table=True):
     __tablename__ = 'complexes'
 
@@ -26,43 +25,6 @@ class Complex(BaseSQLModel, table=True):
 
     def __str__(self):
         return f"№ {self.number}: {self.description}"
-
-    @classmethod
-    async def get_first(cls) -> 'Complex':
-        query = select(cls).order_by(cls.number)
-        return await get_first(query)
-
-    async def next_complex(self) -> 'Complex':
-        query = select(Complex).where(Complex.number == self.number + 1)
-        next_complex: Complex = await get_first(query)
-        if not next_complex:
-            return await Complex.get_first()
-
-        return next_complex
-
-    @classmethod
-    async def get_next_complex(cls, complex_id: int) -> 'Complex':
-        query = select(cls).where(cls.id == complex_id)
-        current_complex: Complex = await get_first(query)
-
-        return await current_complex.next_complex()
-
-    @classmethod
-    async def add_new(
-            cls: 'Complex',
-            number: int,
-            name: str = '',
-            description: str = '',
-            duration: int = 0,
-            video_count: int = 0
-    ) -> 'Complex':
-        new_complex = Complex(
-            number=number, name=name, description=description, duration=duration,
-            video_count=video_count
-        )
-        await new_complex.save()
-
-        return new_complex
 
 
 class Video(BaseSQLModel, table=True):
@@ -149,6 +111,16 @@ class Avatar(BaseSQLModel, table=True):
         return await get_first(query)
 
 
+class Mood(BaseSQLModel, table=True):
+    __tablename__ = 'moods'
+
+    id: int = Field(default=None, primary_key=True, index=True)
+    code: Optional[str] = Field(nullable=True, default=None,
+                                description="HTML код настроения (эмодзи)")
+    name: Optional[str] = Field(nullable=True, default=None,
+                                description="Название настроения (эмодзи)")
+
+
 class User(UserModel, table=True):
     __tablename__ = 'users'
 
@@ -158,24 +130,29 @@ class User(UserModel, table=True):
     third_name: str = Field(nullable=True, default='', description="Отчество")
     email: EmailStr = Field(unique=True, index=True)
     phone: str = Field(unique=True, nullable=False, min_length=10, max_length=13,
-        description="Телефон в формате 9998887766")
+                       description="Телефон в формате 9998887766")
     password: str = Field(nullable=False, max_length=256, min_length=6, exclude=True)
     gender: bool = Field(nullable=False, description='Пол, 1 - муж, 0 - жен')
     level: int = Field(nullable=False, default=1, description="Текущий уровень")
     progress: int = Field(nullable=False, default=0,
-        description="Процент прогресса просмотра текущего комплекса")
-    created_at: datetime = Field(default=datetime.now(tz=None))
-    expired_at: Optional[datetime] = Field(
-        default=None, sa_column=Column(type_=TIMESTAMP(timezone=True))
-    )
-    is_verified: Optional[bool] = Field(default=False)
-    is_email_verified: Optional[bool] = Field(default=False)
-    is_active: Optional[bool] = Field(default=False)
+                          description="Процент прогресса просмотра текущего комплекса")
+    created_at: datetime = Field(default=datetime.now(tz=None),
+                                 description='Дата создания аккаунта')
+
+    expired_at: Optional[datetime] = Field(default=None, description = 'Дата истечения подписки',
+                                           sa_column=Column(type_=TIMESTAMP(timezone=True)))
+    last_entry: Optional[datetime] = Field(default=None, description='Дата последнего входа',
+                                           sa_column=Column(type_=TIMESTAMP(timezone=True)))
+    is_verified: Optional[bool] = Field(default=False, description='Верифицирован ли телефон')
+    is_email_verified: Optional[bool] = Field(default=False, description='Верифицировал ли емэйл')
+    is_active: Optional[bool] = Field(default=False, description='Есть ли подписка')
     email_code: Optional[str] = Field(nullable=True, default=None, description="Код верификации")
     sms_message: Optional[str] = Field(nullable=True, default=None, description="Сообщение из смс")
     sms_call_code: Optional[str] = Field(nullable=True, default=None, description="Код из звонка")
-    push_token: Optional[str] = Field(nullable=True, default=None, description="Токен для пуш-уведомлений")
+    push_token: Optional[str] = Field(nullable=True, default=None,
+                                      description="Токен для пуш-уведомлений")
 
+    mood: int = Field(nullable=True, default=None, foreign_key='moods.id')
     avatar: int = Field(nullable=True, default=None, foreign_key='avatars.id')
     rate_id: int = Field(nullable=False, foreign_key='rates.id')
     current_complex: Optional[int] = Field(nullable=True, default=1, foreign_key='complexes.id')
@@ -442,9 +419,8 @@ class PaymentCheck(BaseSQLModel, table=True):
     )
     users: 'User' = Relationship(back_populates="payment_checks")
 
-    rate_id: int= Field(
-        nullable=False, foreign_key='rates.id', description="Named 'order_num' in Prodamus report"
-    )
+    rate_id: int= Field(nullable=False, foreign_key='rates.id',
+                        description="Named 'order_num' in Prodamus report")
     rates: 'Rate' = Relationship(back_populates="payment_checks")
 
     @classmethod

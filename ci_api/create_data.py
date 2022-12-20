@@ -186,6 +186,33 @@ async def create_rates(data: list[dict] = None):
     for elem in data:
         await CRUD.rate.create(elem)
 
+async def create_moods(data: list[dict] = None):
+    if not data:
+        data = [
+            {
+                'name': 'Все бесят',
+                'code': '&#128545;'
+            },
+            {
+                'name': 'Печалька-тоска',
+                'code': '&#128577;'
+            },
+            {
+                'name': 'Нервно-тревожно',
+                'code': '&#129296;'
+            },
+            {
+                'name': 'Бодрячок',
+                'code': '&#128512;'
+            },
+            {
+                'name': 'Всех люблю',
+                'code': '&#129392;'
+            },
+        ]
+    for elem in data:
+        await CRUD.mood.create(elem)
+
 async def create_avatars(data: list[dict] = None):
     if not data:
         data = [
@@ -251,6 +278,7 @@ async def create_fake_data(flag: bool = False):
         if await User.get_by_id(1):
             return
         await create_rates()
+        await create_moods()
         await create_avatars()
         await create_complexes()
         await create_videos(videos_data)
@@ -273,7 +301,6 @@ if __name__ == '__main__':
     async def make(flag, drop):
         await recreate_db(drop)
         await create_fake_data(flag)
-
 
     flag = True
     drop = True
