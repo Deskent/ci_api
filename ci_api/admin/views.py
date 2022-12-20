@@ -61,7 +61,7 @@ class ComplexView(ModelView, model=Complex):
     column_formatters = {
         Complex.duration: lambda m, a: convert_seconds_to_time(m.duration),
     }
-    form_excluded_columns = [Complex.video_count, Complex.duration]
+    form_excluded_columns = [Complex.video_count]
     column_details_exclude_list = [Complex.video_count]
     column_default_sort = [(Complex.number, False)]
 
