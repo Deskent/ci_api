@@ -1,5 +1,5 @@
 from models.models import Complex
-from services.models_cache.crud import CRUD
+from crud_class.crud import CRUD
 
 
 async def test_complex_create():

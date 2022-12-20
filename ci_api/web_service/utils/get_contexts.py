@@ -9,7 +9,7 @@ from exc.exceptions import UserNotLoggedError, ComeTomorrowException
 from models.models import User, Rate, Avatar
 from services.depends import get_context_with_request
 from services.emails import send_email_message, EmailException
-from services.models_cache.crud import CRUD
+from crud_class.crud import CRUD
 from services.utils import represent_phone
 
 
@@ -32,12 +32,12 @@ DEFAULT_CONTEXT = {
 }
 
 
-async def get_session_token(request: Request) -> str:
+async def get_browser_session_token(request: Request) -> str:
     return request.session.get('token', '')
 
 
 async def get_session_user(
-        token: str = Depends(get_session_token),
+        token: str = Depends(get_browser_session_token),
 ) -> User:
     if token:
         return await CRUD.user.get_by_token(token)
@@ -68,7 +68,7 @@ async def get_logged_user_context(
     return context
 
 
-def get_user_from_context(
+def get_user_browser_session(
         context: dict = Depends(get_logged_user_context)
 ) -> User:
     user: User = context['user']
@@ -78,7 +78,7 @@ def get_user_from_context(
 
 
 async def get_active_user_context(
-        user: User = Depends(get_user_from_context),
+        user: User = Depends(get_user_browser_session),
         context: dict = Depends(get_logged_user_context)
 ):
     # TODO прописать во всех ендпоинтах где зарядка

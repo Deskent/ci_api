@@ -4,6 +4,8 @@ import pytest
 from pydantic import EmailStr
 from pydantic.dataclasses import dataclass
 
+from services.utils import get_current_datetime
+
 
 @dataclass
 class CreateUser:
@@ -29,8 +31,8 @@ class TestUser(CreateUser):
     id: int = None
     level: int = 1
     progress: int = 0
-    created_at: datetime = datetime.now(tz=None)
-    expired_at: datetime = datetime.now(tz=None) + timedelta(days=30)
+    created_at: datetime = get_current_datetime()
+    expired_at: datetime = get_current_datetime() + timedelta(days=30)
     is_verified: bool = False
     is_admin: bool = False
     is_active: bool = True

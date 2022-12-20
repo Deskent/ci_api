@@ -1,11 +1,13 @@
 import datetime
 import json
+from pathlib import Path
 
 from fastapi import APIRouter, Body, Request
 
 from config import logger, settings, prodamus
 from exc.payment.pay_exceptions import PaymentServiceError
 from models.models import PaymentCheck, User
+from services.utils import get_current_datetime
 
 router = APIRouter(prefix="/payments", tags=['Payments'])
 
@@ -43,8 +45,8 @@ async def save_payment(data: dict) -> PaymentCheck:
     return check
 
 def save_to_file(data: dict):
-    current_date = datetime.datetime.now(tz=None).date()
-    payments_dir = settings.PAYMENTS_DIR / data['customer_phone'] / str(current_date)
+    current_date: datetime.date = get_current_datetime().date()
+    payments_dir: Path = settings.PAYMENTS_DIR / data['customer_phone'] / str(current_date)
     if not payments_dir.exists():
         payments_dir.mkdir(parents=True)
     with open(payments_dir / f'{data["order_id"]}.json', 'w', encoding='utf-8') as f:

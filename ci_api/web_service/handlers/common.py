@@ -7,13 +7,13 @@ from config import templates
 from exc.exceptions import UserNotFoundErrorApi
 from models.models import User
 from schemas.user_schema import UserPhoneLogin
-from services.models_cache.crud import CRUD
+from crud_class.crud import CRUD
 from services.web_context_class import WebContext
 from services.user import check_phone_and_password_correct
 from services.utils import generate_random_password
 from web_service.utils.title_context_func import get_page_titles
 from web_service.utils.get_contexts import (
-    get_email_send_context, get_base_context, get_logged_user_context, update_user_session_token
+    get_email_send_context, get_base_context, update_user_session_token
 )
 
 
