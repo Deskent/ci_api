@@ -4,7 +4,8 @@ from exc.exceptions import ComplexNotFoundError
 from models.models import User, Complex, Video, ViewedComplex
 from schemas.complexes_videos import ComplexData, ComplexesListWithViewedAndNot
 from schemas.user_schema import UserProgress, UserOutput
-from services.complexes_web_context import get_complexes_list_web_context
+from services.complexes_web_context import get_complexes_list_web_context, \
+    get_all_complexes_web_context
 from services.depends import get_logged_user
 from services.models_cache.crud import CRUD
 from services.videos_methods import get_viewed_complex_response
@@ -30,6 +31,18 @@ async def get_complexes_list_api(
     """Return viewed_complexes, today_complex, not_viewed_complexes, user"""
 
     web_context: WebContext = await get_complexes_list_web_context({}, user)
+    return web_context.api_render()
+
+
+@router.get(
+    "/all",
+    response_model=list[Complex],
+    dependencies=[Depends(get_logged_user)]
+)
+async def get_all_complexes_api():
+    """Return all complexes as JSON"""
+
+    web_context: WebContext = await get_all_complexes_web_context({})
     return web_context.api_render()
 
 
