@@ -7,7 +7,7 @@ from starlette.requests import Request
 from config import settings
 from exc.exceptions import SmsCodeNotValid, UserNotFoundErrorApi
 from models.models import User
-from schemas.user_schema import slice_phone_to_format
+from schemas.user_schema import slice_phone_to_format, TokenUser
 from services.models_cache.crud import CRUD
 from services.user import send_sms
 from services.web_context_class import WebContext
@@ -115,6 +115,18 @@ async def approve_sms_code_or_call_code(
         await CRUD.user.clean_sms_code(user)
     await CRUD.user.set_verified(user)
     await update_user_session_token(request, user)
+
     web_context.template = "profile.html"
+
+    return web_context
+
+
+async def update_user_token_to_web_context(
+        web_context: WebContext
+) -> WebContext:
+    user: User = web_context.api_data['payload']
+    token: str = await CRUD.user.get_user_token(user)
+    logger.info(f"User with id {user.id} got Bearer token")
+    web_context.api_data.update(payload=TokenUser(token=token, user=user.dict()))
 
     return web_context
