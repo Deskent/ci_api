@@ -7,9 +7,10 @@
                 <div class="profile-content__profile user-profile">
                     <div class="user-profile__info">
                         <div class="user-profile__image-wrapper">
+                            <img class="user-profile__img" id="resizer-demo" src="/media/avatars/{{ avatar.file_name }}" width="80px" height="80px" alt="">
+
 
                             <form class="user-profile__img-form" method="POST" enctype="multipart/form-data">
-                                <img class="user-profile__img" id="resizer-demo" src="/media/avatars/{{ avatar.file_name }}" width="80px" height="80px" alt="">
                                 <input class="user-profile__img-input" id="avatar" type="file" accept="image/png, image/jpg" name="avatar">
                                 <input type="submit" class="user-profile__img-submit">
                             </form>
@@ -41,39 +42,49 @@
                     </form>
 
                     <div class="user-profile__card profile-card">
-                        <div class="profile-card__title">
-                            {{ user.expired_at }}
-                        </div>
                         <div class="profile-card__info">
                             <div class="profile-card__icon"><img
                                     src="/static/img/icons/credit-card.svg"
                                     alt=""></div>
                             <div class="profile-card__number">Ваш тариф: <span class="profile-card__tarrif">{{ rate.name }}</span></div>
                         </div>
+                        <div class="profile-card__title">
+                            {{ user.expired_at }}
+                        </div>
+
+
                         <a href="{{ subscribe_info }}" class="profile-card__link">Подробнее</a>
                     </div>
                 </div>
-                <div class="profile-content__progress profile-progress">
-                    <div class="profile-progress__title">
-                        Ваш прогресс
-                    </div>
-                    <div class="profile-progress__circle_bg">
-                        <div class="profile-progress__circle">
-                            <div class="profile-progress__circle_info">
-                                <span class="bigRed">{{ user.level }}</span><span>/{{ max_level }}</span>
-                                <span class="profile-progress__level">Уровень</span>
+                <div class="profile-content__flex">
+                    <div class="profile-content__progress profile-progress">
+                        <div class="profile-progress__title">
+                            Ваш прогресс
+                        </div>
+                        <div class="profile-progress__circle_bg">
+                            <div class="profile-progress__circle">
+                                <div class="profile-progress__circle_info">
+                                    <span class="bigRed">{{ user.level }}</span><span>/{{ max_level }}</span>
+                                    <span class="profile-progress__level">Уровень</span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="profile-card__adapt">
+                    <div class="profile-card__adapt">
 
-                    <div class="profile-card__title">
-                        {{ user.expired_at }}
+                        <div class="profile-card__info">
+                            <div class="profile-card__icon"><img src="/static/img/icons/credit-card.svg" alt=""></div>
+                            <div class="profile-card__number">Ваш тариф: <span class="profile-card__tarrif">{{ rate.name }}</span></div>
+                        </div>
+
+
+                        <div class="profile-card__title">
+                            {{ user.expired_at }}
+                        </div>
+                        
+                        <a href="{{ subscribe_info }}"
+                        class="profile-card__link">Подробнее</a>
                     </div>
-
-                    <a href="{{ subscribe_info }}"
-                       class="profile-card__link_adapt">Подробнее</a>
                 </div>
             </div>
     </section>

@@ -39,6 +39,7 @@
   height: 55px;
   border-radius: 50%;
   border: 1px solid #EB5E54;
+  /* caret-color: transparent; */
 }
 
 .forget-form__input + .forget-form__input {
@@ -46,9 +47,7 @@
 }
 
 @media (max-width: 400px) {
-  .forget__text {
-    text-align: left;
-  }
+
 
   .forget__content {
     -webkit-box-align: start;
