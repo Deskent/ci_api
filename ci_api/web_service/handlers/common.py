@@ -29,6 +29,7 @@ async def user_login_via_phone(
         web_context.context.update(user=user)
         web_context.api_data.update(payload=user)
         if not user.is_verified:
+            web_context.error = 'Пользователь не верифицирован'
             web_context.template = 'forget2.html'
 
             return web_context
@@ -38,7 +39,7 @@ async def user_login_via_phone(
 
         return web_context
 
-    web_context.error = "Invalid user or password"
+    web_context.error = UserNotFoundErrorApi.detail
     web_context.template = "entry_via_phone.html"
     web_context.to_raise = UserNotFoundErrorApi
 
