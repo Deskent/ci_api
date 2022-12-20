@@ -167,6 +167,7 @@
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
+  margin-bottom: 10px;
 }
 
 .user-profile__name_input {
@@ -541,6 +542,20 @@
 
   .profile-card__adapt {
     display: block;
+  }
+
+  .profile-card__adapt::after {
+    position: absolute;
+    bottom: -68px;
+    right: -46px;
+    content: "";
+    width: 100%;
+    height: 100%;
+    background: url(../img/credit-card-bg.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    z-index: -1;
+
   }
 
 }

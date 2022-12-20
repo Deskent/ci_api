@@ -177,4 +177,19 @@
   .subscribe-card_header {
     font-size: 22px;
   }
+
+  .subscribe__download {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 768px) {
+  .subscribe__download {
+    font-size: 16px;
+  }
+
+  .subscribe__cancel {
+    font-size: 16px;
+
+  }
 }
