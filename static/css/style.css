@@ -180,6 +180,7 @@ h6 {
 }
 
 
+
 .reg-banner__title {
   font-size: 30px;
   background: linear-gradient(270deg, #D32A1E 0%, #EB5E54 100%);
@@ -205,6 +206,11 @@ h6 {
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
+          padding: 20px;
+}
+
+
+.reg-banner__content-index {
   width: 45%;
 }
 

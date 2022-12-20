@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from config import logger
+from exc.exceptions import UserNotFoundErrorApi
 from models.models import User, Alarm, Notification, Rate
 from schemas.alarms import AlarmFull
 from schemas.user_schema import UserSchema, UserEditProfile
@@ -91,7 +92,7 @@ async def delete_user(
     """
 
     if not (user := await User.get_by_id(logged_user.id)):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise UserNotFoundErrorApi
     await user.delete()
     logger.info(f"User with id {user.id} deleted")
 
