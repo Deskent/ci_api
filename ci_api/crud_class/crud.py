@@ -146,7 +146,7 @@ class ComplexCrud(BaseCrud):
 class UserCrud(AdminCrud):
     def __init__(self, model: Type[User]):
         super().__init__(model)
-        self.obj: User | None = None
+        self.user: User | None = None
 
     async def create(self, data: dict) -> User | Administrator:
         data['password'] = await self.get_hashed_password(data['password'])
@@ -166,8 +166,8 @@ class UserCrud(AdminCrud):
     # TODO сделать декоратором
     async def _get_instance(self, user: User = None, id_: int = None) -> User:
         if not user and id_:
-            self.user: User = await self.get_by_id(id_)
-
+            user: User = await self.get_by_id(id_)
+        self.user = user
         return self.user
 
     async def activate(self, user: User = None, id_: int = None) -> User:
@@ -205,15 +205,14 @@ class UserCrud(AdminCrud):
             self.user.is_verified = False
             return await self.save(self.user)
 
-    async def level_up(self, user: User) -> User:
-        self.user = user
-        if self.user.level < 10:
-            next_complex: Complex = await CRUD.complex.get_next_complex_by_id(user.current_complex)
-            self.user.current_complex = next_complex.id
-            self.user.progress = 0
-            self.user.level += 1
-            await self.save(self.user)
-        return self.user
+    async def level_up(self, user: User = None, id_: int = None) -> User:
+        if await self._get_instance(user, id_):
+            if self.user.level < 10:
+                next_complex: Complex = await CRUD.complex.get_next_complex_by_id(user.current_complex)
+                self.user.current_complex = next_complex.id
+                self.user.progress = 0
+                self.user.level += 1
+            return await self.save(self.user)
 
     @staticmethod
     async def get_alarm_by_alarm_id(user: User, alarm_id: int) -> Alarm:
