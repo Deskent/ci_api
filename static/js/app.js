@@ -267,6 +267,9 @@ function modalVideoControls() {
                 if (videoId?.classList.contains('viewed')) {
                     videoId?.classList.remove("viewed");
                 }
+                if (videoId?.classList.contains('lock-video')) {
+                    videoId?.classList.remove('lock-video');
+                }
                 modalVideoPause?.classList.remove("hidden");
                 modalVideoViewed?.classList.add("hidden");
                 modalVideoTime?.classList.add("hidden");
@@ -303,9 +306,15 @@ function changesStylesViewed(evt) {
     let modalVideoTitle = modalVideoWrapperId.querySelector('.slide__title');
     let modalVideoDescription = modalVideoWrapperId.querySelector('.slide__description');
     let modalVideoTime = modalVideoWrapperId.querySelector('.slide__time');
+    let slide = modalVideoWrapperId?.querySelector('.slide');
+
+    
 
     modalVideoTime.classList.remove("hidden");
     modalVideoViewedHidden.classList.remove("hidden");
+    if(!slide.classList.contains("lock-video")) {
+        slide?.classList.add("lock-video");
+    }
 
 
     let viewedTag = modalVideoViewedHidden.querySelector(".slide__viewed-text");
@@ -337,6 +346,10 @@ function changeStylesToOn(nextVideoId) {
     let videoWrapper = videoSlidesArr[indexVideo];
     let video = videoWrapper.querySelector(".slide");
 
+    if (video.classList.contains("lock-video")) {
+        video.classList.remove("lock-video");
+    }
+    
     video.play();
 
     let videoNextWrapper = video.closest(".slide__card-wrapper");
@@ -344,6 +357,7 @@ function changeStylesToOn(nextVideoId) {
     if (modalVideoDisabled.classList.contains("slide__disabled")) {
         modalVideoDisabled.style.display = "none";
     }
+
     let nextVideosPlay = videoNextWrapper.querySelector('.slide__play');
     let nextVideosPause = videoNextWrapper.querySelector('.slide__pause');
     let videoNextLock = videoNextWrapper.querySelector('.slide');
@@ -359,6 +373,9 @@ function changeStylesToOn(nextVideoId) {
     }
     if (videoNextLock.classList.contains("viewed")) {
         videoNextLock.classList.remove("viewed");
+    }
+    if (videoNextLock.classList.contains("lock-video")) {
+        videoNextLock.classList.remove("lock-video");
     }
     videoViewed.classList.add("hidden");
     videoTime.classList.add("hidden");
