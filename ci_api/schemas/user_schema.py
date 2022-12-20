@@ -179,4 +179,5 @@ class TokenUser(BaseModel):
 class EntryModalWindow(BaseModel):
     user: dict
     emojies: list[dict] = []
-    run_modal_window: bool = False
+    new_user: bool = False
+    today_first_entry: bool = False
