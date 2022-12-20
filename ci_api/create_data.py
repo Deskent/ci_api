@@ -179,7 +179,7 @@ async def create_rates(data: list[dict] = None):
             },
             {
                 'name': 'Солнце',
-                'price': 999,
+                'price': 199,
                 'duration': 30
             },
         ]
