@@ -1,3 +1,5 @@
+raise ValueError('НАПИШИ ТЕСТЫ')
+
 import datetime
 
 import uvicorn
@@ -92,7 +94,6 @@ def get_application():
 
     app: FastAPI = get_admin(app)
     app.add_middleware(SessionMiddleware, secret_key=settings.SECRET)
-
     return app
 
 
