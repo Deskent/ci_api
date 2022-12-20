@@ -6,7 +6,7 @@ from fastapi.responses import FileResponse
 from config import settings, logger
 from models.models import Video
 from services.depends import get_logged_user
-from services.models_cache.crud import CRUD
+from crud.crud import CRUD
 from web_service.utils.web_utils import get_checked_video
 
 router = APIRouter(prefix="/videos", tags=['Videos'])

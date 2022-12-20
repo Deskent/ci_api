@@ -4,7 +4,7 @@ from fastapi import Request
 from models.models import User, Administrator
 from schemas.user_schema import UserLogin
 from services.auth import auth_handler
-from services.models_cache.crud import CRUD
+from crud.crud import CRUD
 
 
 async def get_logged_user(

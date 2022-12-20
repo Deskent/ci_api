@@ -1,5 +1,3 @@
-from typing import Callable
-
 from fastapi import Depends, Form
 from loguru import logger
 from starlette.requests import Request
@@ -8,7 +6,7 @@ from config import settings
 from exc.exceptions import SmsCodeNotValid, UserNotFoundErrorApi
 from models.models import User
 from schemas.user_schema import slice_phone_to_format, TokenUser
-from services.models_cache.crud import CRUD
+from crud.crud import CRUD
 from services.user import send_sms
 from services.web_context_class import WebContext
 from web_service.services.sms_class import sms_service, SMSException

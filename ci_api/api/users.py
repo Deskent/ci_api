@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 
 from config import logger
 from exc.exceptions import UserNotFoundErrorApi
@@ -6,7 +6,7 @@ from models.models import User, Alarm, Notification, Rate
 from schemas.alarms import AlarmFull
 from schemas.user_schema import UserSchema, UserEditProfile
 from services.depends import get_logged_user
-from services.models_cache.crud import CRUD
+from crud.crud import CRUD
 from services.weekdays import WeekDay
 from web_service.handlers.profile_web_contexts import get_edit_profile_web_context
 

@@ -7,7 +7,7 @@ from exc.exceptions import PasswordMatchError
 from exc.register import EmailExistsError, PhoneExistsError, SmsServiceError
 from models.models import User, Administrator, Rate, Complex
 from schemas.user_schema import UserRegistration, UserLogin, PhoneNumber, UserPhoneLogin
-from services.models_cache.crud import CRUD
+from crud.crud import CRUD
 from services.utils import generate_four_random_digits_string
 from services.web_context_class import WebContext
 from web_service.services.sms_class import sms_service, SMSException

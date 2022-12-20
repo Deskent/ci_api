@@ -1,7 +1,7 @@
 import pytest
 
 from models.models import Rate, Complex
-from services.models_cache.crud import CRUD
+from crud.crud import CRUD
 
 
 @pytest.mark.skip

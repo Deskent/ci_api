@@ -3,7 +3,7 @@ from typing import Iterable
 from models.models import User, Complex, ViewedComplex
 from schemas.complexes_videos import ComplexesListWithViewedAndNot
 from schemas.user_schema import UserOutput
-from services.models_cache.crud import CRUD
+from crud.crud import CRUD
 from services.utils import convert_seconds_to_time, convert_to_minutes
 from services.web_context_class import WebContext
 

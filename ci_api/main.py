@@ -18,7 +18,7 @@ from services.models_cache.base_cache import AllCache
 from services.web_context_class import WebContext
 from web_service.router import router as web_router
 from web_service.utils.get_contexts import (
-    get_base_context, get_session_token, get_session_user, get_logged_user_context
+    get_base_context, get_browser_session_token, get_session_user, get_logged_user_context
 )
 
 
@@ -69,7 +69,7 @@ def get_application():
     ):
         logger.debug("Raised user_not_active_exception_handler")
 
-        token: str = await get_session_token(request)
+        token: str = await get_browser_session_token(request)
         user: User = await get_session_user(token)
         base_context: dict = get_base_context({"request": request})
         context: dict = await get_logged_user_context(user, base_context)

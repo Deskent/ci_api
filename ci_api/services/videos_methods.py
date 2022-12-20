@@ -1,8 +1,8 @@
-from exc.exceptions import UserNotFoundError, UserNotFoundErrorApi
-from models.models import User, Video, Complex, ViewedComplex
+from exc.exceptions import UserNotFoundErrorApi
+from models.models import User, Video, Complex
 from services.complexes_and_videos import is_video_viewed_before, check_level_up
-from services.models_cache.crud import CRUD
-from services.utils import convert_seconds_to_time, convert_to_minutes
+from crud.crud import CRUD
+from services.utils import convert_to_minutes
 from services.web_context_class import WebContext
 
 

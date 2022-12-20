@@ -10,7 +10,7 @@ from database.db import get_db_session
 from exc.exceptions import ComplexNotFoundError
 from services.auth import auth_handler
 # from services.models_cache.base_cache import AllCache
-from services.models_cache.ci_types import *
+from crud.ci_types import *
 from services.weekdays import WeekDay
 
 

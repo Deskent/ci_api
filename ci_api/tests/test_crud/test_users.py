@@ -1,7 +1,7 @@
 import pytest
 
 from models.models import User, Rate, Complex, Alarm
-from services.models_cache.crud import CRUD
+from crud.crud import CRUD
 
 
 @pytest.fixture
