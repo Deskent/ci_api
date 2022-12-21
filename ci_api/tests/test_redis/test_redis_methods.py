@@ -2,7 +2,7 @@ import pytest
 
 from config import REDIS_CLIENT
 from models.models import Rate
-from services.redis_interface import RedisDB
+from misc.redis_class import RedisDB
 
 
 @pytest.fixture

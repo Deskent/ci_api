@@ -1,4 +1,4 @@
-raise ValueError('НАПИШИ ТЕСТЫ')
+# raise ValueError('НАПИШИ ТЕСТЫ')
 
 import datetime
 
@@ -15,8 +15,8 @@ from create_data import create_fake_data, recreate_db
 from exc.exceptions import UserNotLoggedError, ComeTomorrowException
 from models.models import User
 from routers import main_router
-from services.notification_scheduler import create_notifications_for_not_viewed_users
-from services.web_context_class import WebContext
+from misc.notification_scheduler import create_notifications_for_not_viewed_users
+from misc.web_context_class import WebContext
 from web_service.router import router as web_router
 from web_service.utils.get_contexts import (
     get_base_context, get_browser_session_token, get_session_user, get_logged_user_context

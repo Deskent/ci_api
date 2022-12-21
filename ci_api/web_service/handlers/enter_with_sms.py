@@ -8,8 +8,8 @@ from models.models import User
 from schemas.user_schema import slice_phone_to_format, TokenUser
 from crud_class.crud import CRUD
 from services.user import send_sms
-from services.web_context_class import WebContext
-from web_service.services.sms_class import sms_service, SMSException
+from misc.web_context_class import WebContext
+from misc.sms_class import sms_service, SMSException
 from web_service.utils.get_contexts import get_base_context, update_user_session_token
 
 

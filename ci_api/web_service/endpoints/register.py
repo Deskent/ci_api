@@ -3,7 +3,7 @@ from starlette.responses import HTMLResponse
 
 from schemas.user_schema import UserRegistration
 from services.user import register_new_user_web_context
-from services.web_context_class import WebContext
+from misc.web_context_class import WebContext
 from web_service.utils.get_contexts import get_base_context
 
 router = APIRouter(tags=['web', 'register'])

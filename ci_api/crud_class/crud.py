@@ -8,10 +8,9 @@ from config import logger
 from database.db import get_db_session, get_all, get_first
 from exc.exceptions import ComplexNotFoundError
 from services.auth import auth_handler
-# from services.models_cache.base_cache import AllCache
 from crud_class.ci_types import *
 from services.utils import get_current_datetime
-from services.weekdays import WeekDay
+from misc.weekdays_class import WeekDay
 
 
 class BaseCrud:
@@ -25,22 +24,13 @@ class BaseCrud:
             await session.commit()
         return obj
 
-    async def get_by_id(self, id_: int, use_cache: bool = True) -> MODEL_TYPES:
-        # if self.use_cache or use_cache:
-        #     result: MODEL_TYPES = await AllCache.get_by_id(self.model, id_)
-        #     if result:
-        #         return result
+    async def get_by_id(self, id_: int) -> MODEL_TYPES:
         query = select(self.model).where(self.model.id == id_)
         return await get_first(query)
 
-    async def get_all(self, use_cache: bool = True) -> list[MODEL_TYPES]:
-        # if self.use_cache or use_cache:
-        #     result: list[MODEL_TYPES] = await AllCache.get_all(self.model)
-        #     if result:
-        #         return result
+    async def get_all(self) -> list[MODEL_TYPES]:
         query = select(self.model).order_by(self.model.id)
         result: list[MODEL_TYPES] = await get_all(query)
-        # await AllCache.update_data(self.model, result)
 
         return result
 
@@ -127,6 +117,12 @@ class UserCrud(AdminCrud):
         super().__init__(model)
         self.user: User | None = None
 
+    async def _get_instance(self, user: User = None, id_: int = None) -> User:
+        if not user and id_:
+            user: User = await self.get_by_id(id_)
+        self.user = user
+        return self.user
+
     async def create(self, data: dict) -> User | Administrator:
         data['password'] = await self.get_hashed_password(data['password'])
         data['avatar'] = await CRUD.avatar.get_first_id()
@@ -141,13 +137,7 @@ class UserCrud(AdminCrud):
     async def get_by_email_code(self, email_code: str) -> User:
         query = select(self.model).where(self.model.email_code == email_code)
         return await get_first(query)
-
     # TODO сделать декоратором
-    async def _get_instance(self, user: User = None, id_: int = None) -> User:
-        if not user and id_:
-            user: User = await self.get_by_id(id_)
-        self.user = user
-        return self.user
 
     async def activate(self, user: User = None, id_: int = None) -> User:
         if await self._get_instance(user, id_):
@@ -221,6 +211,12 @@ class UserCrud(AdminCrud):
         if await self._get_instance(user, id_):
             self.user.mood = mood_id
             return await self.save(self.user)
+
+    async def set_avatar(self, avatar_id: int, user: User = None,  id_: int = None) -> User:
+        if await self._get_instance(user, id_):
+            self.user.avatar = avatar_id
+            return await self.save(self.user)
+
 
 class VideoCrud(BaseCrud):
     def __init__(self, model: Type[Video]):

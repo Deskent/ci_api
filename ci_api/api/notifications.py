@@ -10,7 +10,11 @@ from services.depends import get_logged_user
 router = APIRouter(prefix="/notifications", tags=['Notifications'])
 
 
-@router.post("/", response_model=NotificationUpdate, status_code=200)
+@router.post(
+    "/",
+    response_model=NotificationUpdate,
+    status_code=200
+)
 async def create_notification(
         data: NotificationCreate,
         user: User = Depends(get_logged_user),
@@ -24,9 +28,10 @@ async def create_notification(
 
     :return: Notification created information as JSON
     """
-    data = data.validate_datetime()
-    notification: Notification = Notification(**data.dict(), user_id=user.id)
-    await CRUD.notification.save(notification)
+
+    data: dict = data.validate_datetime().dict()
+    data['user_id'] = user.id
+    notification: Notification = await CRUD.notification.create(data)
     logger.info(f"Notification with id {notification.id} created")
 
     return notification

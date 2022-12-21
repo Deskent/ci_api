@@ -8,7 +8,6 @@ from config import logger
 from crud_class.crud import CRUD
 from models.models import User, ViewedComplex, Notification
 from database.db import get_db_session, get_all
-from services.notification_sender import send_push_messages
 
 today = datetime.today()
 message_text = "Зарядка не выполнена, не забудьте выполнить упражнения"

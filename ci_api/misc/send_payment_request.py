@@ -23,7 +23,6 @@ async def get_payment_link(user: User, rate: Rate) -> str:
         f"&urlSuccess={prodamus.SUCCESS_URL}"
         f"&urlReturn={prodamus.RETURN_URL}"
         f"&sys={prodamus.PRODAMUS_SYS_KEY}"
-
     )
     if prodamus.PRODAMUS_MODE == 'test':
         params += f"&demo_mode=1"

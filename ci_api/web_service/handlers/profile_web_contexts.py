@@ -7,7 +7,7 @@ from models.models import User
 from schemas.user_schema import slice_phone_to_format, UserEditProfile
 from services.emails import send_verification_mail, EmailException
 from services.user import send_sms, check_user_phone_exists, check_email_exists
-from services.web_context_class import WebContext
+from misc.web_context_class import WebContext
 
 
 async def update_web_context_with_phone(

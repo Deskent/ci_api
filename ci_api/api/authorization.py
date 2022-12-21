@@ -9,7 +9,7 @@ from schemas.user_schema import UserRegistration, UserPhoneLogin, UserChangePass
 from services.depends import get_logged_user
 from crud_class.crud import CRUD
 from services.user import register_new_user_web_context
-from services.web_context_class import WebContext
+from misc.web_context_class import WebContext
 from web_service.handlers.common import user_login_via_phone
 from web_service.handlers.enter_with_sms import approve_sms_code_or_call_code, \
     update_user_token_to_web_context

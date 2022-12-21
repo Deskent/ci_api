@@ -89,20 +89,3 @@ async def send_email_message(email: EmailStr, message: str):
     }
 
     await _send_mail(email, payload)
-
-
-async def get_user_id_from_email_code(token: str) -> int:
-    user = await CRUD.user.get_by_email_code(token)
-    if user:
-        return user.id
-
-
-async def get_user_id_from_email_token(token: str) -> str:
-    logger.debug(f"Verify email token...")
-
-    try:
-        payload = AuthHandler().verify_email_token(token)
-        return payload["id"] if payload else ''
-    except jwt.exceptions.DecodeError as err:
-        logger.error(f"Email token verify: {str(err)}")
-        return ''

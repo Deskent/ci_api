@@ -7,8 +7,8 @@ from exc.payment.pay_exceptions import PaymentServiceError, SubscribeExistsError
 from models.models import User, Rate, Payment
 from crud_class.crud import CRUD
 from services.utils import get_current_datetime
-from services.web_context_class import WebContext
-from web_service.services.send_payment_request import get_payment_link
+from misc.web_context_class import WebContext
+from misc.send_payment_request import get_payment_link
 from web_service.utils.get_contexts import present_user_expired_at_day_and_month
 
 
@@ -149,4 +149,3 @@ async def get_cancel_subscribe_context(context: dict) -> WebContext:
     web_context.api_data.update(payload=user)
 
     return web_context
-

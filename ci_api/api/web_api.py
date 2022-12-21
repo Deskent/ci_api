@@ -9,7 +9,7 @@ from schemas.user_schema import EntryModalWindow, UserMood
 from services.complexes_web_context import get_complexes_list_web_context
 from services.utils import get_current_datetime
 from services.videos_methods import get_viewed_complex_response
-from services.web_context_class import WebContext
+from misc.web_context_class import WebContext
 from web_service.utils.get_contexts import get_user_browser_session
 
 router = APIRouter(prefix="/web", tags=['WebApi'])

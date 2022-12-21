@@ -9,8 +9,8 @@ from models.models import User, Administrator, Rate, Complex
 from schemas.user_schema import UserRegistration, UserLogin, PhoneNumber, UserPhoneLogin
 from crud_class.crud import CRUD
 from services.utils import generate_four_random_digits_string
-from services.web_context_class import WebContext
-from web_service.services.sms_class import sms_service, SMSException
+from misc.web_context_class import WebContext
+from misc.sms_class import sms_service, SMSException
 
 
 def get_bearer_header(token: str) -> dict[str, str]:

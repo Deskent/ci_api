@@ -3,18 +3,17 @@ import datetime
 from fastapi import UploadFile
 from loguru import logger
 
-import services.utils
 from admin.utils import save_uploaded_file
 from config import settings
 from crud_class.crud import CRUD
 from models.models import User, Avatar
-from services.web_context_class import WebContext
+from misc.web_context_class import WebContext
 
 
 async def set_avatar_from_file_web_context(
-    context: dict,
-    user: User,
-    file: UploadFile
+        context: dict,
+        user: User,
+        file: UploadFile
 ):
     web_context = WebContext(context)
     file_path = settings.MEDIA_DIR / 'avatars' / file.filename
@@ -25,8 +24,7 @@ async def set_avatar_from_file_web_context(
     save_uploaded_file(file_path, file)
     avatar: Avatar = await CRUD.avatar.create(data=dict(file_name=file_path.name))
     logger.info(avatar)
-    user.avatar = avatar.id
-    await CRUD.user.save(user)
+    await CRUD.user.set_avatar(avatar.id, user=user)
     web_context.context.update(user=user, avatar=avatar)
     web_context.api_data.update(payload=dict(user=user, avatar=avatar))
 
