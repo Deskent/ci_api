@@ -10,9 +10,13 @@ if (urlPath.includes("profile")) {
       let result = await response.json();
       console.log(result);
 
+      const newUser = result.new_user;
 
-      openModalNewLevelHandler()
+      console.log(newUser);
 
+      // if(newUser === true) {
+      //   openModalNewLevelHandler();
+      // }
 
 
       close?.addEventListener("click", closeModalNewLevelHandler);
