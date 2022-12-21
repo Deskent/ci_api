@@ -59,10 +59,11 @@ async def check_first_entry_or_new_user(
         user: User = Depends(get_user_browser_session)
 ):
     """
-    Return new_user = True if user registered now have first entry.
-
     Return today_first_entry = True and list of emojies if user
     entered first time today and user level > 6.
+
+    Return new_user = True if user registered now have first entry and
+    object 'hello_video' with hello video data.
 
     Return is_expired = True if user subscribe expired.
 
