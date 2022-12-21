@@ -1,14 +1,10 @@
 import aiosmtplib
-import jwt
 from fastapi import HTTPException, status
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
 from fastapi_mail.errors import ConnectionErrors
 from pydantic import EmailStr, BaseModel
 
 from config import settings, logger
-from crud_class.crud import CRUD
-from models.models import User
-from services.auth import AuthHandler
 from services.utils import generate_four_random_digits_string
 
 

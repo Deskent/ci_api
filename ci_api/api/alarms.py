@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 from config import logger
 from exc.exceptions import AlarmNotFound
-from models.models import Alarm, User
+from database.models import Alarm, User
 from schemas.alarms import AlarmCreate, AlarmFull, AlarmUpdate
 from services.alarms_web_context import update_alarm_web_context, get_alarm_or_raise
 from services.depends import get_logged_user

@@ -4,8 +4,6 @@ import pytest
 from pydantic import EmailStr
 from pydantic.dataclasses import dataclass
 
-from crud_class.crud import CRUD
-from models.models import User
 from services.utils import get_current_datetime
 
 

@@ -3,7 +3,7 @@ from pydantic import EmailStr
 
 from config import logger
 from exc.exceptions import UserNotFoundErrorApi
-from models.models import User
+from database.models import User
 from schemas.user_schema import UserPhoneCode, TokenUser, UserOutput, UserSchema
 from schemas.user_schema import UserRegistration, UserPhoneLogin, UserChangePassword
 from services.depends import get_logged_user

@@ -3,11 +3,10 @@ from fastapi import APIRouter, status, Depends, UploadFile
 from api.web_api_utils import set_avatar_from_file_web_context
 from config import logger
 from crud_class.crud import CRUD
-from models.models import User, Mood
+from database.models import User, Mood
 from schemas.complexes_videos import ComplexesListWithViewedAndNot
 from schemas.user_schema import EntryModalWindow, UserMood
 from services.complexes_web_context import get_complexes_list_web_context
-from services.utils import get_current_datetime
 from services.videos_methods import get_viewed_complex_response
 from misc.web_context_class import WebContext
 from web_service.utils.get_contexts import get_user_browser_session
@@ -62,7 +61,8 @@ async def check_first_entry_or_new_user(
     """
     Return new_user = True if user registered now have first entry.
 
-    Return today_first_entry = True and list of emojies if user first time entry today.
+    Return today_first_entry = True and list of emojies if user
+    entered first time today and user level > 6.
 
     Return is_expired = True if user subscribe expired.
 

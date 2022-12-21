@@ -1,7 +1,5 @@
-import pytest
-
 from crud_class.crud import CRUD
-from models.models import Video
+from database.models import Video
 
 
 

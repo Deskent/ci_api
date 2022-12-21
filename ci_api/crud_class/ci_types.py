@@ -1,6 +1,6 @@
 from typing import Type
 
-from models.models import (
+from database.models import (
     User, Avatar, Alarm, Notification, Complex, Video,
     ViewedComplex, ViewedVideo, Administrator,
     Rate, Payment, PaymentCheck, Mood

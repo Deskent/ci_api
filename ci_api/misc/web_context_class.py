@@ -4,7 +4,7 @@ from pydantic import validator
 from config import logger
 from config import templates
 from exc.exceptions import ApiRequestError, UserNotFoundErrorApi
-from models.models import User
+from database.models import User
 from web_service.utils.title_context_func import get_page_titles
 
 

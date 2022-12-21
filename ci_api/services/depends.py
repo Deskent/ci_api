@@ -2,7 +2,7 @@ from fastapi import HTTPException, status, Depends
 from fastapi import Request
 
 from exc.exceptions import UserNotFoundErrorApi
-from models.models import User, Administrator
+from database.models import User, Administrator
 from schemas.user_schema import UserLogin
 from services.auth import auth_handler
 from crud_class.crud import CRUD

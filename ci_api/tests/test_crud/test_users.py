@@ -1,9 +1,7 @@
 import datetime
 
-import pytest
-
 from crud_class.crud import CRUD
-from models.models import User, Alarm, Avatar
+from database.models import User, Alarm, Avatar
 
 
 async def test_crud_get_user_by_id(get_user):

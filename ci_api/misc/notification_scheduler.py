@@ -6,7 +6,7 @@ from sqlalchemy.sql import extract
 
 from config import logger
 from crud_class.crud import CRUD
-from models.models import User, ViewedComplex, Notification
+from database.models import User, ViewedComplex, Notification
 from database.db import get_db_session, get_all
 
 today = datetime.today()

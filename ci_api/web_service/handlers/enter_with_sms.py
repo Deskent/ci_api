@@ -4,7 +4,7 @@ from starlette.requests import Request
 
 from config import settings
 from exc.exceptions import SmsCodeNotValid, UserNotFoundErrorApi
-from models.models import User
+from database.models import User
 from schemas.user_schema import slice_phone_to_format, TokenUser
 from crud_class.crud import CRUD
 from services.user import send_sms

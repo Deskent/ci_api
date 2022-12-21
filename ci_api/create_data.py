@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from admin.utils import create_default_admin
 from config import logger, settings
 from database.db import drop_db, create_db
-from models.models import User, Complex, Rate
+from database.models import Complex, Rate
 from crud_class.crud import CRUD
 
 

@@ -1,5 +1,5 @@
 from config import logger
-from models.models import Rate, Complex, User, Video, Avatar
+from database.models import Rate, Complex, User, Video, Avatar
 
 
 models_types = Rate | Complex | User | Video | Avatar

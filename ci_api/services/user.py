@@ -5,7 +5,7 @@ from starlette.datastructures import FormData
 from config import logger
 from exc.exceptions import PasswordMatchError
 from exc.register import EmailExistsError, PhoneExistsError, SmsServiceError
-from models.models import User, Administrator, Rate, Complex
+from database.models import User, Administrator, Rate, Complex
 from schemas.user_schema import UserRegistration, UserLogin, PhoneNumber, UserPhoneLogin
 from crud_class.crud import CRUD
 from services.utils import generate_four_random_digits_string

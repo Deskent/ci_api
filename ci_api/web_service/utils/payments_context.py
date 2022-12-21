@@ -4,7 +4,7 @@ from loguru import logger
 
 from exc.exceptions import RateNotFound
 from exc.payment.pay_exceptions import PaymentServiceError, SubscribeExistsError
-from models.models import User, Rate, Payment
+from database.models import User, Rate, Payment
 from crud_class.crud import CRUD
 from services.utils import get_current_datetime
 from misc.web_context_class import WebContext

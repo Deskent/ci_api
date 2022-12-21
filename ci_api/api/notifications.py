@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status
 
 from config import logger
 from crud_class.crud import CRUD
 from exc.exceptions import NotificationNotFound
-from models.models import Notification, User
+from database.models import Notification, User
 from schemas.notifications import NotificationUpdate, NotificationCreate
 from services.depends import get_logged_user
 

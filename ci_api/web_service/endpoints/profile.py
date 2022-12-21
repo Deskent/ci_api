@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Form
 from fastapi.responses import HTMLResponse
 from pydantic import EmailStr
 
-from models.models import User
+from database.models import User
 from schemas.user_schema import UserEditProfile
 from misc.web_context_class import WebContext
 from web_service.handlers.profile_web_contexts import get_edit_profile_web_context

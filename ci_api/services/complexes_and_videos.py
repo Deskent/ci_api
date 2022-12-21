@@ -1,5 +1,5 @@
 from config import LEVEL_UP_PERCENTS, logger
-from models.models import User, Complex, Video, ViewedVideo
+from database.models import User, Complex, Video, ViewedVideo
 from crud_class.crud import CRUD
 
 

@@ -1,7 +1,7 @@
 from fastapi import Depends, APIRouter
 from starlette.responses import HTMLResponse, FileResponse
 
-from models.models import User
+from database.models import User
 from misc.web_context_class import WebContext
 from web_service.handlers.form_checks_report import form_payments_report
 from web_service.utils.payments_context import check_payment_result

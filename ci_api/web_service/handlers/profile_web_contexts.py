@@ -3,7 +3,7 @@ from loguru import logger
 from crud_class.crud import CRUD
 from exc.exceptions import EmailError
 from exc.register import SmsServiceError, PhoneExistsError, EmailExistsError
-from models.models import User
+from database.models import User
 from schemas.user_schema import slice_phone_to_format, UserEditProfile
 from services.emails import send_verification_mail, EmailException
 from services.user import send_sms, check_user_phone_exists, check_email_exists

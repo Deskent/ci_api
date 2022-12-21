@@ -1,5 +1,5 @@
 from exc.exceptions import AlarmNotFound
-from models.models import Alarm, User
+from database.models import Alarm, User
 from schemas.alarms import AlarmUpdate
 from crud_class.crud import CRUD
 from misc.web_context_class import WebContext

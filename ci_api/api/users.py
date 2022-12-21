@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 
 from config import logger
 from exc.exceptions import UserNotFoundErrorApi
-from models.models import User, Alarm, Notification, Rate
+from database.models import User, Alarm, Notification, Rate
 from schemas.alarms import AlarmFull
 from schemas.user_schema import UserSchema, UserEditProfile
 from services.depends import get_logged_user
