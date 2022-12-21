@@ -6,7 +6,7 @@ from fastapi import APIRouter, Body
 
 from config import logger, settings, prodamus
 from crud_class.crud import CRUD
-from exc.payment.pay_exceptions import PaymentServiceError
+from exc.pay_exceptions import PaymentServiceError
 from database.models import PaymentCheck, User
 from services.utils import get_current_datetime
 

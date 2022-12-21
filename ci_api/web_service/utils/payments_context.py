@@ -3,7 +3,7 @@ import datetime
 from loguru import logger
 
 from exc.exceptions import RateNotFound
-from exc.payment.pay_exceptions import PaymentServiceError, SubscribeExistsError
+from exc.pay_exceptions import PaymentServiceError, SubscribeExistsError
 from database.models import User, Rate, Payment
 from crud_class.crud import CRUD
 from services.utils import get_current_datetime
