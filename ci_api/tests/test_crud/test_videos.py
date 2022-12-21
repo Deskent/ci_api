@@ -1,38 +1,25 @@
 import pytest
 
 from crud_class.crud import CRUD
-from models.models import Complex, Video
-
-@pytest.fixture
-async def test_video():
-    data = {
-        "description": "Описание video 99",
-        "name": "video 99",
-        "number": 99,
-        "duration": 99,
-        "complex_id": 1,
-        "file_name": "text_name.mp4"
-    }
-    video: Video = await CRUD.video.create(data)
-    yield video
-    await CRUD.video.delete_by_id(video.id)
+from models.models import Video
 
 
-async def test_get_video_by_id(test_video):
-    data: Video = await CRUD.video.get_by_id(test_video.id)
+
+async def test_get_video_by_id(get_video):
+    data: Video = await CRUD.video.get_by_id(get_video.id)
     assert data is not None
 
 
-async def test_video_update(test_video):
-    data: Video = await CRUD.video.get_by_id(test_video.id)
+async def test_video_update(get_video):
+    data: Video = await CRUD.video.get_by_id(get_video.id)
     assert data.duration == 99
     data.duration = 100
     new_data: Video = await CRUD.video.save(data)
     assert new_data.duration == 100
 
 
-async def test_get_next_video(test_video):
-    video: Video = await CRUD.video.get_by_id(test_video.id)
+async def test_get_next_video(get_video):
+    video: Video = await CRUD.video.get_by_id(get_video.id)
     next_video: int = await CRUD.video.next_video_id(video)
     assert next_video > 0
 

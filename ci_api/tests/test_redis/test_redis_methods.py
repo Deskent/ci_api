@@ -1,7 +1,6 @@
 import pytest
 
 from config import REDIS_CLIENT
-from models.models import Rate
 from misc.redis_class import RedisDB
 
 
@@ -21,13 +20,3 @@ async def test_redis_health_check(redis):
 async def test_redis_value_error(redis):
     with pytest.raises(ValueError):
         await redis.health_check()
-
-
-@pytest.mark.skip
-async def test_redis_save_rates():
-    rates = await Rate.get_all()
-    redis = RedisDB(client=REDIS_CLIENT, model=Rate)
-    await redis.save(data=rates)
-    data: dict[str, list | dict] = await redis.load()
-    assert data['data'] == rates
-    assert data['data'][0].id == rates[0].id

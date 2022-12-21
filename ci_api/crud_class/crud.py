@@ -192,11 +192,10 @@ class UserCrud(AdminCrud):
 
     async def set_subscribe_to(self, days: int, user: User = None,  id_: int = None) -> User:
         if await self._get_instance(user, id_):
-            if not user.expired_at or user.expired_at < get_current_datetime():
+            if not user.expired_at or await self.is_expired(self.user):
                 user.expired_at = get_current_datetime()
             user.expired_at += timedelta(days=days)
             user.is_active = True
-            user.last_entry = get_current_datetime()
 
             return await self.save(self.user)
 
@@ -217,6 +216,21 @@ class UserCrud(AdminCrud):
             self.user.avatar = avatar_id
             return await self.save(self.user)
 
+    async def is_expired(self, user: User = None,  id_: int = None) -> bool:
+        if await self._get_instance(user, id_):
+            return user.expired_at < get_current_datetime()
+
+    async def is_first_entry_today(self, user: User = None,  id_: int = None) -> bool:
+        """Return True if it first user entry today else False"""
+
+        if await self._get_instance(user, id_):
+            if self.user.last_entry is None:
+                return True
+            return self.user.last_entry.date() != get_current_datetime().date()
+
+    async def is_new_user(self, user: User = None,  id_: int = None) -> bool:
+        if await self._get_instance(user, id_):
+            return  self.user.last_entry is None
 
 class VideoCrud(BaseCrud):
     def __init__(self, model: Type[Video]):
