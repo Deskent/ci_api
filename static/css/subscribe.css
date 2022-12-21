@@ -102,7 +102,7 @@
   display: block;
   width: 40px;
   height: 41px;
-  background: url(../img/icons/sub-download.svg) center/cover no-repeat;
+  background: url(../img/icons/sub-download.svg) center/contain no-repeat;
   margin-right: 20px;
 }
 
@@ -145,7 +145,7 @@
   display: block;
   width: 35px;
   height: 35px;
-  background: url(../img/icons/sub-close.svg) center/cover no-repeat;
+  background: url(../img/icons/sub-close.svg) center/contain no-repeat;
   margin-right: 20px;
 }
 
@@ -183,13 +183,22 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 430px) {
   .subscribe__download {
     font-size: 16px;
   }
 
   .subscribe__cancel {
     font-size: 16px;
+  }
 
+  .subscribe__download::before {
+    margin-right: 10px;
+  }
+
+  .subscribe__cancel::before {
+    margin-right: 10px;
+    width: 30px;
+    height: 30px;
   }
 }

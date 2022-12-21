@@ -1,3 +1,8 @@
+.lock-video {
+  opacity: 0.3;
+  filter: grayscale(0.5);
+}
+
 .lock {
   opacity: 0.6;
   filter: grayscale(0.3);
