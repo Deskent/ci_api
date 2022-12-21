@@ -10,8 +10,6 @@ from alembic import context
 from sqlmodel import SQLModel
 
 from database.db import DATABASE_URL
-from models.models import User
-
 
 sys.path = ['', '..'] + sys.path[1:]
 config = context.config

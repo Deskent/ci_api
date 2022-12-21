@@ -2,21 +2,21 @@ from fastapi import APIRouter, Depends
 from starlette.responses import HTMLResponse
 
 from config import templates
-from models.models import User, Complex, Video
+from database.models import User, Complex, Video
 from services.complexes_and_videos import (
     get_viewed_videos_ids, calculate_videos_to_next_level
 )
 from services.complexes_web_context import get_all_complexes_web_context
-from services.models_cache.crud import CRUD
+from crud_class.crud import CRUD
 from services.utils import convert_seconds_to_time
-from services.web_context_class import WebContext
-from web_service.utils.get_contexts import get_logged_user_context, get_user_from_context
+from misc.web_context_class import WebContext
+from web_service.utils.get_contexts import get_logged_user_context, get_user_browser_session
 from web_service.utils.title_context_func import get_page_titles
 
 router = APIRouter(tags=['web', 'charging'])
 
 
-@router.get("/complexes_list", response_class=HTMLResponse, dependencies=[Depends(get_user_from_context)])
+@router.get("/complexes_list", response_class=HTMLResponse, dependencies=[Depends(get_user_browser_session)])
 async def complexes_list_web(
         context: dict = Depends(get_logged_user_context)
 ):
@@ -29,7 +29,7 @@ async def complexes_list_web(
 async def videos_list_web(
         complex_id: int,
         context: dict = Depends(get_logged_user_context),
-        user: User = Depends(get_user_from_context),
+        user: User = Depends(get_user_browser_session),
 ):
     current_complex: Complex = await CRUD.complex.get_by_id(complex_id)
     next_complex: Complex = await CRUD.complex.next_complex(current_complex)

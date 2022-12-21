@@ -3,8 +3,8 @@ import json
 import requests
 from loguru import logger
 
-from config import settings, prodamus
-from models.models import User, Rate
+from config import prodamus
+from database.models import User, Rate
 
 
 REQUEST_TIMEOUT = 15
@@ -23,11 +23,9 @@ async def get_payment_link(user: User, rate: Rate) -> str:
         f"&urlSuccess={prodamus.SUCCESS_URL}"
         f"&urlReturn={prodamus.RETURN_URL}"
         f"&sys={prodamus.PRODAMUS_SYS_KEY}"
-
     )
-    # if settings.STAGE == 'test':
-    #     params += f"&demo_mode=1"
-    params += f"&demo_mode=1"
+    if prodamus.PRODAMUS_MODE == 'test':
+        params += f"&demo_mode=1"
     url = (
         f"https://box.payform.ru/?"
         f"do=link"

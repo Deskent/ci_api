@@ -6,7 +6,7 @@ from pydantic import BaseModel, validator, EmailStr
 
 from config import logger, MAX_LEVEL
 from exc.exceptions import PhoneNumberError, PasswordMatchError
-from models.models import User
+from database.models import User
 
 
 def slice_phone_to_format(phone: str) -> str:
@@ -174,3 +174,16 @@ class EmailVerify(BaseModel):
 class TokenUser(BaseModel):
     token: str
     user: UserOutput
+
+
+class UserMood(BaseModel):
+    mood_id: int
+
+
+class EntryModalWindow(BaseModel):
+    user: dict
+    emojies: list[dict] = []
+    new_user: bool = False
+    hello_video: dict = {}
+    today_first_entry: bool = False
+    is_expired: bool = False

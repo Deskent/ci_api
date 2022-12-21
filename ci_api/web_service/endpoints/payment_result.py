@@ -1,11 +1,11 @@
 from fastapi import Depends, APIRouter
 from starlette.responses import HTMLResponse, FileResponse
 
-from models.models import User
-from services.web_context_class import WebContext
+from database.models import User
+from misc.web_context_class import WebContext
 from web_service.handlers.form_checks_report import form_payments_report
 from web_service.utils.payments_context import check_payment_result
-from web_service.utils.get_contexts import get_logged_user_context, get_user_from_context, \
+from web_service.utils.get_contexts import get_user_browser_session, \
     get_profile_page_context
 from config import settings
 
@@ -30,7 +30,7 @@ async def payment_result(
 @router.get("/payment_report", response_class=HTMLResponse)
 async def payment_result(
         context: dict = Depends(get_profile_page_context),
-        user: User = Depends(get_user_from_context)
+        user: User = Depends(get_user_browser_session)
 ):
     web_context: WebContext = await form_payments_report(context=context, user=user)
     return web_context.web_render()

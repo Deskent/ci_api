@@ -1,13 +1,10 @@
 import aiosmtplib
-import jwt
 from fastapi import HTTPException, status
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
 from fastapi_mail.errors import ConnectionErrors
 from pydantic import EmailStr, BaseModel
 
 from config import settings, logger
-from models.models import User
-from services.auth import AuthHandler
 from services.utils import generate_four_random_digits_string
 
 
@@ -88,20 +85,3 @@ async def send_email_message(email: EmailStr, message: str):
     }
 
     await _send_mail(email, payload)
-
-
-async def get_user_id_from_email_code(token: str) -> int:
-    user = await User.get_by_email_code(token)
-    if user:
-        return user.id
-
-
-async def get_user_id_from_email_token(token: str) -> str:
-    logger.debug(f"Verify email token...")
-
-    try:
-        payload = AuthHandler().verify_email_token(token)
-        return payload["id"] if payload else ''
-    except jwt.exceptions.DecodeError as err:
-        logger.error(f"Email token verify: {str(err)}")
-        return ''

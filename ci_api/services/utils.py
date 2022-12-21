@@ -6,10 +6,6 @@ from datetime import time
 from config import logger
 
 
-def get_current_datetime() -> datetime:
-    return datetime.datetime.now(tz=None)
-
-
 @logger.catch
 async def get_data_for_update(data: dict) -> dict:
     """Returns dictionary excluded None values"""
@@ -57,3 +53,7 @@ def generate_random_password() -> str:
 
 def to_isoformat(data: datetime.datetime) -> str:
     return data.replace(tzinfo=None).isoformat(sep=' ', timespec='seconds')
+
+
+def get_current_datetime()-> datetime:
+    return datetime.datetime.now(tz=datetime.timezone.utc)

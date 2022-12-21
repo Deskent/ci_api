@@ -1,13 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 
 from config import logger
 from exc.exceptions import UserNotFoundErrorApi
-from models.models import User, Alarm, Notification, Rate
+from database.models import User, Alarm, Notification, Rate
 from schemas.alarms import AlarmFull
 from schemas.user_schema import UserSchema, UserEditProfile
 from services.depends import get_logged_user
-from services.models_cache.crud import CRUD
-from services.weekdays import WeekDay
+from crud_class.crud import CRUD
+from misc.weekdays_class import WeekDay
 from web_service.handlers.profile_web_contexts import get_edit_profile_web_context
 
 router = APIRouter(prefix="/users", tags=['Users'])
@@ -91,9 +91,9 @@ async def delete_user(
     :return: None
     """
 
-    if not (user := await User.get_by_id(logged_user.id)):
+    if not (user := await CRUD.user.get_by_id(logged_user.id)):
         raise UserNotFoundErrorApi
-    await user.delete()
+    await CRUD.user.delete(user)
     logger.info(f"User with id {user.id} deleted")
 
 

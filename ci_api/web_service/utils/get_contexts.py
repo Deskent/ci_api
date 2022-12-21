@@ -4,40 +4,33 @@ from fastapi import Depends
 from pydantic import EmailStr
 from starlette.requests import Request
 
-from config import MAX_LEVEL
+from config import MAX_LEVEL, site
 from exc.exceptions import UserNotLoggedError, ComeTomorrowException
-from models.models import User, Rate, Avatar
+from database.models import User, Rate, Avatar
 from services.depends import get_context_with_request
 from services.emails import send_email_message, EmailException
-from services.models_cache.crud import CRUD
+from crud_class.crud import CRUD
 from services.utils import represent_phone
 
 
-COMPANY_PHONE = "9213336698"
 DEFAULT_CONTEXT = {
     'email_pattern': r"\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}\b",
-    "icon_link": "/index",
-    "company_email": "company@email.com",
-    "company_phone": f"tel:{COMPANY_PHONE}",
-    "company_represent_phone": f"tel: {represent_phone(COMPANY_PHONE)}",
-    "google_play_link": "https://www.google.com",
-    "app_store_link": "https://www.apple.com",
-    "vk_link": "https://vk.com/cigun_energy",
-    "youtube_link": "https://www.youtube.com/channel/UCA3VIncMlr7MxXY2Z_QEM-Q",
-    "subscribe_info": "/subscribe",
-    "conditions": "/user_agree",
-    "confidence": "/confidential",
-    "feedback_link": "/feedback",
-    "help_link": "/help_page"
+    "company_email": site.COMPANY_EMAIL,
+    "company_phone": f"tel:{site.COMPANY_PHONE}",
+    "company_represent_phone": f"tel: {represent_phone(site.COMPANY_PHONE)}",
+    "google_play_link": site.GOOGLE_PLAY_LINK,
+    "app_store_link": site.APP_STORE_LINK,
+    "vk_link": site.VK_LINK,
+    "youtube_link": site.YOUTUBE_LINK,
 }
 
 
-async def get_session_token(request: Request) -> str:
+async def get_browser_session_token(request: Request) -> str:
     return request.session.get('token', '')
 
 
 async def get_session_user(
-        token: str = Depends(get_session_token),
+        token: str = Depends(get_browser_session_token),
 ) -> User:
     if token:
         return await CRUD.user.get_by_token(token)
@@ -68,7 +61,7 @@ async def get_logged_user_context(
     return context
 
 
-def get_user_from_context(
+def get_user_browser_session(
         context: dict = Depends(get_logged_user_context)
 ) -> User:
     user: User = context['user']
@@ -78,7 +71,7 @@ def get_user_from_context(
 
 
 async def get_active_user_context(
-        user: User = Depends(get_user_from_context),
+        user: User = Depends(get_user_browser_session),
         context: dict = Depends(get_logged_user_context)
 ):
     # TODO прописать во всех ендпоинтах где зарядка

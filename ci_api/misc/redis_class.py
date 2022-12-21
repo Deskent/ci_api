@@ -3,7 +3,7 @@ from abc import abstractmethod
 
 import aioredis
 
-from models.models import User, Complex, Avatar, Rate
+from database.models import User, Complex, Avatar, Rate
 from config import logger, REDIS_CLIENT
 
 MODEL_TYPES = User | Complex | Avatar | Rate

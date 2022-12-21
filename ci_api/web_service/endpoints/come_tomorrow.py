@@ -1,7 +1,7 @@
 from fastapi import Depends, APIRouter
 from starlette.responses import HTMLResponse
 
-from services.web_context_class import WebContext
+from misc.web_context_class import WebContext
 from web_service.utils.get_contexts import get_logged_user_context
 
 

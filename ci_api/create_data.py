@@ -4,8 +4,8 @@ from datetime import datetime, timedelta
 from admin.utils import create_default_admin
 from config import logger, settings
 from database.db import drop_db, create_db
-from models.models import User, Complex, Rate
-from services.models_cache.crud import CRUD
+from database.models import Complex, Rate
+from crud_class.crud import CRUD
 
 
 async def create_complexes(data: list[dict] = None):
@@ -186,6 +186,35 @@ async def create_rates(data: list[dict] = None):
     for elem in data:
         await CRUD.rate.create(elem)
 
+
+async def create_moods(data: list[dict] = None):
+    if not data:
+        data = [
+            {
+                'name': 'Все бесят',
+                'code': '&#128545;'
+            },
+            {
+                'name': 'Печалька-тоска',
+                'code': '&#128577;'
+            },
+            {
+                'name': 'Нервно-тревожно',
+                'code': '&#129296;'
+            },
+            {
+                'name': 'Бодрячок',
+                'code': '&#128512;'
+            },
+            {
+                'name': 'Всех люблю',
+                'code': '&#129392;'
+            },
+        ]
+    for elem in data:
+        await CRUD.mood.create(elem)
+
+
 async def create_avatars(data: list[dict] = None):
     if not data:
         data = [
@@ -246,14 +275,27 @@ async def create_fake_data(flag: bool = False):
         },
     ]
 
+    hello_video = [
+        {
+            'file_name': 'hello.mp4',
+            'description': f'Приветственное видео',
+            'name': f'Приветственное видео',
+            'duration': 30,
+            'number': 1
+        }
+    ]
+
     if settings.CREATE_FAKE_DATA or flag:
         logger.debug("Create fake data to DB")
-        if await User.get_by_id(1):
+        if await CRUD.user.get_by_id(1):
             return
         await create_rates()
+        await create_moods()
         await create_avatars()
         await create_complexes()
         await create_videos(videos_data)
+        if not await CRUD.video.get_hello_video():
+            await create_videos(hello_video)
         await create_users()
         await create_alarms()
         await create_notifications()

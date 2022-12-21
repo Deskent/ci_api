@@ -3,12 +3,12 @@ from pydantic import BaseModel
 
 from config import logger
 from exc.exceptions import AlarmNotFound
-from models.models import Alarm, User
+from database.models import Alarm, User
 from schemas.alarms import AlarmCreate, AlarmFull, AlarmUpdate
-from services.alarms_web_context import get_update_alarm_web_context, get_alarm_or_raise
+from services.alarms_web_context import update_alarm_web_context, get_alarm_or_raise
 from services.depends import get_logged_user
-from services.models_cache.crud import CRUD
-from services.web_context_class import WebContext
+from crud_class.crud import CRUD
+from misc.web_context_class import WebContext
 
 router = APIRouter(prefix="/alarms", tags=['Alarms'])
 
@@ -77,7 +77,7 @@ async def update_alarm(
     """
 
     alarm: Alarm = await get_alarm_or_raise(alarm_id, user)
-    web_context: WebContext = await get_update_alarm_web_context({}, alarm, data)
+    web_context: WebContext = await update_alarm_web_context({}, alarm, data)
     return web_context.api_render()
 
 
@@ -100,7 +100,7 @@ async def delete_alarm(
     """
 
     alarm: Alarm = await get_alarm_or_raise(alarm_id, user)
-    await alarm.delete()
+    await CRUD.alarm.delete(alarm)
     logger.info(f"Alarm with id {alarm_id} deleted")
 
 

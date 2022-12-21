@@ -1,13 +1,15 @@
-from fastapi import APIRouter, status, Depends, Request, UploadFile
+from fastapi import APIRouter, status, Depends, UploadFile
 
 from api.web_api_utils import set_avatar_from_file_web_context
 from config import logger
-from models.models import User
+from crud_class.crud import CRUD
+from database.models import User, Mood, Video
 from schemas.complexes_videos import ComplexesListWithViewedAndNot
+from schemas.user_schema import EntryModalWindow, UserMood
 from services.complexes_web_context import get_complexes_list_web_context
 from services.videos_methods import get_viewed_complex_response
-from services.web_context_class import WebContext
-from web_service.utils.get_contexts import get_user_from_context
+from misc.web_context_class import WebContext
+from web_service.utils.get_contexts import get_user_browser_session
 
 router = APIRouter(prefix="/web", tags=['WebApi'])
 
@@ -19,14 +21,14 @@ router = APIRouter(prefix="/web", tags=['WebApi'])
 )
 async def complex_viewed_web(
         complex_id: int,
-        user: User = Depends(get_user_from_context)
+        user: User = Depends(get_user_browser_session)
 ):
     return await get_viewed_complex_response(user=user, complex_id=complex_id)
 
 
 @router.get("/complex/list", response_model=ComplexesListWithViewedAndNot)
 async def get_complexes_list_web(
-        user: User = Depends(get_user_from_context)
+        user: User = Depends(get_user_browser_session)
 ):
     """Return viewed_complexes, today_complex, not_viewed_complexes, user"""
 
@@ -40,26 +42,69 @@ async def get_complexes_list_web(
 )
 async def upload_avatar_as_file(
         file: UploadFile,
-        user: User = Depends(get_user_from_context)
+        user: User = Depends(get_user_browser_session)
 ):
-
     logger.debug(f"File received: {file.filename}")
-    web_context: WebContext = await set_avatar_from_file_web_context(context={}, user=user, file=file)
+    web_context: WebContext = await set_avatar_from_file_web_context(
+        context={}, user=user, file=file)
     return web_context.api_render()
 
 
-@router.post(
-    "/upload_avatar_as_string",
-    status_code=status.HTTP_202_ACCEPTED,
-    response_model = dict
+@router.get(
+    "/check_first_entry",
+    status_code=status.HTTP_200_OK,
+    response_model=EntryModalWindow
 )
-async def upload_avatar_as_string(
-        request: Request,
-        # user: User = Depends(get_user_from_context)
+async def check_first_entry_or_new_user(
+        user: User = Depends(get_user_browser_session)
 ):
-    logger.info(f"upload_avatar_as_string BODY: {await request.body()}")
-    # coded_string = avatar.as_bytes
-    # result = base64.b64decode(coded_string)
-    # logger.info(f'DECODED: {result}')
-    # web_context: WebContext = await set_avatar_from_file_web_context(context={}, user=user, file=file)
-    # return web_context.api_render()
+    """
+    Return today_first_entry = True and list of emojies if user
+    entered first time today and user level > 6.
+
+    Return new_user = True if user registered now have first entry and
+    object 'hello_video' with hello video data.
+
+    Return is_expired = True if user subscribe expired.
+
+    Return user as JSON else.
+
+    :param user: Logged user
+
+    :return: JSON
+    """
+
+    if await CRUD.user.is_first_entry_today(user) and user.is_active and user.level > 6:
+        emojies: list[Mood] = await CRUD.mood.get_all()
+        user: User = await CRUD.user.set_last_entry_today(user)
+
+        return EntryModalWindow(
+            user=user, emojies=emojies, today_first_entry=True)
+
+    user: User = await CRUD.user.set_last_entry_today(user)
+    if await CRUD.user.is_new_user(user):
+        await CRUD.user.set_subscribe_to(days=7, user=user)
+        hello_video: Video = await CRUD.video.get_hello_video()
+
+        return EntryModalWindow(user=user, new_user=True, hello_video=hello_video)
+
+    if await CRUD.user.is_expired(user):
+        return EntryModalWindow(user=user, is_expired=True)
+
+    return EntryModalWindow(user=user)
+
+
+@router.post(
+    "/set_user_mood",
+    status_code=status.HTTP_202_ACCEPTED
+)
+async def set_user_mood(
+        mood: UserMood,
+        user: User = Depends(get_user_browser_session)
+):
+    """
+    Set mood for user
+
+    :return: null
+    """
+    await CRUD.user.set_mood(mood.mood_id, user=user)

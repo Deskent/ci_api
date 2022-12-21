@@ -3,9 +3,9 @@ from fastapi.responses import HTMLResponse
 from starlette.responses import RedirectResponse
 
 from schemas.user_schema import SmsCode
-from services.web_context_class import WebContext
+from misc.web_context_class import WebContext
 from web_service.handlers.common import user_login_via_phone, set_new_password
-from web_service.handlers.enter_with_sms import approve_sms_code, entry_via_sms_or_call
+from web_service.handlers.enter_with_sms import approve_sms_code_or_call_code, entry_via_sms_or_call
 from web_service.utils.get_contexts import get_base_context, get_profile_page_context, \
     get_logged_user_context
 
@@ -79,7 +79,7 @@ async def login_with_sms(
         context: dict = Depends(get_base_context)
 ):
     code: SmsCode = SmsCode(code=''.join((sms_input_1, sms_input_2, sms_input_3, sms_input_4)))
-    web_context: WebContext = await approve_sms_code(
+    web_context: WebContext = await approve_sms_code_or_call_code(
         request=request, context=context, user_id=user_id, code=code.code)
     web_context.context = await get_profile_page_context(web_context.context)
 
