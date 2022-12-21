@@ -34,6 +34,7 @@ class Settings(BaseSettings):
     MAIL_SSL_TLS: bool
     SECRET: str
     HASH_ALGORITHM: str
+    SITE_URL: str = 'http://127.0.0.1:8000'
     NOTIFICATION_HOUR: int = 14
     DEBUG: bool = False
     BASE_DIR: Path = None
