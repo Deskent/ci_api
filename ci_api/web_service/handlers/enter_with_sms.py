@@ -114,7 +114,7 @@ async def approve_sms_code_or_call_code(
     await CRUD.user.set_verified(user)
     await update_user_session_token(request, user)
 
-    web_context.template = "profile.html"
+    web_context.redirect = "/profile"
 
     return web_context
 
