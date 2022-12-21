@@ -4,7 +4,7 @@ from starlette.responses import HTMLResponse
 
 from config import templates
 from crud_class.crud import CRUD
-from models.models import User
+from database.models import User
 from web_service.utils.title_context_func import get_page_titles
 from web_service.utils.get_contexts import get_base_context, get_logged_user_context
 

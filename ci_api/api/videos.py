@@ -4,7 +4,7 @@ from fastapi import APIRouter, status, Depends
 from fastapi.responses import FileResponse
 
 from config import settings, logger
-from models.models import Video
+from database.models import Video
 from services.depends import get_logged_user
 from crud_class.crud import CRUD
 from web_service.utils.web_utils import get_checked_video

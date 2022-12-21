@@ -8,7 +8,7 @@ from admin.auth import authentication_backend
 from admin.utils import upload_file
 from config import logger, settings
 from database.db import engine
-from models.models import (
+from database.models import (
     User, Video, Complex, Rate, Administrator, Payment, PaymentCheck, Avatar, Mood
 )
 from schemas.complexes_videos import VideoUpload

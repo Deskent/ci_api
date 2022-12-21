@@ -1,7 +1,5 @@
-import pytest
-
 from crud_class.crud import CRUD
-from models.models import Video
+from database.models import Video
 
 
 
@@ -39,3 +37,8 @@ async def test_get_videos_ordered_list():
 async def test_get_videos_by_complex_id():
     next_video: list[Video] = await CRUD.video.get_all_by_complex_id(1)
     assert len(next_video) > 0
+
+
+async def test_get_hello_video():
+    video: Video = await CRUD.video.get_hello_video()
+    assert video.id > 0

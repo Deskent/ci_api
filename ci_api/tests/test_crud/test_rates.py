@@ -1,5 +1,5 @@
 from crud_class.crud import CRUD
-from models.models import Rate
+from database.models import Rate
 
 
 async def test_crud_get_all_rates():

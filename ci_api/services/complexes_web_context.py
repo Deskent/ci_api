@@ -1,4 +1,4 @@
-from models.models import User, Complex
+from database.models import User, Complex
 from schemas.complexes_videos import ComplexesListWithViewedAndNot
 from schemas.user_schema import UserOutput
 from crud_class.crud import CRUD

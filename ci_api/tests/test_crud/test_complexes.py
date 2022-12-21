@@ -1,4 +1,4 @@
-from models.models import Complex
+from database.models import Complex
 from crud_class.crud import CRUD
 
 

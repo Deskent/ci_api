@@ -4,7 +4,7 @@ import jwt
 from fastapi import Security, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from passlib.context import CryptContext
-from models.models import User
+from database.models import User
 
 from config import settings, logger
 

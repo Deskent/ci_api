@@ -13,7 +13,7 @@ from admin.views import get_admin
 from config import settings, MAX_LEVEL, logger
 from create_data import create_fake_data, recreate_db
 from exc.exceptions import UserNotLoggedError, ComeTomorrowException
-from models.models import User
+from database.models import User
 from routers import main_router
 from misc.notification_scheduler import create_notifications_for_not_viewed_users
 from misc.web_context_class import WebContext

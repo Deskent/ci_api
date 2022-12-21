@@ -6,7 +6,7 @@ from starlette.requests import Request
 
 from config import MAX_LEVEL
 from exc.exceptions import UserNotLoggedError, ComeTomorrowException
-from models.models import User, Rate, Avatar
+from database.models import User, Rate, Avatar
 from services.depends import get_context_with_request
 from services.emails import send_email_message, EmailException
 from crud_class.crud import CRUD

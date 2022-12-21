@@ -3,7 +3,7 @@ from pathlib import Path
 from config import settings
 from crud_class.crud import CRUD
 from exc.exceptions import FileNotFoundError, VideoNotFoundError
-from models.models import Video
+from database.models import Video
 
 
 async def get_checked_video(video_id: int) -> Video:

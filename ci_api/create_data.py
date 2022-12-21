@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from admin.utils import create_default_admin
 from config import logger, settings
 from database.db import drop_db, create_db
-from models.models import User, Complex, Rate
+from database.models import Complex, Rate
 from crud_class.crud import CRUD
 
 
@@ -186,6 +186,7 @@ async def create_rates(data: list[dict] = None):
     for elem in data:
         await CRUD.rate.create(elem)
 
+
 async def create_moods(data: list[dict] = None):
     if not data:
         data = [
@@ -212,6 +213,7 @@ async def create_moods(data: list[dict] = None):
         ]
     for elem in data:
         await CRUD.mood.create(elem)
+
 
 async def create_avatars(data: list[dict] = None):
     if not data:
@@ -273,6 +275,16 @@ async def create_fake_data(flag: bool = False):
         },
     ]
 
+    hello_video = [
+        {
+            'file_name': 'hello.mp4',
+            'description': f'Приветственное видео',
+            'name': f'Приветственное видео',
+            'duration': 30,
+            'number': 1
+        }
+    ]
+
     if settings.CREATE_FAKE_DATA or flag:
         logger.debug("Create fake data to DB")
         if await CRUD.user.get_by_id(1):
@@ -282,6 +294,8 @@ async def create_fake_data(flag: bool = False):
         await create_avatars()
         await create_complexes()
         await create_videos(videos_data)
+        if not await CRUD.video.get_hello_video():
+            await create_videos(hello_video)
         await create_users()
         await create_alarms()
         await create_notifications()
@@ -301,6 +315,7 @@ if __name__ == '__main__':
     async def make(flag, drop):
         await recreate_db(drop)
         await create_fake_data(flag)
+
 
     flag = True
     drop = True

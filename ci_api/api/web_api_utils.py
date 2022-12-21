@@ -6,7 +6,7 @@ from loguru import logger
 from admin.utils import save_uploaded_file
 from config import settings
 from crud_class.crud import CRUD
-from models.models import User, Avatar
+from database.models import User, Avatar
 from misc.web_context_class import WebContext
 
 

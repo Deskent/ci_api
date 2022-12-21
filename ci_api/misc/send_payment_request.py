@@ -4,7 +4,7 @@ import requests
 from loguru import logger
 
 from config import prodamus
-from models.models import User, Rate
+from database.models import User, Rate
 
 
 REQUEST_TIMEOUT = 15

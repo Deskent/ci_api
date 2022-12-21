@@ -4,8 +4,6 @@ import pytest
 from pydantic import EmailStr
 from pydantic.dataclasses import dataclass
 
-from crud_class.crud import CRUD
-from models.models import User
 from services.utils import get_current_datetime
 
 
@@ -20,6 +18,7 @@ class CreateUser:
     password2: str = "testpassword"
     gender: bool = True
     test: bool = True
+    is_active: bool = True
 
     def as_dict(self):
         return self.__dict__

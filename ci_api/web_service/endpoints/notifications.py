@@ -3,7 +3,7 @@ from starlette.responses import HTMLResponse, RedirectResponse
 
 from config import templates
 from crud_class.crud import CRUD
-from models.models import User, Notification
+from database.models import User
 from web_service.utils.title_context_func import get_page_titles
 from web_service.utils.get_contexts import get_user_browser_session, get_logged_user_context
 

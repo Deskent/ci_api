@@ -1,8 +1,6 @@
-import pytest
-
 from api.payments import save_payment
 from crud_class.crud import CRUD
-from models.models import PaymentCheck
+from database.models import PaymentCheck
 
 async def test_save_payment(get_user):
     data = {

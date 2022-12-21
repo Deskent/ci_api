@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from starlette.responses import HTMLResponse
 
 from config import templates
-from models.models import User, Complex, Video
+from database.models import User, Complex, Video
 from services.complexes_and_videos import (
     get_viewed_videos_ids, calculate_videos_to_next_level
 )

@@ -1,12 +1,7 @@
-import asyncio
-from typing import Generator
-
 import pytest
-from sqlmodel.ext.asyncio.session import AsyncSession
 
 from crud_class.crud import CRUD
-from database.db import engine, async_session
-from models.models import Video, Complex, User
+from database.models import Video, Complex, User
 
 
 @pytest.fixture
