@@ -1,7 +1,3 @@
-// var serverUrl = 'http://127.0.0.1:8000/api/v1'
-// var serverUrl = 'https://energy.qidoctor.ru/api/v1'
-var serverUrl = '/api/v1'
-
 const imageInput = document.querySelector(".user-profile__img-input");
 const image1 = document.querySelector(".user-profile__img");
 const image2 = document.querySelector(".header-user__icon-img");

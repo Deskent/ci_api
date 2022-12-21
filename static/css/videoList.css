@@ -3,6 +3,11 @@
   filter: grayscale(0.3);
 }
 
+.lock-video {
+  opacity: 0.3;
+  filter: grayscale(0.5);
+}
+
 .videos__list-contetn {
   width: 100%;
   height: 100%;

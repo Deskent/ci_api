@@ -3,6 +3,11 @@
   filter: grayscale(0.5);
 }
 
+.lock {
+  opacity: 0.6;
+  filter: grayscale(0.3);
+}
+
 .complexes-list__content {
   padding-bottom: 50px;
 }
