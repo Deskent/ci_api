@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from admin.utils import create_default_admin
 from config import logger, settings
 from database.db import drop_db, create_db
-from database.models import Complex, Rate
+from database.models import Complex, Rate, Video
 from crud_class.crud import CRUD
 
 
@@ -232,6 +232,26 @@ async def create_avatars(data: list[dict] = None):
 async def create_fake_data(flag: bool = False):
     """Create fake data in database"""
 
+
+
+    if settings.CREATE_FAKE_DATA or flag:
+        logger.debug("Create fake data to DB")
+        if await CRUD.user.get_by_id(1):
+            return
+        await create_rates()
+        await create_moods()
+        await create_avatars()
+        await create_complexes()
+        await create_users()
+        await create_alarms()
+        await create_notifications()
+        await create_default_admin()
+        logger.debug("Create fake data to DB: OK")
+
+
+async def recreate_db(drop=False) -> None:
+    """Drop and create tables in database"""
+
     videos_data = [
         {
             "complex_id": 1,
@@ -284,28 +304,11 @@ async def create_fake_data(flag: bool = False):
             'number': 1
         }
     ]
-
-    if settings.CREATE_FAKE_DATA or flag:
-        logger.debug("Create fake data to DB")
-        if await CRUD.user.get_by_id(1):
-            return
-        await create_rates()
-        await create_moods()
-        await create_avatars()
-        await create_complexes()
+    videos: list[Video] = await CRUD.video.get_all()
+    if not videos:
         await create_videos(videos_data)
-        if not await CRUD.video.get_hello_video():
-            await create_videos(hello_video)
-        await create_users()
-        await create_alarms()
-        await create_notifications()
-        await create_default_admin()
-        logger.debug("Create fake data to DB: OK")
-
-
-async def recreate_db(drop=False) -> None:
-    """Drop and create tables in database"""
-
+    if not await CRUD.video.get_hello_video():
+        await create_videos(hello_video)
     if drop or settings.RECREATE_DB:
         await drop_db()
         await create_db()
