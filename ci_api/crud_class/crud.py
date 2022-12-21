@@ -257,12 +257,14 @@ class VideoCrud(BaseCrud):
         """Create new row into DB and add video duration time (seconds)
         to its complex duration"""
 
-        current_complex: Complex = await CRUD.complex.get_by_id(data['complex_id'])
-        if not current_complex:
-            raise ComplexNotFoundError
-        current_complex.duration += data['duration']
-        current_complex.video_count += 1
-        await self.save(current_complex)
+        complex_id: int = data.get('complex_id')
+        if complex_id:
+            current_complex: Complex = await CRUD.complex.get_by_id(complex_id)
+            if not current_complex:
+                raise ComplexNotFoundError
+            current_complex.duration += data['duration']
+            current_complex.video_count += 1
+            await self.save(current_complex)
 
         return await super().create(data)
 
@@ -278,6 +280,10 @@ class VideoCrud(BaseCrud):
         current_complex.duration -= obj.duration
         await self.save(current_complex)
         await super().delete(obj)
+
+    async def get_hello_video(self) -> Video:
+        query = select(self.model).where(self.model.complex_id == None)
+        return await get_first(query)
 
 
 class AvatarCrud(BaseCrud):

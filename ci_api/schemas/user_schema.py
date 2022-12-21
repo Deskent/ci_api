@@ -184,5 +184,6 @@ class EntryModalWindow(BaseModel):
     user: dict
     emojies: list[dict] = []
     new_user: bool = False
+    hello_video: dict = {}
     today_first_entry: bool = False
     is_expired: bool = False
