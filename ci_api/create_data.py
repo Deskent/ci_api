@@ -275,7 +275,7 @@ async def create_fake_data(flag: bool = False):
 
     if settings.CREATE_FAKE_DATA or flag:
         logger.debug("Create fake data to DB")
-        if await User.get_by_id(1):
+        if await CRUD.user.get_by_id(1):
             return
         await create_rates()
         await create_moods()

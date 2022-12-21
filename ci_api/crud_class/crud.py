@@ -3,36 +3,14 @@ from datetime import datetime, timedelta, timezone
 from pydantic import EmailStr
 from sqlalchemy import desc
 from sqlmodel import select
-from sqlmodel.engine.result import Result
 
 from config import logger
-from database.db import get_db_session
+from database.db import get_db_session, get_all, get_first
 from exc.exceptions import ComplexNotFoundError
 from services.auth import auth_handler
-# from services.models_cache.base_cache import AllCache
 from crud_class.ci_types import *
 from services.utils import get_current_datetime
-from services.weekdays import WeekDay
-
-
-async def get_session_response(query) -> Result:
-    result = None
-    async for session in get_db_session():
-        result = await session.execute(query)
-
-    return result
-
-
-async def get_all(query) -> list:
-    result = await get_session_response(query)
-
-    return result.scalars().all()
-
-
-async def get_first(query):
-    result = await get_session_response(query)
-
-    return result.scalars().first()
+from misc.weekdays_class import WeekDay
 
 
 class BaseCrud:
@@ -46,22 +24,13 @@ class BaseCrud:
             await session.commit()
         return obj
 
-    async def get_by_id(self, id_: int, use_cache: bool = True) -> MODEL_TYPES:
-        # if self.use_cache or use_cache:
-        #     result: MODEL_TYPES = await AllCache.get_by_id(self.model, id_)
-        #     if result:
-        #         return result
+    async def get_by_id(self, id_: int) -> MODEL_TYPES:
         query = select(self.model).where(self.model.id == id_)
         return await get_first(query)
 
-    async def get_all(self, use_cache: bool = True) -> list[MODEL_TYPES]:
-        # if self.use_cache or use_cache:
-        #     result: list[MODEL_TYPES] = await AllCache.get_all(self.model)
-        #     if result:
-        #         return result
+    async def get_all(self) -> list[MODEL_TYPES]:
         query = select(self.model).order_by(self.model.id)
         result: list[MODEL_TYPES] = await get_all(query)
-        # await AllCache.update_data(self.model, result)
 
         return result
 
@@ -79,7 +48,7 @@ class BaseCrud:
 
     async def create(self, data: dict) -> MODEL_TYPES:
         instance = self.model(**data)
-        return await instance.save()
+        return await self.save(instance)
 
 
 class AdminCrud(BaseCrud):
@@ -148,6 +117,12 @@ class UserCrud(AdminCrud):
         super().__init__(model)
         self.user: User | None = None
 
+    async def _get_instance(self, user: User = None, id_: int = None) -> User:
+        if not user and id_:
+            user: User = await self.get_by_id(id_)
+        self.user = user
+        return self.user
+
     async def create(self, data: dict) -> User | Administrator:
         data['password'] = await self.get_hashed_password(data['password'])
         data['avatar'] = await CRUD.avatar.get_first_id()
@@ -162,13 +137,7 @@ class UserCrud(AdminCrud):
     async def get_by_email_code(self, email_code: str) -> User:
         query = select(self.model).where(self.model.email_code == email_code)
         return await get_first(query)
-
     # TODO сделать декоратором
-    async def _get_instance(self, user: User = None, id_: int = None) -> User:
-        if not user and id_:
-            user: User = await self.get_by_id(id_)
-        self.user = user
-        return self.user
 
     async def activate(self, user: User = None, id_: int = None) -> User:
         if await self._get_instance(user, id_):
@@ -223,11 +192,10 @@ class UserCrud(AdminCrud):
 
     async def set_subscribe_to(self, days: int, user: User = None,  id_: int = None) -> User:
         if await self._get_instance(user, id_):
-            if not user.expired_at or user.expired_at < get_current_datetime():
+            if not user.expired_at or await self.is_expired(self.user):
                 user.expired_at = get_current_datetime()
             user.expired_at += timedelta(days=days)
             user.is_active = True
-            user.last_entry = get_current_datetime()
 
             return await self.save(self.user)
 
@@ -242,6 +210,27 @@ class UserCrud(AdminCrud):
         if await self._get_instance(user, id_):
             self.user.mood = mood_id
             return await self.save(self.user)
+
+    async def set_avatar(self, avatar_id: int, user: User = None,  id_: int = None) -> User:
+        if await self._get_instance(user, id_):
+            self.user.avatar = avatar_id
+            return await self.save(self.user)
+
+    async def is_expired(self, user: User = None,  id_: int = None) -> bool:
+        if await self._get_instance(user, id_):
+            return user.expired_at < get_current_datetime()
+
+    async def is_first_entry_today(self, user: User = None,  id_: int = None) -> bool:
+        """Return True if it first user entry today else False"""
+
+        if await self._get_instance(user, id_):
+            if self.user.last_entry is None:
+                return True
+            return self.user.last_entry.date() != get_current_datetime().date()
+
+    async def is_new_user(self, user: User = None,  id_: int = None) -> bool:
+        if await self._get_instance(user, id_):
+            return  self.user.last_entry is None
 
 class VideoCrud(BaseCrud):
     def __init__(self, model: Type[Video]):
@@ -262,7 +251,7 @@ class VideoCrud(BaseCrud):
         return await get_all(query)
 
     async def get_all_by_complex_id(self, complex_id: int):
-        return await self.model.get_ordered_list(complex_id)
+        return await self.get_ordered_list(complex_id)
 
     async def create(self, data: dict) -> Video:
         """Create new row into DB and add video duration time (seconds)
@@ -288,7 +277,7 @@ class VideoCrud(BaseCrud):
         current_complex.video_count -= 1
         current_complex.duration -= obj.duration
         await self.save(current_complex)
-        await self.delete(obj)
+        await super().delete(obj)
 
 
 class AvatarCrud(BaseCrud):

@@ -4,6 +4,8 @@ import pytest
 from pydantic import EmailStr
 from pydantic.dataclasses import dataclass
 
+from crud_class.crud import CRUD
+from models.models import User
 from services.utils import get_current_datetime
 
 
@@ -68,7 +70,6 @@ class CreateEndpointUserData:
             base_url: str,
             new_alarm: dict,
     ):
-
         self.session = session
         self.base_url: str = base_url
         self.new_alarm: dict = new_alarm
@@ -114,9 +115,9 @@ class CreateEndpointUserData:
     #     async for session in get_db_session():
     #         user = await User.get_by_email(session, self.user_create.email)
     #         self.email_token = user.email_code
-        # self.email_token = AuthHandler().get_email_token(self.test_user)
+    # self.email_token = AuthHandler().get_email_token(self.test_user)
 
-        # return self.email_token
+    # return self.email_token
 
     def delete_user(self) -> None:
         response = self.session.delete(self.base_url + "/users",

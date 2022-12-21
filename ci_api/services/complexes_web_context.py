@@ -1,13 +1,11 @@
-from typing import Iterable
-
-from models.models import User, Complex, ViewedComplex
+from models.models import User, Complex
 from schemas.complexes_videos import ComplexesListWithViewedAndNot
 from schemas.user_schema import UserOutput
 from crud_class.crud import CRUD
 from services.utils import convert_seconds_to_time, convert_to_minutes
-from services.web_context_class import WebContext
+from misc.web_context_class import WebContext
 
-def _convert_duration_from_int_to_time(data: Iterable) -> Iterable:
+def _convert_duration_from_int_to_time(data: list[Complex]) -> list[Complex]:
     """Convert complex duration from int to time format"""
 
     for elem in data:
@@ -48,13 +46,13 @@ async def get_complexes_list_web_context(
     web_context = WebContext(context)
     web_context.context.update(user=user)
 
-    today_complex = {}
-    if not await ViewedComplex.is_last_viewed_today(user.id):
+    today_complex: dict = {}
+    if not await CRUD.viewed_complex.is_last_viewed_today(user.id):
         today_complex: Complex = await CRUD.complex.get_by_id(user.current_complex)
         today_complex.duration = convert_seconds_to_time(today_complex.duration)
 
-    complexes: list[Complex] = await CRUD.complex.get_all(use_cache=False)
-    user_viewed_complexes: list[int] = await ViewedComplex.get_all_viewed_complexes_ids(user.id)
+    complexes: list[Complex] = await CRUD.complex.get_all()
+    user_viewed_complexes: list[int] = await CRUD.viewed_complex.get_all_viewed_complexes_ids(user.id)
     viewed_complexes: list[Complex] = _get_viewed_complexes(complexes, user_viewed_complexes)
     not_viewed_complexes: list[Complex] = _get_not_viewed_complexes(complexes, user_viewed_complexes)
 
@@ -78,7 +76,7 @@ async def get_all_complexes_web_context(
         complex_.duration = convert_to_minutes(complex_.duration)
 
     web_context.context.update(complexes=complexes)
-    web_context.template = "complexes_list.html"
     web_context.api_data.update(payload=complexes)
+    web_context.template = "complexes_list.html"
 
     return web_context

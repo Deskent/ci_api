@@ -5,10 +5,9 @@ from sqlalchemy import select
 from sqlalchemy.sql import extract
 
 from config import logger
-from database.db import get_db_session
+from crud_class.crud import CRUD
 from models.models import User, ViewedComplex, Notification
-from models.methods import get_all
-from services.notification_sender import send_push_messages
+from database.db import get_db_session, get_all
 
 today = datetime.today()
 message_text = "Зарядка не выполнена, не забудьте выполнить упражнения"
@@ -67,7 +66,7 @@ async def _get_notifications_for_update(
 
     for_update: list[Notification] = []
     for user in users:
-        notifications: list = await Notification.get_all_by_user_id(user)
+        notifications: list = await CRUD.notification.get_all_by_user_id(user)
         for notification in notifications:
             notification.text = message_text
             notification.created_at = today

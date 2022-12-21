@@ -4,6 +4,7 @@ import jwt
 from fastapi import Security, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from passlib.context import CryptContext
+from models.models import User
 
 from config import settings, logger
 
@@ -51,7 +52,7 @@ class AuthHandler:
         return self.decode_token(auth.credentials)
 
     @logger.catch
-    def get_email_token(self, user: 'User') -> str:
+    def get_email_token(self, user: User) -> str:
         payload = {
             "id": user.id,
             "username": user.username

@@ -3,7 +3,7 @@ from fastapi.responses import HTMLResponse
 from starlette.responses import RedirectResponse
 
 from schemas.user_schema import SmsCode
-from services.web_context_class import WebContext
+from misc.web_context_class import WebContext
 from web_service.handlers.common import user_login_via_phone, set_new_password
 from web_service.handlers.enter_with_sms import approve_sms_code_or_call_code, entry_via_sms_or_call
 from web_service.utils.get_contexts import get_base_context, get_profile_page_context, \

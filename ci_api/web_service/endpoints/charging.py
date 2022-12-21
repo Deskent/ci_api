@@ -9,7 +9,7 @@ from services.complexes_and_videos import (
 from services.complexes_web_context import get_all_complexes_web_context
 from crud_class.crud import CRUD
 from services.utils import convert_seconds_to_time
-from services.web_context_class import WebContext
+from misc.web_context_class import WebContext
 from web_service.utils.get_contexts import get_logged_user_context, get_user_browser_session
 from web_service.utils.title_context_func import get_page_titles
 

@@ -2,8 +2,8 @@ from exc.exceptions import AlarmNotFound
 from models.models import Alarm, User
 from schemas.alarms import AlarmUpdate
 from crud_class.crud import CRUD
-from services.web_context_class import WebContext
-from services.weekdays import WeekDay
+from misc.web_context_class import WebContext
+from misc.weekdays_class import WeekDay
 
 
 async def get_alarm_or_raise(alarm_id: int, user: User):
@@ -13,7 +13,7 @@ async def get_alarm_or_raise(alarm_id: int, user: User):
     return alarm
 
 
-async def get_update_alarm_web_context(
+async def update_alarm_web_context(
         context: dict,
         alarm: Alarm,
         data: AlarmUpdate
