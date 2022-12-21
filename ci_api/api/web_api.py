@@ -81,13 +81,14 @@ async def check_first_entry_or_new_user(
         return EntryModalWindow(
             user=user, emojies=emojies, today_first_entry=True)
 
-    user: User = await CRUD.user.set_last_entry_today(user)
     if await CRUD.user.is_new_user(user):
+        user: User = await CRUD.user.set_last_entry_today(user)
         await CRUD.user.set_subscribe_to(days=7, user=user)
         hello_video: Video = await CRUD.video.get_hello_video()
 
         return EntryModalWindow(user=user, new_user=True, hello_video=hello_video)
 
+    user: User = await CRUD.user.set_last_entry_today(user)
     if await CRUD.user.is_expired(user):
         return EntryModalWindow(user=user, is_expired=True)
 
