@@ -11,7 +11,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from admin.utils import create_default_admin
 from admin.views import get_admin
 from config import settings, MAX_LEVEL, logger
-from create_data import create_fake_data, recreate_db
+from create_data import create_fake_data, recreate_db, create_default_data
 from exc.exceptions import UserNotLoggedError, ComeTomorrowException
 from database.models import User
 from routers import main_router
@@ -46,6 +46,7 @@ def get_application():
         await recreate_db()
         await create_default_admin()
         await create_fake_data()
+        await create_default_data()
         scheduler.start()
 
     @app.on_event('shutdown')

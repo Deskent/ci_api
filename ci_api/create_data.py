@@ -4,11 +4,13 @@ from datetime import datetime, timedelta
 from admin.utils import create_default_admin
 from config import logger, settings
 from database.db import drop_db, create_db
-from database.models import Complex, Rate
+from database.models import Complex, Rate, Video
 from crud_class.crud import CRUD
 
 
 async def create_complexes(data: list[dict] = None):
+    logger.debug(f"Create data")
+
     if not data:
         data = [
             {
@@ -40,8 +42,8 @@ async def create_complexes(data: list[dict] = None):
     for compl in data:
         await CRUD.complex.create(compl)
 
-
 async def create_videos(data: list[dict] = None):
+    logger.debug(f"Create data")
     if not data:
         data = [
             {
@@ -71,8 +73,9 @@ async def create_videos(data: list[dict] = None):
     for video in data:
         await CRUD.video.create(video)
 
-
 async def create_users(data: list[dict] = None):
+    logger.debug(f"Create data")
+
     if not data:
         data = [
             {
@@ -117,8 +120,9 @@ async def create_users(data: list[dict] = None):
         user_data['avatar'] = await CRUD.avatar.get_first_id()
         await CRUD.user.create(user_data)
 
-
 async def create_alarms(data: list[dict] = None):
+    logger.debug(f"Create data")
+
     if not data:
         data = [
             {
@@ -143,8 +147,9 @@ async def create_alarms(data: list[dict] = None):
     for alarm in data:
         await CRUD.alarm.create(alarm)
 
-
 async def create_notifications(data: list[dict] = None):
+    logger.debug(f"Create data")
+
     today = datetime.today()
 
     if not data:
@@ -168,8 +173,9 @@ async def create_notifications(data: list[dict] = None):
     for notification in data:
         await CRUD.notification.create(notification)
 
-
 async def create_rates(data: list[dict] = None):
+    logger.debug(f"Create data")
+
     if not data:
         data = [
             {
@@ -185,7 +191,6 @@ async def create_rates(data: list[dict] = None):
         ]
     for elem in data:
         await CRUD.rate.create(elem)
-
 
 async def create_moods(data: list[dict] = None):
     if not data:
@@ -213,7 +218,7 @@ async def create_moods(data: list[dict] = None):
         ]
     for elem in data:
         await CRUD.mood.create(elem)
-
+    logger.debug(f"Create data")
 
 async def create_avatars(data: list[dict] = None):
     if not data:
@@ -227,10 +232,43 @@ async def create_avatars(data: list[dict] = None):
         if not path.exists():
             raise ValueError(f"Avatar default file not found: {path}")
         await CRUD.avatar.create(elem)
-
+    logger.debug(f"Create data")
 
 async def create_fake_data(flag: bool = False):
     """Create fake data in database"""
+
+    if settings.CREATE_FAKE_DATA or flag:
+        logger.debug("Create fake data to DB")
+        if await CRUD.user.get_by_id(1):
+            return
+        await create_rates()
+        await create_moods()
+        await create_avatars()
+        await create_complexes()
+        await create_users()
+        await create_alarms()
+        await create_notifications()
+        await create_default_admin()
+        logger.debug("Create fake data to DB: OK")
+
+
+async def recreate_db(drop=False) -> None:
+    """Drop and create tables in database"""
+
+    if drop or settings.RECREATE_DB:
+        await drop_db()
+        await create_db()
+
+
+async def create_default_data():
+    complex_data = [
+        {
+            "description": "Описание комплекса 1",
+            "name": "комплекс 1",
+            "number": 1,
+            "duration": 0
+        },
+    ]
 
     videos_data = [
         {
@@ -284,31 +322,19 @@ async def create_fake_data(flag: bool = False):
             'number': 1
         }
     ]
-
-    if settings.CREATE_FAKE_DATA or flag:
-        logger.debug("Create fake data to DB")
-        if await CRUD.user.get_by_id(1):
-            return
-        await create_rates()
-        await create_moods()
-        await create_avatars()
-        await create_complexes()
+    videos: list[Video] = await CRUD.video.get_all()
+    if not videos:
+        if not CRUD.complex.get_all():
+            await create_complexes(complex_data)
         await create_videos(videos_data)
-        if not await CRUD.video.get_hello_video():
-            await create_videos(hello_video)
-        await create_users()
-        await create_alarms()
-        await create_notifications()
-        await create_default_admin()
-        logger.debug("Create fake data to DB: OK")
-
-
-async def recreate_db(drop=False) -> None:
-    """Drop and create tables in database"""
-
-    if drop or settings.RECREATE_DB:
-        await drop_db()
-        await create_db()
+    if not await CRUD.video.get_hello_video():
+        await create_videos(hello_video)
+    if not await CRUD.rate.get_all():
+        await create_rates()
+    if not await CRUD.avatar.get_all():
+        await create_avatars()
+    if not await CRUD.mood.get_all():
+        await create_moods()
 
 
 if __name__ == '__main__':
