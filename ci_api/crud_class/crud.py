@@ -218,7 +218,7 @@ class UserCrud(AdminCrud):
 
     async def is_expired(self, user: User = None,  id_: int = None) -> bool:
         if await self._get_instance(user, id_):
-            return user.expired_at < get_current_datetime()
+            return user.expired_at and user.expired_at.date() < get_current_datetime().date()
 
     async def is_first_entry_today(self, user: User = None,  id_: int = None) -> bool:
         """Return True if it first user entry today else False"""
