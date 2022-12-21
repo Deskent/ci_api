@@ -64,26 +64,30 @@ async def check_first_entry_or_new_user(
 
     Return today_first_entry = True and list of emojies if user first time entry today.
 
+    Return is_expired = True if user subscribe expired.
+
     Return user as JSON else.
 
     :param user: Logged user
 
     :return: JSON
     """
-    new_user: bool = user.last_entry is None
-    if new_user:
-        await CRUD.user.set_subscribe_to(days=7, user=user)
 
-        return EntryModalWindow(user=user, new_user=True)
-
-    today_first_entry: bool = user.last_entry.date() != get_current_datetime().date()
-    if today_first_entry and user.is_active and user.level > 6:
-        await CRUD.user.set_last_entry_today(user)
+    if await CRUD.user.is_first_entry_today(user) and user.is_active and user.level > 6:
         emojies: list[Mood] = await CRUD.mood.get_all()
+        user: User = await CRUD.user.set_last_entry_today(user)
 
         return EntryModalWindow(user=user, emojies=emojies, today_first_entry=True)
 
     user: User = await CRUD.user.set_last_entry_today(user)
+    if await CRUD.user.is_new_user(user):
+        await CRUD.user.set_subscribe_to(days=7, user=user)
+
+        return EntryModalWindow(user=user, new_user=True)
+
+    if await CRUD.user.is_expired(user):
+        return EntryModalWindow(user=user, is_expired=True)
+
     return EntryModalWindow(user=user)
 
 
