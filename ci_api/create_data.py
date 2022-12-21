@@ -277,7 +277,7 @@ async def create_fake_data(flag: bool = False):
 
     hello_video = [
         {
-            'file_name': 'first.mp4',
+            'file_name': 'hello.mp4',
             'description': f'Приветственное видео',
             'name': f'Приветственное видео',
             'duration': 30,
