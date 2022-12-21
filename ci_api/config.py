@@ -25,6 +25,7 @@ class Database(BaseSettings):
 
 class Settings(BaseSettings):
     DOCS_URL: str | None = None
+    ADMIN_URL: str | None = None
     SMS_TOKEN: str
     EMAIL_LOGIN: EmailStr
     EMAIL_PASSWORD: str

@@ -14,8 +14,6 @@ from database.models import (
 from schemas.complexes_videos import VideoUpload
 from services.utils import convert_seconds_to_time
 
-ADMIN_URL = "/ci_admin"
-
 
 def date_format(value):
     return value.strftime("%Y-%m-%d %H:%M:%S") if value else "Нет подписки"
@@ -222,7 +220,7 @@ def get_admin(app: FastAPI) -> FastAPI:
     admin = Admin(
         app,
         engine,
-        base_url=ADMIN_URL,
+        base_url=settings.ADMIN_URL,
         authentication_backend=authentication_backend,
         templates_dir=settings.TEMPLATES_DIR / 'admin'
     )
