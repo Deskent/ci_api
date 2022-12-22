@@ -430,7 +430,6 @@
     width: calc(200px + 140 * (100vw - 768px) / 432);
     height: calc(200px + 140 * (100vw - 768px) / 432);
   }
-
 }
 
 @media (max-width: 768px) {

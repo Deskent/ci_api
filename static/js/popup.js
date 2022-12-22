@@ -7,7 +7,7 @@ function closeModalNewLevelHandler() {
       swiperButtonPrev.click();
     }
   }
-    }
+}
 
 document.addEventListener("keydown", function (evt) {
   if (evt.keyCode === 27) {

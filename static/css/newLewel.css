@@ -42,6 +42,18 @@
     margin-bottom: 16px;
 }
 
+.new-level_description {
+    display: block;
+    font-size: 32px;
+    line-height: 140%;
+    text-align: center;
+    background: linear-gradient(270deg, #d32a1e 0%, #eb5e54 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+}
+
 .new-level-modal__level {
     background: url(../img/icons/successCharge-modal-bg.svg) center/auto
         no-repeat;
