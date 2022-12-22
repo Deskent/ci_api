@@ -2,4 +2,98 @@
   width: 100%;
   height: 70vh;
   border-radius: 40px;
-} 
+}
+
+.form_emoji {
+  width: 30vw;
+}
+
+.form_emoji-box-input {
+  position: relative;
+  display: flex;
+  flex-direction: row-;
+  justify-content: flex-start;
+  align-items: center;
+  background: linear-gradient(#ffffff 0 0) padding-box, /*this is your white background*/ linear-gradient(to right, rgba(235, 94, 84, 1), rgba(211, 42, 30, 1)) border-box;
+  border: 1px solid transparent;
+  border-radius: 40px;
+  padding: 10px 20px;
+  margin-bottom: 15px;
+  z-index: 1;
+}
+
+.form_emoji-box-input:hover {
+  background: linear-gradient(270deg, rgba(211, 42, 30, 0.25) 0%, rgba(211, 42, 30, 0.2) 100%);
+}
+
+
+.form_emoji-input {
+  opacity: 0;
+}
+
+
+
+.form_emoji__img {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+}
+
+.form_emoji-label {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  font-size: 16px;
+  color: #ea5c52;
+  border-radius: 40px;
+  z-index: 2;
+}
+
+.form_emoji-input:checked + .form_emoji-label {
+  background: linear-gradient(270deg, rgba(211, 42, 30, 0.25) 0%, rgba(211, 42, 30, 0.2) 100%);
+  /* color: #ffffff; */
+}
+
+.form_emoji-submit {
+  width: 100%;
+  color: #ffffff;
+  font-size: 16px;
+  line-height: 30px;
+  background: linear-gradient(270deg, #D32A1E 0%, #EB5E54 100%);
+  box-shadow: 0px 2px 20px rgba(113, 7, 7, 0.25);
+  border-radius: 40px;  
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.form_emoji-submit:hover {
+  background: linear-gradient(270deg, rgba(211, 42, 30, 0.25) 0%, rgba(211, 42, 30, 0.2) 100%);
+  color:#ea5c52;
+}
+
+.form_emoji-submit:active {
+  background: linear-gradient(#ffffff 0 0) padding-box, /*this is your white background*/ linear-gradient(to right, rgba(235, 94, 84, 1), rgba(211, 42, 30, 1)) border-box;
+  border: 1px solid transparent;
+  border-radius: 40px;
+}
+
+@media (max-width: 830px) {
+  .new-level {
+    width: 80vw;
+  }
+
+  .form_emoji {
+    width: 70vw;
+  }
+
+  .form_emoji-box {
+    width: 70vw;
+  }
+  
+}

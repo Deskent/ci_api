@@ -89,7 +89,8 @@ async def create_users(data: list[dict] = None):
                 'is_active': True,
                 'is_verified': True,
                 'rate_id': 2,
-                'expired_at': datetime.now() + timedelta(days=30)
+                'expired_at': datetime.now() + timedelta(days=30),
+                'level': 7
             },
             {
                 'username': "test2",
