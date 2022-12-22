@@ -3,155 +3,170 @@
 
 {% block profile_content %}
     <section class="profile-content container">
-            <div class="profile-content__row">
-                <div class="profile-content__profile user-profile">
-                    <div class="user-profile__info">
-                        <div class="user-profile__image-wrapper">
-                            <img class="user-profile__img" id="resizer-demo" src="/media/avatars/{{ avatar.file_name }}" width="80px" height="80px" alt="">
+        <div class="profile-content__row">
+            <div class="profile-content__profile user-profile">
+                <div class="user-profile__info">
+                    <div class="user-profile__image-wrapper">
+                        <img class="user-profile__img" id="resizer-demo"
+                             src="/media/avatars/{{ avatar.file_name }}" width="80px" height="80px"
+                             alt="">
 
 
-                            <form class="user-profile__img-form" method="POST" enctype="multipart/form-data">
-                                <input class="user-profile__img-input" id="avatar" type="file" accept="image/png, image/jpg" name="avatar">
-                                <input type="submit" class="user-profile__img-submit">
-                            </form>
+                        <form class="user-profile__img-form" method="POST"
+                              enctype="multipart/form-data">
+                            <input class="user-profile__img-input" id="avatar" type="file"
+                                   accept="image/png, image/jpg" name="avatar">
+                            <input type="submit" class="user-profile__img-submit">
+                        </form>
 
-                            <button class="vanilla-result">Сохранить</button>
-                            <button class="vanilla-rotate" data-deg="-90">Повернуть</button>
-                            <div class="user-profile__image-icon-box">
-                                <img class="user-profile__image-icon" src="/static/img/icons/photo.svg" width="30px" height="30px" alt="photo-icon">
-                            </div>
-                        </div>
-                        <div class="user-profile__contacts">
-                            <div class="user-profile__name user-profile__name_input">
-                                {{ user.username }} {{ user.last_name }}
-                            </div>
-                            <div class="user-profile__phone">
-                                {{ user_present_phone }}
-                            </div>
+                        <button class="vanilla-result">Сохранить</button>
+                        <button class="vanilla-rotate" data-deg="-90">Повернуть</button>
+                        <div class="user-profile__image-icon-box">
+                            <img class="user-profile__image-icon" src="/static/img/icons/photo.svg"
+                                 width="30px" height="30px" alt="photo-icon">
                         </div>
                     </div>
-
-                    {% include 'messages/error_message.html' %}
-                    {% include 'messages/success_message.html' %}
-
-                    <form action="/edit_profile" method="GET" class="user-profile__form">
-                        <button type="submit"
-                                class="user-profile__btn">
-                            Редактировать профиль
-                        </button>
-                    </form>
-
-                    <div class="user-profile__card profile-card">
-                        <div class="profile-card__info">
-                            <div class="profile-card__icon"><img
-                                    src="/static/img/icons/credit-card.svg"
-                                    alt=""></div>
-                            <div class="profile-card__number">Ваш тариф: <span class="profile-card__tarrif">{{ rate.name }}</span></div>
+                    <div class="user-profile__contacts">
+                        <div class="user-profile__name user-profile__name_input">
+                            {{ user.username }} {{ user.last_name }}
                         </div>
-                        <div class="profile-card__title">
-                            {{ user.expired_at }}
+                        <div class="user-profile__phone">
+                            {{ user_present_phone }}
                         </div>
-
-
-                        <a href="/subscribe" class="profile-card__link">Подробнее</a>
                     </div>
                 </div>
-                <div class="profile-content__flex">
-                    <div class="profile-content__progress profile-progress">
-                        <div class="profile-progress__title">
-                            Ваш прогресс
-                        </div>
-                        <div class="profile-progress__circle_bg">
-                            <div class="profile-progress__circle">
-                                <div class="profile-progress__circle_info">
-                                    <span class="bigRed">{{ user.level }}</span><span>/{{ max_level }}</span>
-                                    <span class="profile-progress__level">Уровень</span>
-                                </div>
-                            </div>
-                        </div>
+
+                {% include 'messages/error_message.html' %}
+                {% include 'messages/success_message.html' %}
+
+                <form action="/edit_profile" method="GET" class="user-profile__form">
+                    <button type="submit"
+                            class="user-profile__btn">
+                        Редактировать профиль
+                    </button>
+                </form>
+
+                <div class="user-profile__card profile-card">
+                    <div class="profile-card__info">
+                        <div class="profile-card__icon"><img
+                                src="/static/img/icons/credit-card.svg"
+                                alt=""></div>
+                        <div class="profile-card__number">Ваш тариф: <span
+                                class="profile-card__tarrif">{{ rate.name }}</span></div>
                     </div>
-                    <div class="profile-card__adapt">
-
-                        <div class="profile-card__info">
-                            <div class="profile-card__icon"><img src="/static/img/icons/credit-card.svg" alt=""></div>
-                            <div class="profile-card__number">Ваш тариф: <span class="profile-card__tarrif">{{ rate.name }}</span></div>
-                        </div>
-
-
-                        <div class="profile-card__title">
-                            {{ user.expired_at }}
-                        </div>
-
-                        <a href="/subscribe"
-                        class="profile-card__link">Подробнее</a>
+                    <div class="profile-card__title">
+                        {{ user.expired_at }}
                     </div>
+
+
+                    <a href="/subscribe" class="profile-card__link">Подробнее</a>
                 </div>
             </div>
+            <div class="profile-content__flex">
+                <div class="profile-content__progress profile-progress">
+                    <div class="profile-progress__title">
+                        Ваш прогресс
+                    </div>
+                    <div class="profile-progress__circle_bg">
+                        <div class="profile-progress__circle">
+                            <div class="profile-progress__circle_info">
+                                <span class="bigRed">{{ user.level }}</span><span>/{{ max_level }}</span>
+                                <span class="profile-progress__level">Уровень</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-card__adapt">
 
-            <div class="new-level-box hidden">
-                <div class="new-level">
-                    <button type="button" class="new-level__close">
-                        <img src="/static/img/icons/close.svg" width="20px" height="20px" alt="close-icon"/>
-                    </button>
-                    <p class="new-level_header">Поздравляем Вы зарегистрировались!</p>
-                    <p class="new-level_description">7 дней бесплатно</p>
+                    <div class="profile-card__info">
+                        <div class="profile-card__icon"><img src="/static/img/icons/credit-card.svg"
+                                                             alt=""></div>
+                        <div class="profile-card__number">Ваш тариф: <span
+                                class="profile-card__tarrif">{{ rate.name }}</span></div>
+                    </div>
 
-                    <div class="slide__wrapper">
 
-                        <video id="" class="hello-video" src="/media/hello.mp4" poster="/static/img/hello-video-poster.jpg"
-{#                               controls#}
-                        >
+                    <div class="profile-card__title">
+                        {{ user.expired_at }}
+                    </div>
 
-                        </video>
+                    <a href="/subscribe"
+                       class="profile-card__link">Подробнее</a>
+                </div>
+            </div>
+        </div>
 
-                        <button data-id="" class="slide__play">
-                            <img data-id=""
+        <div class="new-level-box hidden">
+            <div class="new-level">
+                <button type="button" class="new-level__close">
+                    <img src="/static/img/icons/close.svg" width="20px" height="20px"
+                         alt="close-icon"/>
+                </button>
+                <p class="new-level_header">Поздравляем Вы зарегистрировались!</p>
+                <p class="new-level_description">7 дней бесплатно</p>
+
+                <div class="slide__wrapper">
+
+                    <video id="" class="hello-video" src="/media/hello.mp4"
+                           poster="/static/img/hello-video-poster.jpg"
+                            {#                               controls#}
+                    >
+
+                    </video>
+
+                    <button data-id="" class="slide__play">
+                        <img data-id=""
                              src="/static/img/icons/video-play-btn.svg" width="20px"
                              height="20px" alt="">
-                        </button>
+                    </button>
 
-                        <button data-id="" class="slide__pause hidden">
-                            <img data-id=""
-                                src="/static/img/icons/video-pause-btn.svg" width="20px"
-                                height="20px" alt="">
-                        </button>
+                    <button data-id="" class="slide__pause hidden">
+                        <img data-id=""
+                             src="/static/img/icons/video-pause-btn.svg" width="20px"
+                             height="20px" alt="">
+                    </button>
 
-                    </div>
+                </div>
 
-                    <div class="form_emoji-box">
-                        <form class="form_emoji" method="POST" >
-                            <div class="form_emoji-box-input">
-                                <span class="form_emoji__img">&#128545;</span>
-                                <input class="form_emoji-input" type="radio" id="emoji" name="mood" value="" checked>
-                                <label class="form_emoji-label" for="emoji"></label>
-                            </div>
-                            <div class="form_emoji-box-input">
-                                <span class="form_emoji__img">&#128577;</span>
-                                <input class="form_emoji-input" type="radio" id="emoji" name="mood" value="">
-                                <label class="form_emoji-label" for="emoji"></label>
+                <div class="form_emoji-box">
+                    <form class="form_emoji" method="POST">
+                        <div class="form_emoji-box-input">
+                            <span class="form_emoji__img">&#128545;</span>
+                            <input class="form_emoji-input" type="radio" id="emoji" name="mood"
+                                   value="" checked>
+                            <label class="form_emoji-label" for="emoji"></label>
+                        </div>
+                        <div class="form_emoji-box-input">
+                            <span class="form_emoji__img">&#128577;</span>
+                            <input class="form_emoji-input" type="radio" id="emoji" name="mood"
+                                   value="">
+                            <label class="form_emoji-label" for="emoji"></label>
 
-                            </div>
-                            <div class="form_emoji-box-input">
-                                <span class="form_emoji__img">&#129296;</span>
-                                <input class="form_emoji-input" type="radio" id="emoji" name="mood" value="">
-                                <label class="form_emoji-label" for="emoji"></label>
-                            </div>
-                            <div class="form_emoji-box-input">
-                                <span class="form_emoji__img">&#128512;</span>
-                                <input class="form_emoji-input" type="radio" id="emoji" name="mood" value="">
-                                <label class="form_emoji-label" for="emoji"></label>
-                            </div>
-                            <div class="form_emoji-box-input">
-                                <span class="form_emoji__img">&#129392;</span>
-                                <input class="form_emoji-input" type="radio" id="emoji" name="mood" value="">
-                                <label class="form_emoji-label" for="emoji"></label>
-                            </div>
+                        </div>
+                        <div class="form_emoji-box-input">
+                            <span class="form_emoji__img">&#129296;</span>
+                            <input class="form_emoji-input" type="radio" id="emoji" name="mood"
+                                   value="">
+                            <label class="form_emoji-label" for="emoji"></label>
+                        </div>
+                        <div class="form_emoji-box-input">
+                            <span class="form_emoji__img">&#128512;</span>
+                            <input class="form_emoji-input" type="radio" id="emoji" name="mood"
+                                   value="">
+                            <label class="form_emoji-label" for="emoji"></label>
+                        </div>
+                        <div class="form_emoji-box-input">
+                            <span class="form_emoji__img">&#129392;</span>
+                            <input class="form_emoji-input" type="radio" id="emoji" name="mood"
+                                   value="">
+                            <label class="form_emoji-label" for="emoji"></label>
+                        </div>
 
-                            <input class="form_emoji-submit" type="submit"  value="Отправить настроение">
-                        </form>
-                    </div>
-
+                        <input class="form_emoji-submit" type="submit" value="Отправить настроение">
+                    </form>
+                </div>
 
             </div>
+        </div>
     </section>
 {% endblock profile_content %}
