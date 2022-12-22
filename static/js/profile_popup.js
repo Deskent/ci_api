@@ -39,6 +39,7 @@ if (urlPath.includes("profile")) {
 
 
       if(newUser === true) {
+        formEmojiBox.remove();
         openModalNewLevelHandler();
         helloVideoPlay?.addEventListener("click", (evt) => {
           helloVideoPlay?.classList.add("hidden");
