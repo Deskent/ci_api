@@ -192,7 +192,7 @@ class UserCrud(AdminCrud):
 
     async def set_subscribe_to(self, days: int, user: User = None,  id_: int = None) -> User:
         if await self._get_instance(user, id_):
-            if not user.expired_at or await self.is_expired(self.user):
+            if not user.expired_at or await self.check_is_active(self.user):
                 user.expired_at = get_current_datetime()
             user.expired_at += timedelta(days=days)
             user.is_active = True
@@ -216,9 +216,12 @@ class UserCrud(AdminCrud):
             self.user.avatar = avatar_id
             return await self.save(self.user)
 
-    async def is_expired(self, user: User = None,  id_: int = None) -> bool:
+    async def check_is_active(self, user: User = None, id_: int = None) -> bool:
         if await self._get_instance(user, id_):
-            return user.expired_at and user.expired_at.date() < get_current_datetime().date()
+            if user.expired_at and user.expired_at.date() < get_current_datetime().date():
+                user.is_active = False
+                user: User = await self.save(user)
+            return user.is_active
 
     async def is_first_entry_today(self, user: User = None,  id_: int = None) -> bool:
         """Return True if it first user entry today else False"""
