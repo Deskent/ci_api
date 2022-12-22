@@ -25,6 +25,7 @@ class Database(BaseSettings):
 
 class Settings(BaseSettings):
     DOCS_URL: str | None = None
+    ADMIN_URL: str | None = None
     SMS_TOKEN: str
     EMAIL_LOGIN: EmailStr
     EMAIL_PASSWORD: str
@@ -34,6 +35,7 @@ class Settings(BaseSettings):
     MAIL_SSL_TLS: bool
     SECRET: str
     HASH_ALGORITHM: str
+
     NOTIFICATION_HOUR: int = 14
     DEBUG: bool = False
     BASE_DIR: Path = None
@@ -53,6 +55,16 @@ class Settings(BaseSettings):
         env_file = ".env"
 
 
+class SiteMeta(BaseSettings):
+    SITE_URL: str = 'http://127.0.0.1:8000'
+    COMPANY_EMAIL: str = 'company@email.com'
+    COMPANY_PHONE: str = '9992223344'
+    VK_LINK: str = 'vk.com'
+    YOUTUBE_LINK: str = 'youtube.com'
+    GOOGLE_PLAY_LINK: str = 'https://www.google.com'
+    APP_STORE_LINK: str = 'https://www.apple.com'
+
+
 class Prodamus(BaseSettings):
     PRODAMUS_SYS_KEY: str
     NOTIFICATION_URL: str
@@ -67,6 +79,7 @@ env_file = BASE_DIR / '.env'
 db = Database(_env_file=env_file, _env_file_encoding='utf-8')
 settings = Settings(_env_file=env_file, _env_file_encoding='utf-8')
 prodamus = Prodamus(_env_file=env_file, _env_file_encoding='utf-8')
+site = SiteMeta(_env_file=env_file, _env_file_encoding='utf-8')
 
 settings.BASE_DIR = BASE_DIR
 settings.TEMPLATES_DIR = settings.TEMPLATES_DIR if settings.TEMPLATES_DIR else settings.BASE_DIR / 'templates'

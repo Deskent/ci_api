@@ -1,9 +1,9 @@
 from exc.exceptions import UserNotFoundErrorApi
-from models.models import User, Video, Complex
+from database.models import User, Video, Complex
 from services.complexes_and_videos import is_video_viewed_before, check_level_up
 from crud_class.crud import CRUD
 from services.utils import convert_to_minutes
-from services.web_context_class import WebContext
+from misc.web_context_class import WebContext
 
 
 async def get_viewed_video_response(user: User, video_id: int, context: dict) -> WebContext:
@@ -35,7 +35,7 @@ async def get_viewed_video_response(user: User, video_id: int, context: dict) ->
     old_user_level: int = user.level
     new_user: User = await check_level_up(user)
     if new_user.level <= old_user_level:
-        current_complex: Complex = await Complex.get_by_id(user.current_complex)
+        current_complex: Complex = await CRUD.complex.get_by_id(user.current_complex)
         web_context.context.update(current_complex=current_complex)
         web_context.redirect = f"/startCharging/{next_video_id}"
         return web_context
@@ -54,7 +54,7 @@ async def get_viewed_complex_response(
     result = {"level_up": False}
     if not await CRUD.viewed_complex.is_viewed_complex(user_id=user.id, complex_id=complex_id):
         await CRUD.viewed_complex.add_viewed(user_id=user.id, complex_id=complex_id)
-        next_complex: Complex = await CRUD.complex.get_next_complex(user.current_complex)
+        next_complex: Complex = await CRUD.complex.next_complex(user.current_complex)
         user: User = await CRUD.user.level_up(user)
         next_complex_duration: int = convert_to_minutes(next_complex.duration)
         result.update(

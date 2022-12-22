@@ -2,7 +2,7 @@ from fastapi import Request
 from sqladmin.authentication import AuthenticationBackend
 
 from config import settings, logger
-from models.models import Administrator
+from database.models import Administrator
 from services.depends import check_admin_credentials
 from crud_class.crud import CRUD
 from services.user import validate_logged_user_data

@@ -1,11 +1,11 @@
 from fastapi import Depends, APIRouter
 from starlette.responses import HTMLResponse, FileResponse
 
-from models.models import User
-from services.web_context_class import WebContext
+from database.models import User
+from misc.web_context_class import WebContext
 from web_service.handlers.form_checks_report import form_payments_report
 from web_service.utils.payments_context import check_payment_result
-from web_service.utils.get_contexts import get_logged_user_context, get_user_browser_session, \
+from web_service.utils.get_contexts import get_user_browser_session, \
     get_profile_page_context
 from config import settings
 

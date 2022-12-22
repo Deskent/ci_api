@@ -1,9 +1,9 @@
 from typing import AsyncGenerator
 
-import asyncpg
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
 from sqlmodel import SQLModel
+from sqlmodel.engine.result import Result
 
 from config import db, logger, settings
 
@@ -39,3 +39,23 @@ async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
         raise
     finally:
         await session.close()
+
+
+async def get_session_response(query) -> Result:
+    result = None
+    async for session in get_db_session():
+        result = await session.execute(query)
+
+    return result
+
+
+async def get_all(query) -> list:
+    result = await get_session_response(query)
+
+    return result.scalars().all()
+
+
+async def get_first(query):
+    result = await get_session_response(query)
+
+    return result.scalars().first()

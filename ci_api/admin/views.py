@@ -8,13 +8,11 @@ from admin.auth import authentication_backend
 from admin.utils import upload_file
 from config import logger, settings
 from database.db import engine
-from models.models import (
+from database.models import (
     User, Video, Complex, Rate, Administrator, Payment, PaymentCheck, Avatar, Mood
 )
 from schemas.complexes_videos import VideoUpload
 from services.utils import convert_seconds_to_time
-
-ADMIN_URL = "/ci_admin"
 
 
 def date_format(value):
@@ -222,7 +220,7 @@ def get_admin(app: FastAPI) -> FastAPI:
     admin = Admin(
         app,
         engine,
-        base_url=ADMIN_URL,
+        base_url=settings.ADMIN_URL,
         authentication_backend=authentication_backend,
         templates_dir=settings.TEMPLATES_DIR / 'admin'
     )

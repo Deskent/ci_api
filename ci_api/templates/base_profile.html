@@ -12,7 +12,9 @@
                     <div class="header-menu__user">
                         <a href="/profile">
                             <div class="header-menu__icon">
-                                <img class="header-menu__img" src="/media/avatars/{{ avatar.file_name }}" width="50" height="50" alt="">
+                                <img class="header-menu__img"
+                                     src="/media/avatars/{{ avatar.file_name }}" width="50"
+                                     height="50" alt="">
                             </div>
                             <div class="header-menu__name">
                                 {{ username }}
@@ -47,7 +49,7 @@
                 </div>
                 <div class="profile-header__acc">
                     <div class="profile-header__logo">
-                        <a href="{{ icon_link }}" class="footer__logo">
+                        <a href="/index" class="footer__logo">
                             <img src="/static/img/icons/acc__home.svg" alt="">
                         </a>
                     </div>
@@ -57,7 +59,9 @@
                     <div class="profile-header__user header-user">
                         <a href="/profile">
                             <div class="header-user__icon">
-                                <img class="header-user__icon-img" src="/media/avatars/{{ avatar.file_name }}" width="40" height="40" alt="">
+                                <img class="header-user__icon-img"
+                                     src="/media/avatars/{{ avatar.file_name }}" width="40"
+                                     height="40" alt="">
                             </div>
                             <div class="header-user__info">
                                 <div class="header-user__name">{{ user.username }} {{ user.last_name }}</div>
@@ -85,12 +89,10 @@
             <menu class="profile-menu">
                 <div class="container">
                     <div class="profile-menu__grid">
-                        {% if user.is_active %}
-                            <a href="/complexes_list"
-                               class="profile-menu__link fla {{ "active" if request.url.path == "/complexes_list" or "videos_list" in request.url.path else "" }}">
-                                Зарядка
-                            </a>
-                        {% endif %}
+                        <a href="/complexes_list"
+                           class="profile-menu__link fla {{ "active" if request.url.path == "/complexes_list" or "videos_list" in request.url.path else "" }}">
+                            Зарядка
+                        </a>
                         <a href="/profile"
                            class="profile-menu__link prof {{ "active" if "profile" in request.url.path else "" }}">
                             Профиль

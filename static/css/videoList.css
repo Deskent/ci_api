@@ -1,3 +1,13 @@
+.lock {
+  opacity: 0.6;
+  filter: grayscale(0.3);
+}
+
+.lock-video {
+  opacity: 0.3;
+  filter: grayscale(0.5);
+}
+
 .videos__list-contetn {
   width: 100%;
   height: 100%;
@@ -232,7 +242,6 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  background-image: url(/media/avatars/1.jpg);
   background-repeat: no-repeat;
   background-size: cover;
 }

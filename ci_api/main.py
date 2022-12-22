@@ -1,3 +1,5 @@
+# raise ValueError('НАПИШИ ТЕСТЫ')
+
 import datetime
 
 import uvicorn
@@ -9,12 +11,12 @@ from starlette.middleware.sessions import SessionMiddleware
 from admin.utils import create_default_admin
 from admin.views import get_admin
 from config import settings, MAX_LEVEL, logger
-from create_data import create_fake_data, recreate_db
+from create_data import create_fake_data, recreate_db, create_default_data
 from exc.exceptions import UserNotLoggedError, ComeTomorrowException
-from models.models import User
+from database.models import User
 from routers import main_router
-from services.notification_scheduler import create_notifications_for_not_viewed_users
-from services.web_context_class import WebContext
+from misc.notification_scheduler import create_notifications_for_not_viewed_users
+from misc.web_context_class import WebContext
 from web_service.router import router as web_router
 from web_service.utils.get_contexts import (
     get_base_context, get_browser_session_token, get_session_user, get_logged_user_context
@@ -44,6 +46,7 @@ def get_application():
         await recreate_db()
         await create_default_admin()
         await create_fake_data()
+        await create_default_data()
         scheduler.start()
 
     @app.on_event('shutdown')
@@ -92,7 +95,6 @@ def get_application():
 
     app: FastAPI = get_admin(app)
     app.add_middleware(SessionMiddleware, secret_key=settings.SECRET)
-
     return app
 
 

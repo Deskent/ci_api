@@ -7,7 +7,7 @@ from loguru import logger
 from starlette import status
 
 from config import MAX_VIDEO, settings
-from models.models import Video, Complex, Administrator
+from database.models import Video, Complex, Administrator
 from schemas.complexes_videos import VideoUpload
 from crud_class.crud import CRUD
 
@@ -106,5 +106,5 @@ async def create_default_admin() -> None:
             data.append(settings.DEFAULT_ADMIN)
 
         for elem in data:
-            await Administrator().create(elem)
+            await CRUD.admin.create(elem)
         logger.info("Admin created.")

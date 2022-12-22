@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status
 
 from exc.exceptions import ComplexNotFoundError
-from models.models import User, Complex, Video, ViewedComplex
+from database.models import User, Complex, Video, ViewedComplex
 from schemas.complexes_videos import ComplexData, ComplexesListWithViewedAndNot
 from schemas.user_schema import UserProgress, UserOutput
 from services.complexes_web_context import get_complexes_list_web_context, \
@@ -9,7 +9,7 @@ from services.complexes_web_context import get_complexes_list_web_context, \
 from services.depends import get_logged_user
 from crud_class.crud import CRUD
 from services.videos_methods import get_viewed_complex_response
-from services.web_context_class import WebContext
+from misc.web_context_class import WebContext
 
 router = APIRouter(prefix="/complex", tags=['Complexes'])
 

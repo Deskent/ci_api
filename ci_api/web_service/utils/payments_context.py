@@ -3,12 +3,12 @@ import datetime
 from loguru import logger
 
 from exc.exceptions import RateNotFound
-from exc.payment.pay_exceptions import PaymentServiceError, SubscribeExistsError
-from models.models import User, Rate, Payment
+from exc.pay_exceptions import PaymentServiceError, SubscribeExistsError
+from database.models import User, Rate, Payment
 from crud_class.crud import CRUD
 from services.utils import get_current_datetime
-from services.web_context_class import WebContext
-from web_service.services.send_payment_request import get_payment_link
+from misc.web_context_class import WebContext
+from misc.send_payment_request import get_payment_link
 from web_service.utils.get_contexts import present_user_expired_at_day_and_month
 
 
@@ -50,7 +50,7 @@ async def get_subscribe_by_rate_id(
 
     rate: Rate = await CRUD.rate.get_by_id(rate_id)
 
-    if await Payment.get_by_user_and_rate_id(user_id=user.id, rate_id=rate.id):
+    if await CRUD.payment.get_by_user_and_rate_id(user_id=user.id, rate_id=rate.id):
         web_context.error = SubscribeExistsError.detail
         web_context.template = "subscribe.html"
         web_context.to_raise = SubscribeExistsError
@@ -109,13 +109,13 @@ async def check_payment_result(
         user.rate_id = rate_id
         user.is_active = True
         user.expired_at = get_current_datetime() + datetime.timedelta(days=30)
-        await user.save()
+        await CRUD.user.save(user)
 
         payment: Payment = Payment(
             payment_id=payform_id, payment_sign=payform_sign,
             user_id=user.id, rate_id=user.rate_id
         )
-        await payment.save()
+        await CRUD.payment.save(payment)
 
     user.expired_at = present_user_expired_at_day_and_month(user.expired_at)
     web_context.api_data.update(payload=user)
@@ -132,21 +132,20 @@ async def get_cancel_subscribe_context(context: dict) -> WebContext:
         return web_context
 
     if user.is_active:
-        user: User = await user.deactivate()
+        user: User = await CRUD.user.deactivate(user)
 
-    payment: Payment = await Payment.get_by_user_and_rate_id(user_id=user.id, rate_id=user.rate_id)
+    payment: Payment = await CRUD.payment.get_by_user_and_rate_id(user_id=user.id, rate_id=user.rate_id)
     if payment:
         logger.info(f"Payment for {user.email}: {user.rate_id} wille be deleted.")
-        await payment.delete()
+        await CRUD.payment.delete(payment)
 
-    free_rate: Rate = await Rate.get_free()
+    free_rate: Rate = await CRUD.rate.get_free()
     user.rate_id = free_rate.id
     user.expired_at = None
-    user: User = await user.save()
+    user: User = await CRUD.user.save(user)
 
     # TODO отписываться!!!
     web_context.template = "cancel_subscribe.html"
     web_context.api_data.update(payload=user)
 
     return web_context
-

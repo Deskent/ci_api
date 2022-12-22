@@ -5,10 +5,10 @@ import xlsxwriter
 from loguru import logger
 
 from config import settings
-from models.models import PaymentCheck, User, Rate
+from database.models import PaymentCheck, User, Rate
 from crud_class.crud import CRUD
 from services.utils import to_isoformat
-from services.web_context_class import WebContext
+from misc.web_context_class import WebContext
 
 
 async def form_payments_report(

@@ -53,7 +53,7 @@
                         </div>
 
 
-                        <a href="{{ subscribe_info }}" class="profile-card__link">Подробнее</a>
+                        <a href="/subscribe" class="profile-card__link">Подробнее</a>
                     </div>
                 </div>
                 <div class="profile-content__flex">
@@ -81,11 +81,73 @@
                         <div class="profile-card__title">
                             {{ user.expired_at }}
                         </div>
-                        
-                        <a href="{{ subscribe_info }}"
+
+                        <a href="/subscribe"
                         class="profile-card__link">Подробнее</a>
                     </div>
                 </div>
+            </div>
+
+            <div class="new-level-box hidden">
+                <div class="new-level">
+                    <button type="button" class="new-level__close">
+                        <img src="/static/img/icons/close.svg" width="20px" height="20px" alt="close-icon"/>
+                    </button>
+                    <p class="new-level_header">Поздравляем Вы зарегистрировались!</p>
+                    <p class="new-level_description">7 дней бесплатно</p>
+                        
+                    <div class="slide__wrapper">
+
+                        <video id="" class="hello-video" src="/media/hello.mp4" poster="/static/img/hello-video-poster.jpg" controls></video>
+
+                        <button data-id="" class="slide__play">
+                            <img data-id=""
+                             src="/static/img/icons/video-play-btn.svg" width="20px"
+                             height="20px" alt="">
+                        </button>
+    
+                        <button data-id="" class="slide__pause hidden">
+                            <img data-id=""
+                                src="/static/img/icons/video-pause-btn.svg" width="20px"
+                                height="20px" alt="">
+                        </button>
+
+                    </div>
+
+                    <div class="form_emoji-box">
+                        <form class="form_emoji" method="POST" >
+                            <div class="form_emoji-box-input">
+                                <span class="form_emoji__img">&#128545;</span>
+                                <input class="form_emoji-input" type="radio" id="emoji" name="mood" value="" checked>
+                                <label class="form_emoji-label" for="emoji"></label>
+                            </div>
+                            <div class="form_emoji-box-input">
+                                <span class="form_emoji__img">&#128577;</span>
+                                <input class="form_emoji-input" type="radio" id="emoji" name="mood" value="">
+                                <label class="form_emoji-label" for="emoji"></label>
+
+                            </div>
+                            <div class="form_emoji-box-input">
+                                <span class="form_emoji__img">&#129296;</span>
+                                <input class="form_emoji-input" type="radio" id="emoji" name="mood" value="">
+                                <label class="form_emoji-label" for="emoji"></label>
+                            </div>
+                            <div class="form_emoji-box-input">
+                                <span class="form_emoji__img">&#128512;</span>
+                                <input class="form_emoji-input" type="radio" id="emoji" name="mood" value="">
+                                <label class="form_emoji-label" for="emoji"></label>
+                            </div>
+                            <div class="form_emoji-box-input">
+                                <span class="form_emoji__img">&#129392;</span>
+                                <input class="form_emoji-input" type="radio" id="emoji" name="mood" value="">
+                                <label class="form_emoji-label" for="emoji"></label>
+                            </div>
+
+                            <input class="form_emoji-submit" type="submit"  value="Отправить настроение"> 
+                        </form>
+                    </div>
+
+
             </div>
     </section>
 {% endblock profile_content %}
