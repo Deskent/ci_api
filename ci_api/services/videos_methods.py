@@ -54,7 +54,7 @@ async def get_viewed_complex_response(
     result = {"level_up": False}
     if not await CRUD.viewed_complex.is_viewed_complex(user_id=user.id, complex_id=complex_id):
         await CRUD.viewed_complex.add_viewed(user_id=user.id, complex_id=complex_id)
-        next_complex: Complex = await CRUD.complex.next_complex(user.current_complex)
+        next_complex: Complex = await CRUD.complex.get_next_complex_by_id(user.current_complex)
         user: User = await CRUD.user.level_up(user)
         next_complex_duration: int = convert_to_minutes(next_complex.duration)
         result.update(
