@@ -81,16 +81,16 @@ if (urlPath.includes("profile")) {
           let inputId;
           for (let input of formEmojiInput) {
             if(input.checked) {
-              inputId = input.id;
+              inputId = Number(input.id);
             }
           };
-          // console.log(typeof inputId);
+          console.log(inputId);
 
           const request = fetch(serverUrl + '/web/set_user_mood', {
             method: 'POST',
-            body: {
+            body: JSON.stringify({
               'mood_id': inputId,
-            },
+            }),
             headers: {
               'Content-Type': 'application/json;charset=utf-8',
             }
