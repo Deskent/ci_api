@@ -33,16 +33,9 @@ async def test_crud_get_alarm_by_id():
 
 
 async def test_crud_set_subscribe_to(get_user):
-    user: User = await CRUD.user.set_subscribe_to(-100, get_user)
-    user: User = await CRUD.user.set_subscribe_to(5, user)
+    user: User = await CRUD.user.set_subscribe_to(5, get_user)
     assert user.expired_at.date() == (
             datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(days=5)).date()
-    user: User = await CRUD.user.set_subscribe_to(5, user)
-    assert user.expired_at.date() == (
-            datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(days=10)).date()
-    user: User = await CRUD.user.set_subscribe_to(5, user)
-    assert user.expired_at.date() == (
-            datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(days=15)).date()
 
 
 async def test_crud_set_last_entry_today(get_user):
@@ -64,9 +57,9 @@ async def test_user_set_avatar(get_user):
     assert user.avatar == avatar.id
 
 
-async def test_is_expired(get_user):
+async def test_check_is_active(get_user):
     user: User = await CRUD.user.set_subscribe_to(-1, user=get_user)
-    assert await CRUD.user.is_expired(user)
+    assert await CRUD.user.check_is_active(user) == False
 
 
 async def test_user_is_first_entry_today(get_user):

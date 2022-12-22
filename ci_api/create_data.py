@@ -90,7 +90,7 @@ async def create_users(data: list[dict] = None):
                 'is_verified': True,
                 'rate_id': 2,
                 'expired_at': datetime.now() + timedelta(days=30),
-                'level': 7
+                # 'level': 7
             },
             {
                 'username': "test2",
@@ -325,7 +325,7 @@ async def create_default_data():
     ]
     videos: list[Video] = await CRUD.video.get_all()
     if not videos:
-        if not CRUD.complex.get_all():
+        if not await CRUD.complex.get_all():
             await create_complexes(complex_data)
         await create_videos(videos_data)
     if not await CRUD.video.get_hello_video():
@@ -342,6 +342,7 @@ if __name__ == '__main__':
     async def make(flag, drop):
         await recreate_db(drop)
         await create_fake_data(flag)
+        await create_default_data()
 
 
     flag = True

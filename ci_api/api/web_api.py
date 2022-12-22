@@ -74,12 +74,6 @@ async def check_first_entry_or_new_user(
     :return: JSON
     """
 
-    if await CRUD.user.is_first_entry_today(user) and user.is_active and user.level > 6:
-        emojies: list[Mood] = await CRUD.mood.get_all()
-        user: User = await CRUD.user.set_last_entry_today(user)
-
-        return EntryModalWindow(
-            user=user, emojies=emojies, today_first_entry=True)
 
     if await CRUD.user.is_new_user(user):
         user: User = await CRUD.user.set_last_entry_today(user)
@@ -88,9 +82,15 @@ async def check_first_entry_or_new_user(
 
         return EntryModalWindow(user=user, new_user=True, hello_video=hello_video)
 
-    user: User = await CRUD.user.set_last_entry_today(user)
-    if await CRUD.user.is_expired(user):
-        return EntryModalWindow(user=user, is_expired=True)
+    if await CRUD.user.is_first_entry_today(user):
+        user: User = await CRUD.user.set_last_entry_today(user)
+        if not await CRUD.user.check_is_active(user):
+            return EntryModalWindow(user=user, is_expired=True)
+        elif user.level > 6:
+            emojies: list[Mood] = await CRUD.mood.get_all()
+
+            return EntryModalWindow(
+                user=user, emojies=emojies, today_first_entry=True)
 
     return EntryModalWindow(user=user)
 
