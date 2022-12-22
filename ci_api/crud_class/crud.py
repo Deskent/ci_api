@@ -355,7 +355,7 @@ class ViewedComplexCrud(BaseCrud):
         complex_exists = await get_all(query)
         if not complex_exists:
             viewed_complex = self.model(
-                user_id=user_id, complex_id=complex_id, viewed_at=get_current_datetime()
+                user_id=user_id, complex_id=complex_id, viewed_at=datetime.now(tz=None)
             )
             return await self.save(viewed_complex)
 
