@@ -239,11 +239,11 @@ input:-internal-autofill-selected {
 
 @media (max-width: 375px) {
   .registration__label {
-    width: calc(270px + 30 * (100vw - 320px) / 55);
+    width: 100%;
   }
 
   .registration__btn {
-    width: calc(270px + 30 * (100vw - 320px) / 55);
+    width: 100%;
   }
 
   .registration__text {

@@ -22,7 +22,7 @@
                             <video id="{{ video.id }}" data-id="{{ video.id }}" class="slide lock"
                                    src="/media/{{ video.file_name }}"
                                    poster="/static/img/video-image.png"
-{#                            controls#}
+                            controls
                             >
                             </video>
                             <a href="#" data-id="{{ video.id }}" class="slide__viewed">
@@ -88,7 +88,8 @@
                     </div>
                 </div>
                 <span class="new-level__text">
-                        Завтрашний комплекс займет {{ next_complex.duration }} минут
+                        Завтрашний комплекс займет
+                    <span class="new-level__text-span">{{ next_complex.duration }}</span> минут
                     </span>
                 <button type="button" class="new-level__repeat-btn">Посмотреть еще раз</button>
             </div>

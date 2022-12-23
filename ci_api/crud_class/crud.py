@@ -448,6 +448,31 @@ class MoodCrud(BaseCrud):
     def __init__(self, model: Type[Mood]):
         super().__init__(model)
 
+    @staticmethod
+    async def _replace_code(elem: Mood):
+        if 'U+' in elem.code:
+            elem.code = elem.code.replace('U+', '0x')
+
+        return elem
+
+    async def create(self, data: dict) -> Mood:
+        if 'U+' in data['code']:
+            data['code'] = data['code'].replace('U+', '0x')
+
+        return await super().create(data)
+
+    async def get_by_id(self, id_: int) -> Mood:
+        elem: Mood = await super().get_by_id(id_)
+
+        return await self._replace_code(elem)
+
+    async def get_all(self) -> list[Mood]:
+        all_elems: list[Mood] = await super().get_all()
+        for elem in all_elems:
+            if 'U+' in elem.code:
+                elem.code = await self._replace_code(elem)
+
+        return all_elems
 
 class CRUD:
     user = UserCrud(model=User)
@@ -463,11 +488,3 @@ class CRUD:
     viewed_complex = ViewedComplexCrud(model=ViewedComplex)
     viewed_video = ViewedVideoCrud(model=ViewedVideo)
     mood = MoodCrud(model=Mood)
-
-
-if __name__ == '__main__':
-    a = datetime(2022, 12, 20, 16, 27, 37, 693788, tzinfo=timezone.utc)
-    print(a)
-    b = datetime.now(tz=timezone.utc)
-    print(b)
-    print(a < b)

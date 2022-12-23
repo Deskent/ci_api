@@ -1,4 +1,7 @@
 // Слушаем модальное окно new-level для комплекс лист
+
+const helloVideo = document?.querySelector('.hello-video');
+ 
 function closeModalNewLevelHandler() {
   modal.classList.add("hidden");
 
@@ -6,6 +9,10 @@ function closeModalNewLevelHandler() {
     for (let i = 0; i < slides.length; i++) {
       swiperButtonPrev.click();
     }
+  }
+
+  if(helloVideo) {
+    helloVideo.remove();
   }
 }
 

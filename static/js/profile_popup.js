@@ -1,4 +1,3 @@
-const helloVideo = document?.querySelector('.hello-video');
 const helloVideoWrapper = document?.querySelector('.slide__wrapper');
 const helloVideoPlay = helloVideoWrapper?.querySelector('.slide__play');
 const helloVideoPause = helloVideoWrapper?.querySelector('.slide__pause');
@@ -7,16 +6,10 @@ const formEmojiBox = document?.querySelector('.form_emoji-box');
 
 const formEmoji = modal?.querySelector('.form_emoji');
 
-
-const formEmojiBoxInput = modal?.querySelectorAll('.form_emoji-box-input');
-
-const formEmojiLabel = modal?.querySelectorAll('.form_emoji-label');
-
-const formEmojiImg = modal?.querySelectorAll('.form_emoji__img');
-
-const formEmojiInput = modal?.querySelectorAll('.form_emoji-input');
-
 const newLevelHeader = document.querySelector('.new-level_header');
+const modalSubscriptionLink = document.querySelector('.modal__subscription-link');
+
+
 
 
 if (urlPath.includes("profile")) {
@@ -35,10 +28,14 @@ if (urlPath.includes("profile")) {
         const todayFirstEntry = result.today_first_entry;
         const isExpired = result.is_expired;
         const emojies = result.emojies;
+        let emojiesLength = result.emojies.length;
+
+
 
 
         if (newUser === true) {
             formEmojiBox.remove();
+            modalSubscriptionLink.remove();
             openModalNewLevelHandler();
             helloVideoPlay?.addEventListener("click", (evt) => {
                 helloVideoPlay?.classList.add("hidden");
@@ -51,6 +48,10 @@ if (urlPath.includes("profile")) {
                 helloVideoPause?.classList.add("hidden");
                 helloVideo.pause();
             })
+            helloVideo.addEventListener('ended', (env) => {
+              helloVideoPlay?.classList.remove("hidden");
+              helloVideoPause?.classList.add("hidden");
+            })
         }
 
         if (todayFirstEntry === true) {
@@ -60,32 +61,61 @@ if (urlPath.includes("profile")) {
 
             helloVideoWrapper.remove();
             newLevelDescription.remove();
+            modalSubscriptionLink.remove();
+
 
 
             newLevelHeader.textContent = "Какое у Вас сегодня настроение?"
 
-            for (let i = 0; i < formEmojiBoxInput.length; i++) {
-                // const formEmojiBoxInput = formEmojiBoxInputArr[i];
-                const formEmojiLabelItem = formEmojiLabel[i];
-                const formEmojiInputItem = formEmojiInput[i]
+            const formEmojiBoxInput = modal?.querySelector('.form_emoji-box-input');
+            var fragment = document.createDocumentFragment();
 
-                formEmojiLabelItem.textContent = emojies[i].name;
-                formEmojiInputItem.setAttribute('id', emojies[i].id);
-                formEmojiInputItem.setAttribute('value', emojies[i].name);
-                formEmojiLabelItem.setAttribute('for', emojies[i].id);
+            for (let i = 0; i < 5; i++) {
+
+              let emojiCode = emojies[i].code;
+              let emojiCodeReplase = emojiCode.replace("U+", '0x');
+
+              //помогает отобразить emodji
+              let emoji = String.fromCodePoint(emojiCodeReplase);
+
+              if (i === 0 ) {
+                let formEmojiLabel = modal?.querySelector('.form_emoji-label');
+                let formEmojiImg = modal?.querySelector('.form_emoji__img');
+                let formEmojiInput = modal?.querySelector('.form_emoji-input');
+
+                formEmojiImg.textContent =  emoji;
+                formEmojiLabel.textContent = emojies[i].name;
+                formEmojiInput.setAttribute('id', emojies[i].id);
+                formEmojiInput.setAttribute('value', emojies[i].name);
+                formEmojiLabel.setAttribute('for', emojies[i].id);
+              } else {
+                let formEmojiBoxInputClone = formEmojiBoxInput.cloneNode(true);
+                let formEmojiLabelClone = formEmojiBoxInputClone?.querySelector('.form_emoji-label');
+                let formEmojiImgClone = formEmojiBoxInputClone?.querySelector('.form_emoji__img');
+                let formEmojiInputClone = formEmojiBoxInputClone?.querySelector('.form_emoji-input');
+                
+                  formEmojiImgClone.textContent =  emoji;
+                  formEmojiLabelClone.textContent = emojies[i].name;
+                  formEmojiInputClone.setAttribute('id', emojies[i].id);
+                  formEmojiInputClone.setAttribute('value', emojies[i].name);
+                  formEmojiLabelClone.setAttribute('for', emojies[i].id);
+                  fragment.prepend(formEmojiBoxInputClone);
+              }
             }
+
+            formEmoji.prepend(fragment);
+
+            let formEmojiInputs = modal?.querySelectorAll('.form_emoji-input');
+
 
             formEmoji.addEventListener('submit', async (evt) => {
                 evt.preventDefault();
-
                 let inputId;
-                for (let input of formEmojiInput) {
+                for (let input of formEmojiInputs) {
                     if (input.checked) {
                         inputId = Number(input.id);
                     }
                 }
-                ;
-                console.log(inputId);
 
                 const request = fetch(serverUrl + '/web/set_user_mood', {
                     method: 'POST',
@@ -99,7 +129,8 @@ if (urlPath.includes("profile")) {
 
                 let answer = await request.json;
 
-                console.log(answer);
+                // console.log(answer);
+                modal.remove();
             })
 
         }
@@ -109,7 +140,7 @@ if (urlPath.includes("profile")) {
             newLevelDescription.remove();
             helloVideoWrapper.remove();
             formEmojiBox.remove();
-            newLevelHeader.textContent = "Подписка закончилась"
+            newLevelHeader.textContent = "Продлите Вашу подписку";
         }
 
         close?.addEventListener("click", closeModalNewLevelHandler);
