@@ -17,7 +17,8 @@ async def entry_get(
         context: dict = Depends(get_profile_page_context),
 ):
     web_context = WebContext(context=context)
-    web_context.template = "profile.html"
+    web_context.redirect = "/profile"
+
     return web_context.web_render()
 
 
