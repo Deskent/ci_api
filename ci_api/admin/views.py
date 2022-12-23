@@ -85,7 +85,8 @@ class UserView(ModelView, model=User):
     column_list = [
         User.id, User.username, User.third_name, User.last_name, User.email, User.phone,
         User.expired_at, User.level, User.created_at, User.is_active,
-        User.is_verified, User.sms_message, User.sms_call_code, User.email_code, User.push_token, User.avatar
+        User.is_verified, User.sms_message, User.sms_call_code, User.email_code, User.push_token, User.avatar,
+        User.last_entry
     ]
     column_labels = {
         User.username: "Имя",
@@ -96,6 +97,7 @@ class UserView(ModelView, model=User):
         User.expired_at: "Дата окончания подписки",
         User.level: "Прогресс",
         User.created_at: "Дата регистрации",
+        User.last_entry: "Последний вход",
         User.is_active: "Подписан",
         User.is_verified: "Подтвержден",
         User.rate_id: "Тариф",
@@ -108,6 +110,7 @@ class UserView(ModelView, model=User):
     column_formatters = {
         User.expired_at: lambda m, a: date_format(m.expired_at),
         User.created_at: lambda m, a: date_format(m.created_at),
+        User.last_entry: lambda m, a: date_format(m.last_entry),
         User.gender: lambda m, a: "Male" if m.gender else "Female"
     }
     column_formatters_detail = column_formatters
