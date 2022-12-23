@@ -25,7 +25,7 @@ async def complex_viewed_web(
 ):
     """Return
 
-    if complex first time viewed, else
+    if complex first time viewed
 
         {
 
