@@ -13,6 +13,9 @@ let close = modal?.querySelector(".new-level__close");
 
 let repeatViewingBtn = modal?.querySelector(".new-level__repeat-btn");
 
+
+
+
 // Отправляем fetch-запрос после загрузки страницы complexes_list
 if (urlPath.includes("complexes_list")) {
     document.addEventListener("DOMContentLoaded", async (evt) => {
@@ -24,9 +27,12 @@ if (urlPath.includes("complexes_list")) {
         });
 
         let result = await response.json();
-        // console.log(result);
+        console.log(result);
 
         const levelUser = await result.user.level;
+
+        const isActiveUser = await result.user.is_active;
+        
         const todayComplex = result.today_complex;
         const viewedComplexes = await result.viewed_complexes;
 
@@ -48,9 +54,13 @@ if (urlPath.includes("complexes_list")) {
                 complexesListSlideArr[i + 1].querySelector(".complexes-list-slide__btn-box").classList.add("active-btn");
 
             }
+            if (isActiveUser === false) {
+                item.querySelector('.complexes-list-slide__lock-text').textContent = "Станет доступно после оформления подписки";
+            }
             if (i == todayComplex.length) {
                 item.querySelector('.complexes-list-slide__btn-text').textContent = "Посмотреть";
             }
+
 
         }
 
