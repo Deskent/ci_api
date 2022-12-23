@@ -1,4 +1,3 @@
-const helloVideo = document?.querySelector('.hello-video');
 const helloVideoWrapper = document?.querySelector('.slide__wrapper');
 const helloVideoPlay = helloVideoWrapper?.querySelector('.slide__play');
 const helloVideoPause = helloVideoWrapper?.querySelector('.slide__pause');
