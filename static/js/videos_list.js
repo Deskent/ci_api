@@ -45,6 +45,7 @@ const slideBox = document?.querySelector(".swiper-wrapper");
 const modalNewLevel = document?.querySelector('.new-level-box');
 const swiperButtonPrev = document?.querySelector(".swiper-button-prev")
 const swiperButtonNext = document?.querySelector(".swiper-button-next")
+const nextComplexDurationSpan = document?.querySelector(".new-level__text-span")
 
 
 function slideControls() {
@@ -112,7 +113,7 @@ function changesStylesViewed(evt) {
   let slideTime = slideWrapperId.querySelector('.slide__time');
   let slide = slideWrapperId?.querySelector('.slide');
 
-  
+
 
   slideTime.classList.remove("hidden");
   slideViewedHidden.classList.remove("hidden");
@@ -151,7 +152,7 @@ function changeStylesToOn(nextVideoId) {
   if (video.classList.contains("lock-video")) {
       video.classList.remove("lock-video");
   }
-  
+
   video.play();
 
   let videoNextWrapper = video.closest(".slide__card-wrapper");
@@ -237,7 +238,7 @@ function slideEnded() {
 
               let levelUpForModal = result.new_level;
               let levelUp = result.level_up;
-
+              let nextComplexDuration = result.next_complex_duration
 
               // Слушаем модальное окно new-level
               let newLevelHeaderLevel = modalNewLevel?.querySelector(".new-level_header-level");
@@ -249,10 +250,11 @@ function slideEnded() {
               if (levelUp === true) {
                   newLevelHeaderLevel.textContent = levelUpForModal;
                   bigred.textContent = levelUpForModal;
+                  nextComplexDurationSpan.textContent = nextComplexDuration;
               } else {
                   newLevelHeader.textContent = "Просмотрено повторно";
               }
-              
+
 
               openModalNewLevelHandler();
               close?.addEventListener("click", closeModalNewLevelHandler);
