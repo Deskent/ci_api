@@ -4,7 +4,7 @@ from api.web_api_utils import set_avatar_from_file_web_context
 from config import logger
 from crud_class.crud import CRUD
 from database.models import User, Mood, Video
-from schemas.complexes_videos import ComplexesListWithViewedAndNot
+from schemas.complexes_videos import ComplexesListWithViewedAndNot, ComplexViewedCheckLevelUp
 from schemas.user_schema import EntryModalWindow, UserMood
 from services.complexes_web_context import get_complexes_list_web_context
 from services.videos_methods import get_viewed_complex_response
@@ -17,12 +17,35 @@ router = APIRouter(prefix="/web", tags=['WebApi'])
 @router.get(
     "/complex_viewed/{complex_id}",
     status_code=status.HTTP_200_OK,
-    response_model=dict
+    response_model=ComplexViewedCheckLevelUp
 )
 async def complex_viewed_web(
         complex_id: int,
         user: User = Depends(get_user_browser_session)
 ):
+    """Return
+
+    if complex first time viewed, else
+
+        {
+
+            "level_up": True,
+
+            "new_level": integer - User level,
+
+            "next_complex_duration": integer - next complex duration
+
+        }
+
+    else
+
+        {
+
+            "level_up": False
+
+        }
+    """
+
     return await get_viewed_complex_response(user=user, complex_id=complex_id)
 
 

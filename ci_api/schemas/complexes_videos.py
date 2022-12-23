@@ -70,3 +70,9 @@ class ComplexesListWithViewedAndNot(BaseModel):
     viewed_complexes: list[dict]
     not_viewed_complexes: list[dict]
     today_complex: dict = {}
+
+
+class ComplexViewedCheckLevelUp(BaseModel):
+    level_up: bool = False
+    new_level: int = None
+    next_complex_duration: int = None

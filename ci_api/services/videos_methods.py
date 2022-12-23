@@ -51,6 +51,14 @@ async def get_viewed_complex_response(
         user: User,
         complex_id: int
 ) -> dict:
+    """Return {"level_up": False} if complex not first time viewed, else return
+            {
+                "level_up": True,
+                "new_level": user.level,
+                "next_complex_duration": next_complex_duration
+            }
+    """
+
     result = {"level_up": False}
     if not await CRUD.viewed_complex.is_viewed_complex(user_id=user.id, complex_id=complex_id):
         await CRUD.viewed_complex.add_viewed(user_id=user.id, complex_id=complex_id)
