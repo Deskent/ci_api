@@ -90,7 +90,21 @@ async def create_users(data: list[dict] = None):
                 'is_verified': True,
                 'rate_id': 2,
                 'expired_at': datetime.now() + timedelta(days=30),
-                # 'level': 7
+            },
+            {
+                'username': "ppp",
+                'last_name': "ppp",
+                'third_name': "ppp",
+                'phone': "1111111111",
+                'gender': 1,
+                'password': "ppp",
+                'email': "ppp@ppp.ru",
+                'is_active': True,
+                'is_verified': True,
+                'rate_id': 2,
+                'expired_at': datetime.now() + timedelta(days=1),
+                'last_entry': datetime.now() + timedelta(days=-1),
+                'level': 7
             },
             {
                 'username': "test2",
@@ -198,23 +212,23 @@ async def create_moods(data: list[dict] = None):
         data = [
             {
                 'name': 'Все бесят',
-                'code': '&#128545;'
+                'code': 'U+1F621'
             },
             {
                 'name': 'Печалька-тоска',
-                'code': '&#128577;'
+                'code': 'U+1F61E'
             },
             {
                 'name': 'Нервно-тревожно',
-                'code': '&#129296;'
+                'code': 'U+1F910'
             },
             {
                 'name': 'Бодрячок',
-                'code': '&#128512;'
+                'code': 'U+1F601'
             },
             {
                 'name': 'Всех люблю',
-                'code': '&#129392;'
+                'code': 'U+1F970'
             },
         ]
     for elem in data:

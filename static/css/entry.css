@@ -12,8 +12,20 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
   text-fill-color: transparent;
+  white-space: nowrap;
 }
 
 .entry_main {
   background-color: #fff;
+}
+@media (max-width: 430px) {
+
+  .entry__link_sms {
+    padding: 10px;
+
+  }
+
+  .entry__link_sms span {
+    font-size: 16px;
+  }
 }
