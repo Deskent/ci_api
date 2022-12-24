@@ -2,14 +2,14 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request, Body
 from pydantic import EmailStr
 
 from config import logger
-from exc.exceptions import UserNotFoundErrorApi
+from crud_class.crud import CRUD
 from database.models import User
+from exc.exceptions import UserNotFoundErrorApi
+from misc.web_context_class import WebContext
 from schemas.user_schema import UserPhoneCode, TokenUser, UserOutput, UserSchema
 from schemas.user_schema import UserRegistration, UserPhoneLogin, UserChangePassword
 from services.depends import get_logged_user
-from crud_class.crud import CRUD
 from services.user import register_new_user_web_context
-from misc.web_context_class import WebContext
 from web_service.handlers.common import user_login_via_phone
 from web_service.handlers.enter_with_sms import approve_sms_code_or_call_code, \
     update_user_token_to_web_context
@@ -97,7 +97,6 @@ async def verify_sms_code(
 
     web_context: WebContext = await approve_sms_code_or_call_code(request=request,
         context={}, phone=data.phone, code=data.code)
-    web_context: WebContext = await update_user_token_to_web_context(web_context)
     return web_context.api_render()
 
 
@@ -121,7 +120,6 @@ async def verify_call_code(
 
     web_context: WebContext = await approve_sms_code_or_call_code(request=request,
         context={}, phone=data.phone, code=data.code, check_call=True)
-    web_context: WebContext = await update_user_token_to_web_context(web_context)
     return web_context.api_render()
 
 
@@ -139,6 +137,7 @@ async def login(
     """
     web_context: WebContext = await user_login_via_phone(context={}, form_data=user_data)
     web_context: WebContext = await update_user_token_to_web_context(web_context)
+
     return web_context.api_render()
 
 
