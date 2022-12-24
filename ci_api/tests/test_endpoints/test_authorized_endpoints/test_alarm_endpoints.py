@@ -9,6 +9,11 @@ class TestAlarms(BaseTest):
         assert response.status_code == 200
 
     @pytest.mark.server
+    def test_get_alarm_without_headers(self):
+        response = self.session.get(self.base_url + f"/alarms/{self.alarm_id}")
+        assert response.status_code == 403
+
+    @pytest.mark.server
     def test_get_alarms_list(self):
         response = self.session.get(self.base_url + "/users/alarms/list", headers=self.headers)
         assert response.status_code == 200
