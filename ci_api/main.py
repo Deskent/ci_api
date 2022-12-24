@@ -7,6 +7,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 
 from admin.utils import create_default_admin
 from admin.views import get_admin
@@ -34,6 +35,16 @@ def get_application():
     )
 
     app = FastAPI(docs_url=settings.DOCS_URL, redoc_url=settings.DOCS_URL, debug=settings.DEBUG)
+
+    origins = ["*"]
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     app.mount("/static", StaticFiles(directory=str(settings.STATIC_DIR)), name="static")
     app.mount("/media", StaticFiles(directory=str(settings.MEDIA_DIR)), name="media")
