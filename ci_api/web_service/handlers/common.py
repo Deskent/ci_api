@@ -11,6 +11,7 @@ from crud_class.crud import CRUD
 from misc.web_context_class import WebContext
 from services.user import check_phone_and_password_correct
 from services.utils import generate_random_password
+from web_service.handlers.enter_with_sms import update_user_token_to_web_context
 from web_service.utils.title_context_func import get_page_titles
 from web_service.utils.get_contexts import (
     get_email_send_context, get_base_context, update_user_session_token
@@ -99,5 +100,6 @@ async def set_new_password(
     user.password = await CRUD.user.get_hashed_password(password)
     await CRUD.user.save(user)
     web_context.template = "profile.html"
+    web_context: WebContext = await update_user_token_to_web_context(web_context)
 
     return web_context
