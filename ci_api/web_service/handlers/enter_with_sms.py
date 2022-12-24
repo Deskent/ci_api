@@ -123,6 +123,9 @@ async def approve_sms_code_or_call_code(
 async def update_user_token_to_web_context(
         web_context: WebContext
 ) -> WebContext:
+    """Если нет ошибок - возвращает ответ в формате схемы TokenUser"""
+    if web_context.to_raise:
+        return web_context
     user: User = web_context.api_data['payload']
     token: str = await CRUD.user.get_user_token(user)
     logger.info(f"User with id {user.id} got Bearer token")

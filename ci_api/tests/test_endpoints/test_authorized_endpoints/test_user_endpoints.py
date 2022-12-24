@@ -23,6 +23,16 @@ class TestUsers(BaseTest):
         assert token is not None
 
     @pytest.mark.server
+    def test_login_endpoint_wrong_password(self):
+        payload = {
+            "phone": self.user_create.phone,
+            "password": "wrong_password"
+
+        }
+        response = self.session.post(self.base_url + "/auth/login", json=payload)
+        assert response.status_code == 404
+
+    @pytest.mark.server
     def test_change_password(self):
         payload = {
             "old_password": self.user_payload["password"],
