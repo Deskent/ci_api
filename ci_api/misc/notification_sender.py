@@ -1,5 +1,4 @@
 #pip install exponent_server_sdk
-import asyncio
 
 from exponent_server_sdk import (
     DeviceNotRegisteredError,
@@ -11,9 +10,6 @@ from exponent_server_sdk import (
 from requests.exceptions import ConnectionError, HTTPError
 from config import logger
 
-# Basic arguments. You should extend this function with the push features you
-# want to use, or simply pass in a `PushMessage` object.
-
 
 def _create_push_messages(message: str, tokens: list[str], extra=None) -> list[PushMessage]:
     return [
@@ -22,15 +18,16 @@ def _create_push_messages(message: str, tokens: list[str], extra=None) -> list[P
     ]
 
 
-async def send_push_messages(message: str, tokens: list[str], extra=None) -> None:
+async def send_push_messages(message: str, tokens: list[str], extra=None) -> list[PushTicket]:
     logger.info(f'Send push message {message} to tokens: {tokens}')
     push_messages: list[PushMessage] = _create_push_messages(message, tokens, extra)
 
     try:
-        response: list[PushTicket] = PushClient().publish_multiple(push_messages=push_messages)
-        logger.info(response)
-        for ticket in response:
+        responses: list[PushTicket] = PushClient().publish_multiple(push_messages=push_messages)
+        logger.info(responses)
+        for ticket in responses:
             logger.info(f'Response: {ticket.validate_response()}')
+        return responses
     except PushServerError as exc:
         logger.error(f'PushServerError: {exc}')
     except (ConnectionError, HTTPError) as exc:
@@ -39,10 +36,7 @@ async def send_push_messages(message: str, tokens: list[str], extra=None) -> Non
         logger.error(f'DeviceNotRegisteredError: {exc}')
     except PushTicketError as exc:
         logger.error(f'PushTicketError: {exc}')
+    except ValueError as exc:
+        logger.error(f'ValueError: {exc}')
 
-
-if __name__ == '__main__':
-    tokens = [
-        'ExponentPushToken[p-SaFuPGR5xobDNlKk3Sru]'
-    ]
-    asyncio.run(send_push_messages("hello, world", tokens=tokens))
+    return []
