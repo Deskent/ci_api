@@ -3,7 +3,7 @@ from abc import abstractmethod
 
 import aioredis
 
-from config import logger, REDIS_CLIENT
+from config import logger, get_redis_client
 from crud_class.ci_types import MODEL_TYPES
 
 HOURS = 1
@@ -32,7 +32,7 @@ class RedisBase:
             model: MODEL_TYPES,
             client: aioredis.Redis = None
     ):
-        self.redis: aioredis.Redis = client or REDIS_CLIENT
+        self.redis: aioredis.Redis = client or next(get_redis_client())
         self.model: MODEL_TYPES = model
         self.id_: int = 0
         self.key: str = self.model.__name__.lower() + 's'
@@ -115,7 +115,7 @@ class RedisDB(RedisBase):
     def __init__(
             self,
             model: MODEL_TYPES,
-            client: aioredis.Redis = REDIS_CLIENT
+            client: aioredis.Redis = get_redis_client()
     ):
         super().__init__(model=model, client=client)
 
@@ -138,6 +138,9 @@ class RedisDB(RedisBase):
 
     async def save_all(self, data: list[MODEL_TYPES], timeout_sec: int = STORE_TIME_SEC):
         """Overwrite all values for model"""
+
+        logger.debug(f"All {self.model} data saved")
+
         to_save: dict[str, MODEL_TYPES] = {
             str(elem.id): elem
             for elem in data
@@ -147,15 +150,24 @@ class RedisDB(RedisBase):
     async def load_all(self) -> list[MODEL_TYPES]:
         """Return all values for model"""
 
+        logger.debug(f"All {self.model} data loaded")
+
         all_data: dict[str, MODEL_TYPES] = await self._load()
         return list(all_data.values())
 
     async def get_by_id(self, id_: int) -> MODEL_TYPES:
+        """Return element by id if exists"""
+
         all_elems: dict[str, MODEL_TYPES] = await self._load()
 
-        return all_elems.get(str(id_))
+        result = all_elems.get(str(id_), None)
+        logger.debug(f"Data {result} loaded")
+        return result
 
     async def save_by_id(self, id_: int, data: MODEL_TYPES) -> None:
+        """Overwrite element by id"""
+
+        logger.debug(f"Data {data} saved")
         all_elems: dict[str, MODEL_TYPES] = await self._load()
         all_elems[str(id_)] = data
         await self._save(all_elems)
