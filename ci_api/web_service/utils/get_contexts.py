@@ -49,6 +49,8 @@ async def get_logged_user_context(
         user: User = Depends(get_session_user),
         context: dict = Depends(get_base_context)
 ) -> dict:
+    """Return user instance from browser session context"""
+
     if not user:
         raise UserNotLoggedError
     avatar: Avatar = await CRUD.avatar.get_by_id(user.avatar)
@@ -64,6 +66,8 @@ async def get_logged_user_context(
 def get_user_browser_session(
         context: dict = Depends(get_logged_user_context)
 ) -> User:
+    """Return user instance from browser session context"""
+
     user: User = context['user']
     if user:
         return user
@@ -91,8 +95,11 @@ def present_user_expired_at_day_and_month(date: datetime) -> str:
 async def get_profile_page_context(
         context: dict = Depends(get_logged_user_context)
 ) -> dict:
+    """Return context dict with user, avatar, rate, max_level"""
+
     user: User = context['user']
-    avatar: Avatar = await CRUD.avatar.get_by_id(user.avatar)
+    if not (avatar := context.get('avatar')):
+        avatar: Avatar = await CRUD.avatar.get_by_id(user.avatar)
     user.expired_at = present_user_expired_at_day_and_month(user.expired_at)
     rate: Rate = await CRUD.rate.get_by_id(user.rate_id)
     context.update(max_level=MAX_LEVEL, user=user, rate=rate, avatar=avatar)
@@ -111,7 +118,8 @@ async def get_email_send_context(email: EmailStr, message: str) -> dict:
 
 
 async def update_user_session_token(request: Request, user: User) -> None:
-    """Clean and set new user token to request session"""
+    """Update new user token to request session"""
+
     if request:
         request.session.clear()
         login_token: str = await CRUD.user.get_user_token(user)

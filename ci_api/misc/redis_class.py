@@ -3,10 +3,11 @@ from abc import abstractmethod
 
 import aioredis
 
-from database.models import User, Complex, Avatar, Rate
 from config import logger, REDIS_CLIENT
+from crud_class.ci_types import MODEL_TYPES
 
-MODEL_TYPES = User | Complex | Avatar | Rate
+HOURS = 1
+STORE_TIME_SEC = 60 * 60 * HOURS
 
 
 class RedisException(Exception):
@@ -14,28 +15,27 @@ class RedisException(Exception):
 
 
 class RedisBase:
+    """
+
+    Store data in redis.
+
+    Attributes
+
+        model: [Database model] - Using for create key for save data
+
+        id_: int - Using for create key for save instance data
+
+    """
 
     def __init__(
             self,
-            key: str = None,
-            model: MODEL_TYPES = None,
-            id_: int = None,
-            client: aioredis.Redis = REDIS_CLIENT
+            model: MODEL_TYPES,
+            client: aioredis.Redis = None
     ):
-        super().__init__()
-        if id_:
-            self.id_ = id_
-        elif model:
-            self.id_ = model.id
-        else:
-            self.id_ = None
-        self.key: str = ''
-        if key:
-            self.key: str = key
-        elif model:
-            self.key: str = model.__name__.lower()
-        self.redis = client
-        self.model = model
+        self.redis: aioredis.Redis = client or REDIS_CLIENT
+        self.model: MODEL_TYPES = model
+        self.id_: int = 0
+        self.key: str = self.model.__name__.lower() + 's'
 
 
 class RedisOperator(RedisBase):
@@ -60,10 +60,10 @@ class RedisOperator(RedisBase):
 
 class SetRedisDB(RedisOperator):
 
-    def __init__(self, data: list | dict, timeout_sec: int = 60, *args, **kwargs):
+    def __init__(self, data: dict[str, MODEL_TYPES], timeout_sec: int = STORE_TIME_SEC, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.timeout_sec: int = timeout_sec
-        self._data: list | dict = data
+        self._data: dict[str, MODEL_TYPES] = data
 
     async def execute(self) -> None:
         value: bytes = pickle.dumps(self._data)
@@ -75,9 +75,11 @@ class GetRedisDB(RedisOperator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    async def execute(self) -> dict:
+    async def execute(self) -> dict[str, MODEL_TYPES]:
         data: bytes = await self.redis.get(self.key)
-        return {"data": pickle.loads(bytes(data))}
+        if not data:
+            return {}
+        return pickle.loads(bytes(data))
 
 
 class DeleteRedisDB(RedisOperator):
@@ -91,60 +93,69 @@ class DeleteRedisDB(RedisOperator):
 
 class RedisDB(RedisBase):
     """
-
+    Save as structure
     {
-        "user_id" : {
-            "user": data...
-            "alarms": data...
-        }
+       "rate": {
+                    "1": {
+                            Rate("id": 1, "name" ...)
+                    },
+                    "2": {
+                            Rate("id": 2, "name" ...)
+                    },
+                    ...
+       },
+       "user": {
+                    ...
+       }
 
-    }
-
-    {
-        "rates": [Rate]
-    }
-
-    {
-        "complex_id : {
-            "complex": { Complex data
-            }
-            "videos": [Video]
-        }
     }
 
     """
 
     def __init__(
             self,
-            key: str = None,
-            model: MODEL_TYPES = None,
-            id_: int = None,
+            model: MODEL_TYPES,
             client: aioredis.Redis = REDIS_CLIENT
     ):
-        super().__init__(key=key, model=model, id_=id_, client=client)
+        super().__init__(model=model, client=client)
 
-    def __check_key(self):
-        # TODO сделать декоратором
-        if not self.key:
-            raise ValueError('Key or model required')
+    async def _save(self, data: dict[str, MODEL_TYPES], timeout_sec: int = STORE_TIME_SEC) -> None:
+        return await SetRedisDB(model=self.model, data=data, timeout_sec=timeout_sec).run()
 
-    async def save(self, data: list | dict, timeout_sec: int = 1) -> None:
-        self.__check_key()
-        return await SetRedisDB(
-            key=self.key, model=self.model, data=data, timeout_sec=timeout_sec).run()
-
-    async def load(self) -> dict[str, list | dict]:
-        self.__check_key()
-        return await GetRedisDB(key=self.key, model=self.model).run()
+    async def _load(self) -> dict | list:
+        return await GetRedisDB(model=self.model).run()
 
     async def delete_key(self) -> None:
-        self.__check_key()
-        return await DeleteRedisDB(key=self.key, model=self.model).run()
+        return await DeleteRedisDB(model=self.model).run()
 
-    async def health_check(self):
-        """Проверяет работу Редис"""
-        self.__check_key()
+    async def _health_check(self):
+        """Check redis work"""
+
         logger.info("Redis checking...")
-        test_data = ['test']
-        await self.save(test_data, 60)
-        return await self.load()
+        test_data = {'test': 'test'}
+        await self._save(test_data, 60)
+        return await self._load()
+
+    async def save_all(self, data: list[MODEL_TYPES], timeout_sec: int = STORE_TIME_SEC):
+        """Overwrite all values for model"""
+        to_save: dict[str, MODEL_TYPES] = {
+            str(elem.id): elem
+            for elem in data
+        }
+        return await self._save(to_save, timeout_sec)
+
+    async def load_all(self) -> list[MODEL_TYPES]:
+        """Return all values for model"""
+
+        all_data: dict[str, MODEL_TYPES] = await self._load()
+        return list(all_data.values())
+
+    async def get_by_id(self, id_: int) -> MODEL_TYPES:
+        all_elems: dict[str, MODEL_TYPES] = await self._load()
+
+        return all_elems.get(str(id_))
+
+    async def save_by_id(self, id_: int, data: MODEL_TYPES) -> None:
+        all_elems: dict[str, MODEL_TYPES] = await self._load()
+        all_elems[str(id_)] = data
+        await self._save(all_elems)

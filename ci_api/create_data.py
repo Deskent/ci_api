@@ -42,6 +42,7 @@ async def create_complexes(data: list[dict] = None):
     for compl in data:
         await CRUD.complex.create(compl)
 
+
 async def create_videos(data: list[dict] = None):
     logger.debug(f"Create data")
     if not data:
@@ -72,6 +73,7 @@ async def create_videos(data: list[dict] = None):
 
     for video in data:
         await CRUD.video.create(video)
+
 
 async def create_users(data: list[dict] = None):
     logger.debug(f"Create data")
@@ -135,6 +137,7 @@ async def create_users(data: list[dict] = None):
         user_data['avatar'] = await CRUD.avatar.get_first_id()
         await CRUD.user.create(user_data)
 
+
 async def create_alarms(data: list[dict] = None):
     logger.debug(f"Create data")
 
@@ -162,6 +165,7 @@ async def create_alarms(data: list[dict] = None):
     for alarm in data:
         await CRUD.alarm.create(alarm)
 
+
 async def create_notifications(data: list[dict] = None):
     logger.debug(f"Create data")
 
@@ -188,6 +192,7 @@ async def create_notifications(data: list[dict] = None):
     for notification in data:
         await CRUD.notification.create(notification)
 
+
 async def create_rates(data: list[dict] = None):
     logger.debug(f"Create data")
 
@@ -206,6 +211,7 @@ async def create_rates(data: list[dict] = None):
         ]
     for elem in data:
         await CRUD.rate.create(elem)
+
 
 async def create_moods(data: list[dict] = None):
     if not data:
@@ -235,6 +241,7 @@ async def create_moods(data: list[dict] = None):
         await CRUD.mood.create(elem)
     logger.debug(f"Create data")
 
+
 async def create_avatars(data: list[dict] = None):
     if not data:
         data = [
@@ -248,6 +255,7 @@ async def create_avatars(data: list[dict] = None):
             raise ValueError(f"Avatar default file not found: {path}")
         await CRUD.avatar.create(elem)
     logger.debug(f"Create data")
+
 
 async def create_fake_data(flag: bool = False):
     """Create fake data in database"""

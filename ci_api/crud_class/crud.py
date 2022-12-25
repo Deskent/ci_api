@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from typing import Type
 
 from loguru import logger
 from pydantic import EmailStr
@@ -8,7 +7,7 @@ from sqlalchemy.sql import extract
 from sqlmodel import select
 
 from crud_class.ci_types import *
-from crud_class.ci_types import MODEL_TYPES, TYPES
+from crud_class.ci_types import MODEL_TYPES
 from database.db import get_all, get_first, get_db_session
 from database.models import Administrator, User, Complex, Alarm, Notification, ViewedComplex, Video
 from exc.exceptions import ComplexNotFoundError
@@ -22,7 +21,7 @@ class BaseCrud:
         self.model: MODEL_TYPES = model
         self.use_cache: bool = use_cache
 
-    async def save(self, obj: TYPES):
+    async def save(self, obj: MODEL_TYPES):
         async for session in get_db_session():
             session.add(obj)
             await session.commit()
@@ -37,6 +36,14 @@ class BaseCrud:
         result: list[MODEL_TYPES] = await get_all(query)
 
         return result
+
+    async def get_all_dicts(self) -> list[MODEL_TYPES]:
+        elems: list[MODEL_TYPES] = await self.get_all()
+        if not elems:
+            return []
+        return [
+            elem.dict() for elem in elems
+        ]
 
     async def delete_by_id(self, id_: int):
         obj: MODEL_TYPES = await self.get_by_id(id_)
