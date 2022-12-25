@@ -2,7 +2,7 @@ from datetime import datetime
 
 from config import logger
 from crud_class.crud import CRUD
-from database.models import ViewedComplex, Notification
+from database.models import Notification
 from misc.notification_sender import send_push_messages
 
 today = datetime.today()

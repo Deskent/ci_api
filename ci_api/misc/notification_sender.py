@@ -36,5 +36,7 @@ async def send_push_messages(message: str, tokens: list[str], extra=None) -> lis
         logger.error(f'DeviceNotRegisteredError: {exc}')
     except PushTicketError as exc:
         logger.error(f'PushTicketError: {exc}')
+    except ValueError as exc:
+        logger.error(f'ValueError: {exc}')
 
     return []
