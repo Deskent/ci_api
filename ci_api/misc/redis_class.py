@@ -155,6 +155,9 @@ class RedisDB(RedisBase):
         all_data: dict[str, MODEL_TYPES] = await self._load()
         return list(all_data.values())
 
+    async def delete_all(self) -> None:
+        return await self.delete_key()
+
     async def get_by_id(self, id_: int) -> MODEL_TYPES:
         """Return element by id if exists"""
 
