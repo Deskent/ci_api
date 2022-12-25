@@ -2,6 +2,7 @@ import datetime
 from pathlib import Path
 
 import aioredis
+from aioredis import Redis
 from fastapi.templating import Jinja2Templates
 from loguru import logger
 from pydantic import BaseSettings, EmailStr, RedisDsn
@@ -110,4 +111,6 @@ logger.add(level=30, sink=settings.LOGS_DIR / 'errors.log')
 
 templates = Jinja2Templates(directory=settings.TEMPLATES_DIR, auto_reload=True)
 
-REDIS_CLIENT = aioredis.from_url(url=db.REDIS_DB)  # for json format: , encoding="utf-8", decode_responses=True)
+
+def get_redis_client() -> Redis:
+    yield aioredis.from_url(url=db.REDIS_DB)  # for json format: , encoding="utf-8", decode_responses=True)
