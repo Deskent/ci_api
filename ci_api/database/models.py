@@ -159,7 +159,7 @@ class Alarm(SQLModel, table=True):
     users: 'User' = Relationship(back_populates="alarms")
 
     def __str__(self):
-        return f"{self.text}"
+        return f"{self.__dict__}"
 
 
 class Notification(SQLModel, table=True):
