@@ -38,13 +38,12 @@ async def register(
 
     :param password2: string - Repeat Password
 
-    :param rate_id: int - Rate id (тариф)
-
     :param gender: bool - True = male, False - female
 
     :return: User created information as JSON
     """
     web_context: WebContext = await register_new_user_web_context(context={}, user_data=user_data)
+
     return web_context.api_render()
 
 
@@ -85,7 +84,6 @@ async def verify_sms_code(
         request: Request,
         data: UserPhoneCode
 ):
-
     """Verify user via sms code
 
     :param phone: string - phone number in format: 9998887766
@@ -108,7 +106,6 @@ async def verify_call_code(
         request: Request,
         data: UserPhoneCode
 ):
-
     """Verify user via call code
 
     :param phone: string - phone number in format: 9998887766
@@ -162,7 +159,6 @@ async def change_password(
     user.password = await CRUD.user.get_hashed_password(data.password)
     await CRUD.user.save(user)
     logger.info(f"User with id {user.id} change password")
-
 
 
 @router.put("/set_push_token", status_code=status.HTTP_202_ACCEPTED)
