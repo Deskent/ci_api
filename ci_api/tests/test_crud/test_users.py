@@ -1,5 +1,7 @@
 import datetime
 
+import pytest
+
 from crud_class.crud import CRUD
 from database.models import User, Alarm, Avatar, ViewedComplex, Notification
 
@@ -70,16 +72,19 @@ async def test_user_is_new_user(get_user):
     assert await CRUD.user.is_new_user(get_user) == True
 
 
+@pytest.mark.server
 async def test_get_tokens_for_send_notification_push():
     tokens: list[str] = await CRUD.user.get_tokens_for_send_notification_push()
     assert tokens is not None
 
 
+@pytest.mark.server
 async def test_get_users_ids_for_create_notifications():
     users_ids: list[int] = await CRUD.user.get_users_ids_for_create_notifications()
     assert users_ids is not None
 
 
+@pytest.mark.server
 async def test_get_users_have_notification():
     users_ids: list[int] = await CRUD.user.get_users_ids_for_create_notifications()
     assert users_ids is not None

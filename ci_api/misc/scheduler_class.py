@@ -1,19 +1,22 @@
-from datetime import datetime
+import datetime
 
-from config import logger
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
+from config import logger, settings
 from crud_class.crud import CRUD
+from database.models import Alarm, User
 from database.models import Notification
 from misc.notification_sender import send_push_messages
 
-today = datetime.today()
-message_text = "Зарядка не выполнена, не забудьте выполнить упражнения"
+today = datetime.datetime.today()
+NOTIFICATION_TEXT = "Зарядка не выполнена, не забудьте выполнить упражнения"
 
 
 async def _get_notifications_for_create(users: list[int]) -> list[Notification]:
     """Return notifications list for users without notifications"""
 
     return [
-        Notification(user_id=user, created_at=today, text=message_text)
+        Notification(user_id=user, created_at=today, text=NOTIFICATION_TEXT)
         for user in users
     ]
 
@@ -27,7 +30,7 @@ async def _get_notifications_for_update(
     for user in users:
         notifications: list = await CRUD.notification.get_all_by_user_id(user)
         for notification in notifications:
-            notification.text = message_text
+            notification.text = NOTIFICATION_TEXT
             notification.created_at = today
             for_update.append(notification)
 
@@ -64,5 +67,52 @@ async def create_notifications_for_not_viewed_users():
     await CRUD.notification.create_and_update_notifications(notifications_for_update)
     user_tokens: list[str] = await CRUD.user.get_tokens_for_send_notification_push()
     logger.info(f"Tokens for pushing messages [{len(user_tokens)}]: {user_tokens}")
-    result: list = await send_push_messages(message=message_text, tokens=user_tokens)
+    result: list = await send_push_messages(message=NOTIFICATION_TEXT, tokens=user_tokens)
     logger.info(f"Notifications send: [{len(result)}]")
+
+
+async def send_alarm_push(user_id: int, text: str):
+    user: User = await CRUD.user.get_by_id(user_id)
+    result: list = await send_push_messages(message=text, tokens=[user.push_token])
+    logger.info(f"Alarms send: [{len(result)}]")
+
+
+class CiScheduler:
+
+    def __init__(self, scheduler: AsyncIOScheduler = None):
+        self.scheduler: AsyncIOScheduler = scheduler
+
+    async def add_alarm(self, alarm: Alarm) -> None:
+        self.scheduler.add_job(
+            send_alarm_push,
+            'cron',
+            hour=alarm.alarm_time.hour,
+            minute=alarm.alarm_time.minute,
+            replace_existing=True,
+            timezone=datetime.timezone(datetime.timedelta(hours=3)),
+            kwargs={'text': alarm.text, 'user_id': alarm.user_id}
+        )
+
+    async def create_notifications(self):
+        self.scheduler.add_job(
+            create_notifications_for_not_viewed_users,
+            'cron',
+            hour=settings.NOTIFICATION_HOUR,
+            minute=00,
+            replace_existing=True,
+            timezone=datetime.timezone(datetime.timedelta(hours=3))
+        )
+
+    async def create_alarms(self):
+        alarms: list[Alarm] = await CRUD.alarm.get_all_active_alarms()
+        for alarm in alarms:
+            await self.add_alarm(alarm)
+
+    def start(self):
+        return self.scheduler.start()
+
+    def shutdown(self):
+        return self.scheduler.shutdown()
+
+
+ci_scheduler = CiScheduler(AsyncIOScheduler())

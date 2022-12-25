@@ -49,6 +49,7 @@ def get_application():
         await create_default_data()
         ci_scheduler.start()
         await ci_scheduler.create_notifications()
+        await ci_scheduler.create_alarms()
 
     @app.on_event('shutdown')
     async def on_shutdown():

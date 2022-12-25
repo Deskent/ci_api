@@ -107,6 +107,20 @@ class AlarmCrud(BaseCrud):
 
         return obj
 
+    async def get_all_active_alarms(self) -> list[Alarm]:
+        """Return alarms for active and verified users"""
+
+        query = (
+            select(self.model)
+            .join(User)
+            .where(
+                User.is_active
+                & User.is_verified
+            )
+        )
+
+        return await get_all(query)
+
 
 class NotificationCrud(BaseCrud):
     def __init__(self, model: Type[Notification]):
