@@ -17,7 +17,7 @@ from services.auth import auth_handler
 from services.utils import get_current_datetime
 from misc.redis_class import RedisDB
 
-USE_CACHE: bool = False
+USE_CACHE: bool = True
 
 
 class BaseCrud:
@@ -53,7 +53,8 @@ class BaseCrud:
 
         query = select(self.model).order_by(self.model.id)
         result: list[MODEL_TYPES] = await get_all(query)
-        await self.redis_db.save_all(result)
+        if use_cache:
+            await self.redis_db.save_all(result)
 
         return result
 
@@ -69,6 +70,9 @@ class BaseCrud:
         obj: MODEL_TYPES = await self.get_by_id(id_)
         if obj:
             await self.delete(obj)
+
+    async def _delete_from_redis(self):
+        await self.redis_db.delete_all()
 
     @staticmethod
     async def delete(obj: MODEL_TYPES) -> None:
@@ -612,9 +616,13 @@ class CRUD:
 
     @classmethod
     async def initialize(cls):
-        pass
-        # await CRUD.rate.get_all(use_cache=False)
-        # await CRUD.avatar.get_all(use_cache=False)
-        # await CRUD.mood.get_all(use_cache=False)
-        # await CRUD.video.get_all(use_cache=False)
-        # await CRUD.complex.get_all(use_cache=False)
+        await CRUD.rate._delete_from_redis()
+        await CRUD.rate.get_all(use_cache=False)
+        await CRUD.avatar._delete_from_redis()
+        await CRUD.avatar.get_all(use_cache=False)
+        await CRUD.mood._delete_from_redis()
+        await CRUD.mood.get_all(use_cache=False)
+        await CRUD.video._delete_from_redis()
+        await CRUD.video.get_all(use_cache=False)
+        await CRUD.complex._delete_from_redis()
+        await CRUD.complex.get_all(use_cache=False)
