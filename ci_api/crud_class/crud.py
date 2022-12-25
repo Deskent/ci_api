@@ -233,7 +233,19 @@ class UserCrud(AdminCrud):
 
     async def is_new_user(self, user: User = None,  id_: int = None) -> bool:
         if await self._get_instance(user, id_):
-            return  self.user.last_entry is None
+            return self.user.last_entry is None
+
+    async def get_tokens_for_send_notification_push(self) -> list[str]:
+        """Return list of user tokens user having notification"""
+
+        query = (
+            select(self.model.push_token)
+            .join(Notification)
+            .where(self.model.push_token.is_not(None))
+        )
+
+        return await get_all(query)
+
 
 class VideoCrud(BaseCrud):
     def __init__(self, model: Type[Video]):
@@ -473,6 +485,7 @@ class MoodCrud(BaseCrud):
                 elem.code = await self._replace_code(elem)
 
         return all_elems
+
 
 class CRUD:
     user = UserCrud(model=User)

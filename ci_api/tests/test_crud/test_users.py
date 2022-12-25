@@ -68,3 +68,8 @@ async def test_user_is_first_entry_today(get_user):
 
 async def test_user_is_new_user(get_user):
     assert await CRUD.user.is_new_user(get_user) == True
+
+
+async def test_get_tokens_for_send_notification_push():
+    tokens: list[str] = await CRUD.user.get_tokens_for_send_notification_push()
+    assert tokens is not None

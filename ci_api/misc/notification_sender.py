@@ -1,4 +1,5 @@
 #pip install exponent_server_sdk
+
 import asyncio
 
 from exponent_server_sdk import (
@@ -10,9 +11,6 @@ from exponent_server_sdk import (
 )
 from requests.exceptions import ConnectionError, HTTPError
 from config import logger
-
-# Basic arguments. You should extend this function with the push features you
-# want to use, or simply pass in a `PushMessage` object.
 
 
 def _create_push_messages(message: str, tokens: list[str], extra=None) -> list[PushMessage]:
@@ -39,10 +37,3 @@ async def send_push_messages(message: str, tokens: list[str], extra=None) -> Non
         logger.error(f'DeviceNotRegisteredError: {exc}')
     except PushTicketError as exc:
         logger.error(f'PushTicketError: {exc}')
-
-
-if __name__ == '__main__':
-    tokens = [
-        'ExponentPushToken[p-SaFuPGR5xobDNlKk3Sru]'
-    ]
-    asyncio.run(send_push_messages("hello, world", tokens=tokens))
