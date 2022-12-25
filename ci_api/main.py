@@ -48,8 +48,7 @@ def get_application():
         await create_fake_data()
         await create_default_data()
         ci_scheduler.start()
-        await ci_scheduler.create_notifications()
-        await ci_scheduler.create_alarms()
+        await ci_scheduler.run()
 
     @app.on_event('shutdown')
     async def on_shutdown():
