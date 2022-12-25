@@ -3,12 +3,17 @@ import datetime
 import pytest
 
 from crud_class.crud import CRUD
-from database.models import User, Alarm, Avatar, ViewedComplex, Notification
+from database.models import User, Alarm, Avatar
 
 
 async def test_crud_get_user_by_id(get_user):
     user: User = await CRUD.user.get_by_id(get_user.id)
     assert user.id == get_user.id
+
+
+async def test_crud_get_user_by_id_user_not_exists():
+    user: User = await CRUD.user.get_by_id(-1)
+    assert user is None
 
 
 async def test_crud_get_all_users():
