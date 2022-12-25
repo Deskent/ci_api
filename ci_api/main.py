@@ -1,23 +1,20 @@
 # raise ValueError('НАПИШИ ТЕСТЫ')
 
-import datetime
-
 import uvicorn
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
-from fastapi.middleware.cors import CORSMiddleware
 
 from admin.utils import create_default_admin
 from admin.views import get_admin
 from config import settings, MAX_LEVEL, logger
 from create_data import create_fake_data, recreate_db, create_default_data
-from exc.exceptions import UserNotLoggedError, ComeTomorrowException
 from database.models import User
-from routers import main_router
-from misc.notification_scheduler import create_notifications_for_not_viewed_users
+from exc.exceptions import UserNotLoggedError, ComeTomorrowException
+from misc.scheduler_class import ci_scheduler
 from misc.web_context_class import WebContext
+from routers import main_router
 from web_service.router import router as web_router
 from web_service.utils.get_contexts import (
     get_base_context, get_browser_session_token, get_session_user, get_logged_user_context
@@ -25,14 +22,6 @@ from web_service.utils.get_contexts import (
 
 
 def get_application():
-    scheduler = AsyncIOScheduler()
-    scheduler.add_job(
-        create_notifications_for_not_viewed_users, 'cron',
-        hour=settings.NOTIFICATION_HOUR,
-        minute=00,
-        replace_existing=True,
-        timezone=datetime.timezone(datetime.timedelta(hours=3))
-    )
 
     app = FastAPI(docs_url=settings.DOCS_URL, redoc_url=settings.DOCS_URL, debug=settings.DEBUG)
 
@@ -58,11 +47,13 @@ def get_application():
         await create_default_admin()
         await create_fake_data()
         await create_default_data()
-        scheduler.start()
+        ci_scheduler.start()
+        await ci_scheduler.create_notifications()
+        await ci_scheduler.create_alarms()
 
     @app.on_event('shutdown')
     async def on_shutdown():
-        scheduler.shutdown()
+        ci_scheduler.shutdown()
 
     @app.exception_handler(UserNotLoggedError)
     async def user_not_logged_exception_handler(
@@ -106,6 +97,7 @@ def get_application():
 
     app: FastAPI = get_admin(app)
     app.add_middleware(SessionMiddleware, secret_key=settings.SECRET)
+
     return app
 
 

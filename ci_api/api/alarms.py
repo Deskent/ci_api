@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from config import logger
 from exc.exceptions import AlarmNotFound
 from database.models import Alarm, User
+from misc.scheduler_class import ci_scheduler
 from schemas.alarms import AlarmCreate, AlarmFull, AlarmUpdate
 from services.alarms_web_context import update_alarm_web_context, get_alarm_or_raise
 from services.depends import get_logged_user
@@ -50,6 +51,7 @@ async def create_alarm(
     payload: dict = data.dict()
     payload.update({"user_id": user.id})
     alarm: Alarm = await CRUD.alarm.create(payload)
+    await ci_scheduler.add_alarm(alarm)
     alarm: Alarm = await CRUD.alarm.for_response(alarm)
     logger.info(f"Alarm with id {alarm.id} created")
 
