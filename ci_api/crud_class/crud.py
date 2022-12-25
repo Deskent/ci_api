@@ -1,16 +1,20 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
+from typing import Type
 
+from loguru import logger
 from pydantic import EmailStr
 from sqlalchemy import desc
+from sqlalchemy.sql import extract
 from sqlmodel import select
 
-from config import logger
-from database.db import get_db_session, get_all, get_first
-from exc.exceptions import ComplexNotFoundError
-from services.auth import auth_handler
 from crud_class.ci_types import *
-from services.utils import get_current_datetime
+from crud_class.ci_types import MODEL_TYPES, TYPES
+from database.db import get_all, get_first, get_db_session
+from database.models import Administrator, User, Complex, Alarm, Notification, ViewedComplex, Video
+from exc.exceptions import ComplexNotFoundError
 from misc.weekdays_class import WeekDay
+from services.auth import auth_handler
+from services.utils import get_current_datetime
 
 
 class BaseCrud:
@@ -51,6 +55,303 @@ class BaseCrud:
         return await self.save(instance)
 
 
+class AvatarCrud(BaseCrud):
+    def __init__(self, model: Type[Avatar]):
+        super().__init__(model)
+
+    async def get_first_id(self) -> int:
+        query = select(self.model.id).order_by(self.model.id)
+        return await get_first(query)
+
+
+class RateCrud(BaseCrud):
+    def __init__(self, model: Type[Rate]):
+        super().__init__(model)
+
+    async def get_free(self) -> Rate:
+        query = select(self.model).where(self.model.price == 0)
+        return await get_first(query)
+
+
+class AlarmCrud(BaseCrud):
+    def __init__(self, model: Type[Alarm]):
+        super().__init__(model)
+
+    async def create(self, data: dict) -> Alarm:
+        week_days: WeekDay = WeekDay(data['weekdays'])
+        data.update(weekdays=week_days.as_string)
+
+        return await self.save(Alarm(**data))
+
+    async def get_all_by_user_id(self, user_id: int) -> list[Alarm]:
+        """Return all user alarms"""
+
+        query = (
+            select(self.model)
+            .join(User)
+            .where(User.id == user_id)
+            .order_by(desc(self.model.id))
+        )
+
+        return await get_all(query)
+
+    async def for_response(self, obj: Alarm) -> Alarm:
+        """Replace weekdays from digit (index) format [01234] to text
+        format ['sunday', 'monday']
+        Remove seconds from alarm_time
+        """
+
+        week_days: WeekDay = WeekDay(obj.weekdays)
+        obj.weekdays = week_days.as_list
+        obj.alarm_time = obj.alarm_time.strftime("%H:%M")
+
+        return obj
+
+
+class NotificationCrud(BaseCrud):
+    def __init__(self, model: Type[Notification]):
+        super().__init__(model)
+
+    async def get_all_by_user_id(self, user_id: int) -> list[Notification]:
+        """Return all user notifications"""
+
+        query = select(self.model).join(User).where(User.id == user_id)
+
+        return await get_all(query)
+
+    @staticmethod
+    async def create_and_update_notifications(notifications: list[Notification]) -> None:
+        """Add notifications to database"""
+
+        async for session in get_db_session():
+            session.add_all(notifications)
+            await session.commit()
+
+
+class ViewedComplexCrud(BaseCrud):
+    def __init__(self, model: Type[ViewedComplex]):
+        super().__init__(model)
+
+    async def add_viewed(self, user_id: int, complex_id: int) -> ViewedComplex:
+
+        query = (
+            select(self.model)
+            .where(
+                (self.model.user_id == user_id)
+                & (self.model.complex_id == complex_id)
+            )
+        )
+        complex_exists = await get_all(query)
+        if not complex_exists:
+            viewed_complex = self.model(
+                user_id=user_id, complex_id=complex_id, viewed_at=datetime.now(tz=None)
+            )
+            return await self.save(viewed_complex)
+
+    async def get_all_viewed_complexes(self, user_id: int) -> list[ViewedComplex]:
+        """Return list of viewed complexes for user"""
+
+        query = select(self.model).where(self.model.user_id == user_id)
+        return await get_all(query)
+
+    async def get_all_viewed_complexes_ids(self, user_id: int) -> list[int]:
+        """Return list of ids for user"""
+
+        query = select(self.model.id).where(self.model.user_id == user_id)
+        return await get_all(query)
+
+    async def is_viewed_complex(self, user_id: int, complex_id: int) -> ViewedComplex:
+        """Return ViewedComplex if exists"""
+
+        query = (
+            select(self.model)
+            .where(
+                (self.model.user_id == user_id)
+                & (self.model.id == complex_id)
+            )
+        )
+        return await get_first(query)
+
+    async def is_last_viewed_today(self, user_id: int) -> bool:
+        """
+        Check Complex viewed today
+
+        True if viewed  else False
+        """
+
+        current_day = get_current_datetime().day
+        query = (
+            select(self.model)
+            .where(self.model.user_id == user_id)
+            .order_by(self.model.viewed_at)
+        )
+        last: ViewedComplex = await get_first(query)
+        if last and last.viewed_at:
+            return current_day == last.viewed_at.day
+
+
+class ViewedVideoCrud(BaseCrud):
+    def __init__(self, model: Type[ViewedVideo]):
+        super().__init__(model)
+
+    async def add_viewed(self, user_id: int, video_id: int) -> ViewedVideo:
+        query = (
+            select(self.model)
+            .where(
+                (self.model.user_id == user_id)
+                & (self.model.video_id == video_id)
+            )
+        )
+        video_exists = await get_first(query)
+        if not video_exists:
+            viewed_video = self.model(user_id=user_id, video_id=video_id)
+            return await self.save(viewed_video)
+
+    async def get_all_viewed_videos(self, user_id: int) -> list[ViewedVideo]:
+        query = select(self.model).where(self.model.user_id == user_id)
+
+        return await get_all(query)
+
+
+class PaymentCrud(BaseCrud):
+    def __init__(self, model: Type[Payment]):
+        super().__init__(model)
+
+    async def get_by_user_and_rate_id(self, user_id: int, rate_id: int) -> Payment:
+        query = (
+            select(self.model)
+            .where(
+                (self.model.user_id == user_id)
+                & (self.model.rate_id == rate_id)
+            )
+        )
+        result = await get_first(query)
+        return result
+
+
+class PaymentCheckCrud(BaseCrud):
+    def __init__(self, model: Type[PaymentCheck]):
+        super().__init__(model)
+
+    async def get_all_by_user_id(self, user_id: int) -> list[PaymentCheck]:
+        """Return all rows by user_id"""
+
+        query = select(self.model).where(self.model.user_id == user_id)
+        return await get_all(query)
+
+
+class MoodCrud(BaseCrud):
+    def __init__(self, model: Type[Mood]):
+        super().__init__(model)
+
+    @staticmethod
+    async def _replace_code(elem: Mood):
+        if 'U+' in elem.code:
+            elem.code = elem.code.replace('U+', '0x')
+
+        return elem
+
+    async def create(self, data: dict) -> Mood:
+        if 'U+' in data['code']:
+            data['code'] = data['code'].replace('U+', '0x')
+
+        return await super().create(data)
+
+    async def get_by_id(self, id_: int) -> Mood:
+        elem: Mood = await super().get_by_id(id_)
+
+        return await self._replace_code(elem)
+
+    async def get_all(self) -> list[Mood]:
+        all_elems: list[Mood] = await super().get_all()
+        for elem in all_elems:
+            if 'U+' in elem.code:
+                elem.code = await self._replace_code(elem)
+
+        return all_elems
+
+
+class ComplexCrud(BaseCrud):
+    def __init__(self, model: Type[Complex]):
+        super().__init__(model)
+
+    async def get_first(self) -> Complex:
+        query = select(self.model).order_by(self.model.number)
+        return await get_first(query)
+
+    async def next_complex(self, obj: Complex) -> Complex:
+        query = select(self.model).where(self.model.number == obj.number + 1)
+        next_complex: Complex = await get_first(query)
+        if not next_complex:
+            return await CRUD.complex.get_first()
+
+        return next_complex
+
+    async def get_next_complex_by_id(self, complex_id: int) -> Complex:
+        """Return next complex from current complex which got by id"""
+
+        query = select(self.model).where(self.model.id == complex_id)
+        current_complex: Complex = await get_first(query)
+
+        return await self.next_complex(current_complex)
+
+
+class VideoCrud(BaseCrud):
+    def __init__(self, model: Type[Video]):
+        super().__init__(model)
+
+    async def next_video_id(self, video: Video) -> int:
+        query = select(self.model).where(self.model.number == video.number + 1)
+        next_video: Video = await get_first(query)
+
+        return 1 if not next_video else next_video.id
+
+    async def get_ordered_list(self, complex_id: int):
+        query = (
+            select(self.model)
+            .where(self.model.complex_id == complex_id)
+            .order_by(self.model.number)
+        )
+        return await get_all(query)
+
+    async def get_all_by_complex_id(self, complex_id: int):
+        return await self.get_ordered_list(complex_id)
+
+    async def create(self, data: dict) -> Video:
+        """Create new row into DB and add video duration time (seconds)
+        to its complex duration"""
+
+        complex_id: int = data.get('complex_id')
+        if complex_id:
+            current_complex: Complex = await CRUD.complex.get_by_id(complex_id)
+            if not current_complex:
+                raise ComplexNotFoundError
+            current_complex.duration += data['duration']
+            current_complex.video_count += 1
+            await self.save(current_complex)
+
+        return await super().create(data)
+
+    async def get_videos_duration(self, videos_ids: tuple[int]) -> int:
+        query = select(self.model.duration).where(self.model.id.in_(videos_ids))
+        durations: list[int] = await get_all(query)
+
+        return sum(durations)
+
+    async def delete(self, obj: Video) -> None:
+        current_complex: Complex = await CRUD.complex.get_by_id(obj.complex_id)
+        current_complex.video_count -= 1
+        current_complex.duration -= obj.duration
+        await self.save(current_complex)
+        await super().delete(obj)
+
+    async def get_hello_video(self) -> Video:
+        """Return hello video instance"""
+
+        query = select(self.model).where(self.model.complex_id.is_(None))
+        return await get_first(query)
+
+
 class AdminCrud(BaseCrud):
     def __init__(self, model: Type[Administrator | User]):
         super().__init__(model)
@@ -87,31 +388,6 @@ class AdminCrud(BaseCrud):
         return await self.save(user)
 
 
-class ComplexCrud(BaseCrud):
-    def __init__(self, model: Type[Complex]):
-        super().__init__(model)
-
-    async def get_first(self) -> Complex:
-        query = select(self.model).order_by(self.model.number)
-        return await get_first(query)
-
-    async def next_complex(self, obj: Complex) -> Complex:
-        query = select(self.model).where(self.model.number == obj.number + 1)
-        next_complex: Complex = await get_first(query)
-        if not next_complex:
-            return await CRUD.complex.get_first()
-
-        return next_complex
-
-    async def get_next_complex_by_id(self, complex_id: int) -> Complex:
-        """Return next complex from current complex which got by id"""
-
-        query = select(self.model).where(self.model.id == complex_id)
-        current_complex: Complex = await get_first(query)
-
-        return await self.next_complex(current_complex)
-
-
 class UserCrud(AdminCrud):
     def __init__(self, model: Type[User]):
         super().__init__(model)
@@ -137,6 +413,7 @@ class UserCrud(AdminCrud):
     async def get_by_email_code(self, email_code: str) -> User:
         query = select(self.model).where(self.model.email_code == email_code)
         return await get_first(query)
+
     # TODO сделать декоратором
 
     async def activate(self, user: User = None, id_: int = None) -> User:
@@ -190,7 +467,7 @@ class UserCrud(AdminCrud):
         query = select(Alarm).where(Alarm.user_id == user.id).where(Alarm.id == alarm_id)
         return await get_first(query)
 
-    async def set_subscribe_to(self, days: int, user: User = None,  id_: int = None) -> User:
+    async def set_subscribe_to(self, days: int, user: User = None, id_: int = None) -> User:
         if await self._get_instance(user, id_):
             if not user.expired_at or await self.check_is_active(self.user):
                 user.expired_at = get_current_datetime()
@@ -206,12 +483,12 @@ class UserCrud(AdminCrud):
             user.last_entry = get_current_datetime()
             return await self.save(user)
 
-    async def set_mood(self, mood_id: int, user: User = None,  id_: int = None) -> User:
+    async def set_mood(self, mood_id: int, user: User = None, id_: int = None) -> User:
         if await self._get_instance(user, id_):
             self.user.mood = mood_id
             return await self.save(self.user)
 
-    async def set_avatar(self, avatar_id: int, user: User = None,  id_: int = None) -> User:
+    async def set_avatar(self, avatar_id: int, user: User = None, id_: int = None) -> User:
         if await self._get_instance(user, id_):
             self.user.avatar = avatar_id
             return await self.save(self.user)
@@ -223,7 +500,7 @@ class UserCrud(AdminCrud):
                 user: User = await self.save(user)
             return user.is_active
 
-    async def is_first_entry_today(self, user: User = None,  id_: int = None) -> bool:
+    async def is_first_entry_today(self, user: User = None, id_: int = None) -> bool:
         """Return True if it first user entry today else False"""
 
         if await self._get_instance(user, id_):
@@ -231,7 +508,7 @@ class UserCrud(AdminCrud):
                 return True
             return self.user.last_entry.date() != get_current_datetime().date()
 
-    async def is_new_user(self, user: User = None,  id_: int = None) -> bool:
+    async def is_new_user(self, user: User = None, id_: int = None) -> bool:
         if await self._get_instance(user, id_):
             return self.user.last_entry is None
 
@@ -246,245 +523,38 @@ class UserCrud(AdminCrud):
 
         return await get_all(query)
 
-
-class VideoCrud(BaseCrud):
-    def __init__(self, model: Type[Video]):
-        super().__init__(model)
-
-    async def next_video_id(self, video: Video) -> int:
-        query = select(self.model).where(self.model.number == video.number + 1)
-        next_video: Video = await get_first(query)
-
-        return 1 if not next_video else next_video.id
-
-    async def get_ordered_list(self, complex_id: int):
+    async def get_users_ids_for_create_notifications(self) -> list[int]:
+        today: datetime = datetime.today()
         query = (
-            select(self.model)
-            .where(self.model.complex_id == complex_id)
-            .order_by(self.model.number)
-        )
-        return await get_all(query)
-
-    async def get_all_by_complex_id(self, complex_id: int):
-        return await self.get_ordered_list(complex_id)
-
-    async def create(self, data: dict) -> Video:
-        """Create new row into DB and add video duration time (seconds)
-        to its complex duration"""
-
-        complex_id: int = data.get('complex_id')
-        if complex_id:
-            current_complex: Complex = await CRUD.complex.get_by_id(complex_id)
-            if not current_complex:
-                raise ComplexNotFoundError
-            current_complex.duration += data['duration']
-            current_complex.video_count += 1
-            await self.save(current_complex)
-
-        return await super().create(data)
-
-    async def get_videos_duration(self, videos_ids: tuple[int]) -> int:
-        query = select(self.model.duration).where(self.model.id.in_(videos_ids))
-        durations: list[int] = await get_all(query)
-
-        return sum(durations)
-
-    async def delete(self, obj: Video) -> None:
-        current_complex: Complex = await CRUD.complex.get_by_id(obj.complex_id)
-        current_complex.video_count -= 1
-        current_complex.duration -= obj.duration
-        await self.save(current_complex)
-        await super().delete(obj)
-
-    async def get_hello_video(self) -> Video:
-        query = select(self.model).where(self.model.complex_id == None)
-        return await get_first(query)
-
-
-class AvatarCrud(BaseCrud):
-    def __init__(self, model: Type[Avatar]):
-        super().__init__(model)
-
-    async def get_first_id(self) -> int:
-        query = select(self.model.id).order_by(self.model.id)
-        return await get_first(query)
-
-
-class RateCrud(BaseCrud):
-    def __init__(self, model: Type[Rate]):
-        super().__init__(model)
-
-    async def get_free(self) -> Rate:
-        query = select(self.model).where(self.model.price == 0)
-        return await get_first(query)
-
-
-class AlarmCrud(BaseCrud):
-    def __init__(self, model: Type[Alarm]):
-        super().__init__(model)
-
-    async def create(self, data: dict) -> Alarm:
-        week_days: WeekDay = WeekDay(data['weekdays'])
-        data.update(weekdays=week_days.as_string)
-
-        return await self.save(Alarm(**data))
-
-    async def get_all_by_user_id(self, user_id: int) -> list[Alarm]:
-        """Return all user alarms"""
-
-        query = (
-            select(self.model).join(User)
-            .where(User.id == user_id)
-            .order_by(desc(self.model.id))
-        )
-
-        return await get_all(query)
-
-    async def for_response(self, obj: Alarm) -> Alarm:
-        week_days: WeekDay = WeekDay(obj.weekdays)
-        obj.weekdays = week_days.as_list
-        obj.alarm_time = obj.alarm_time.strftime("%H:%M")
-
-        return obj
-
-
-class NotificationCrud(BaseCrud):
-    def __init__(self, model: Type[Notification]):
-        super().__init__(model)
-
-    async def get_all_by_user_id(self, user_id: int) -> list[Notification]:
-        """Return all user notifications"""
-
-        query = select(self.model).join(User).where(User.id == user_id)
-
-        return await get_all(query)
-
-
-class ViewedComplexCrud(BaseCrud):
-    def __init__(self, model: Type[ViewedComplex]):
-        super().__init__(model)
-
-    async def add_viewed(self, user_id: int, complex_id: int) -> ViewedComplex:
-
-        query = select(self.model).where(self.model.user_id == user_id).where(self.model.complex_id == complex_id)
-        complex_exists = await get_all(query)
-        if not complex_exists:
-            viewed_complex = self.model(
-                user_id=user_id, complex_id=complex_id, viewed_at=datetime.now(tz=None)
+            select(self.model.id)
+            .where(
+                self.model.is_verified
+                & self.model.is_active
+                & self.model.id.not_in(
+                        select(ViewedComplex.user_id)
+                        .where(
+                            (extract('day', ViewedComplex.viewed_at) == today.day)
+                            & (extract('month', ViewedComplex.viewed_at) == today.month)
+                            & (extract('year', ViewedComplex.viewed_at) == today.year)
+                        )
+                )
             )
-            return await self.save(viewed_complex)
+        )
 
-    async def get_all_viewed_complexes(self, user_id: int) -> list[ViewedComplex]:
-        """Return list of viewed complexes for user"""
-
-        query = select(self.model).where(self.model.user_id == user_id)
         return await get_all(query)
 
-    async def get_all_viewed_complexes_ids(self, user_id: int) -> list[int]:
-        """Return list of ids for user"""
-
-        query = select(self.model.id).where(self.model.user_id == user_id)
-        return await get_all(query)
-
-    async def is_viewed_complex(self, user_id: int, complex_id: int) -> ViewedComplex:
-        """Return ViewedComplex if exists"""
+    async def get_users_have_notification(
+            self,
+            users_ids_for_notificate: list[int]
+    ) -> list[int]:
+        """Return user IDs list who need to create or update notifications"""
 
         query = (
-            select(self.model)
-            .where(self.model.user_id == user_id)
-            .where(self.model.id == complex_id)
+            select(self.model.id)
+            .join(Notification)
+            .where(Notification.user_id.in_(users_ids_for_notificate))
         )
-        return await get_first(query)
-
-    async def is_last_viewed_today(self, user_id: int) -> bool:
-        """
-        Check Complex viewed today
-
-        True if viewed  else False
-        """
-
-        current_day = get_current_datetime().day
-        query = (
-            select(self.model)
-            .where(self.model.user_id == user_id)
-            .order_by(self.model.viewed_at)
-        )
-        last: ViewedComplex = await get_first(query)
-        if last and last.viewed_at:
-            return current_day == last.viewed_at.day
-
-
-class ViewedVideoCrud(BaseCrud):
-    def __init__(self, model: Type[ViewedVideo]):
-        super().__init__(model)
-
-    async def add_viewed(self, user_id: int, video_id: int) -> ViewedVideo:
-        query = (
-            select(self.model)
-            .where(self.model.user_id == user_id)
-            .where(self.model.video_id == video_id)
-        )
-        video_exists = await get_first(query)
-        if not video_exists:
-            viewed_video = self.model(user_id=user_id, video_id=video_id)
-            return await self.save(viewed_video)
-
-    async def get_all_viewed_videos(self, user_id: int) -> list[ViewedVideo]:
-        query = select(self.model).where(self.model.user_id == user_id)
-
         return await get_all(query)
-
-
-class PaymentCrud(BaseCrud):
-    def __init__(self, model: Type[Payment]):
-        super().__init__(model)
-
-    async def get_by_user_and_rate_id(self, user_id: int, rate_id: int) -> Payment:
-        query = select(self.model).where(self.model.user_id == user_id).where(self.model.rate_id == rate_id)
-        result = await get_first(query)
-        return result
-
-
-class PaymentCheckCrud(BaseCrud):
-    def __init__(self, model: Type[PaymentCheck]):
-        super().__init__(model)
-
-    async def get_all_by_user_id(self, user_id: int) -> list[PaymentCheck]:
-        """Return all rows by user_id"""
-
-        query = select(self.model).where(self.model.user_id == user_id)
-        return await get_all(query)
-
-
-class MoodCrud(BaseCrud):
-    def __init__(self, model: Type[Mood]):
-        super().__init__(model)
-
-    @staticmethod
-    async def _replace_code(elem: Mood):
-        if 'U+' in elem.code:
-            elem.code = elem.code.replace('U+', '0x')
-
-        return elem
-
-    async def create(self, data: dict) -> Mood:
-        if 'U+' in data['code']:
-            data['code'] = data['code'].replace('U+', '0x')
-
-        return await super().create(data)
-
-    async def get_by_id(self, id_: int) -> Mood:
-        elem: Mood = await super().get_by_id(id_)
-
-        return await self._replace_code(elem)
-
-    async def get_all(self) -> list[Mood]:
-        all_elems: list[Mood] = await super().get_all()
-        for elem in all_elems:
-            if 'U+' in elem.code:
-                elem.code = await self._replace_code(elem)
-
-        return all_elems
 
 
 class CRUD:

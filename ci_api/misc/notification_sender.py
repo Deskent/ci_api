@@ -1,7 +1,5 @@
 #pip install exponent_server_sdk
 
-import asyncio
-
 from exponent_server_sdk import (
     DeviceNotRegisteredError,
     PushClient,
@@ -20,15 +18,16 @@ def _create_push_messages(message: str, tokens: list[str], extra=None) -> list[P
     ]
 
 
-async def send_push_messages(message: str, tokens: list[str], extra=None) -> None:
+async def send_push_messages(message: str, tokens: list[str], extra=None) -> list[PushTicket]:
     logger.info(f'Send push message {message} to tokens: {tokens}')
     push_messages: list[PushMessage] = _create_push_messages(message, tokens, extra)
 
     try:
-        response: list[PushTicket] = PushClient().publish_multiple(push_messages=push_messages)
-        logger.info(response)
-        for ticket in response:
+        responses: list[PushTicket] = PushClient().publish_multiple(push_messages=push_messages)
+        logger.info(responses)
+        for ticket in responses:
             logger.info(f'Response: {ticket.validate_response()}')
+        return responses
     except PushServerError as exc:
         logger.error(f'PushServerError: {exc}')
     except (ConnectionError, HTTPError) as exc:
@@ -37,3 +36,5 @@ async def send_push_messages(message: str, tokens: list[str], extra=None) -> Non
         logger.error(f'DeviceNotRegisteredError: {exc}')
     except PushTicketError as exc:
         logger.error(f'PushTicketError: {exc}')
+
+    return []
