@@ -60,15 +60,17 @@ class PaymentCheckView(ModelView, model=PaymentCheck):
 class ComplexView(ModelView, model=Complex):
     name = "Комплекс упражнений"
     name_plural = "Комплексы упражнений"
-    column_list = [Complex.id, Complex.videos, Complex.number, Complex.description, Complex.duration,
-                   ]
+    column_list = [
+        Complex.id, Complex.number, Complex.description, Complex.duration,
+        Complex.videos
+    ]
     column_labels = {
         Complex.id: "ID",
         Complex.number: "Порядковый номер",
         Complex.name: "Название комплекса",
-        Complex.videos: "Упражнения",
         Complex.description: "Описание комплекса",
         Complex.duration: "Длительность",
+        Complex.videos: "Упражнения",
     }
     column_formatters = {
         Complex.duration: lambda m, a: convert_seconds_to_time(m.duration),
@@ -83,10 +85,10 @@ class UserView(ModelView, model=User):
     name_plural = "Пользователи"
     column_details_exclude_list = [User.password, User.progress]
     column_list = [
-        User.id, User.username, User.third_name, User.last_name, User.email, User.phone,
-        User.expired_at, User.level, User.created_at, User.is_active,
-        User.is_verified, User.sms_message, User.sms_call_code, User.email_code, User.push_token, User.avatar,
-        User.last_entry
+        User.id, User.email, User.phone, User.level, User.is_active, User.is_verified,
+        User.sms_message, User.push_token, User.last_entry, User.expired_at, User.username,
+        User.third_name, User.last_name, User.sms_call_code, User.email_code, User.avatar,
+        User.created_at,
     ]
     column_labels = {
         User.username: "Имя",
@@ -175,6 +177,7 @@ class RateView(ModelView, model=Rate):
         Rate.duration: "Длительность (дней)",
     }
 
+
 class AvatarView(ModelView, model=Avatar):
     name = "Аватар"
     name_plural = "Аватары"
@@ -229,14 +232,14 @@ def get_admin(app: FastAPI) -> FastAPI:
     )
 
     admin.add_view(AdminView)
+    admin.add_view(UserView)
     admin.add_view(ComplexView)
+    admin.add_view(VideoView)
     admin.add_view(UploadVideo)
     admin.add_view(RateView)
-    admin.add_view(UserView)
-    admin.add_view(VideoView)
-    admin.add_view(PaymentView)
-    admin.add_view(PaymentCheckView)
     admin.add_view(AvatarView)
     admin.add_view(MoodView)
+    admin.add_view(PaymentView)
+    admin.add_view(PaymentCheckView)
 
     return app
