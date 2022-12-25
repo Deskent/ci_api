@@ -83,7 +83,7 @@ async def check_payment_result(
         return web_context
 
     if payform_status != 'success':
-        logger.error(
+        logger.exception(
             f"\nPayform status: {payform_status}"
             f"\nPayform id: {payform_id}"
             f"\nPayform order id: {payform_order_id}"

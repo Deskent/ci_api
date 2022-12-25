@@ -89,7 +89,7 @@ def get_application():
     #         request: Request, exc: Exception
     # ):
     #     context: dict = get_base_context({"request": request})
-    #     logger.error(f"Status 500 error: \n{request.url}\n{exc}\n")
+    #     logger.exception(f"Status 500 error: \n{request.url}\n{exc}\n")
     #     logger.exception(exc)
     #
     #     return templates.TemplateResponse(

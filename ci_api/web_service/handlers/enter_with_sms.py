@@ -43,7 +43,7 @@ async def enter_via_phone_call(web_context: WebContext, user: User) -> WebContex
             web_context.template = "forget3.html"
 
     except SMSException as err:
-        logger.error(err)
+        logger.exception(err)
         web_context.error = str(err)
         web_context.template = "entry_sms.html"
 
