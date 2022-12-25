@@ -6,6 +6,7 @@ from sqlalchemy import desc
 from sqlalchemy.sql import extract
 from sqlmodel import select
 
+from config import get_redis_client
 from crud_class.ci_types import *
 from crud_class.ci_types import MODEL_TYPES
 from database.db import get_all, get_first, get_db_session
@@ -14,38 +15,57 @@ from exc.exceptions import ComplexNotFoundError
 from misc.weekdays_class import WeekDay
 from services.auth import auth_handler
 from services.utils import get_current_datetime
+from misc.redis_class import RedisDB
+
+USE_CACHE: bool = False
 
 
 class BaseCrud:
-    def __init__(self, model: MODEL_TYPES, use_cache: bool = True):
+    def __init__(self, model: MODEL_TYPES):
         self.model: MODEL_TYPES = model
-        self.use_cache: bool = use_cache
+        self.redis_db = RedisDB(model=self.model, client=get_redis_client())
 
-    async def save(self, obj: MODEL_TYPES):
+    async def save(self, obj: MODEL_TYPES, use_cache: bool = USE_CACHE):
         async for session in get_db_session():
             session.add(obj)
             await session.commit()
+
+        if use_cache:
+            await self.redis_db.save_by_id(id_=obj.id, data=obj)
         return obj
 
-    async def get_by_id(self, id_: int) -> MODEL_TYPES:
+    async def get_by_id(self, id_: int, use_cache: bool = USE_CACHE) -> MODEL_TYPES:
+        if use_cache:
+            result: MODEL_TYPES = await self.redis_db.get_by_id(id_=id_)
+            if result:
+                return result
         query = select(self.model).where(self.model.id == id_)
-        return await get_first(query)
+        result = await get_first(query)
+        if result:
+            await self.redis_db.save_by_id(id_=result.id, data=result)
+            return result
 
-    async def get_all(self) -> list[MODEL_TYPES]:
+    async def get_all(self, use_cache: bool = USE_CACHE) -> list[MODEL_TYPES]:
+        if use_cache:
+            all_elems: list[MODEL_TYPES] = await self.redis_db.load_all()
+            if all_elems:
+                return all_elems
+
         query = select(self.model).order_by(self.model.id)
         result: list[MODEL_TYPES] = await get_all(query)
+        await self.redis_db.save_all(result)
 
         return result
 
-    async def get_all_dicts(self) -> list[MODEL_TYPES]:
-        elems: list[MODEL_TYPES] = await self.get_all()
+    async def get_all_dicts(self, use_cache: bool = USE_CACHE) -> list[MODEL_TYPES]:
+        elems: list[MODEL_TYPES] = await self.get_all(use_cache=use_cache)
         if not elems:
             return []
         return [
             elem.dict() for elem in elems
         ]
 
-    async def delete_by_id(self, id_: int):
+    async def delete_by_id(self, id_: int, use_cache: bool = USE_CACHE):
         obj: MODEL_TYPES = await self.get_by_id(id_)
         if obj:
             await self.delete(obj)
@@ -278,13 +298,13 @@ class MoodCrud(BaseCrud):
 
         return await super().create(data)
 
-    async def get_by_id(self, id_: int) -> Mood:
-        elem: Mood = await super().get_by_id(id_)
+    async def get_by_id(self, id_: int, *args, **kwargs) -> Mood:
+        elem: Mood = await super().get_by_id(id_, *args, **kwargs)
 
         return await self._replace_code(elem)
 
-    async def get_all(self) -> list[Mood]:
-        all_elems: list[Mood] = await super().get_all()
+    async def get_all(self, *args, **kwargs) -> list[Mood]:
+        all_elems: list[Mood] = await super().get_all(*args, **kwargs)
         for elem in all_elems:
             if 'U+' in elem.code:
                 elem.code = await self._replace_code(elem)
@@ -327,7 +347,7 @@ class VideoCrud(BaseCrud):
 
         return 1 if not next_video else next_video.id
 
-    async def get_ordered_list(self, complex_id: int):
+    async def get_ordered_list(self, complex_id: int) -> list[Video]:
         query = (
             select(self.model)
             .where(self.model.complex_id == complex_id)
@@ -335,7 +355,7 @@ class VideoCrud(BaseCrud):
         )
         return await get_all(query)
 
-    async def get_all_by_complex_id(self, complex_id: int):
+    async def get_all_by_complex_id(self, complex_id: int) -> list[Video]:
         return await self.get_ordered_list(complex_id)
 
     async def create(self, data: dict) -> Video:
@@ -404,9 +424,8 @@ class AdminCrud(BaseCrud):
 
     async def create(self, data: dict) -> User | Administrator:
         data['password'] = await self.get_hashed_password(data['password'])
-        user = self.model(**data)
 
-        return await self.save(user)
+        return await super().create(data)
 
 
 class UserCrud(AdminCrud):
@@ -434,8 +453,6 @@ class UserCrud(AdminCrud):
     async def get_by_email_code(self, email_code: str) -> User:
         query = select(self.model).where(self.model.email_code == email_code)
         return await get_first(query)
-
-    # TODO сделать декоратором
 
     async def activate(self, user: User = None, id_: int = None) -> User:
         if await self._get_instance(user, id_):
@@ -592,3 +609,12 @@ class CRUD:
     viewed_complex = ViewedComplexCrud(model=ViewedComplex)
     viewed_video = ViewedVideoCrud(model=ViewedVideo)
     mood = MoodCrud(model=Mood)
+
+    @classmethod
+    async def initialize(cls):
+        pass
+        # await CRUD.rate.get_all(use_cache=False)
+        # await CRUD.avatar.get_all(use_cache=False)
+        # await CRUD.mood.get_all(use_cache=False)
+        # await CRUD.video.get_all(use_cache=False)
+        # await CRUD.complex.get_all(use_cache=False)

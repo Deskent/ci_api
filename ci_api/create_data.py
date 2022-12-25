@@ -262,7 +262,7 @@ async def create_fake_data(flag: bool = False):
 
     if settings.CREATE_FAKE_DATA or flag:
         logger.debug("Create fake data to DB")
-        if await CRUD.user.get_by_id(1):
+        if await CRUD.user.get_by_id(1, use_cache=False):
             return
         await create_rates()
         await create_moods()
@@ -345,18 +345,18 @@ async def create_default_data():
             'number': 1
         }
     ]
-    videos: list[Video] = await CRUD.video.get_all()
+    videos: list[Video] = await CRUD.video.get_all(False)
     if not videos:
-        if not await CRUD.complex.get_all():
+        if not await CRUD.complex.get_all(False):
             await create_complexes(complex_data)
         await create_videos(videos_data)
     if not await CRUD.video.get_hello_video():
         await create_videos(hello_video)
-    if not await CRUD.rate.get_all():
+    if not await CRUD.rate.get_all(False):
         await create_rates()
-    if not await CRUD.avatar.get_all():
+    if not await CRUD.avatar.get_all(False):
         await create_avatars()
-    if not await CRUD.mood.get_all():
+    if not await CRUD.mood.get_all(False):
         await create_moods()
 
 
