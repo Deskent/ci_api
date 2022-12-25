@@ -2,7 +2,6 @@ from crud_class.crud import CRUD
 from database.models import Video
 
 
-
 async def test_get_video_by_id(get_video):
     data: Video = await CRUD.video.get_by_id(get_video.id)
     assert data is not None
