@@ -2,21 +2,25 @@ from fastapi import APIRouter, Depends
 from starlette.responses import HTMLResponse
 
 from config import templates
+from crud_class.crud import CRUD
 from database.models import User, Complex, Video
+from misc.web_context_class import WebContext
 from services.complexes_and_videos import (
     get_viewed_videos_ids, calculate_videos_to_next_level
 )
 from services.complexes_web_context import get_all_complexes_web_context
-from crud_class.crud import CRUD
-from services.utils import convert_seconds_to_time
-from misc.web_context_class import WebContext
+from services.utils import convert_seconds_to_time, convert_to_minutes
 from web_service.utils.get_contexts import get_logged_user_context, get_user_browser_session
 from web_service.utils.title_context_func import get_page_titles
 
 router = APIRouter(tags=['web', 'charging'])
 
 
-@router.get("/complexes_list", response_class=HTMLResponse, dependencies=[Depends(get_user_browser_session)])
+@router.get(
+    "/complexes_list",
+    response_class=HTMLResponse,
+    dependencies=[Depends(get_user_browser_session)]
+)
 async def complexes_list_web(
         context: dict = Depends(get_logged_user_context)
 ):
@@ -47,7 +51,7 @@ async def videos_list_web(
             viewed_videos=viewed_videos
         )
     for video in videos:
-        video.duration = convert_seconds_to_time(video.duration)
+        video.duration = convert_to_minutes(video.duration)
     context.update(current_complex=current_complex, videos=videos, next_complex=next_complex)
 
     return templates.TemplateResponse(

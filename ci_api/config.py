@@ -106,11 +106,11 @@ LEVEL_UP_PERCENTS = 70
 MAX_VIDEO = 10
 MAX_LEVEL = 10
 log_level = 1 if settings.DEBUG else 20
-logger.add(level=log_level, sink=settings.LOGS_DIR / 'ci_api.log')
-logger.add(level=30, sink=settings.LOGS_DIR / 'errors.log')
+logger.add(level=log_level, sink=settings.LOGS_DIR / 'ci_api.log', rotation="50 MB")
+logger.add(level=30, sink=settings.LOGS_DIR / 'errors.log', rotation="100 MB")
 
 templates = Jinja2Templates(directory=settings.TEMPLATES_DIR, auto_reload=True)
 
 
 def get_redis_client() -> Redis:
-    yield aioredis.from_url(url=db.REDIS_DB)  # for json format: , encoding="utf-8", decode_responses=True)
+    yield aioredis.from_url(url=db.REDIS_DB)

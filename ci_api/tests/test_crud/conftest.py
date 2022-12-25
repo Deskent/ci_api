@@ -5,21 +5,6 @@ from database.models import Video, Complex, User
 
 
 @pytest.fixture
-async def get_video():
-    data = {
-        "description": "Описание video 99",
-        "name": "video 99",
-        "number": 99,
-        "duration": 99,
-        "complex_id": 1,
-        "file_name": "text_name.mp4"
-    }
-    video: Video = await CRUD.video.create(data)
-    yield video
-    await CRUD.video.delete_by_id(video.id)
-
-
-@pytest.fixture
 async def get_complex():
     data = {
         "description": "Описание комплекса 99",
@@ -30,6 +15,21 @@ async def get_complex():
     complex: Complex = await CRUD.complex.create(data)
     yield complex
     await CRUD.complex.delete(complex)
+
+
+@pytest.fixture
+async def get_video(get_complex):
+    data = {
+        "description": "Описание video 99",
+        "name": "video 99",
+        "number": 99,
+        "duration": 99,
+        "complex_id": get_complex.id,
+        "file_name": "text_name.mp4"
+    }
+    video: Video = await CRUD.video.create(data)
+    yield video
+    await CRUD.video.delete_by_id(video.id)
 
 
 @pytest.fixture

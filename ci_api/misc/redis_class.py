@@ -47,10 +47,10 @@ class RedisOperator(RedisBase):
             error_text = (f"Unable to connect to redis, data: not saved!"
                           f"\n {err}")
         except aioredis.exceptions.ConnectionError as err:
+            logger.exception(err)
             error_text = f"Connection error: {err}"
         # except Exception as err:
         #     error_text = f"Exception Error: {err}"
-
         raise RedisException(error_text)
 
     @abstractmethod
@@ -139,7 +139,7 @@ class RedisDB(RedisBase):
     async def save_all(self, data: list[MODEL_TYPES], timeout_sec: int = STORE_TIME_SEC):
         """Overwrite all values for model"""
 
-        logger.debug(f"All {self.model} data saved")
+        logger.debug(f"All {self.key} data saved")
 
         to_save: dict[str, MODEL_TYPES] = {
             str(elem.id): elem
@@ -150,10 +150,17 @@ class RedisDB(RedisBase):
     async def load_all(self) -> list[MODEL_TYPES]:
         """Return all values for model"""
 
-        logger.debug(f"All {self.model} data loaded")
+        logger.debug(f"All {self.key} data loaded")
 
         all_data: dict[str, MODEL_TYPES] = await self._load()
         return list(all_data.values())
+
+    async def delete_all(self) -> None:
+        """Delete key from redis"""
+
+        logger.info(f"Delete [{self.key}] from Redis")
+
+        return await self.delete_key()
 
     async def get_by_id(self, id_: int) -> MODEL_TYPES:
         """Return element by id if exists"""
@@ -161,13 +168,13 @@ class RedisDB(RedisBase):
         all_elems: dict[str, MODEL_TYPES] = await self._load()
 
         result = all_elems.get(str(id_), None)
-        logger.debug(f"Data {result} loaded")
+        logger.debug(f"Data loaded from redis: \n{result}\n")
         return result
 
     async def save_by_id(self, id_: int, data: MODEL_TYPES) -> None:
         """Overwrite element by id"""
 
-        logger.debug(f"Data {data} saved")
+        logger.debug(f"Data {self.key} saved: \n{data}\n")
         all_elems: dict[str, MODEL_TYPES] = await self._load()
         all_elems[str(id_)] = data
         await self._save(all_elems)

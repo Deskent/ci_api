@@ -61,7 +61,7 @@ async def send_sms(phone: str) -> dict:
         if await sms_service.send_sms(phone=phone, message=sms_message):
             return {"sms_message": sms_message}
     except SMSException as err:
-        logger.error(err)
+        logger.exception(err)
         result.update(error=err)
 
     return result
