@@ -15,4 +15,3 @@ async def get_checked_video(video_id: int) -> Video:
         return video
 
     raise FileNotFoundError
-
