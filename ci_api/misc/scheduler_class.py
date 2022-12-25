@@ -110,6 +110,26 @@ class CiScheduler:
         for alarm in alarms:
             await self.add_alarm(alarm)
 
+    async def update_alarms(self):
+        self.scheduler.add_job(
+            self.create_alarms,
+            'cron',
+            hour=00,
+            minute=1,
+            replace_existing=True,
+            timezone=datetime.timezone(datetime.timedelta(hours=3))
+        )
+
+    async def run(self):
+        """Add scheduler job for create notifications.
+        Add scheduler job for create alarms.
+        Add scheduler job for update alarms at 00:01 every day
+        """
+
+        await self.create_notifications()
+        await self.create_alarms()
+        await self.update_alarms()
+
     def start(self):
         return self.scheduler.start()
 
