@@ -23,7 +23,7 @@ class Complex(SQLModel, table=True):
         back_populates="complexes", sa_relationship_kwargs={"cascade": "delete"})
 
     def __str__(self):
-        return f"№ {self.number}: {self.description}"
+        return f"{self.__class__.__name__}: {self.__dict__}"
 
 
 class Video(SQLModel, table=True):
@@ -45,7 +45,7 @@ class Video(SQLModel, table=True):
         back_populates="videos", sa_relationship_kwargs={"cascade": "delete"})
 
     def __str__(self):
-        return f"{self.name}"
+        return f"{self.__class__.__name__}: {self.__dict__}"
 
 
 class Avatar(SQLModel, table=True):
@@ -54,15 +54,22 @@ class Avatar(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True, index=True)
     file_name: str = Field(nullable=False, description="Имя файла аватарки")
 
+    def __str__(self):
+        return f"{self.__class__.__name__}: {self.__dict__}"
+
 
 class Mood(SQLModel, table=True):
     __tablename__ = 'moods'
 
     id: int = Field(default=None, primary_key=True, index=True)
     code: Optional[str] = Field(nullable=True, default=None,
-                                description="HTML код настроения (эмодзи)")
+        description="HTML код настроения (эмодзи)")
     name: Optional[str] = Field(nullable=True, default=None,
-                                description="Название настроения (эмодзи)")
+        description="Название настроения (эмодзи)")
+
+
+    def __str__(self):
+        return f"{self.__class__.__name__}: {self.__dict__}"
 
 
 class User(SQLModel, table=True):
@@ -74,19 +81,19 @@ class User(SQLModel, table=True):
     third_name: str = Field(nullable=True, default='', description="Отчество")
     email: EmailStr = Field(unique=True, index=True)
     phone: str = Field(unique=True, nullable=False, min_length=10, max_length=13,
-                       description="Телефон в формате 9998887766")
+        description="Телефон в формате 9998887766")
     password: str = Field(nullable=False, max_length=256, min_length=6, exclude=True)
     gender: bool = Field(nullable=False, description='Пол, 1 - муж, 0 - жен')
     level: int = Field(nullable=False, default=1, description="Текущий уровень")
     progress: int = Field(nullable=False, default=0,
-                          description="Процент прогресса просмотра текущего комплекса")
+        description="Процент прогресса просмотра текущего комплекса")
     created_at: datetime = Field(default=datetime.now(tz=None),
-                                 description='Дата создания аккаунта')
+        description='Дата создания аккаунта')
 
-    expired_at: Optional[datetime] = Field(default=None, description = 'Дата истечения подписки',
-                                           sa_column=Column(type_=TIMESTAMP(timezone=True)))
+    expired_at: Optional[datetime] = Field(default=None, description='Дата истечения подписки',
+        sa_column=Column(type_=TIMESTAMP(timezone=True)))
     last_entry: Optional[datetime] = Field(default=None, description='Дата последнего входа',
-                                           sa_column=Column(type_=TIMESTAMP(timezone=True)))
+        sa_column=Column(type_=TIMESTAMP(timezone=True)))
     is_verified: Optional[bool] = Field(default=False, description='Верифицирован ли телефон')
     is_email_verified: Optional[bool] = Field(default=False, description='Верифицировал ли емэйл')
     is_active: Optional[bool] = Field(default=False, description='Есть ли подписка')
@@ -94,7 +101,7 @@ class User(SQLModel, table=True):
     sms_message: Optional[str] = Field(nullable=True, default=None, description="Сообщение из смс")
     sms_call_code: Optional[str] = Field(nullable=True, default=None, description="Код из звонка")
     push_token: Optional[str] = Field(nullable=True, default=None,
-                                      description="Токен для пуш-уведомлений")
+        description="Токен для пуш-уведомлений")
 
     mood: int = Field(nullable=True, default=None, foreign_key='moods.id')
     avatar: int = Field(nullable=True, default=None, foreign_key='avatars.id')
@@ -115,7 +122,7 @@ class User(SQLModel, table=True):
         back_populates="users", sa_relationship_kwargs={"cascade": "delete"})
 
     def __str__(self):
-        return f"{self.email}"
+        return f"{self.__class__.__name__}: {self.__dict__}"
 
 
 class Rate(SQLModel, table=True):
@@ -131,7 +138,7 @@ class Rate(SQLModel, table=True):
         back_populates="rates", sa_relationship_kwargs={"cascade": "delete"})
 
     def __str__(self):
-        return f"{self.id}: {self.name}"
+        return f"{self.__class__.__name__}: {self.__dict__}"
 
 
 class Administrator(SQLModel, table=True):
@@ -142,6 +149,9 @@ class Administrator(SQLModel, table=True):
     email: EmailStr = Field(unique=True, index=True)
     password: str = Field(nullable=False, max_length=256, min_length=6, exclude=True)
     name: str = Field(nullable=True, default=None)
+
+    def __str__(self):
+        return f"{self.__class__.__name__}: {self.__dict__}"
 
 
 class Alarm(SQLModel, table=True):
@@ -159,7 +169,7 @@ class Alarm(SQLModel, table=True):
     users: 'User' = Relationship(back_populates="alarms")
 
     def __str__(self):
-        return f"{self.__dict__}"
+        return f"{self.__class__.__name__}: {self.__dict__}"
 
 
 class Notification(SQLModel, table=True):
@@ -172,7 +182,7 @@ class Notification(SQLModel, table=True):
     users: 'User' = Relationship(back_populates="notifications")
 
     def __str__(self):
-        return f"{self.text}"
+        return f"{self.__class__.__name__}: {self.__dict__}"
 
 
 class ViewedComplex(SQLModel, table=True):
@@ -190,6 +200,9 @@ class ViewedComplex(SQLModel, table=True):
     complex_id: int = Field(nullable=False, foreign_key='complexes.id')
     complexes: 'Complex' = Relationship(back_populates="viewed_complexes")
 
+    def __str__(self):
+        return f"{self.__class__.__name__}: {self.__dict__}"
+
 
 class ViewedVideo(SQLModel, table=True):
     __tablename__ = 'viewed_videos'
@@ -201,6 +214,9 @@ class ViewedVideo(SQLModel, table=True):
 
     video_id: int = Field(nullable=False, foreign_key='videos.id')
     videos: 'Video' = Relationship(back_populates="viewed_videos")
+
+    def __str__(self):
+        return f"{self.__class__.__name__}: {self.__dict__}"
 
 
 class Payment(SQLModel, table=True):
@@ -215,6 +231,9 @@ class Payment(SQLModel, table=True):
     users: 'User' = Relationship(back_populates="payments")
     rate_id: int = Field(nullable=False, foreign_key='rates.id')
     rates: 'Rate' = Relationship(back_populates="payments")
+
+    def __str__(self):
+        return f"{self.__class__.__name__}: {self.__dict__}"
 
 
 class PaymentCheck(SQLModel, table=True):
@@ -242,6 +261,9 @@ class PaymentCheck(SQLModel, table=True):
     )
     users: 'User' = Relationship(back_populates="payment_checks")
 
-    rate_id: int= Field(nullable=False, foreign_key='rates.id',
-                        description="Named 'order_num' in Prodamus report")
+    rate_id: int = Field(nullable=False, foreign_key='rates.id',
+        description="Named 'order_num' in Prodamus report")
     rates: 'Rate' = Relationship(back_populates="payment_checks")
+
+    def __str__(self):
+        return f"{self.__class__.__name__}: {self.__dict__}"

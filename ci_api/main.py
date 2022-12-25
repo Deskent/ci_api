@@ -10,6 +10,7 @@ from admin.utils import create_default_admin
 from admin.views import get_admin
 from config import settings, MAX_LEVEL, logger
 from create_data import create_fake_data, recreate_db, create_default_data
+from crud_class.crud import CRUD
 from database.models import User
 from exc.exceptions import UserNotLoggedError, ComeTomorrowException
 from misc.scheduler_class import ci_scheduler
@@ -43,6 +44,7 @@ def get_application():
 
     @app.on_event("startup")
     async def on_startup():
+        await CRUD.initialize()
         await recreate_db()
         await create_default_admin()
         await create_fake_data()
