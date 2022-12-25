@@ -47,36 +47,36 @@ async def register(
     return web_context.api_render()
 
 
-@router.get("/verify_email", status_code=status.HTTP_202_ACCEPTED, response_model=UserOutput)
-async def verify_email_token(
-        token: str,
-        email: EmailStr,
-):
-    """Verify user via email code (not using)
-
-    :param email: string - Email
-
-    :param code: string - Code from sms
-
-     :return: User data as JSON
-
-    """
-
-    user: User = await CRUD.user.get_by_email(email)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-
-    if user.email_code != token:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Invalid token")
-
-    if user and not user.is_verified:
-        user.is_verified = True
-        user.email_code = None
-        await CRUD.user.save(user)
-        logger.info(f"User with id {user.id} verified")
-    logger.debug(f"Verify email token: OK")
-
-    return user
+# @router.get("/verify_email", status_code=status.HTTP_202_ACCEPTED, response_model=UserOutput)
+# async def verify_email_token(
+#         token: str,
+#         email: EmailStr,
+# ):
+#     """Verify user via email code (not using)
+#
+#     :param email: string - Email
+#
+#     :param code: string - Code from sms
+#
+#      :return: User data as JSON
+#
+#     """
+#
+#     user: User = await CRUD.user.get_by_email(email)
+#     if not user:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+#
+#     if user.email_code != token:
+#         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Invalid token")
+#
+#     if user and not user.is_verified:
+#         user.is_verified = True
+#         user.email_code = None
+#         await CRUD.user.save(user)
+#         logger.info(f"User with id {user.id} verified")
+#     logger.debug(f"Verify email token: OK")
+#
+#     return user
 
 
 @router.post("/verify_sms_code", status_code=status.HTTP_202_ACCEPTED, response_model=TokenUser)
@@ -166,7 +166,7 @@ async def set_push_token(
         push_token: str = Body(...),
         user: User = Depends(get_logged_user),
 ):
-    """Get and save token to user
+    """Save user push token to DB
 
     :return None
     """
