@@ -29,14 +29,14 @@ async def send_push_messages(message: str, tokens: list[str], extra=None) -> lis
             logger.info(f'Response: {ticket.validate_response()}')
         return responses
     except PushServerError as exc:
-        logger.error(f'PushServerError: {exc}')
+        logger.exception(f'PushServerError: {exc}')
     except (ConnectionError, HTTPError) as exc:
-        logger.error(f'PushServer ConnectionError, HTTPError: {exc}')
+        logger.exception(f'PushServer ConnectionError, HTTPError: {exc}')
     except DeviceNotRegisteredError as exc:
-        logger.error(f'DeviceNotRegisteredError: {exc}')
+        logger.exception(f'DeviceNotRegisteredError: {exc}')
     except PushTicketError as exc:
-        logger.error(f'PushTicketError: {exc}')
+        logger.exception(f'PushTicketError: {exc}')
     except ValueError as exc:
-        logger.error(f'ValueError: {exc}')
+        logger.exception(f'ValueError: {exc}')
 
     return []

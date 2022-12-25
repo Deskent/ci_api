@@ -46,8 +46,8 @@ async def get_payment_link(user: User, rate: Rate) -> str:
                 data: dict = response.json()
                 return data['payment_link']
             except json.JSONDecodeError as err:
-                logger.error(f"Prodamus get link: JSON error: {err}")
+                logger.exception(f"Prodamus get link: JSON error: {err}")
     except requests.exceptions.Timeout as err:
-        logger.error(f"Prodamus request timeout error: {err}")
+        logger.exception(f"Prodamus request timeout error: {err}")
 
     return ''

@@ -211,7 +211,7 @@ class UploadVideo(BaseView):
                 context.update(result="ok", video=video)
 
         except pydantic.error_wrappers.ValidationError as err:
-            logger.error(err)
+            logger.exception(err)
             logger.debug(f"Load file with data: FAIL")
         return self.templates.TemplateResponse(
             "upload_video.html",

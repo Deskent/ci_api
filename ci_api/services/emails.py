@@ -44,7 +44,7 @@ async def _send_mail(email: EmailStr, payload: dict) -> None:
     try:
         await FastMail(conf).send_message(message, template_name="email_sending.html")
     except ConnectionErrors as err:
-        logger.error(f"Email sending error: {str(err)}")
+        logger.exception(f"Email sending error: {str(err)}")
         raise HTTPException(
             status_code=status.HTTP_511_NETWORK_AUTHENTICATION_REQUIRED,
             detail="Invalid mailing credentials"
@@ -53,7 +53,7 @@ async def _send_mail(email: EmailStr, payload: dict) -> None:
             aiosmtplib.errors.SMTPRecipientsRefused,
             aiosmtplib.errors.SMTPDataError
     ) as err:
-        logger.error(f"Email sending error: {str(err)}")
+        logger.exception(f"Email sending error: {str(err)}")
         raise EmailException("Invalid email address")
 
 
