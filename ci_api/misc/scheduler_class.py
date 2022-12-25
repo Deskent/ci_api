@@ -83,15 +83,17 @@ class CiScheduler:
         self.scheduler: AsyncIOScheduler = scheduler
 
     async def add_alarm(self, alarm: Alarm) -> None:
-        self.scheduler.add_job(
-            send_alarm_push,
-            'cron',
-            hour=alarm.alarm_time.hour,
-            minute=alarm.alarm_time.minute,
-            replace_existing=True,
-            timezone=datetime.timezone(datetime.timedelta(hours=3)),
-            kwargs={'text': alarm.text, 'user_id': alarm.user_id}
-        )
+        if alarm.weekdays == 'all' or str(today.weekday()) in alarm.weekdays:
+            logger.debug(f"Today alarm job added: {alarm}")
+            self.scheduler.add_job(
+                send_alarm_push,
+                'cron',
+                hour=alarm.alarm_time.hour,
+                minute=alarm.alarm_time.minute,
+                replace_existing=True,
+                timezone=datetime.timezone(datetime.timedelta(hours=3)),
+                kwargs={'text': alarm.text, 'user_id': alarm.user_id}
+            )
 
     async def create_notifications(self):
         self.scheduler.add_job(
@@ -116,3 +118,7 @@ class CiScheduler:
 
 
 ci_scheduler = CiScheduler(AsyncIOScheduler())
+
+
+if __name__ == '__main__':
+    print(today.weekday())
