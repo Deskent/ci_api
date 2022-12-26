@@ -149,7 +149,7 @@ class UserFullData(BaseModel):
     gender: bool
     phone: str
     level: int
-    # is_email_verified = False
+    is_email_verified = False
     is_verified: bool = False
     is_active: bool = False
     current_complex: int = None
