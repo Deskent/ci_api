@@ -21,7 +21,7 @@ async def test_get_next_video(get_video):
     assert next_video > 0
 
 
-async def test_get_videos_duration():
+async def test_get_videos_duration(get_video):
     all_videos: list[Video] = await CRUD.video.get_all()
     videos_ids: tuple[int] = tuple(int(elem.id) for elem in all_videos)
     duration: int = await CRUD.video.get_videos_duration(videos_ids)

@@ -141,20 +141,29 @@ class UserChangePassword(Password2):
     old_password: str
 
 
-class UserSchema(User, MaxLevel):
-    pass
+class UserSchema(MaxLevel):
+    id: int
+    username: str
+    last_name: str
+    third_name: str
+    phone: str
+    email: EmailStr
+    gender: bool
+    level: int
+    current_complex: int
+    avatar: int = None
+    mood: int = None
 
 
-class UserFullData(BaseModel):
+class UserFullData(MaxLevel):
     gender: bool
     phone: str
     level: int
-    # is_email_verified = False
+    is_email_verified = False
     is_verified: bool = False
     is_active: bool = False
     current_complex: int = None
     expired_at: datetime = None
-    max_level: int = MAX_LEVEL
 
 
 class UserOutput(UserFullData):
