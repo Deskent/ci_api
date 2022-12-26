@@ -22,14 +22,6 @@ class TestComplex(BaseTest):
         assert user.get('id') == self.user_id
         assert data.get('not_viewed_complexes') is not None
 
-    @pytest.mark.server
-    def test_get_viewed_complexes_list(self):
-        response = self.session.get(self.base_url + "/complex/viewed/list", headers=self.headers)
-        assert response.status_code == 200
-        data = response.json()
-        user: dict = data.get('user')
-        assert user.get('id') == self.user_id
-
     @pytest.mark.skip("Not delete relations viewed complexes")
     def test_set_viewed_complex(self):
         response = self.session.get(

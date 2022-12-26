@@ -14,14 +14,14 @@ from misc.web_context_class import WebContext
 router = APIRouter(prefix="/complex", tags=['Complexes'])
 
 
-@router.get("/", response_model=UserProgress)
-async def current_progress(
-        user: User = Depends(get_logged_user)
-):
-    """
-    Return current user views progress
-    """
-    return user
+# @router.get("/", response_model=UserProgress)
+# async def current_progress(
+#         user: User = Depends(get_logged_user)
+# ):
+#     """
+#     Return current user views progress
+#     """
+#     return user
 
 
 @router.get("/list", response_model=ComplexesListWithViewedAndNot)
@@ -44,18 +44,6 @@ async def get_all_complexes_api():
 
     web_context: WebContext = await get_all_complexes_web_context({})
     return web_context.api_render()
-
-
-@router.get("/viewed/list", response_model=dict)
-async def get_viewed_complexes_api(
-        user: User = Depends(get_logged_user)
-):
-    """Return user, complexes list and viewed_complexes list as JSON"""
-
-    complexes: list[Complex] = await CRUD.complex.get_all()
-    viewed: list[ViewedComplex] = await CRUD.viewed_complex.get_all_viewed_complexes(user.id)
-
-    return dict(user=UserOutput(**user.dict()), complexes=complexes, viewed=viewed)
 
 
 @router.get(
