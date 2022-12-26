@@ -22,10 +22,11 @@ class TestComplex(BaseTest):
         assert user.get('id') == self.user_id
         assert data.get('not_viewed_complexes') is not None
 
-    @pytest.mark.skip("Not delete relations viewed complexes")
+    @pytest.mark.server
     def test_set_viewed_complex(self):
-        response = self.session.get(
-            self.base_url + "/complex/complex_viewed/1", headers=self.headers)
+        payload = {"id": 1}
+        response = self.session.post(
+            self.base_url + "/complex/set_viewed", headers=self.headers, json=payload)
         assert response.status_code == 200
         data = response.json()
         assert data.get('level_up') is not None
