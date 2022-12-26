@@ -7,6 +7,7 @@ from database.models import User, Mood, Video
 from schemas.complexes_videos import ComplexesListWithViewedAndNot, ComplexViewedCheckLevelUp
 from schemas.user_schema import EntryModalWindow, UserMood
 from services.complexes_web_context import get_complexes_list_web_context
+from services.user import get_modal_window_first_entry
 from services.videos_methods import get_viewed_complex_response
 from misc.web_context_class import WebContext
 from web_service.utils.get_contexts import get_user_browser_session
@@ -96,26 +97,7 @@ async def check_first_entry_or_new_user(
 
     :return: JSON
     """
-
-
-    if await CRUD.user.is_new_user(user):
-        user: User = await CRUD.user.set_last_entry_today(user)
-        await CRUD.user.set_subscribe_to(days=7, user=user)
-        hello_video: Video = await CRUD.video.get_hello_video()
-
-        return EntryModalWindow(user=user, new_user=True, hello_video=hello_video)
-
-    if await CRUD.user.is_first_entry_today(user):
-        user: User = await CRUD.user.set_last_entry_today(user)
-        if not await CRUD.user.check_is_active(user):
-            return EntryModalWindow(user=user, is_expired=True)
-        elif user.level > 6:
-            emojies: list[Mood] = await CRUD.mood.get_all()
-
-            return EntryModalWindow(
-                user=user, emojies=emojies, today_first_entry=True)
-
-    return EntryModalWindow(user=user)
+    return await get_modal_window_first_entry(user)
 
 
 @router.post(

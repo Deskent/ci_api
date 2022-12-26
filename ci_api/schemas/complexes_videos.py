@@ -50,8 +50,11 @@ class VideoUpload(VideoBase):
         )
 
 
-class ComplexTimeDuration(BaseModel):
+class ComplexID(BaseModel):
     id: int
+
+
+class ComplexTimeDuration(ComplexID):
     number: int
     name: str | None
     description: str

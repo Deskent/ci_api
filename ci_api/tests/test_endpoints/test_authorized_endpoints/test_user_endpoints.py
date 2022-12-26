@@ -40,7 +40,7 @@ class TestUsers(BaseTest):
             "password2": self.user_payload["password"]
         }
         response = self.session.put(
-            self.base_url + "/auth/change_password", json=payload, headers=self.headers)
+            self.base_url + "/users/change_password", json=payload, headers=self.headers)
         assert response.status_code == 202
 
     @pytest.mark.server
