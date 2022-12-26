@@ -23,11 +23,11 @@ router = APIRouter(prefix="/complex", tags=['Complexes'])
 #     return user
 
 
-@router.get("/list", response_model=ComplexesListWithViewedAndNot)
+@router.get("/state", response_model=ComplexesListWithViewedAndNot)
 async def get_complexes_list_api(
         user: User = Depends(get_logged_user)
 ):
-    """Return viewed_complexes, today_complex, not_viewed_complexes, user"""
+    """Return user state of viewed_complexes, today_complex, not_viewed_complexes"""
 
     web_context: WebContext = await get_complexes_list_web_context({}, user)
     return web_context.api_render()

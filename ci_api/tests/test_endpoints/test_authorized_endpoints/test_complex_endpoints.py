@@ -14,8 +14,8 @@ class TestComplex(BaseTest):
         assert data.get('name') is not None
 
     @pytest.mark.server
-    def test_get_complexes_list(self):
-        response = self.session.get(self.base_url + "/complex/list", headers=self.headers)
+    def test_get_complexes_state(self):
+        response = self.session.get(self.base_url + "/complex/state", headers=self.headers)
         assert response.status_code == 200
         data: dict = response.json()
         user: dict = data.get('user')
