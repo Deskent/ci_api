@@ -1,15 +1,14 @@
 from fastapi import APIRouter, Depends, status
 
+from crud_class.crud import CRUD
+from database.models import User, Complex, Video
 from exc.exceptions import ComplexNotFoundError
-from database.models import User, Complex, Video, ViewedComplex
+from misc.web_context_class import WebContext
 from schemas.complexes_videos import ComplexData, ComplexesListWithViewedAndNot
-from schemas.user_schema import UserProgress, UserOutput
 from services.complexes_web_context import get_complexes_list_web_context, \
     get_all_complexes_web_context
 from services.depends import get_logged_user
-from crud_class.crud import CRUD
 from services.videos_methods import get_viewed_complex_response
-from misc.web_context_class import WebContext
 
 router = APIRouter(prefix="/complex", tags=['Complexes'])
 
