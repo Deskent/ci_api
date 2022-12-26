@@ -4,10 +4,11 @@ from config import logger
 from exc.exceptions import UserNotFoundErrorApi
 from database.models import User, Alarm, Notification, Rate
 from schemas.alarms import AlarmFull
-from schemas.user_schema import UserSchema, UserEditProfile
+from schemas.user_schema import UserSchema, UserEditProfile, EntryModalWindow, UserMood
 from services.depends import get_logged_user
 from crud_class.crud import CRUD
 from misc.weekdays_class import WeekDay
+from services.user import get_modal_window_first_entry
 from web_service.handlers.profile_web_contexts import get_edit_profile_web_context
 
 router = APIRouter(prefix="/users", tags=['Users'])
@@ -144,3 +145,46 @@ async def edit_user_api(
 
     web_context = await get_edit_profile_web_context(context={}, user_data=user_data, user=user)
     return web_context.api_render()
+
+
+@router.get(
+    "/check_first_entry",
+    status_code=status.HTTP_200_OK,
+    response_model=EntryModalWindow
+)
+async def check_first_entry_or_new_user(
+        user: User = Depends(get_logged_user)
+):
+    """
+    Return today_first_entry = True and list of emojies if user
+    entered first time today and user level > 6.
+
+    Return new_user = True if user registered now have first entry and
+    object 'hello_video' with hello video data.
+
+    Return is_expired = True if user subscribe expired.
+
+    Return user as JSON else.
+
+    :param user: Logged user
+
+    :return: JSON
+    """
+
+    return await get_modal_window_first_entry(user)
+
+
+@router.post(
+    "/set_user_mood",
+    status_code=status.HTTP_202_ACCEPTED
+)
+async def set_user_mood(
+        mood: UserMood,
+        user: User = Depends(get_logged_user)
+):
+    """
+    Set mood for user
+
+    :return: null
+    """
+    await CRUD.user.set_mood(mood.mood_id, user=user)

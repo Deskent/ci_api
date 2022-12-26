@@ -5,8 +5,9 @@ from starlette.datastructures import FormData
 from config import logger
 from exc.exceptions import PasswordMatchError
 from exc.register import EmailExistsError, PhoneExistsError, SmsServiceError
-from database.models import User, Administrator, Rate, Complex
-from schemas.user_schema import UserRegistration, UserLogin, PhoneNumber, UserPhoneLogin
+from database.models import User, Administrator, Rate, Complex, Video, Mood
+from schemas.user_schema import UserRegistration, UserLogin, PhoneNumber, UserPhoneLogin, \
+    EntryModalWindow
 from crud_class.crud import CRUD
 from services.utils import generate_four_random_digits_string
 from misc.web_context_class import WebContext
@@ -119,3 +120,26 @@ async def register_new_user_web_context(
     web_context.template = "forget2.html"
 
     return web_context
+
+
+async def get_modal_window_first_entry(user: User) -> EntryModalWindow:
+    """Check what modal window need to return if user first entry today"""
+
+    if await CRUD.user.is_new_user(user):
+        user: User = await CRUD.user.set_last_entry_today(user)
+        await CRUD.user.set_subscribe_to(days=7, user=user)
+        hello_video: Video = await CRUD.video.get_hello_video()
+
+        return EntryModalWindow(user=user, new_user=True, hello_video=hello_video)
+
+    if await CRUD.user.is_first_entry_today(user):
+        user: User = await CRUD.user.set_last_entry_today(user)
+        if not await CRUD.user.check_is_active(user):
+            return EntryModalWindow(user=user, is_expired=True)
+        elif user.level > 6:
+            emojies: list[Mood] = await CRUD.mood.get_all()
+
+            return EntryModalWindow(
+                user=user, emojies=emojies, today_first_entry=True)
+
+    return EntryModalWindow(user=user)
