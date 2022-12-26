@@ -1,14 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request, Body
-from pydantic import EmailStr
+from fastapi import APIRouter, status, Request
 
-from config import logger
-from crud_class.crud import CRUD
-from database.models import User
-from exc.exceptions import UserNotFoundErrorApi
 from misc.web_context_class import WebContext
-from schemas.user_schema import UserPhoneCode, TokenUser, UserOutput, UserSchema
-from schemas.user_schema import UserRegistration, UserPhoneLogin, UserChangePassword
-from services.depends import get_logged_user
+from schemas.user_schema import UserPhoneCode, TokenUser, UserSchema
+from schemas.user_schema import UserRegistration, UserPhoneLogin
 from services.user import register_new_user_web_context
 from web_service.handlers.common import user_login_via_phone
 from web_service.handlers.enter_with_sms import approve_sms_code_or_call_code, \
@@ -98,28 +92,6 @@ async def verify_sms_code(
     return web_context.api_render()
 
 
-@router.post(
-    "/verify_call_code",
-    status_code=status.HTTP_202_ACCEPTED,
-    response_model=TokenUser)
-async def verify_call_code(
-        request: Request,
-        data: UserPhoneCode
-):
-    """Verify user via call code
-
-    :param phone: string - phone number in format: 9998887766
-
-    :param code: string - Code from phone call
-
-     :return: Authorization token as JSON and user as JSON
-    """
-
-    web_context: WebContext = await approve_sms_code_or_call_code(request=request,
-        context={}, phone=data.phone, code=data.code, check_call=True)
-    return web_context.api_render()
-
-
 @router.post("/login", response_model=TokenUser)
 async def login(
         user_data: UserPhoneLogin
@@ -137,39 +109,26 @@ async def login(
 
     return web_context.api_render()
 
-
-@router.put("/change_password", status_code=status.HTTP_202_ACCEPTED)
-async def change_password(
-        data: UserChangePassword,
-        user: User = Depends(get_logged_user),
-):
-    """
-    Change password
-
-    :param old_password: string - Old password
-
-    :param password: string - new password
-
-    :param password2: string - Repeat new password
-
-    :return: None
-    """
-    if not await CRUD.user.is_password_valid(user, data.old_password):
-        raise UserNotFoundErrorApi
-    user.password = await CRUD.user.get_hashed_password(data.password)
-    await CRUD.user.save(user)
-    logger.info(f"User with id {user.id} change password")
-
-
-@router.put("/set_push_token", status_code=status.HTTP_202_ACCEPTED)
-async def set_push_token(
-        push_token: str = Body(...),
-        user: User = Depends(get_logged_user),
-):
-    """Save user push token to DB
-
-    :return None
-    """
-
-    user.push_token = push_token
-    await CRUD.user.save(user)
+#
+# @router.post(
+#     "/verify_call_code",
+#     status_code=status.HTTP_202_ACCEPTED,
+#     response_model=TokenUser)
+# async def verify_call_code(
+#         request: Request,
+#         data: UserPhoneCode
+# ):
+#     """Verify user via call code
+#
+#     :param phone: string - phone number in format: 9998887766
+#
+#     :param code: string - Code from phone call
+#
+#      :return: Authorization token as JSON and user as JSON
+#     """
+#
+#     web_context: WebContext = await approve_sms_code_or_call_code(request=request,
+#         context={}, phone=data.phone, code=data.code, check_call=True)
+#     return web_context.api_render()
+#
+#

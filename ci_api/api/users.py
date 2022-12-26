@@ -1,10 +1,12 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Body
+from starlette import status
 
 from config import logger
 from exc.exceptions import UserNotFoundErrorApi
 from database.models import User, Alarm, Notification, Rate
 from schemas.alarms import AlarmFull
-from schemas.user_schema import UserSchema, UserEditProfile, EntryModalWindow, UserMood
+from schemas.user_schema import UserSchema, UserEditProfile, EntryModalWindow, UserMood, \
+    UserChangePassword
 from services.depends import get_logged_user
 from crud_class.crud import CRUD
 from misc.weekdays_class import WeekDay
@@ -188,3 +190,40 @@ async def set_user_mood(
     :return: null
     """
     await CRUD.user.set_mood(mood.mood_id, user=user)
+
+
+@router.put("/change_password", status_code=status.HTTP_202_ACCEPTED)
+async def change_password(
+        data: UserChangePassword,
+        user: User = Depends(get_logged_user),
+):
+    """
+    Change password
+
+    :param old_password: string - Old password
+
+    :param password: string - new password
+
+    :param password2: string - Repeat new password
+
+    :return: None
+    """
+    if not await CRUD.user.is_password_valid(user, data.old_password):
+        raise UserNotFoundErrorApi
+    user.password = await CRUD.user.get_hashed_password(data.password)
+    await CRUD.user.save(user)
+    logger.info(f"User with id {user.id} change password")
+
+
+@router.put("/set_push_token", status_code=status.HTTP_202_ACCEPTED)
+async def set_push_token(
+        push_token: str = Body(...),
+        user: User = Depends(get_logged_user),
+):
+    """Save user push token to DB
+
+    :return None
+    """
+
+    user.push_token = push_token
+    await CRUD.user.save(user)
