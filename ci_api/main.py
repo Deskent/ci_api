@@ -1,4 +1,7 @@
 # raise ValueError('НАПИШИ ТЕСТЫ')
+import os
+import platform
+import time
 
 import uvicorn
 from fastapi import FastAPI, Request
@@ -21,9 +24,12 @@ from web_service.utils.get_contexts import (
     get_base_context, get_browser_session_token, get_session_user, get_logged_user_context
 )
 
+if platform.system().lower() == "linux":
+    os.environ['TZ'] = 'UTC'
+    time.tzset()
+
 
 def get_application():
-
     app = FastAPI(docs_url=settings.DOCS_URL, redoc_url=settings.DOCS_URL, debug=settings.DEBUG)
 
     origins = ["*"]
