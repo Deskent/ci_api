@@ -30,7 +30,6 @@ if platform.system().lower() == "linux":
 
 
 def get_application():
-
     app = FastAPI(docs_url=settings.DOCS_URL, redoc_url=settings.DOCS_URL, debug=settings.DEBUG)
 
     origins = ["*"]

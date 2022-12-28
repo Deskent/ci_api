@@ -3,9 +3,9 @@ from datetime import datetime, timedelta
 
 from admin.utils import create_default_admin
 from config import logger, settings
+from crud_class.crud import CRUD
 from database.db import drop_db, create_db
 from database.models import Complex, Rate, Video
-from crud_class.crud import CRUD
 
 
 async def create_complexes(data: list[dict] = None):
