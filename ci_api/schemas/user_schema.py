@@ -5,7 +5,7 @@ from fastapi import Form
 from pydantic import BaseModel, validator, EmailStr
 
 from config import logger, MAX_LEVEL
-from exc.exceptions import PhoneNumberError, PasswordMatchError
+from exc.exceptions import PhoneNumberError, PasswordMatchError, SmsCodeNotValid
 from database.models import User
 
 
@@ -114,8 +114,8 @@ class SmsCode(BaseModel):
     @validator('code')
     def password_match(cls, code, values):
         if len(code) != 4:
-            logger.warning("Passwords dont match")
-            raise PasswordMatchError
+            logger.warning(SmsCodeNotValid.detail)
+            raise SmsCodeNotValid
         return code
 
 
