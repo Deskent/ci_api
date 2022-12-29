@@ -26,6 +26,7 @@ def _get_viewed_complexes(
     ]
     return _convert_duration_from_int_to_time(data)
 
+
 def _get_not_viewed_complexes(
         complexes: list[Complex],
         user_viewed_complexes: list[int]
