@@ -53,8 +53,7 @@ class BaseCrud:
 
         query = select(self.model).order_by(self.model.id)
         result: list[MODEL_TYPES] = await get_all(query)
-        if use_cache:
-            await self.redis_db.save_all(result)
+        await self.redis_db.save_all(result)
 
         return result
 
