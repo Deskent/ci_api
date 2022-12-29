@@ -6,7 +6,7 @@ from sqlalchemy import desc
 from sqlalchemy.sql import extract
 from sqlmodel import select
 
-from config import get_redis_client
+from config import get_redis_client, settings
 from crud_class.ci_types import *
 from crud_class.ci_types import MODEL_TYPES
 from database.db import get_all, get_first, get_db_session
@@ -17,7 +17,7 @@ from services.auth import auth_handler
 from services.utils import get_current_datetime
 from misc.redis_class import RedisDB
 
-USE_CACHE: bool = True
+USE_CACHE: bool = settings.USE_CACHE
 
 
 class BaseCrud:
@@ -704,7 +704,8 @@ class CRUD:
         Load DB data for next models:
             Rate, Avatar, Mood, Video, Complex
         """
-
+        if not USE_CACHE:
+            return
         await CRUD.rate._delete_from_redis()
         await CRUD.rate.get_all(use_cache=False)
         await CRUD.avatar._delete_from_redis()

@@ -36,6 +36,7 @@ class Settings(BaseSettings):
     MAIL_SSL_TLS: bool
     SECRET: str
     HASH_ALGORITHM: str
+    USE_CACHE: bool = False
 
     NOTIFICATION_HOUR: int = 14
     DEBUG: bool = False
