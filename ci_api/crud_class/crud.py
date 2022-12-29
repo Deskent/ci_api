@@ -26,15 +26,19 @@ class BaseCrud:
         self.redis_db = RedisDB(model=self.model, client=get_redis_client())
 
     async def save(self, obj: MODEL_TYPES, use_cache: bool = USE_CACHE):
+        """Save model instance to DB and to redis """
+
         async for session in get_db_session():
             session.add(obj)
             await session.commit()
 
-        if use_cache:
-            await self.redis_db.save_by_id(id_=obj.id, data=obj)
+        await self.redis_db.save_by_id(id_=obj.id, data=obj)
         return obj
 
     async def get_by_id(self, id_: int, use_cache: bool = USE_CACHE) -> MODEL_TYPES:
+        """Return one record from redis if exists, else get from DB,
+        save to redis and return"""
+
         if use_cache:
             result: MODEL_TYPES = await self.redis_db.get_by_id(id_=id_)
             if result:
@@ -46,6 +50,9 @@ class BaseCrud:
             return result
 
     async def get_all(self, use_cache: bool = USE_CACHE) -> list[MODEL_TYPES]:
+        """Return all ordered by id records from redis if exists, else get all records,
+        save them to redis and return"""
+
         if use_cache:
             all_elems: list[MODEL_TYPES] = await self.redis_db.load_all()
             if all_elems:
@@ -57,30 +64,30 @@ class BaseCrud:
 
         return result
 
-    async def get_all_dicts(self, use_cache: bool = USE_CACHE) -> list[MODEL_TYPES]:
-        elems: list[MODEL_TYPES] = await self.get_all(use_cache=use_cache)
-        if not elems:
-            return []
-        return [
-            elem.dict() for elem in elems
-        ]
-
     async def delete_by_id(self, id_: int, use_cache: bool = USE_CACHE):
+        """Delete records by id"""
+
         obj: MODEL_TYPES = await self.get_by_id(id_)
         if obj:
             await self.delete(obj)
 
     async def _delete_from_redis(self):
+        """Delete all records from redis"""
+
         await self.redis_db.delete_all()
 
     @staticmethod
     async def delete(obj: MODEL_TYPES) -> None:
+        """Delete object from DB"""
+
         async for session in get_db_session():
             await session.delete(obj)
             await session.commit()
             logger.debug(f"Object: {obj} deleted")
 
     async def create(self, data: dict) -> MODEL_TYPES:
+        """Create and save instance from data"""
+
         instance = self.model(**data)
         return await self.save(instance)
 
@@ -90,6 +97,7 @@ class AvatarCrud(BaseCrud):
         super().__init__(model)
 
     async def get_first_id(self) -> int:
+        """Return first avatar"""
         query = select(self.model.id).order_by(self.model.id)
         return await get_first(query)
 
@@ -99,6 +107,8 @@ class RateCrud(BaseCrud):
         super().__init__(model)
 
     async def get_free(self) -> Rate:
+        """Return Free rate"""
+
         query = select(self.model).where(self.model.price == 0)
         return await get_first(query)
 
@@ -108,6 +118,8 @@ class AlarmCrud(BaseCrud):
         super().__init__(model)
 
     async def create(self, data: dict) -> Alarm:
+        """Reformat weekdays from list to string and save"""
+
         week_days: WeekDay = WeekDay(data['weekdays'])
         data.update(weekdays=week_days.as_string)
 
@@ -125,7 +137,8 @@ class AlarmCrud(BaseCrud):
 
         return await get_all(query)
 
-    async def for_response(self, obj: Alarm) -> Alarm:
+    @staticmethod
+    async def for_response(obj: Alarm) -> Alarm:
         """Replace weekdays from digit (index) format [01234] to text
         format ['sunday', 'monday']
         Remove seconds from alarm_time
@@ -177,6 +190,7 @@ class ViewedComplexCrud(BaseCrud):
         super().__init__(model)
 
     async def add_viewed(self, user_id: int, complex_id: int) -> ViewedComplex:
+        """Add viewed complex to DB if not exists"""
 
         query = (
             select(self.model)
@@ -239,6 +253,8 @@ class ViewedVideoCrud(BaseCrud):
         super().__init__(model)
 
     async def add_viewed(self, user_id: int, video_id: int) -> ViewedVideo:
+        """Add viewed video to DB if not exists"""
+
         query = (
             select(self.model)
             .where(
@@ -262,6 +278,8 @@ class PaymentCrud(BaseCrud):
         super().__init__(model)
 
     async def get_by_user_and_rate_id(self, user_id: int, rate_id: int) -> Payment:
+        """Return payment instance for user using rate_id"""
+
         query = (
             select(self.model)
             .where(
@@ -296,17 +314,23 @@ class MoodCrud(BaseCrud):
         return elem
 
     async def create(self, data: dict) -> Mood:
+        """Replace U+ to 0x in code if exists"""
+
         if 'U+' in data['code']:
             data['code'] = data['code'].replace('U+', '0x')
 
         return await super().create(data)
 
     async def get_by_id(self, id_: int, *args, **kwargs) -> Mood:
+        """Return instance with replaced U+ to 0x code"""
+
         elem: Mood = await super().get_by_id(id_, *args, **kwargs)
 
         return await self._replace_code(elem)
 
     async def get_all(self, *args, **kwargs) -> list[Mood]:
+        """Return all instances with replaced U+ to 0x in them code"""
+
         all_elems: list[Mood] = await super().get_all(*args, **kwargs)
         for elem in all_elems:
             if 'U+' in elem.code:
@@ -320,10 +344,14 @@ class ComplexCrud(BaseCrud):
         super().__init__(model)
 
     async def get_first(self) -> Complex:
+        """Return start complex id"""
+
         query = select(self.model).order_by(self.model.number)
         return await get_first(query)
 
     async def next_complex(self, obj: Complex) -> Complex:
+        """Return next complex for current complex instance"""
+
         query = select(self.model).where(self.model.number == obj.number + 1)
         next_complex: Complex = await get_first(query)
         if not next_complex:
@@ -345,12 +373,16 @@ class VideoCrud(BaseCrud):
         super().__init__(model)
 
     async def next_video_id(self, video: Video) -> int:
+        """Return next video for current video"""
+
         query = select(self.model).where(self.model.number == video.number + 1)
         next_video: Video = await get_first(query)
 
         return 1 if not next_video else next_video.id
 
     async def get_ordered_list(self, complex_id: int) -> list[Video]:
+        """Return ordered list of videos for complex with current_id"""
+
         query = (
             select(self.model)
             .where(self.model.complex_id == complex_id)
@@ -359,6 +391,8 @@ class VideoCrud(BaseCrud):
         return await get_all(query)
 
     async def get_all_by_complex_id(self, complex_id: int) -> list[Video]:
+        """Return ordered list of videos for complex with current_id"""
+
         return await self.get_ordered_list(complex_id)
 
     async def create(self, data: dict) -> Video:
@@ -377,12 +411,16 @@ class VideoCrud(BaseCrud):
         return await super().create(data)
 
     async def get_videos_duration(self, videos_ids: tuple[int]) -> int:
+        """Return summary duration for videos with ids from videos_ids"""
+
         query = select(self.model.duration).where(self.model.id.in_(videos_ids))
         durations: list[int] = await get_all(query)
 
         return sum(durations)
 
     async def delete(self, obj: Video) -> None:
+        """Reduce complex counter and duration before delete video"""
+
         current_complex: Complex = await CRUD.complex.get_by_id(obj.complex_id)
         current_complex.video_count -= 1
         current_complex.duration -= obj.duration
@@ -401,31 +439,45 @@ class AdminCrud(BaseCrud):
         super().__init__(model)
 
     async def get_by_email(self, email: EmailStr) -> User | Administrator:
+        """Return user instance using email"""
+
         query = select(self.model).where(self.model.email == email)
         return await get_first(query)
 
     async def get_by_token(self, token: str) -> User | Administrator:
+        """Return user instance using auth token"""
+
         user_id: int = auth_handler.decode_token(token)
 
         return await self.get_by_id(user_id)
 
     @staticmethod
     async def get_hashed_password(password: str) -> str:
+        """Return hashed password"""
+
         return auth_handler.get_password_hash(password)
 
     @staticmethod
     async def get_user_id_from_email_token(token: str) -> str:
+        """Return user instance using email sent token"""
+
         return auth_handler.decode_token(token)
 
     @staticmethod
     async def is_password_valid(obj: Type[User | Administrator], password: str) -> bool:
+        """Checks passwords equal"""
+
         return auth_handler.verify_password(password, obj.password)
 
     @staticmethod
     async def get_user_token(obj: Type[User | Administrator]) -> str:
+        """Return user auth token"""
+
         return auth_handler.encode_token(obj.id)
 
     async def create(self, data: dict) -> User | Administrator:
+        """Create user with hashed password. Return user instance"""
+
         data['password'] = await self.get_hashed_password(data['password'])
 
         return await super().create(data)
@@ -442,7 +494,9 @@ class UserCrud(AdminCrud):
         self.user = user
         return self.user
 
-    async def create(self, data: dict) -> User | Administrator:
+    async def create(self, data: dict) -> User:
+        """Create user with hashed password and default avatar. Return user instance"""
+
         data['password'] = await self.get_hashed_password(data['password'])
         data['avatar'] = await CRUD.avatar.get_first_id()
         user = self.model(**data)
@@ -450,49 +504,68 @@ class UserCrud(AdminCrud):
         return await self.save(user)
 
     async def get_by_phone(self, phone: str) -> User:
+        """Return user instance using user phone"""
+
         query = select(self.model).where(self.model.phone == phone)
         return await get_first(query)
 
     async def get_by_email_code(self, email_code: str) -> User:
+        """Return user instance using user email_code"""
+
         query = select(self.model).where(self.model.email_code == email_code)
         return await get_first(query)
 
     async def activate(self, user: User = None, id_: int = None) -> User:
+        """Set user is active"""
+
         if await self._get_instance(user, id_):
             self.user.is_active = True
             return await self.save(self.user)
 
     async def deactivate(self, user: User = None, id_: int = None) -> User:
+        """Set user is not active"""
+
         if await self._get_instance(user, id_):
             self.user.is_active = False
             return await self.save(self.user)
 
     async def clean_sms_code(self, user: User = None, id_: int = None) -> User:
+        """Clean user sms_code"""
+
         if await self._get_instance(user, id_):
             self.user.sms_message = ''
             return await self.save(self.user)
 
     async def clean_sms_call_code(self, user: User = None, id_: int = None) -> User:
+        """Clean user call_code"""
+
         if await self._get_instance(user, id_):
             self.user.sms_call_code = ''
             return await self.save(self.user)
 
     async def clean_email_code(self, user: User = None, id_: int = None) -> User:
+        """Clean user email_code"""
+
         if await self._get_instance(user, id_):
             self.user.email_code = ''
             return await self.save(self.user)
 
     async def set_verified(self, user: User = None, id_: int = None) -> User:
+        """Set user is verified"""
+
         if await self._get_instance(user, id_):
             self.user.is_verified = True
             return await self.save(self.user)
 
     async def set_not_verified(self, user: User = None, id_: int = None) -> User:
+        """Set user is not verified"""
+
         if await self._get_instance(user, id_):
             self.user.is_verified = False
             return await self.save(self.user)
 
     async def level_up(self, user: User = None, id_: int = None) -> User:
+        """Set up user level, next complex and clean progress scale"""
         if await self._get_instance(user, id_):
             if self.user.level < 10:
                 next_complex: Complex = await CRUD.complex.get_next_complex_by_id(user.current_complex)
@@ -509,6 +582,7 @@ class UserCrud(AdminCrud):
         return await get_first(query)
 
     async def set_subscribe_to(self, days: int, user: User = None, id_: int = None) -> User:
+        """Set user subcribe, is active and expired data"""
         if await self._get_instance(user, id_):
             if not user.expired_at or await self.check_is_active(self.user):
                 user.expired_at = get_current_datetime()
@@ -525,16 +599,22 @@ class UserCrud(AdminCrud):
             return await self.save(user)
 
     async def set_mood(self, mood_id: int, user: User = None, id_: int = None) -> User:
+        """Set user mood"""
+
         if await self._get_instance(user, id_):
             self.user.mood = mood_id
             return await self.save(self.user)
 
     async def set_avatar(self, avatar_id: int, user: User = None, id_: int = None) -> User:
+        """Set user avatar"""
+
         if await self._get_instance(user, id_):
             self.user.avatar = avatar_id
             return await self.save(self.user)
 
     async def check_is_active(self, user: User = None, id_: int = None) -> bool:
+        """Check is user have active subscribe. Set False if expired."""
+
         if await self._get_instance(user, id_):
             if user.expired_at and user.expired_at.date() < get_current_datetime().date():
                 user.is_active = False
@@ -550,6 +630,8 @@ class UserCrud(AdminCrud):
             return self.user.last_entry.date() != get_current_datetime().date()
 
     async def is_new_user(self, user: User = None, id_: int = None) -> bool:
+        """Check is user new"""
+
         if await self._get_instance(user, id_):
             return self.user.last_entry is None
 
@@ -565,6 +647,8 @@ class UserCrud(AdminCrud):
         return await get_all(query)
 
     async def get_users_ids_for_create_notifications(self) -> list[int]:
+        """Return users IDs list for sending notifications"""
+
         today: datetime = datetime.today()
         query = (
             select(self.model.id)
@@ -615,6 +699,12 @@ class CRUD:
 
     @classmethod
     async def initialize(cls):
+        """Delete all data from redis for next models:
+            Rate, Avatar, Mood, Video, Complex
+        Load DB data for next models:
+            Rate, Avatar, Mood, Video, Complex
+        """
+
         await CRUD.rate._delete_from_redis()
         await CRUD.rate.get_all(use_cache=False)
         await CRUD.avatar._delete_from_redis()
