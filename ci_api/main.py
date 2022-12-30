@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
 from admin.utils import create_default_admin
-from admin.views import get_admin
+from admin.views import add_admin_views
 from config import settings, MAX_LEVEL, logger
 from create_data import create_fake_data, recreate_db, create_default_data
 from crud_class.crud import CRUD
@@ -29,9 +29,7 @@ if platform.system().lower() == "linux":
     time.tzset()
 
 
-def get_application():
-    app = FastAPI(docs_url=settings.DOCS_URL, redoc_url=settings.DOCS_URL, debug=settings.DEBUG)
-
+def _add_cors_middleware(app):
     origins = ["*"]
 
     app.add_middleware(
@@ -41,6 +39,12 @@ def get_application():
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+
+def get_application():
+    app = FastAPI(docs_url=settings.DOCS_URL, redoc_url=settings.DOCS_URL, debug=settings.DEBUG)
+
+    _add_cors_middleware(app)
 
     app.mount("/static", StaticFiles(directory=str(settings.STATIC_DIR)), name="static")
     app.mount("/media", StaticFiles(directory=str(settings.MEDIA_DIR)), name="media")
@@ -102,7 +106,7 @@ def get_application():
     #         "error_page.html", context=get_page_titles(context, "error_page.html")
     #     )
 
-    app: FastAPI = get_admin(app)
+    add_admin_views(app)
     app.add_middleware(SessionMiddleware, secret_key=settings.SECRET)
 
     return app

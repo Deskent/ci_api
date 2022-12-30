@@ -222,7 +222,7 @@ class UploadVideo(BaseView):
         )
 
 
-def get_admin(app: FastAPI) -> FastAPI:
+def add_admin_views(app: FastAPI) -> None:
     admin = Admin(
         app,
         engine,
@@ -241,5 +241,3 @@ def get_admin(app: FastAPI) -> FastAPI:
     admin.add_view(MoodView)
     admin.add_view(PaymentView)
     admin.add_view(PaymentCheckView)
-
-    return app
