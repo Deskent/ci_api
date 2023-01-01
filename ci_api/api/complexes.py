@@ -1,29 +1,18 @@
 from fastapi import APIRouter, Depends, status
 
 from crud_class.crud import CRUD
-from database.models import User, Complex, Video
+from database.models import User, Video
 from exc.exceptions import ComplexNotFoundError
 from misc.web_context_class import WebContext
-from schemas.complexes_videos import ComplexData, ComplexesListWithViewedAndNot, ComplexID
-from services.complexes_web_context import get_complexes_list_web_context, \
-    get_all_complexes_web_context
+from schemas.complexes_videos import ComplexData, UserComplexesState, ComplexID
+from services.complexes_web_context import get_complexes_list_web_context
 from services.depends import get_logged_user
 from services.videos_methods import get_viewed_complex_response
 
 router = APIRouter(prefix="/complex", tags=['Complexes'])
 
 
-# @router.get("/", response_model=UserProgress)
-# async def current_progress(
-#         user: User = Depends(get_logged_user)
-# ):
-#     """
-#     Return current user views progress
-#     """
-#     return user
-
-
-@router.get("/state", response_model=ComplexesListWithViewedAndNot)
+@router.get("/state", response_model=UserComplexesState)
 async def get_complexes_list_api(
         user: User = Depends(get_logged_user)
 ):

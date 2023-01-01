@@ -68,7 +68,7 @@ class ComplexData(BaseModel):
     videos: list[VideoInfo] = []
 
 
-class ComplexesListWithViewedAndNot(BaseModel):
+class UserComplexesState(BaseModel):
     user: dict
     viewed_complexes: list[dict]
     not_viewed_complexes: list[dict]
