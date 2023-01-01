@@ -50,7 +50,7 @@ async def get_complexes_list_web_context(
     today_complex: dict = {}
     if not await CRUD.viewed_complex.is_last_viewed_today(user.id):
         today_complex: Complex = await CRUD.complex.get_by_id(user.current_complex)
-        today_complex.duration = convert_seconds_to_time(today_complex.duration)
+        today_complex.duration = convert_to_minutes(today_complex.duration)
 
     complexes: list[Complex] = await CRUD.complex.get_all()
     user_viewed_complexes: list[int] = await CRUD.viewed_complex.get_all_viewed_complexes_ids(user.id)
