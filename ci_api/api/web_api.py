@@ -4,7 +4,7 @@ from api.web_api_utils import set_avatar_from_file_web_context
 from config import logger
 from crud_class.crud import CRUD
 from database.models import User, Mood, Video
-from schemas.complexes_videos import ComplexesListWithViewedAndNot, ComplexViewedCheckLevelUp
+from schemas.complexes_videos import UserComplexesState, ComplexViewedCheckLevelUp
 from schemas.user_schema import EntryModalWindow, UserMood
 from services.complexes_web_context import get_complexes_list_web_context
 from services.user import get_modal_window_first_entry
@@ -50,7 +50,7 @@ async def complex_viewed_web(
     return await get_viewed_complex_response(user=user, complex_id=complex_id)
 
 
-@router.get("/complex/list", response_model=ComplexesListWithViewedAndNot)
+@router.get("/complex/list", response_model=UserComplexesState)
 async def get_complexes_list_web(
         user: User = Depends(get_user_browser_session)
 ):

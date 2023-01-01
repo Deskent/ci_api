@@ -1,9 +1,10 @@
-from database.models import User, Complex
-from schemas.complexes_videos import ComplexesListWithViewedAndNot
-from schemas.user_schema import UserOutput
 from crud_class.crud import CRUD
-from services.utils import convert_seconds_to_time, convert_to_minutes
+from database.models import User, Complex
 from misc.web_context_class import WebContext
+from schemas.complexes_videos import UserComplexesState
+from schemas.user_schema import UserOutput
+from services.utils import convert_to_minutes
+
 
 def _convert_duration_from_int_to_time(data: list[Complex]) -> list[Complex]:
     """Convert complex duration from int to time format"""
@@ -44,6 +45,8 @@ async def get_complexes_list_web_context(
         context: dict,
         user: User
 ):
+    """Return user complexes state"""
+
     web_context = WebContext(context)
     web_context.context.update(user=user)
 
@@ -53,11 +56,14 @@ async def get_complexes_list_web_context(
         today_complex.duration = convert_to_minutes(today_complex.duration)
 
     complexes: list[Complex] = await CRUD.complex.get_all()
-    user_viewed_complexes: list[int] = await CRUD.viewed_complex.get_all_viewed_complexes_ids(user.id)
+    user_viewed_complexes: list[
+        int] = await CRUD.viewed_complex.get_all_viewed_complexes_ids(user.id)
     viewed_complexes: list[Complex] = _get_viewed_complexes(complexes, user_viewed_complexes)
-    not_viewed_complexes: list[Complex] = _get_not_viewed_complexes(complexes, user_viewed_complexes)
+    not_viewed_complexes: list[
+        Complex] = _get_not_viewed_complexes(complexes, user_viewed_complexes)
 
-    result = ComplexesListWithViewedAndNot(
+    # TODO убрать возврат пользователя после реализации фронта
+    result = UserComplexesState(
         user=UserOutput(**user.dict()),
         viewed_complexes=viewed_complexes,
         today_complex=today_complex,
@@ -71,6 +77,8 @@ async def get_complexes_list_web_context(
 async def get_all_complexes_web_context(
         context: dict
 ) -> WebContext:
+    """Return all complexes with duration in minutes, not time"""
+
     web_context = WebContext(context)
     complexes: list[Complex] = await CRUD.complex.get_all()
     for complex_ in complexes:
