@@ -8,4 +8,3 @@ from database.models import Rate
 async def all_rates() -> list[Rate]:
     rates: list[Rate] = await CRUD.rate.get_all()
     yield rates[:]
-

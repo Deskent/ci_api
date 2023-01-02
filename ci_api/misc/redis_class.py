@@ -60,7 +60,13 @@ class RedisOperator(RedisBase):
 
 class SetRedisDB(RedisOperator):
 
-    def __init__(self, data: dict[str, MODEL_TYPES], timeout_sec: int = STORE_TIME_SEC, *args, **kwargs):
+    def __init__(
+            self,
+            data: dict[str, MODEL_TYPES],
+            timeout_sec: int = STORE_TIME_SEC,
+            *args,
+            **kwargs
+    ):
         super().__init__(*args, **kwargs)
         self.timeout_sec: int = timeout_sec
         self._data: dict[str, MODEL_TYPES] = data

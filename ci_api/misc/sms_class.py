@@ -3,6 +3,10 @@ import requests
 from config import settings, logger
 
 
+WRONG_PHONE = 'Неправильно указан номер телефона получателя'
+WRONG_NAME = 'Имя отправителя не зарегистрировано у оператора получателя данного сообщения.'
+
+
 class SMSException(Exception):
     pass
 
@@ -21,7 +25,8 @@ class SMSru:
         Send sms message to user phone
 
         {
-        "status": "OK", // Запрос выполнен успешно (нет ошибок в авторизации, проблем с отправителем, итд...)
+        "status": "OK", // Запрос выполнен успешно (нет ошибок в авторизации, проблем
+            с отправителем, итд...)
         "status_code": 100, // Успешный код выполнения
         "sms": {
             "79255070602": {
@@ -32,7 +37,8 @@ class SMSru:
             "74993221627": {
                 "status": "ERROR",
                 "status_code": 207, // Код ошибки
-                "status_text": "На этот номер (или один из номеров) нельзя отправлять сообщения, либо указано более 100 номеров в списке получателей" // Описание ошибки
+                "status_text": "На этот номер (или один из номеров) нельзя отправлять сообщения,
+                либо указано более 100 номеров в списке получателей" // Описание ошибки
             }
         } ,
         "balance": 4122.56 // Ваш баланс после отправки
@@ -46,7 +52,7 @@ class SMSru:
             f"&json=1"
         )
         if settings.STAGE == 'test':
-            url += f"&test=1"
+            url += "&test=1"
         logger.debug(f"Send sms message {message} to phone: {phone}")
         response = requests.get(url)
         if response.status_code == 200:
@@ -59,10 +65,10 @@ class SMSru:
                     logger.warning(f"Sms service error: {data}")
                     status_test = data['sms'][phone].get('status_text')
                     error_text = "SMS service error: No sms_id received."
-                    if 'Неправильно указан номер телефона получателя' in status_test:
-                        error_text = 'Неправильно указан номер телефона получателя'
-                    elif 'Имя отправителя не зарегистрировано у оператора получателя данного сообщения.' in status_test:
-                        error_text = 'Имя отправителя не зарегистрировано у оператора получателя данного сообщения.'
+                    if WRONG_PHONE in status_test:
+                        error_text = WRONG_PHONE
+                    elif WRONG_NAME in status_test:
+                        error_text = WRONG_NAME
 
                     raise SMSException(error_text)
 
@@ -75,7 +81,8 @@ class SMSru:
         """
         Send call to user phone
         {
-            "status": "OK", // Запрос выполнен успешно (нет ошибок в авторизации, проблем с отправителем, итд...)
+            "status": "OK", // Запрос выполнен успешно (нет ошибок в авторизации, проблем с
+            отправителем, итд...)
             "code": "1435", // Последние 4 цифры номера, с которого мы совершим звонок пользователю
             "call_id": "000000-10000000", // ID звонка
             "cost": 0.4, // Стоимость звонка
@@ -83,14 +90,14 @@ class SMSru:
         }
         """
         url = (
-            f"https://sms.ru/code/call?"
+            "https://sms.ru/code/call?"
             f"phone={phone}"
-            f"&ip=-1"
+            "&ip=-1"
             f"&api_id={self.token}"
-            f"&json=1"
+            "&json=1"
         )
         if settings.STAGE == 'test':
-            url += f"&test=1"
+            url += "&test=1"
         logger.debug(f"Send call code to phone: {phone}")
 
         response = requests.get(url)
@@ -103,7 +110,7 @@ class SMSru:
             status_text: str = data.get('status_text', "Sms status text not defined")
             raise SMSException(f"SMS service error: {status_text}")
 
-        raise SMSException(f"SMS service error")
+        raise SMSException("SMS service error")
 
 
 sms_service = SMSru(settings.SMS_TOKEN)

@@ -54,4 +54,3 @@ async def get_all_videos_from_complex(
 
     """
     return await CRUD.video.get_all_by_complex_id(complex_id)
-

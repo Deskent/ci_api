@@ -40,7 +40,8 @@ async def is_user_active(
 
     if user.is_active:
         return user
-    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
         detail='User expired.')
 
 

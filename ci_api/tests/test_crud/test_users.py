@@ -28,9 +28,9 @@ async def test_crud_get_user_by_phone(get_user, user_data):
 
 async def test_crud_activate_user(get_user):
     user: User = await CRUD.user.activate(get_user)
-    assert user.is_active == True
+    assert user.is_active is True
     user: User = await CRUD.user.deactivate(id_=user.id)
-    assert user.is_active == False
+    assert user.is_active is False
 
 
 async def test_crud_get_alarm_by_id():
@@ -66,15 +66,15 @@ async def test_user_set_avatar(get_user):
 
 async def test_check_is_active(get_user):
     user: User = await CRUD.user.set_subscribe_to(-1, user=get_user)
-    assert await CRUD.user.check_is_active(user) == False
+    assert await CRUD.user.check_is_active(user) is False
 
 
 async def test_user_is_first_entry_today(get_user):
-    assert await CRUD.user.is_first_entry_today(get_user) == True
+    assert await CRUD.user.is_first_entry_today(get_user) is True
 
 
 async def test_user_is_new_user(get_user):
-    assert await CRUD.user.is_new_user(get_user) == True
+    assert await CRUD.user.is_new_user(get_user) is True
 
 
 @pytest.mark.server

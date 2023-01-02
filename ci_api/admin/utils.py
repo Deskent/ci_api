@@ -42,7 +42,7 @@ def get_video_duration(video_path: str) -> int:
 
     raise HTTPException(
         status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-        detail=f'Duration calculation error'
+        detail='Duration calculation error'
     )
 
 
@@ -54,13 +54,15 @@ async def upload_file(
 
     current_complex: Complex = await CRUD.complex.get_by_id(file_form.complex_id)
     if not current_complex:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Complex with id {file_form.complex_id} not found")
 
     videos: list[Video] = await CRUD.video.get_all_by_complex_id(current_complex.id)
     if len(videos) >= MAX_VIDEO:
         logger.warning(f"For complex {file_form.complex_id} exists {MAX_VIDEO} videos")
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE,
+        raise HTTPException(
+            status_code=status.HTTP_406_NOT_ACCEPTABLE,
             detail="There is maximum video in this complex")
 
     if file_form.file.content_type != 'video/mp4':

@@ -210,12 +210,12 @@ class UploadVideo(BaseView):
             data = VideoUpload(**{k: v for k, v in form.items()})
             logger.debug(f"Load file with data: {data}")
             if video := await upload_file(file_form=data):
-                logger.debug(f"Load file with data: OK")
+                logger.debug("Load file with data: OK")
                 context.update(result="ok", video=video)
 
         except pydantic.error_wrappers.ValidationError as err:
             logger.exception(err)
-            logger.debug(f"Load file with data: FAIL")
+            logger.debug("Load file with data: FAIL")
         return self.templates.TemplateResponse(
             "upload_video.html",
             context=context

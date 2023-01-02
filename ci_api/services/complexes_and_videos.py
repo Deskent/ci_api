@@ -69,4 +69,3 @@ async def is_video_viewed_before(
     if await CRUD.viewed_video.add_viewed(user.id, video_id):
         return False
     return True
-

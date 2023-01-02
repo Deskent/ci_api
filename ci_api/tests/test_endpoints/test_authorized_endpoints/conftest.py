@@ -82,7 +82,9 @@ class CreateEndpointUserData:
         self.alarm_id: int = 0
 
     def create_user(self) -> dict:
-        response = self.session.post(self.base_url + "/auth/register", json=self.user_create.as_dict())
+        response = self.session.post(
+            self.base_url + "/auth/register",
+            json=self.user_create.as_dict())
         assert response.status_code == 200
         data = response.json()
         self.test_user = TestUser(id=data['id'])
@@ -119,7 +121,8 @@ class CreateEndpointUserData:
     # return self.email_token
 
     def delete_user(self) -> None:
-        response = self.session.delete(self.base_url + "/users",
+        response = self.session.delete(
+            self.base_url + "/users",
             headers=self.headers, allow_redirects=True)
         assert response.status_code == 204
 

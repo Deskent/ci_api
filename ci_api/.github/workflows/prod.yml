@@ -1,13 +1,22 @@
 #name: ci_api_tests
 #on:
 #  push:
-#    branches: [ develop ]
+#    branches: [ deskent ]
 #
 #jobs:
 #  running_tests:
 #    runs-on: ubuntu-latest
 #    steps:
 #      - uses: actions/checkout@v3
-#      - name: Testing
+#      - name: Build
 #        run: |
-#          VERSION="test" APPNAME="test" docker-compose run --rm app pytest -k server tests/
+#          docker-compose -f docker-compose-test.yml up -d --build
+#      - name: Sleep 60 seconds
+#        run: |
+#          sleep 60
+#      - name: Run tests
+#        run: |
+#          docker-compose -f docker-compose-test.yml run --rm app pytest -k server tests/
+#      - name: End
+#        run: |
+#          docker-compose -f docker-compose-test.yml down

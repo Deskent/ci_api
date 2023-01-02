@@ -62,11 +62,10 @@ class Mood(SQLModel, table=True):
     __tablename__ = 'moods'
 
     id: int = Field(default=None, primary_key=True, index=True)
-    code: Optional[str] = Field(nullable=True, default=None,
-        description="HTML код настроения (эмодзи)")
-    name: Optional[str] = Field(nullable=True, default=None,
-        description="Название настроения (эмодзи)")
-
+    code: Optional[str] = Field(
+        nullable=True, default=None, description="HTML код настроения (эмодзи)")
+    name: Optional[str] = Field(
+        nullable=True, default=None, description="Название настроения (эмодзи)")
 
     def __str__(self):
         return f"{self.__class__.__name__}: {self.__dict__}"
@@ -80,19 +79,24 @@ class User(SQLModel, table=True):
     last_name: str = Field(nullable=True, default='', description="Фамилия")
     third_name: str = Field(nullable=True, default='', description="Отчество")
     email: EmailStr = Field(unique=True, index=True)
-    phone: str = Field(unique=True, nullable=False, min_length=10, max_length=13,
+    phone: str = Field(
+        unique=True, nullable=False, min_length=10, max_length=13,
         description="Телефон в формате 9998887766")
     password: str = Field(nullable=False, max_length=256, min_length=6, exclude=True)
     gender: bool = Field(nullable=False, description='Пол, 1 - муж, 0 - жен')
     level: int = Field(nullable=False, default=1, description="Текущий уровень")
-    progress: int = Field(nullable=False, default=0,
+    progress: int = Field(
+        nullable=False, default=0,
         description="Процент прогресса просмотра текущего комплекса")
-    created_at: datetime = Field(default=datetime.now(tz=None),
+    created_at: datetime = Field(
+        default=datetime.now(tz=None),
         description='Дата создания аккаунта')
 
-    expired_at: Optional[datetime] = Field(default=None, description='Дата истечения подписки',
+    expired_at: Optional[datetime] = Field(
+        default=None, description='Дата истечения подписки',
         sa_column=Column(type_=TIMESTAMP(timezone=True)))
-    last_entry: Optional[datetime] = Field(default=None, description='Дата последнего входа',
+    last_entry: Optional[datetime] = Field(
+        default=None, description='Дата последнего входа',
         sa_column=Column(type_=TIMESTAMP(timezone=True)))
     is_verified: Optional[bool] = Field(default=False, description='Верифицирован ли телефон')
     is_email_verified: Optional[bool] = Field(default=False, description='Верифицировал ли емэйл')
@@ -100,8 +104,8 @@ class User(SQLModel, table=True):
     email_code: Optional[str] = Field(nullable=True, default=None, description="Код верификации")
     sms_message: Optional[str] = Field(nullable=True, default=None, description="Сообщение из смс")
     sms_call_code: Optional[str] = Field(nullable=True, default=None, description="Код из звонка")
-    push_token: Optional[str] = Field(nullable=True, default=None,
-        description="Токен для пуш-уведомлений")
+    push_token: Optional[str] = Field(
+        nullable=True, default=None, description="Токен для пуш-уведомлений")
 
     mood: int = Field(nullable=True, default=None, foreign_key='moods.id')
     avatar: int = Field(nullable=True, default=None, foreign_key='avatars.id')
@@ -261,8 +265,8 @@ class PaymentCheck(SQLModel, table=True):
     )
     users: 'User' = Relationship(back_populates="payment_checks")
 
-    rate_id: int = Field(nullable=False, foreign_key='rates.id',
-        description="Named 'order_num' in Prodamus report")
+    rate_id: int = Field(
+        nullable=False, foreign_key='rates.id', description="Named 'order_num' in Prodamus report")
     rates: 'Rate' = Relationship(back_populates="payment_checks")
 
     def __str__(self):

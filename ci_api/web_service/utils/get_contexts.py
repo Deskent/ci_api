@@ -112,7 +112,7 @@ async def get_email_send_context(email: EmailStr, message: str) -> dict:
     try:
         await send_email_message(email, message)
     except EmailException:
-        context.update(error=f"Неверный адрес почты")
+        context.update(error="Неверный адрес почты")
 
     return context
 
