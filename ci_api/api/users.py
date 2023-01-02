@@ -1,11 +1,9 @@
-from fastapi import APIRouter, Depends, status, Body, UploadFile
+from fastapi import APIRouter, Depends, Body
 from starlette import status
 
-from api.web_api_utils import set_avatar_from_file_web_context
 from config import logger
 from exc.exceptions import UserNotFoundErrorApi
-from database.models import User, Alarm, Notification, Rate
-from misc.web_context_class import WebContext
+from database.models import User, Alarm, Notification
 from schemas.alarms import AlarmFull
 from schemas.user_schema import UserSchema, UserEditProfile, EntryModalWindow, UserMood, \
     UserChangePassword
@@ -60,25 +58,6 @@ async def get_user_notifications(
     logger.info(f"User with id {user.id} request notifications")
 
     return notifications
-
-
-@router.get(
-    "/rates",
-    response_model=list[Rate],
-    dependencies=[Depends(get_logged_user)],
-    status_code=status.HTTP_200_OK,
-    tags=['Rates']
-)
-async def get_all_rates():
-    """Get all rates.
-
-    :return List of rates
-    """
-
-    rates: list[Rate] = await CRUD.rate.get_all()
-    logger.info(f"Rates requested")
-
-    return rates
 
 
 @router.delete(
@@ -229,17 +208,3 @@ async def set_push_token(
 
     user.push_token = push_token
     await CRUD.user.save(user)
-
-
-@router.post(
-    "/upload_avatar_file",
-    status_code=status.HTTP_202_ACCEPTED,
-)
-async def upload_avatar_as_file(
-        file: UploadFile,
-        user: User = Depends(get_logged_user)
-):
-    logger.debug(f"File received: {file.filename}")
-    web_context: WebContext = await set_avatar_from_file_web_context(
-        context={}, user=user, file=file)
-    return web_context.api_render()
