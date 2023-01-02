@@ -134,7 +134,7 @@ async def get_cancel_subscribe_context(context: dict) -> WebContext:
     if user.is_active:
         user: User = await CRUD.user.deactivate(user)
 
-    payment: Payment = await CRUD.payment.get_by_user_and_rate_id(user_id=user.id, rate_id=user.rate_id)
+    payment: Payment = await CRUD.payment.get_by_user_and_rate_id(user.id, user.rate_id)
     if payment:
         logger.info(f"Payment for {user.email}: {user.rate_id} wille be deleted.")
         await CRUD.payment.delete(payment)

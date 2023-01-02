@@ -9,6 +9,7 @@ from database.models import User, Rate
 
 REQUEST_TIMEOUT = 15
 
+
 async def get_payment_link(user: User, rate: Rate) -> str:
     params: str = (
         f"&order_id={rate.id}"
@@ -17,7 +18,7 @@ async def get_payment_link(user: User, rate: Rate) -> str:
         f"&customer_email={user.email}"
         f"&order_sum={rate.price}"
         f"&products[0][price]={rate.price}"
-        f"&products[0][quantity]=1"
+        "&products[0][quantity]=1"
         f"&products[0][name]={rate.name}"
         f"&urlNotification={prodamus.NOTIFICATION_URL}"
         f"&urlSuccess={prodamus.SUCCESS_URL}"
@@ -25,14 +26,14 @@ async def get_payment_link(user: User, rate: Rate) -> str:
         f"&sys={prodamus.PRODAMUS_SYS_KEY}"
     )
     if prodamus.PRODAMUS_MODE == 'test':
-        params += f"&demo_mode=1"
+        params += "&demo_mode=1"
     url = (
-        f"https://box.payform.ru/?"
-        f"do=link"
-        f"&type=json"
-        f"&callbackType=json"
-        f"&currency=rub"
-        f"&acquiring=sbrf"
+        "https://box.payform.ru/?"
+        "do=link"
+        "&type=json"
+        "&callbackType=json"
+        "&currency=rub"
+        "&acquiring=sbrf"
     )
     url += params
     headers = {

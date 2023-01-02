@@ -1,4 +1,4 @@
-#pip install exponent_server_sdk
+# pip install exponent_server_sdk
 
 from exponent_server_sdk import (
     DeviceNotRegisteredError,

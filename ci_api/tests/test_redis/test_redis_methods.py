@@ -53,4 +53,3 @@ async def test_redis_save_by_id(all_rates, event_loop, redis_client):
     assert len(await redis.load_all()) > 0
     assert await redis.delete_key() is None
     assert len(await redis.load_all()) == 0
-

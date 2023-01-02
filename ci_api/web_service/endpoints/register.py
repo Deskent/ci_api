@@ -27,6 +27,3 @@ async def web_register_post(
 
     web_context: WebContext = await register_new_user_web_context(context, form_data)
     return web_context.web_render()
-
-
-

@@ -37,4 +37,3 @@ async def get_user_avatar(
     """
 
     return await CRUD.mood.get_by_id(user.avatar)
-

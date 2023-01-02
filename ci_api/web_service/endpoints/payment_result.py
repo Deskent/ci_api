@@ -28,7 +28,7 @@ async def payment_result(
 
 
 @router.get("/payment_report", response_class=HTMLResponse)
-async def payment_result(
+async def payment_report(
         context: dict = Depends(get_profile_page_context),
         user: User = Depends(get_user_browser_session)
 ):

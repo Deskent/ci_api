@@ -87,8 +87,8 @@ async def verify_sms_code(
      :return: Authorization token as JSON and user as JSON
     """
 
-    web_context: WebContext = await approve_sms_code_or_call_code(request=request,
-        context={}, phone=data.phone, code=data.code)
+    web_context: WebContext = await approve_sms_code_or_call_code(
+        request=request, context={}, phone=data.phone, code=data.code)
     return web_context.api_render()
 
 

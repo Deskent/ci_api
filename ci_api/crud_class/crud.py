@@ -7,10 +7,12 @@ from sqlalchemy.sql import extract
 from sqlmodel import select
 
 from config import get_redis_client, settings
-from crud_class.ci_types import *
-from crud_class.ci_types import MODEL_TYPES
+from crud_class import ci_types
 from database.db import get_all, get_first, get_db_session
-from database.models import Administrator, User, Complex, Alarm, Notification, ViewedComplex, Video
+from database.models import (
+    Administrator, User, Complex, Alarm, Notification, ViewedComplex, Video, Avatar, Mood, Rate,
+    ViewedVideo, PaymentCheck, Payment
+)
 from exc.exceptions import ComplexNotFoundError
 from misc.weekdays_class import WeekDay
 from services.auth import auth_handler
@@ -21,11 +23,11 @@ USE_CACHE: bool = settings.USE_CACHE
 
 
 class BaseCrud:
-    def __init__(self, model: MODEL_TYPES):
-        self.model: MODEL_TYPES = model
+    def __init__(self, model: ci_types.MODEL_TYPES):
+        self.model: ci_types.MODEL_TYPES = model
         self.redis_db = RedisDB(model=self.model, client=get_redis_client())
 
-    async def save(self, obj: MODEL_TYPES, use_cache: bool = USE_CACHE):
+    async def save(self, obj: ci_types.MODEL_TYPES, use_cache: bool = USE_CACHE):
         """Save model instance to DB and to redis """
 
         async for session in get_db_session():
@@ -35,12 +37,12 @@ class BaseCrud:
         await self.redis_db.save_by_id(id_=obj.id, data=obj)
         return obj
 
-    async def get_by_id(self, id_: int, use_cache: bool = USE_CACHE) -> MODEL_TYPES:
+    async def get_by_id(self, id_: int, use_cache: bool = USE_CACHE) -> ci_types.MODEL_TYPES:
         """Return one record from redis if exists, else get from DB,
         save to redis and return"""
 
         if use_cache:
-            result: MODEL_TYPES = await self.redis_db.get_by_id(id_=id_)
+            result: ci_types.MODEL_TYPES = await self.redis_db.get_by_id(id_=id_)
             if result:
                 return result
         query = select(self.model).where(self.model.id == id_)
@@ -49,17 +51,17 @@ class BaseCrud:
             await self.redis_db.save_by_id(id_=result.id, data=result)
             return result
 
-    async def get_all(self, use_cache: bool = USE_CACHE) -> list[MODEL_TYPES]:
+    async def get_all(self, use_cache: bool = USE_CACHE) -> list[ci_types.MODEL_TYPES]:
         """Return all ordered by id records from redis if exists, else get all records,
         save them to redis and return"""
 
         if use_cache:
-            all_elems: list[MODEL_TYPES] = await self.redis_db.load_all()
+            all_elems: list[ci_types.MODEL_TYPES] = await self.redis_db.load_all()
             if all_elems:
                 return all_elems
 
         query = select(self.model).order_by(self.model.id)
-        result: list[MODEL_TYPES] = await get_all(query)
+        result: list[ci_types.MODEL_TYPES] = await get_all(query)
         await self.redis_db.save_all(result)
 
         return result
@@ -67,7 +69,7 @@ class BaseCrud:
     async def delete_by_id(self, id_: int, use_cache: bool = USE_CACHE):
         """Delete records by id"""
 
-        obj: MODEL_TYPES = await self.get_by_id(id_)
+        obj: ci_types.MODEL_TYPES = await self.get_by_id(id_)
         if obj:
             await self.delete(obj)
 
@@ -77,7 +79,7 @@ class BaseCrud:
         await self.redis_db.delete_all()
 
     @staticmethod
-    async def delete(obj: MODEL_TYPES) -> None:
+    async def delete(obj: ci_types.MODEL_TYPES) -> None:
         """Delete object from DB"""
 
         async for session in get_db_session():
@@ -85,7 +87,7 @@ class BaseCrud:
             await session.commit()
             logger.debug(f"Object: {obj} deleted")
 
-    async def create(self, data: dict) -> MODEL_TYPES:
+    async def create(self, data: dict) -> ci_types.MODEL_TYPES:
         """Create and save instance from data"""
 
         instance = self.model(**data)
@@ -93,7 +95,7 @@ class BaseCrud:
 
 
 class AvatarCrud(BaseCrud):
-    def __init__(self, model: Type[Avatar]):
+    def __init__(self, model: ci_types.Type[Avatar]):
         super().__init__(model)
 
     async def get_first_id(self) -> int:
@@ -103,7 +105,7 @@ class AvatarCrud(BaseCrud):
 
 
 class RateCrud(BaseCrud):
-    def __init__(self, model: Type[Rate]):
+    def __init__(self, model: ci_types.Type[Rate]):
         super().__init__(model)
 
     async def get_free(self) -> Rate:
@@ -114,7 +116,7 @@ class RateCrud(BaseCrud):
 
 
 class AlarmCrud(BaseCrud):
-    def __init__(self, model: Type[Alarm]):
+    def __init__(self, model: ci_types.Type[Alarm]):
         super().__init__(model)
 
     async def create(self, data: dict) -> Alarm:
@@ -166,7 +168,7 @@ class AlarmCrud(BaseCrud):
 
 
 class NotificationCrud(BaseCrud):
-    def __init__(self, model: Type[Notification]):
+    def __init__(self, model: ci_types.Type[Notification]):
         super().__init__(model)
 
     async def get_all_by_user_id(self, user_id: int) -> list[Notification]:
@@ -186,7 +188,7 @@ class NotificationCrud(BaseCrud):
 
 
 class ViewedComplexCrud(BaseCrud):
-    def __init__(self, model: Type[ViewedComplex]):
+    def __init__(self, model: ci_types.Type[ViewedComplex]):
         super().__init__(model)
 
     async def add_viewed(self, user_id: int, complex_id: int) -> ViewedComplex:
@@ -249,7 +251,7 @@ class ViewedComplexCrud(BaseCrud):
 
 
 class ViewedVideoCrud(BaseCrud):
-    def __init__(self, model: Type[ViewedVideo]):
+    def __init__(self, model: ci_types.Type[ViewedVideo]):
         super().__init__(model)
 
     async def add_viewed(self, user_id: int, video_id: int) -> ViewedVideo:
@@ -274,7 +276,7 @@ class ViewedVideoCrud(BaseCrud):
 
 
 class PaymentCrud(BaseCrud):
-    def __init__(self, model: Type[Payment]):
+    def __init__(self, model: ci_types.Type[Payment]):
         super().__init__(model)
 
     async def get_by_user_and_rate_id(self, user_id: int, rate_id: int) -> Payment:
@@ -292,7 +294,7 @@ class PaymentCrud(BaseCrud):
 
 
 class PaymentCheckCrud(BaseCrud):
-    def __init__(self, model: Type[PaymentCheck]):
+    def __init__(self, model: ci_types.Type[PaymentCheck]):
         super().__init__(model)
 
     async def get_all_by_user_id(self, user_id: int) -> list[PaymentCheck]:
@@ -303,7 +305,7 @@ class PaymentCheckCrud(BaseCrud):
 
 
 class MoodCrud(BaseCrud):
-    def __init__(self, model: Type[Mood]):
+    def __init__(self, model: ci_types.Type[Mood]):
         super().__init__(model)
 
     @staticmethod
@@ -340,7 +342,7 @@ class MoodCrud(BaseCrud):
 
 
 class ComplexCrud(BaseCrud):
-    def __init__(self, model: Type[Complex]):
+    def __init__(self, model: ci_types.Type[Complex]):
         super().__init__(model)
 
     async def get_first(self) -> Complex:
@@ -369,7 +371,7 @@ class ComplexCrud(BaseCrud):
 
 
 class VideoCrud(BaseCrud):
-    def __init__(self, model: Type[Video]):
+    def __init__(self, model: ci_types.Type[Video]):
         super().__init__(model)
 
     async def next_video_id(self, video: Video) -> int:
@@ -435,7 +437,7 @@ class VideoCrud(BaseCrud):
 
 
 class AdminCrud(BaseCrud):
-    def __init__(self, model: Type[Administrator | User]):
+    def __init__(self, model: ci_types.Type[Administrator | User]):
         super().__init__(model)
 
     async def get_by_email(self, email: EmailStr) -> User | Administrator:
@@ -464,13 +466,13 @@ class AdminCrud(BaseCrud):
         return auth_handler.decode_token(token)
 
     @staticmethod
-    async def is_password_valid(obj: Type[User | Administrator], password: str) -> bool:
+    async def is_password_valid(obj: ci_types.Type[User | Administrator], password: str) -> bool:
         """Checks passwords equal"""
 
         return auth_handler.verify_password(password, obj.password)
 
     @staticmethod
-    async def get_user_token(obj: Type[User | Administrator]) -> str:
+    async def get_user_token(obj: ci_types.Type[User | Administrator]) -> str:
         """Return user auth token"""
 
         return auth_handler.encode_token(obj.id)
@@ -484,7 +486,7 @@ class AdminCrud(BaseCrud):
 
 
 class UserCrud(AdminCrud):
-    def __init__(self, model: Type[User]):
+    def __init__(self, model: ci_types.Type[User]):
         super().__init__(model)
         self.user: User | None = None
 
@@ -568,7 +570,9 @@ class UserCrud(AdminCrud):
         """Set up user level, next complex and clean progress scale"""
         if await self._get_instance(user, id_):
             if self.user.level < 10:
-                next_complex: Complex = await CRUD.complex.get_next_complex_by_id(user.current_complex)
+                next_complex: Complex = await CRUD.complex.get_next_complex_by_id(
+                    user.current_complex
+                )
                 self.user.current_complex = next_complex.id
                 self.user.progress = 0
                 self.user.level += 1

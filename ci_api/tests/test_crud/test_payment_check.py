@@ -2,6 +2,7 @@ from api.payments import save_payment
 from crud_class.crud import CRUD
 from database.models import PaymentCheck
 
+
 async def test_save_payment(get_user):
     data = {
         'date': '2022-12-06T18:21:06+03:00', 'order_id': '7975674', 'order_num': '2',
