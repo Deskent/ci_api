@@ -153,6 +153,7 @@ class UserSchema(MaxLevel):
     current_complex: int
     avatar: int = None
     mood: int = None
+    rate_id: int = None
     is_email_verified = False
     is_verified: bool = False
     is_active: bool = False
