@@ -91,13 +91,10 @@ settings.PAYMENTS_DIR = settings.PAYMENTS_DIR if settings.PAYMENTS_DIR else sett
 
 if not settings.STATIC_DIR.exists():
     logger.warning(f"Static directory {settings.STATIC_DIR} does not exists")
-    exit()
-
 
 if not settings.MEDIA_DIR.exists():
     logger.warning(f"Media directory {settings.MEDIA_DIR} does not exists")
     Path.mkdir(settings.MEDIA_DIR, exist_ok=True, parents=True)
-    exit()
 
 if not settings.LOGS_DIR:
     current_date = str(datetime.datetime.today().date())

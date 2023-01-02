@@ -1,13 +1,19 @@
-#name: ci_api_tests
-#on:
-#  push:
-#    branches: [ develop ]
-#
-#jobs:
-#  running_tests:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v3
-#      - name: Testing
-#        run: |
-#          VERSION="test" APPNAME="test" docker-compose run --rm app pytest -k server tests/
+name: ci_api_tests
+on:
+  push:
+    branches: [ deskent ]
+
+jobs:
+  running_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build
+        run: |
+          docker-compose -f docker-compose-test.yml up -d --build
+      - name: Testing
+        run: |
+          docker-compose -f docker-compose-test.yml run --rm app pytest -k server tests/
+      - name: End
+        run: |
+          docker-compose -f docker-compose-test.yml down

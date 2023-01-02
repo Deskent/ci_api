@@ -9,10 +9,8 @@ from config import db, logger, settings
 
 
 DATABASE_URL: str = db.get_db_name()
-#  asyncpg.exceptions.CannotConnectNowError
-# if settings.STAGE == 'test':
-#     DATABASE_URL: str = db.get_test_db()
 engine = create_async_engine(DATABASE_URL, echo=settings.ECHO, future=True)
+
 
 async def drop_db() -> None:
     logger.warning("DROP ALL tables from database.")

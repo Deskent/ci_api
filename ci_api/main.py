@@ -14,6 +14,7 @@ from admin.views import add_admin_views
 from config import settings, MAX_LEVEL, logger
 from create_data import create_fake_data, recreate_db, create_default_data
 from crud_class.crud import CRUD
+from database.db import db
 from database.models import User
 from exc.exceptions import UserNotLoggedError, ComeTomorrowException
 from misc.scheduler_class import ci_scheduler
@@ -61,6 +62,12 @@ def get_application():
         await create_default_data()
         ci_scheduler.start()
         await ci_scheduler.run()
+
+        if db.POSTGRES_DB == 'test':
+            await recreate_db()
+            await create_default_admin()
+            await create_fake_data()
+            await create_default_data()
 
     @app.on_event('shutdown')
     async def on_shutdown():
