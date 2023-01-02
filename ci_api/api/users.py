@@ -62,25 +62,6 @@ async def get_user_notifications(
     return notifications
 
 
-@router.get(
-    "/rates",
-    response_model=list[Rate],
-    dependencies=[Depends(get_logged_user)],
-    status_code=status.HTTP_200_OK,
-    tags=['Rates']
-)
-async def get_all_rates():
-    """Get all rates.
-
-    :return List of rates
-    """
-
-    rates: list[Rate] = await CRUD.rate.get_all()
-    logger.info(f"Rates requested")
-
-    return rates
-
-
 @router.delete(
     "/",
     status_code=status.HTTP_204_NO_CONTENT
