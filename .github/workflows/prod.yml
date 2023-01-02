@@ -11,7 +11,10 @@ jobs:
       - name: Build
         run: |
           docker-compose -f docker-compose-test.yml up -d --build
-      - name: Testing
+      - name: Sleep 60 seconds
+        run: |
+          sleep 60
+      - name: Run tests
         run: |
           docker-compose -f docker-compose-test.yml run --rm app pytest -k server tests/
       - name: End

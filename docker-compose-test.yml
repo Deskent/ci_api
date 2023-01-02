@@ -2,10 +2,12 @@ version: '3.7'
 
 services:
   ci_postgres:
-    env_file:
-      - ./.env-test
     container_name: ci_postgres
     image: postgres:14.4-alpine
+    environment:
+      POSTGRES_USER: "test"
+      POSTGRES_DB: "test"
+      POSTGRES_PASSWORD: "test"
     command:
       - "postgres"
       - "-c"
@@ -24,16 +26,18 @@ services:
     build: ./ci_api
     container_name: test
     image: test:1
-    env_file:
-      - ./.env-test
     command: >
-      sh -c "sleep 30 &&
+      sh -c "sleep 60 &&
              alembic upgrade head &&
              uvicorn main:app --workers 1 --host 0.0.0.0 --port 8000"
     environment:
       POSTGRES_HOST: "ci_postgres"
+      POSTGRES_USER: "test"
+      POSTGRES_DB: "test"
+      POSTGRES_PASSWORD: "test"
       STAGE: "test"
       REDIS_DB: redis://redis:6379/1
+      RECREATE_DB: 1
     volumes:
       - ./logs:/app/logs
       - ./static:/app/static
