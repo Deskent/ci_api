@@ -16,7 +16,7 @@ router = APIRouter(prefix="/avatars", tags=['Avatars'])
     response_model=Avatar,
     status_code=status.HTTP_200_OK,
 )
-async def get_user_rate(
+async def get_user_avatar(
         user: User = Depends(get_logged_user),
 ):
     """Return user avatar info. Need authorization.
