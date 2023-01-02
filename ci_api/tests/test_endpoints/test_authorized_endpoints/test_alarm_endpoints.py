@@ -5,12 +5,12 @@ from tests.test_endpoints.test_authorized_endpoints.base_test_class import BaseT
 class TestAlarms(BaseTest):
     @pytest.mark.server
     def test_get_alarm(self):
-        response = self.session.get(self.base_url + f"/alarms/{self.alarm_id}", headers=self.headers)
+        response = self.session.get(self.base_url + "/alarms/{self.alarm_id}", headers=self.headers)
         assert response.status_code == 200
 
     @pytest.mark.server
     def test_get_alarm_without_headers(self):
-        response = self.session.get(self.base_url + f"/alarms/{self.alarm_id}")
+        response = self.session.get(self.base_url + "/alarms/{self.alarm_id}")
         assert response.status_code == 403
 
     @pytest.mark.server

@@ -9,7 +9,7 @@ from database.models import Complex, Rate, Video
 
 
 async def create_complexes(data: list[dict] = None):
-    logger.debug(f"Create data")
+    logger.debug("Create data")
 
     if not data:
         data = [
@@ -44,7 +44,7 @@ async def create_complexes(data: list[dict] = None):
 
 
 async def create_videos(data: list[dict] = None):
-    logger.debug(f"Create data")
+    logger.debug("Create data")
     if not data:
         data = [
             {
@@ -76,7 +76,7 @@ async def create_videos(data: list[dict] = None):
 
 
 async def create_users(data: list[dict] = None):
-    logger.debug(f"Create data")
+    logger.debug("Create data")
 
     if not data:
         data = [
@@ -139,7 +139,7 @@ async def create_users(data: list[dict] = None):
 
 
 async def create_alarms(data: list[dict] = None):
-    logger.debug(f"Create data")
+    logger.debug("Create data")
 
     if not data:
         data = [
@@ -167,7 +167,7 @@ async def create_alarms(data: list[dict] = None):
 
 
 async def create_notifications(data: list[dict] = None):
-    logger.debug(f"Create data")
+    logger.debug("Create data")
 
     today = datetime.today()
 
@@ -194,7 +194,7 @@ async def create_notifications(data: list[dict] = None):
 
 
 async def create_rates(data: list[dict] = None):
-    logger.debug(f"Create data")
+    logger.debug("Create data")
 
     if not data:
         data = [
@@ -239,10 +239,10 @@ async def create_moods(data: list[dict] = None):
         ]
     for elem in data:
         await CRUD.mood.create(elem)
-    logger.debug(f"Create data")
 
 
 async def create_avatars(data: list[dict] = None):
+    logger.debug("Create data")
     if not data:
         data = [
             {
@@ -254,7 +254,7 @@ async def create_avatars(data: list[dict] = None):
         if not path.exists():
             raise ValueError(f"Avatar default file not found: {path}")
         await CRUD.avatar.create(elem)
-    logger.debug(f"Create data")
+    logger.debug("Create data")
 
 
 async def create_fake_data(flag: bool = False):
@@ -339,8 +339,8 @@ async def create_default_data():
     hello_video = [
         {
             'file_name': 'hello.mp4',
-            'description': f'Приветственное видео',
-            'name': f'Приветственное видео',
+            'description': 'Приветственное видео',
+            'name': 'Приветственное видео',
             'duration': 30,
             'number': 1
         }
@@ -365,7 +365,6 @@ if __name__ == '__main__':
         await recreate_db(drop)
         await create_fake_data(flag)
         await create_default_data()
-
 
     flag = True
     drop = True

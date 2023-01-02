@@ -55,5 +55,5 @@ def to_isoformat(data: datetime.datetime) -> str:
     return data.replace(tzinfo=None).isoformat(sep=' ', timespec='seconds')
 
 
-def get_current_datetime()-> datetime:
+def get_current_datetime() -> datetime:
     return datetime.datetime.now(tz=datetime.timezone.utc)

@@ -3,13 +3,13 @@ from fastapi import APIRouter, status, Depends, UploadFile
 from api.web_api_utils import set_avatar_from_file_web_context
 from config import logger
 from crud_class.crud import CRUD
-from database.models import User, Mood, Video
+from database.models import User
+from misc.web_context_class import WebContext
 from schemas.complexes_videos import UserComplexesState, ComplexViewedCheckLevelUp
 from schemas.user_schema import EntryModalWindow, UserMood
 from services.complexes_web_context import get_complexes_list_web_context
 from services.user import get_modal_window_first_entry
 from services.videos_methods import get_viewed_complex_response
-from misc.web_context_class import WebContext
 from web_service.utils.get_contexts import get_user_browser_session
 
 router = APIRouter(prefix="/web", tags=['WebApi'])

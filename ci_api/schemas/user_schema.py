@@ -6,7 +6,6 @@ from pydantic import BaseModel, validator, EmailStr
 
 from config import logger, MAX_LEVEL
 from exc.exceptions import PhoneNumberError, PasswordMatchError, SmsCodeNotValid
-from database.models import User
 
 
 def slice_phone_to_format(phone: str) -> str:

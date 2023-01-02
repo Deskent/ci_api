@@ -35,6 +35,7 @@ async def save_payment(data: dict) -> PaymentCheck:
 
     return check
 
+
 def save_payment_check_to_json(data: dict):
     """Save payment check to json file"""
 
