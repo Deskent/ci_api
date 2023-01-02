@@ -252,7 +252,7 @@ async def create_avatars(data: list[dict] = None):
     for elem in data:
         path = settings.MEDIA_DIR / 'avatars' / elem['file_name']
         if not path.exists():
-            raise ValueError(f"Avatar default file not found: {path}")
+            logger.warning(f"Avatar default file not found: {path}")
         await CRUD.avatar.create(elem)
     logger.debug("Create data")
 
