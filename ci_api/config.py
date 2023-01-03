@@ -98,6 +98,7 @@ settings.PAYMENTS_DIR = settings.PAYMENTS_DIR \
 
 if not settings.STATIC_DIR.exists():
     logger.warning(f'Static directory {settings.STATIC_DIR} does not exists')
+    Path.mkdir(settings.STATIC_DIR, exist_ok=True, parents=True)
 
 if not settings.MEDIA_DIR.exists():
     logger.warning(f'Media directory {settings.MEDIA_DIR} does not exists')
@@ -111,6 +112,7 @@ LEVEL_UP_PERCENTS = 70
 MAX_VIDEO = 10
 MAX_LEVEL = 10
 log_level = 1 if settings.DEBUG else 20
+logger.remove()
 logger.add(level=log_level, sink=settings.LOGS_DIR / 'ci_api.log', rotation='50 MB')
 logger.add(level=30, sink=settings.LOGS_DIR / 'errors.log', rotation='100 MB')
 
