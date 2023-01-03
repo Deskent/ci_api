@@ -1,7 +1,7 @@
 name: ci_api_tests
 on:
   push:
-    branches: [ deskent ]
+    branches: [ develop ]
 
 jobs:
   runner-job:
