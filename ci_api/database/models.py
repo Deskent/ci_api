@@ -159,6 +159,26 @@ class Administrator(SQLModel, table=True):
 
 
 class Alarm(SQLModel, table=True):
+    """Alarm model
+
+    Attributes
+
+        id: int
+
+        alarm_time: time
+
+        sound_name: str
+
+        volume: int
+
+        vibration: bool
+
+        text: Optional[str]
+
+        weekdays: Optional[str]
+
+        user_id: Optional[int]
+    """
     __tablename__ = 'alarms'
 
     id: int = Field(default=None, primary_key=True, index=True)
