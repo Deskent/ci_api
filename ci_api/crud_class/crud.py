@@ -6,7 +6,7 @@ from sqlalchemy import desc
 from sqlalchemy.sql import extract
 from sqlmodel import select
 
-from config import get_redis_client, settings
+from config import settings, db
 from crud_class import ci_types
 from database.db import get_all, get_first, get_db_session
 from database.models import (
@@ -25,7 +25,7 @@ USE_CACHE: bool = settings.USE_CACHE
 class BaseCrud:
     def __init__(self, model: ci_types.MODEL_TYPES):
         self.model: ci_types.MODEL_TYPES = model
-        self.redis_db = RedisDB(model=self.model, client=get_redis_client())
+        self.redis_db = RedisDB(model=self.model, client=db.REDIS_DB)
 
     async def save(self, obj: ci_types.MODEL_TYPES, use_cache: bool = USE_CACHE):
         """Save model instance to DB and to redis """
