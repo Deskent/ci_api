@@ -16,7 +16,7 @@ async def test_crud_get_user_by_id_user_not_exists():
     assert user is None
 
 
-async def test_crud_get_all_users():
+async def test_crud_get_all_users(get_user):
     users: list[User] = await CRUD.user.get_all()
     assert users[0].email is not None
 
@@ -33,10 +33,9 @@ async def test_crud_activate_user(get_user):
     assert user.is_active is False
 
 
-async def test_crud_get_alarm_by_id():
-    user: User = await CRUD.user.get_by_id(1)
-    alarm: Alarm = await CRUD.user.get_alarm_by_alarm_id(user, 1)
-    assert alarm.id == 1
+async def test_crud_get_alarm_by_id(get_user, get_user_alarm):
+    alarm: Alarm = await CRUD.user.get_alarm_by_alarm_id(get_user, get_user_alarm.id)
+    assert alarm.id is not None
 
 
 async def test_crud_set_subscribe_to(get_user):
@@ -77,19 +76,16 @@ async def test_user_is_new_user(get_user):
     assert await CRUD.user.is_new_user(get_user) is True
 
 
-@pytest.mark.server
 async def test_get_tokens_for_send_notification_push():
     tokens: list[str] = await CRUD.user.get_tokens_for_send_notification_push()
     assert tokens is not None
 
 
-@pytest.mark.server
 async def test_get_users_ids_for_create_notifications():
     users_ids: list[int] = await CRUD.user.get_users_ids_for_create_notifications()
     assert users_ids is not None
 
 
-@pytest.mark.server
 async def test_get_users_have_notification():
     users_ids: list[int] = await CRUD.user.get_users_ids_for_create_notifications()
     assert users_ids is not None

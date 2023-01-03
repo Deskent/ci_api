@@ -18,7 +18,6 @@ def create_video_file():
 
 class TestVideo(BaseTest):
 
-    @pytest.mark.server
     def test_all_videos_for_complex_id(self, event_loop):
         response = self.session.get(self.base_url + "/videos/all_for/1", headers=self.headers)
         assert response.status_code == 200
@@ -26,7 +25,6 @@ class TestVideo(BaseTest):
         assert data is not None
         assert isinstance(data, list)
 
-    @pytest.mark.manual
     def test_get_video_by_id(self, event_loop, create_video_file):
         response = self.session.get(self.base_url + "/complex/1/", headers=self.headers)
         assert response.status_code == 200
