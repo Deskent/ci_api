@@ -6,6 +6,7 @@ from config import logger, settings
 from crud_class.crud import CRUD
 from database.db import drop_db, create_db
 from database.models import Complex, Rate, Video
+import default_dataset as dd
 
 
 async def create_complexes(data: list[dict] = None):
@@ -193,62 +194,21 @@ async def create_notifications(data: list[dict] = None):
         await CRUD.notification.create(notification)
 
 
-async def create_rates(data: list[dict] = None):
+async def create_rates(data: list[dict]):
     logger.debug("Create data")
 
-    if not data:
-        data = [
-            {
-                'name': 'Free',
-                'price': 0,
-                'duration': 30
-            },
-            {
-                'name': 'Солнце',
-                'price': 199,
-                'duration': 30
-            },
-        ]
     for elem in data:
         await CRUD.rate.create(elem)
 
 
-async def create_moods(data: list[dict] = None):
-    if not data:
-        data = [
-            {
-                'name': 'Все бесят',
-                'code': 'U+1F621'
-            },
-            {
-                'name': 'Печалька-тоска',
-                'code': 'U+1F61E'
-            },
-            {
-                'name': 'Нервно-тревожно',
-                'code': 'U+1F910'
-            },
-            {
-                'name': 'Бодрячок',
-                'code': 'U+1F601'
-            },
-            {
-                'name': 'Всех люблю',
-                'code': 'U+1F970'
-            },
-        ]
+async def create_moods(data: list[dict]):
     for elem in data:
         await CRUD.mood.create(elem)
 
 
-async def create_avatars(data: list[dict] = None):
-    logger.debug("Create data")
-    if not data:
-        data = [
-            {
-                'file_name': 'avatar.svg',
-            },
-        ]
+async def create_avatars(data: list[dict]):
+    logger.debug(f"Create data {data}")
+
     for elem in data:
         path = settings.MEDIA_DIR / 'avatars' / elem['file_name']
         if not path.exists():
@@ -257,16 +217,13 @@ async def create_avatars(data: list[dict] = None):
     logger.debug("Create data")
 
 
-async def create_fake_data(flag: bool = False):
+async def create_fake_data(create_fake: bool = False):
     """Create fake data in database"""
 
-    if settings.CREATE_FAKE_DATA or flag:
+    if settings.CREATE_FAKE_DATA or create_fake:
         logger.debug("Create fake data to DB")
         if await CRUD.user.get_by_id(1, use_cache=False):
             return
-        await create_rates()
-        await create_moods()
-        await create_avatars()
         await create_complexes()
         await create_users()
         await create_alarms()
@@ -284,91 +241,31 @@ async def recreate_db(drop=False) -> None:
 
 
 async def create_default_data():
-    complex_data = [
-        {
-            "description": "Описание комплекса 1",
-            "name": "комплекс 1",
-            "number": 1,
-            "duration": 0
-        },
-    ]
 
-    videos_data = [
-        {
-            "complex_id": 1,
-            'file_name': 'e1c1.mp4',
-            'description': f'описание видео {1}',
-            'name': f'Видео № {1}',
-            'duration': 75,
-            'number': 1
-        },
-        {
-            "complex_id": 1,
-            'file_name': 'e2c1.mp4',
-            'description': f'описание видео {2}',
-            'name': f'Видео № {2}',
-            'duration': 66,
-            'number': 2
-        },
-        {
-            "complex_id": 1,
-            'file_name': 'e3c1.mp4',
-            'description': f'описание видео {3}',
-            'name': f'Видео № {3}',
-            'duration': 90,
-            'number': 3
-        },
-        {
-            "complex_id": 1,
-            'file_name': 'e4c1.mp4',
-            'description': f'описание видео {4}',
-            'name': f'Видео № {4}',
-            'duration': 75,
-            'number': 4
-        },
-        {
-            "complex_id": 1,
-            'file_name': 'e5c1.mp4',
-            'description': f'описание видео {5}',
-            'name': f'Видео № {5}',
-            'duration': 66,
-            'number': 5
-        },
-    ]
-
-    hello_video = [
-        {
-            'file_name': 'hello.mp4',
-            'description': 'Приветственное видео',
-            'name': 'Приветственное видео',
-            'duration': 30,
-            'number': 1
-        }
-    ]
     videos: list[Video] = await CRUD.video.get_all(False)
     if not videos:
         if not await CRUD.complex.get_all(False):
-            await create_complexes(complex_data)
-        await create_videos(videos_data)
+            await create_complexes(dd.complex_data)
+        await create_videos(dd.videos_data)
     if not await CRUD.video.get_hello_video():
-        await create_videos(hello_video)
+        await create_videos(dd.hello_video)
     if not await CRUD.rate.get_all(False):
-        await create_rates()
+        await create_rates(dd.rates)
     if not await CRUD.avatar.get_all(False):
-        await create_avatars()
+        await create_avatars(dd.avatar)
     if not await CRUD.mood.get_all(False):
-        await create_moods()
+        await create_moods(dd.moods)
 
 
-async def make(flag, drop):
+async def prepare_data(create_fake: bool, drop: bool):
     logger.info('Creating data...\n')
     await recreate_db(drop)
-    await create_fake_data(flag)
     await create_default_data()
+    await create_fake_data(create_fake)
     logger.info('Creating data: OK\n')
 
 
 if __name__ == '__main__':
-    flag = True
+    create_fake = False
     drop = True
-    asyncio.run(make(flag, drop))
+    asyncio.run(prepare_data(create_fake, drop))
