@@ -122,8 +122,9 @@ class AlarmCrud(BaseCrud):
     async def create(self, data: dict) -> Alarm:
         """Reformat weekdays from list to string and save"""
 
-        week_days: WeekDay = WeekDay(data['weekdays'])
-        data.update(weekdays=week_days.as_string)
+        if 'weekdays' in data:
+            week_days: WeekDay = WeekDay(data['weekdays'])
+            data.update(weekdays=week_days.as_string)
 
         return await self.save(Alarm(**data))
 
