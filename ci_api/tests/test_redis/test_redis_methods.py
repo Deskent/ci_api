@@ -1,24 +1,22 @@
 import pytest
 
-from config import get_redis_client
 from misc.redis_class import RedisDB
 from database.models import Rate
+from config import db
 
 
-@pytest.fixture
+@pytest.fixture(scope='package')
 def redis_client():
-    return get_redis_client()
+    return db.REDIS_DB
 
 
-@pytest.mark.manual
 async def test_redis_health_check(event_loop, redis_client):
 
     result = await RedisDB(model=Rate, client=redis_client)._health_check()
     assert result == {'test': 'test'}
-    assert await RedisDB(model=Rate, client=get_redis_client()).delete_key() is None
+    assert await RedisDB(model=Rate, client=redis_client).delete_key() is None
 
 
-@pytest.mark.skip
 async def test_redis_save_load_rates(all_rates, event_loop, redis_client):
     redis = RedisDB(model=Rate, client=redis_client)
     await redis.save_all(all_rates, 60)
@@ -27,7 +25,6 @@ async def test_redis_save_load_rates(all_rates, event_loop, redis_client):
     assert await redis.delete_key() is None
 
 
-@pytest.mark.skip
 async def test_redis_get_by_id(all_rates, event_loop, redis_client):
     rate_id = 1
     redis = RedisDB(model=Rate, client=redis_client)
@@ -36,7 +33,6 @@ async def test_redis_get_by_id(all_rates, event_loop, redis_client):
     assert result.id == rate_id
 
 
-@pytest.mark.skip
 async def test_redis_save_by_id(all_rates, event_loop, redis_client):
     redis = RedisDB(model=Rate, client=redis_client)
     await redis.save_all(all_rates, 60)
