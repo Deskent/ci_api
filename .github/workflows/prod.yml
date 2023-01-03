@@ -56,4 +56,7 @@ jobs:
             python ci_api/create_data.py
         - name: Test with pytest
           run: |
-            pytest
+            pytest ./ci_api/tests/test_redis -rf --maxfail=3
+            pytest ./ci_api/tests/test_common_functions -rf --maxfail=3
+            pytest ./ci_api/tests/test_crud -rf --maxfail=3
+            pytest ./ci_api/tests/test_endpoints -rf --maxfail=3
