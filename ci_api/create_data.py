@@ -360,12 +360,15 @@ async def create_default_data():
         await create_moods()
 
 
-if __name__ == '__main__':
-    async def make(flag, drop):
-        await recreate_db(drop)
-        await create_fake_data(flag)
-        await create_default_data()
+async def make(flag, drop):
+    logger.info('Creating data...\n')
+    await recreate_db(drop)
+    await create_fake_data(flag)
+    await create_default_data()
+    logger.info('Creating data: OK\n')
 
+
+if __name__ == '__main__':
     flag = True
     drop = True
     asyncio.run(make(flag, drop))
