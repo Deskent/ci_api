@@ -1,8 +1,7 @@
 import datetime
+import sys
 from pathlib import Path
 
-import aioredis
-from aioredis import Redis
 from fastapi.templating import Jinja2Templates
 from loguru import logger
 from pydantic import BaseSettings, EmailStr, RedisDsn
@@ -114,10 +113,7 @@ MAX_LEVEL = 10
 log_level = 1 if settings.DEBUG else 20
 logger.remove()
 logger.add(level=log_level, sink=settings.LOGS_DIR / 'ci_api.log', rotation='50 MB')
+logger.add(level=log_level, sink=sys.stdout)
 logger.add(level=30, sink=settings.LOGS_DIR / 'errors.log', rotation='100 MB')
 
 templates = Jinja2Templates(directory=settings.TEMPLATES_DIR, auto_reload=True)
-
-
-def get_redis_client() -> Redis:
-    yield aioredis.from_url(url=db.REDIS_DB)
