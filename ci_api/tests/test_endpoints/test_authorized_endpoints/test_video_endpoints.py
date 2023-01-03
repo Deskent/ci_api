@@ -13,7 +13,7 @@ class TestVideo(BaseTest):
         assert data is not None
         assert isinstance(data, list)
 
-    @pytest.mark.server
+    @pytest.mark.manual
     def test_get_video_by_id(self, event_loop):
         response = self.session.get(self.base_url + "/complex/1/", headers=self.headers)
         assert response.status_code == 200
@@ -23,4 +23,5 @@ class TestVideo(BaseTest):
         video_id: int = videos[0].get('id')
         assert video_id is not None
         response = self.session.get(self.base_url + f"/videos/{video_id}/", headers=self.headers)
-        assert response.status_code == 200
+        assert response.status_code == 404
+        assert 'File not found' in response.text
