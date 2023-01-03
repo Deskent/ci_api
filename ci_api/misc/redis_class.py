@@ -3,11 +3,12 @@ from abc import abstractmethod
 
 import aioredis
 
-from config import logger, get_redis_client
+from config import logger, db
 from crud_class.ci_types import MODEL_TYPES
 
 HOURS = 1
 STORE_TIME_SEC = 60 * 60 * HOURS
+REDIS_CLIENT = aioredis.from_url(url=db.REDIS_DB)
 
 
 class RedisException(Exception):
@@ -32,7 +33,7 @@ class RedisBase:
             model: MODEL_TYPES,
             client: aioredis.Redis = None
     ):
-        self.redis: aioredis.Redis = client or next(get_redis_client())
+        self.redis: aioredis.Redis = client or REDIS_CLIENT
         self.model: MODEL_TYPES = model
         self.id_: int = 0
         self.key: str = self.model.__name__.lower() + 's'
@@ -121,7 +122,7 @@ class RedisDB(RedisBase):
     def __init__(
             self,
             model: MODEL_TYPES,
-            client: aioredis.Redis = get_redis_client()
+            client: aioredis.Redis = None
     ):
         super().__init__(model=model, client=client)
 

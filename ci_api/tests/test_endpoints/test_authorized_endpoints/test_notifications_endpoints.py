@@ -5,7 +5,7 @@ from tests.test_endpoints.test_authorized_endpoints.base_test_class import BaseT
 
 
 class TestNotifications(BaseTest):
-    @pytest.mark.server
+
     def test_create_notification(self):
         payload = {
             "created_at": f"{datetime.datetime.now()}",
@@ -18,7 +18,6 @@ class TestNotifications(BaseTest):
         assert data is not None
         assert data.get('id') is not None
 
-    @pytest.mark.server
     def test_get_notifications(self):
         response = self.session.get(
             self.base_url + "/users/notifications/", headers=self.headers)

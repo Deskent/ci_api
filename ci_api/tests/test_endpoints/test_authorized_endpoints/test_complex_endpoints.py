@@ -5,7 +5,6 @@ from tests.test_endpoints.test_authorized_endpoints.base_test_class import BaseT
 
 class TestComplex(BaseTest):
 
-    @pytest.mark.server
     def test_get_complex_by_id(self):
         response = self.session.get(self.base_url + "/complex/1", headers=self.headers)
         assert response.status_code == 200
@@ -13,7 +12,6 @@ class TestComplex(BaseTest):
         assert data.get('videos') is not None
         assert data.get('name') is not None
 
-    @pytest.mark.server
     def test_get_complexes_state(self):
         response = self.session.get(self.base_url + "/complex/state", headers=self.headers)
         assert response.status_code == 200
@@ -22,7 +20,6 @@ class TestComplex(BaseTest):
         assert user.get('id') == self.user_id
         assert data.get('not_viewed_complexes') is not None
 
-    @pytest.mark.server
     def test_set_viewed_complex(self):
         payload = {"id": 1}
         response = self.session.post(
