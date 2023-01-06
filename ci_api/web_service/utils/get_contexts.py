@@ -4,25 +4,17 @@ from fastapi import Depends
 from pydantic import EmailStr
 from starlette.requests import Request
 
-from config import MAX_LEVEL, site
+from config import MAX_LEVEL
 from exc.exceptions import UserNotLoggedError, ComeTomorrowException
 from database.models import User, Rate, Avatar
+from services.constants import DEFAULT_CONTEXT
 from services.depends import get_context_with_request
 from services.emails import send_email_message, EmailException
 from crud_class.crud import CRUD
 from services.utils import represent_phone
 
 
-DEFAULT_CONTEXT = {
-    'email_pattern': r"\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}\b",
-    "company_email": site.COMPANY_EMAIL,
-    "company_phone": f"tel:{site.COMPANY_PHONE}",
-    "company_represent_phone": f"tel: {represent_phone(site.COMPANY_PHONE)}",
-    "google_play_link": site.GOOGLE_PLAY_LINK,
-    "app_store_link": site.APP_STORE_LINK,
-    "vk_link": site.VK_LINK,
-    "youtube_link": site.YOUTUBE_LINK,
-}
+EMAIL_PATTERN = {'email_pattern': r"\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}\b"}
 
 
 async def get_browser_session_token(request: Request) -> str:
@@ -41,6 +33,7 @@ def get_base_context(
         context: dict = Depends(get_context_with_request)
 ) -> dict:
     context.update(DEFAULT_CONTEXT)
+    context.update(EMAIL_PATTERN)
 
     return context
 

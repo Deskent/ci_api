@@ -7,6 +7,7 @@ from database.models import User, Alarm, Notification
 from schemas.alarms import AlarmFull
 from schemas.user_schema import UserSchema, UserEditProfile, EntryModalWindow, UserMood, \
     UserChangePassword
+from services.constants import DEFAULT_CONTEXT
 from services.depends import get_logged_user
 from crud_class.crud import CRUD
 from misc.weekdays_class import WeekDay
@@ -208,3 +209,18 @@ async def set_push_token(
 
     user.push_token = push_token
     await CRUD.user.save(user)
+
+
+@router.get(
+    "/get_meta",
+    response_model=dict,
+    status_code=status.HTTP_200_OK
+)
+async def get_meta_info():
+    """
+    Get meta info.
+
+    :return: JSON
+    """
+
+    return DEFAULT_CONTEXT
