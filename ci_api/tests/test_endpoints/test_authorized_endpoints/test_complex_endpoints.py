@@ -1,5 +1,3 @@
-import pytest
-
 from tests.test_endpoints.test_authorized_endpoints.base_test_class import BaseTest
 
 
