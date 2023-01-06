@@ -1,5 +1,3 @@
-import pytest
-
 from database.models import Alarm
 from crud_class.crud import CRUD
 

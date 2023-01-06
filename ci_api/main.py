@@ -1,4 +1,3 @@
-# raise ValueError('НАПИШИ ТЕСТЫ')
 import os
 import platform
 import time

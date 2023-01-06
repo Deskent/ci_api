@@ -1,7 +1,5 @@
 import datetime
 
-import pytest
-
 from crud_class.crud import CRUD
 from database.models import User, Alarm, Avatar
 
