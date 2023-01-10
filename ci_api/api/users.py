@@ -158,23 +158,29 @@ async def check_first_entry_or_new_user(
     return await get_modal_window_first_entry(user)
 
 
-@router.post(
+@router.put(
     "/set_user_mood",
-    status_code=status.HTTP_202_ACCEPTED
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_model=None
 )
 async def set_user_mood(
         mood: UserMood,
         user: User = Depends(get_logged_user)
 ):
     """
-    Set mood for user
+    Set mood for user. Need authorization.
 
     :return: null
     """
+
     await CRUD.user.set_mood(mood.mood_id, user=user)
 
 
-@router.put("/change_password", status_code=status.HTTP_202_ACCEPTED)
+@router.put(
+    "/change_password",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_model=None
+)
 async def change_password(
         data: UserChangePassword,
         user: User = Depends(get_logged_user),
@@ -197,7 +203,11 @@ async def change_password(
     logger.info(f"User with id {user.id} change password")
 
 
-@router.put("/set_push_token", status_code=status.HTTP_202_ACCEPTED)
+@router.put(
+    "/set_push_token",
+    status_code=status.HTTP_202_ACCEPTED,
+    response_model=None
+)
 async def set_push_token(
         push_token: str = Body(...),
         user: User = Depends(get_logged_user),
