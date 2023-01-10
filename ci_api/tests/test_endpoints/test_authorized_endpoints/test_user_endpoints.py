@@ -35,7 +35,13 @@ class TestUsers(BaseTest):
         }
         response = self.session.put(
             self.base_url + "/users/change_password", json=payload, headers=self.headers)
-        assert response.status_code == 202
+        assert response.status_code == 204
+
+    def test_set_mood(self):
+        payload = {"mood_id": 1}
+        response = self.session.put(
+            self.base_url + "/users/set_user_mood", json=payload, headers=self.headers)
+        assert response.status_code == 204
 
     def test_edit_user_profile(self):
         new_username = "new_test_name"

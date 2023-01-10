@@ -93,7 +93,7 @@ if (urlPath.includes("profile")) {
                 let formEmojiLabelClone = formEmojiBoxInputClone?.querySelector('.form_emoji-label');
                 let formEmojiImgClone = formEmojiBoxInputClone?.querySelector('.form_emoji__img');
                 let formEmojiInputClone = formEmojiBoxInputClone?.querySelector('.form_emoji-input');
-                
+
                   formEmojiImgClone.textContent =  emoji;
                   formEmojiLabelClone.textContent = emojies[i].name;
                   formEmojiInputClone.setAttribute('id', emojies[i].id);
@@ -118,7 +118,7 @@ if (urlPath.includes("profile")) {
                 }
 
                 const request = fetch(serverUrl + '/web/set_user_mood', {
-                    method: 'POST',
+                    method: 'PUT',
                     body: JSON.stringify({
                         'mood_id': inputId,
                     }),
