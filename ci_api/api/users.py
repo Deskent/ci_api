@@ -159,7 +159,7 @@ async def check_first_entry_or_new_user(
 
 @router.put(
     "/change_password",
-    status_code=status.HTTP_204_NO_CONTENT,
+    status_code=status.HTTP_202_ACCEPTED,
     response_model=None
 )
 async def change_password(

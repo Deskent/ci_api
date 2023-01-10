@@ -35,7 +35,7 @@ class TestUsers(BaseTest):
         }
         response = self.session.put(
             self.base_url + "/users/change_password", json=payload, headers=self.headers)
-        assert response.status_code == 204
+        assert response.status_code == 202
 
     def test_edit_user_profile(self):
         new_username = "new_test_name"
