@@ -88,7 +88,7 @@ class UserView(ModelView, model=User):
         User.id, User.email, User.phone, User.level, User.is_active, User.is_verified,
         User.sms_message, User.push_token, User.last_entry, User.expired_at, User.username,
         User.third_name, User.last_name, User.sms_call_code, User.email_code, User.avatar,
-        User.created_at,
+        User.created_at, User.mood, User.rate_id,
     ]
     column_labels = {
         User.username: "Имя",
@@ -103,6 +103,7 @@ class UserView(ModelView, model=User):
         User.is_active: "Подписан",
         User.is_verified: "Подтвержден",
         User.rate_id: "Тариф",
+        User.mood: "Настроение",
         User.gender: "Пол",
         User.alarms: "Будильники",
         User.notifications: "Оповещения",
