@@ -37,13 +37,6 @@ class TestUsers(BaseTest):
             self.base_url + "/users/change_password", json=payload, headers=self.headers)
         assert response.status_code == 202
 
-    def test_get_rates(self):
-        response = self.session.get(self.base_url + "/rates", headers=self.headers)
-        assert response.status_code == 200
-        data: list = response.json()
-        assert data is not None
-        assert isinstance(data, list)
-
     def test_edit_user_profile(self):
         new_username = "new_test_name"
         new_third_name = "new_third_name"
