@@ -150,6 +150,7 @@ class UserSchema(MaxLevel):
     gender: bool
     level: int
     current_complex: int
+    expired_at: datetime | None = None
     avatar: int = None
     mood: int = None
     rate_id: int = None
@@ -185,7 +186,7 @@ class EmailVerify(BaseModel):
 
 class TokenUser(BaseModel):
     token: str
-    user: UserOutput
+    user: UserSchema
 
 
 class UserMood(BaseModel):
