@@ -100,7 +100,7 @@ async def check_first_entry_or_new_user(
     return await get_modal_window_first_entry(user)
 
 
-@router.post(
+@router.put(
     "/set_user_mood",
     status_code=status.HTTP_202_ACCEPTED
 )
