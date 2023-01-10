@@ -2,15 +2,14 @@ from fastapi import APIRouter, Depends, Body
 from starlette import status
 
 from config import logger
-from exc.exceptions import UserNotFoundErrorApi
+from crud_class.crud import CRUD
 from database.models import User, Alarm, Notification
+from exc.exceptions import UserNotFoundErrorApi
+from misc.weekdays_class import WeekDay
 from schemas.alarms import AlarmFull
-from schemas.user_schema import UserSchema, UserEditProfile, EntryModalWindow, UserMood, \
-    UserChangePassword
+from schemas.user_schema import UserSchema, UserEditProfile, EntryModalWindow, UserChangePassword
 from services.constants import DEFAULT_CONTEXT
 from services.depends import get_logged_user
-from crud_class.crud import CRUD
-from misc.weekdays_class import WeekDay
 from services.user import get_modal_window_first_entry
 from web_service.handlers.profile_web_contexts import get_edit_profile_web_context
 
@@ -156,24 +155,6 @@ async def check_first_entry_or_new_user(
     """
 
     return await get_modal_window_first_entry(user)
-
-
-@router.put(
-    "/set_user_mood",
-    status_code=status.HTTP_204_NO_CONTENT,
-    response_model=None
-)
-async def set_user_mood(
-        mood: UserMood,
-        user: User = Depends(get_logged_user)
-):
-    """
-    Set mood for user. Need authorization.
-
-    :return: null
-    """
-
-    await CRUD.user.set_mood(mood.mood_id, user=user)
 
 
 @router.put(
