@@ -57,7 +57,8 @@ async def get_all_videos_from_complex(
     """
     videos: list[Video] = await CRUD.video.get_all_by_complex_id(complex_id)
 
-    for video in videos:
+    result = videos[:]
+    for video in result:
         video.file_name = site.SITE_URL + '/media/' + video.file_name
 
-    return videos
+    return result
