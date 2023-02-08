@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status, Depends, Header
 from fastapi.responses import FileResponse
 
 from config import settings, logger, site
@@ -45,7 +45,8 @@ async def get_video(
     status_code=status.HTTP_200_OK
 )
 async def get_all_videos_from_complex(
-        complex_id: int
+        complex_id: int,
+        user_agent: str = Header(...)
 ):
     """
     Return list videos by complex id. Need active user.
@@ -55,6 +56,7 @@ async def get_all_videos_from_complex(
     :return: List of videos as JSON
 
     """
+    logger.info(f'User Agent: {user_agent}')
     videos: list[Video] = await CRUD.video.get_all_by_complex_id(complex_id)
 
     result = videos[:]
