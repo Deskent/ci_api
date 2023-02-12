@@ -50,7 +50,7 @@ services:
       POSTGRES_HOST: "ci_postgres"
       REDIS_DB: redis://redis:6379/0
     ports:
-      - "8000:8000"
+      - "8010:8000"
     volumes:
       - ./logs:/app/logs
       - ./static:/app/static
