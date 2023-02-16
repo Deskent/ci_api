@@ -27,8 +27,12 @@ Build and Store:
     - docker logout
   only:
     - develop
+  tags:
+    - docker
 
 Cleanup:
   stage: Cleanup
   script:
     - docker rmi $DOCKER_IMAGE $BASE_IMAGE:latest --force || true
+  tags:
+    - docker
