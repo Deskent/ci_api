@@ -1,10 +1,5 @@
-services:
-  - docker:stable-dind
-
 variables:
   BASE_IMAGE: cygenic/cy-backend
-  DOCKER_DRIVER: overlay2
-  DOCKER_TLS_CERTDIR: "/certs"
 
 before_script:
   - apk add git curl || true
