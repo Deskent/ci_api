@@ -2,7 +2,6 @@ variables:
   BASE_IMAGE: cygenic/cy-backend
 
 before_script:
-  - apk add git curl || true
   - export COMMIT_DATE=$(git show -s --format=%cd --date=format:%Y%m%d $CI_COMMIT_SHA)
   - export DOCKER_IMAGE_TAG="$CI_COMMIT_REF_SLUG-$COMMIT_DATE-$CI_PIPELINE_ID"
   - export DOCKER_IMAGE="$BASE_IMAGE:$DOCKER_IMAGE_TAG"
