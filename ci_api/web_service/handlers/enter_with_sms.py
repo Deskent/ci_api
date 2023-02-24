@@ -126,7 +126,7 @@ async def update_user_token_to_web_context(
     """Если нет ошибок - возвращает ответ в формате схемы TokenUser"""
     if web_context.to_raise:
         return web_context
-    user: User = web_context.api_data['payload']
+    user: User = web_context.context.get('user')
     token: str = await CRUD.user.get_user_token(user)
     logger.info(f"User with id {user.id} got Bearer token")
     web_context.api_data.update(payload=TokenUser(token=token, user=user.dict()))

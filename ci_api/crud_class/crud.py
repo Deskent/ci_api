@@ -311,7 +311,7 @@ class MoodCrud(BaseCrud):
 
     @staticmethod
     async def _replace_code(elem: Mood):
-        if 'U+' in elem.code:
+        if elem is not None and 'U+' in elem.code:
             elem.code = elem.code.replace('U+', '0x')
 
         return elem
@@ -336,7 +336,7 @@ class MoodCrud(BaseCrud):
 
         all_elems: list[Mood] = await super().get_all(*args, **kwargs)
         for elem in all_elems:
-            if 'U+' in elem.code:
+            if elem is not None and 'U+' in elem.code:
                 elem.code = await self._replace_code(elem)
 
         return all_elems

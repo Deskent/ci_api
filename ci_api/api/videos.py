@@ -1,13 +1,15 @@
 from pathlib import Path
 
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status, Depends, Header
 from fastapi.responses import FileResponse
 
-from config import settings, logger
+from config import settings, logger, site
+from crud_class.crud import CRUD
 from database.models import Video
 from services.depends import get_logged_user
-from crud_class.crud import CRUD
 from web_service.utils.web_utils import get_checked_video
+
+CHUNK_SIZE = 1024 * 1024
 
 router = APIRouter(prefix="/videos", tags=['Videos'])
 
@@ -43,7 +45,8 @@ async def get_video(
     status_code=status.HTTP_200_OK
 )
 async def get_all_videos_from_complex(
-        complex_id: int
+        complex_id: int,
+        user_agent: str = Header(...)
 ):
     """
     Return list videos by complex id. Need active user.
@@ -53,4 +56,11 @@ async def get_all_videos_from_complex(
     :return: List of videos as JSON
 
     """
-    return await CRUD.video.get_all_by_complex_id(complex_id)
+    logger.info(f'User Agent: {user_agent}')
+    videos: list[Video] = await CRUD.video.get_all_by_complex_id(complex_id)
+
+    result = videos[:]
+    for video in result:
+        video.file_name = site.SITE_URL + '/media/' + video.file_name
+
+    return result
