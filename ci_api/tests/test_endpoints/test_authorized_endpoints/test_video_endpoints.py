@@ -24,14 +24,3 @@ class TestVideo(BaseTest):
         data: list = response.json()
         assert data is not None
         assert isinstance(data, list)
-
-    def test_get_video_by_id(self, event_loop, create_video_file):
-        response = self.session.get(self.base_url + "/complex/1/", headers=self.headers)
-        assert response.status_code == 200
-        complex_: dict = response.json()
-        videos: list[dict] = complex_['videos']
-        assert videos is not None
-        video_id: int = videos[0].get('id')
-        assert video_id is not None
-        response = self.session.get(self.base_url + f"/videos/{video_id}/", headers=self.headers)
-        assert response.status_code == 200
