@@ -6,14 +6,14 @@ from crud_class.crud import CRUD
 from database.models import User
 from exc.exceptions import UserNotFoundError, EmailError
 from misc.web_context_class import WebContext
-from schemas.user_schema import UserPhoneCode, TokenUser, UserSchema
+from schemas.user_schema import UserPhoneCode, TokenUser, UserSchema, PhoneNumber
 from schemas.user_schema import UserRegistration, UserPhoneLogin
 from services.emails import send_email_message, EmailException
 from services.user import register_new_user_web_context
 from services.utils import generate_random_password
 from web_service.handlers.common import user_login_via_phone
 from web_service.handlers.enter_with_sms import approve_sms_code_or_call_code, \
-    update_user_token_to_web_context
+    update_user_token_to_web_context, entry_via_sms_or_call
 
 router = APIRouter(prefix="/auth", tags=['Authorization'])
 
@@ -94,6 +94,46 @@ async def login(
     """
     web_context: WebContext = await user_login_via_phone(context={}, form_data=user_data)
     web_context: WebContext = await update_user_token_to_web_context(web_context)
+
+    return web_context.api_render()
+
+
+@router.post(
+    "/login_via_sms",
+    status_code=status.HTTP_204_NO_CONTENT
+)
+async def login_via_sms(
+        user_phone: PhoneNumber
+):
+    """Login user via sms
+
+    :param phone: string - phone number in format: 9998887766
+
+     :return: None
+    """
+    web_context: WebContext = await entry_via_sms_or_call(
+        context={}, sms_send_to="sms", phone=user_phone.phone
+    )
+
+    return web_context.api_render()
+
+
+@router.post(
+    "/login_via_call",
+    status_code=status.HTTP_204_NO_CONTENT
+)
+async def login_via_call(
+        user_phone: PhoneNumber
+):
+    """Login user via phone call
+
+    :param phone: string - phone number in format: 9998887766
+
+     :return: None
+    """
+    web_context: WebContext = await entry_via_sms_or_call(
+        context={}, sms_send_to="call", phone=user_phone.phone
+    )
 
     return web_context.api_render()
 
