@@ -23,19 +23,12 @@ router = APIRouter(prefix="/videos", tags=['Videos'])
 async def get_video(
         video_id: int,
 ):
-    """
-    Return video by video id. Need active user.
-
-    :param video_id: int - Video database ID
-
-    :return: Video data as JSON
-
-    """
-
     video: Video = await get_checked_video(video_id)
-    full_path: Path = settings.MEDIA_DIR / video.file_name
+    key: str = str(int(datetime.datetime.utcnow().timestamp()))
+    temporary_path: Path = settings.MEDIA_DIR / key
+    temporary_path.mkdir(parents=True)
+    full_path: Path = temporary_path / video.file_name
     logger.debug(f"Video requested: {video_id}:  OK")
-    logger.debug(f"Temporary path: {full_path}:  OK")
 
     return FileResponse(path=str(full_path), media_type='video/mp4')
 
@@ -66,31 +59,3 @@ async def get_all_videos_from_complex(
         video.file_name = site.SITE_URL + '/media/' + video.file_name
 
     return result
-
-
-@router.get(
-    "/temp_video/{video_id}",
-    dependencies=[Depends(get_logged_user)],
-    status_code=status.HTTP_200_OK
-)
-async def get_video_with_random_key(
-        video_id: int,
-):
-    """
-    Return video by video id. Need active user.
-
-    :param video_id: int - Video database ID
-
-    :return: Video data as JSON
-
-    """
-
-    video: Video = await get_checked_video(video_id)
-    key: str = str(int(datetime.datetime.utcnow().timestamp()))
-    temporary_path: Path = settings.MEDIA_DIR / key
-    temporary_path.mkdir(parents=True)
-    full_path: Path = temporary_path / video.file_name
-    logger.debug(f"Temporary path: {full_path}:  OK")
-    logger.debug(f"Video requested: {video_id}:  OK")
-
-    return FileResponse(path=str(full_path), media_type='video/mp4')
