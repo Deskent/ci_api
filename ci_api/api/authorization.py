@@ -1,12 +1,19 @@
-from fastapi import APIRouter, status, Request
+from fastapi import APIRouter, status, Request, Form
+from pydantic import EmailStr
 
+from config import logger
+from crud_class.crud import CRUD
+from database.models import User
+from exc.exceptions import UserNotFoundError, EmailError
 from misc.web_context_class import WebContext
-from schemas.user_schema import UserPhoneCode, TokenUser, UserSchema
+from schemas.user_schema import UserPhoneCode, TokenUser, UserSchema, PhoneNumber
 from schemas.user_schema import UserRegistration, UserPhoneLogin
+from services.emails import send_email_message, EmailException
 from services.user import register_new_user_web_context
+from services.utils import generate_random_password
 from web_service.handlers.common import user_login_via_phone
 from web_service.handlers.enter_with_sms import approve_sms_code_or_call_code, \
-    update_user_token_to_web_context
+    update_user_token_to_web_context, entry_via_sms_or_call
 
 router = APIRouter(prefix="/auth", tags=['Authorization'])
 
@@ -73,7 +80,69 @@ async def register(
 #     return user
 
 
-@router.post("/verify_sms_code", status_code=status.HTTP_202_ACCEPTED, response_model=TokenUser)
+@router.post("/login", response_model=TokenUser)
+async def login(
+        user_data: UserPhoneLogin
+):
+    """Get user authorization token
+
+    :param phone: string - phone number in format: 9998887766
+
+    :param password: string - Password
+
+     :return: Authorization token as JSON and user as JSON
+    """
+    web_context: WebContext = await user_login_via_phone(context={}, form_data=user_data)
+    web_context: WebContext = await update_user_token_to_web_context(web_context)
+
+    return web_context.api_render()
+
+
+@router.post(
+    "/login_via_sms",
+    status_code=status.HTTP_204_NO_CONTENT
+)
+async def login_via_sms(
+        user_phone: PhoneNumber
+):
+    """Login user via sms
+
+    :param phone: string - phone number in format: 9998887766
+
+     :return: None
+    """
+    web_context: WebContext = await entry_via_sms_or_call(
+        context={}, sms_send_to="sms", phone=user_phone.phone
+    )
+
+    return web_context.api_render()
+
+
+@router.post(
+    "/login_via_call",
+    status_code=status.HTTP_204_NO_CONTENT
+)
+async def login_via_call(
+        user_phone: PhoneNumber
+):
+    """Login user via phone call
+
+    :param phone: string - phone number in format: 9998887766
+
+     :return: None
+    """
+    web_context: WebContext = await entry_via_sms_or_call(
+        context={}, sms_send_to="call", phone=user_phone.phone
+    )
+
+    return web_context.api_render()
+
+
+@router.post(
+    "/verify_sms_code",
+    status_code=status.HTTP_202_ACCEPTED,
+    response_model=TokenUser
+)
 async def verify_sms_code(
         request: Request,
         data: UserPhoneCode
@@ -92,43 +161,50 @@ async def verify_sms_code(
     return web_context.api_render()
 
 
-@router.post("/login", response_model=TokenUser)
-async def login(
-        user_data: UserPhoneLogin
+@router.post(
+    "/verify_call_code",
+    status_code=status.HTTP_202_ACCEPTED,
+    response_model=TokenUser)
+async def verify_call_code(
+        request: Request,
+        data: UserPhoneCode
 ):
-    """Get user authorization token
+    """Verify user via call code
 
     :param phone: string - phone number in format: 9998887766
 
-    :param password: string - Password
+    :param code: string - Code from phone call
 
      :return: Authorization token as JSON and user as JSON
     """
-    web_context: WebContext = await user_login_via_phone(context={}, form_data=user_data)
-    web_context: WebContext = await update_user_token_to_web_context(web_context)
 
+    web_context: WebContext = await approve_sms_code_or_call_code(
+        request=request, context={}, phone=data.phone, code=data.code, check_call=True
+    )
     return web_context.api_render()
 
-#
-# @router.post(
-#     "/verify_call_code",
-#     status_code=status.HTTP_202_ACCEPTED,
-#     response_model=TokenUser)
-# async def verify_call_code(
-#         request: Request,
-#         data: UserPhoneCode
-# ):
-#     """Verify user via call code
-#
-#     :param phone: string - phone number in format: 9998887766
-#
-#     :param code: string - Code from phone call
-#
-#      :return: Authorization token as JSON and user as JSON
-#     """
-#
-#     web_context: WebContext = await approve_sms_code_or_call_code(request=request,
-#         context={}, phone=data.phone, code=data.code, check_call=True)
-#     return web_context.api_render()
-#
-#
+
+@router.post("/restore_password", response_model=UserSchema)
+async def restore_password(
+        email: EmailStr = Form(...)
+):
+    """
+    Send new password to user email.
+
+    :return: User as JSON if email correct
+    """
+    user: User = await CRUD.user.get_by_email(email)
+    if not user:
+        raise UserNotFoundError
+
+    new_password: str = generate_random_password()
+    try:
+        await send_email_message(user.email, new_password)
+    except EmailException:
+        raise EmailError
+
+    logger.debug(f"New password: {new_password}")
+    user.password = await CRUD.user.get_hashed_password(new_password)
+    await CRUD.user.save(user)
+
+    return user

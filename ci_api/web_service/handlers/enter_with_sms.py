@@ -3,7 +3,7 @@ from loguru import logger
 from starlette.requests import Request
 
 from config import settings
-from exc.exceptions import SmsCodeNotValid, UserNotFoundErrorApi
+from exc.exceptions import SmsCodeNotValid, UserNotFoundErrorApi, PhoneNumberError
 from database.models import User
 from schemas.user_schema import slice_phone_to_format, TokenUser
 from crud_class.crud import CRUD
@@ -18,12 +18,16 @@ async def entry_via_sms_or_call(
         sms_send_to: str = Form(...),
         phone: str = Form(...),
 ) -> WebContext:
+    """Отправляет смску, если вход через смс, запрашивает звонок, если вход по звонку."""
+
     web_context = WebContext(context=context)
     phone: str = slice_phone_to_format(phone)
     user: User = await CRUD.user.get_by_phone(phone)
     if not user:
         web_context.error = "Пользователь с таким номером телефона не найден"
         web_context.template = "entry_sms.html"
+        web_context.to_raise = UserNotFoundErrorApi
+
         return web_context
 
     web_context.context.update(user=user)
@@ -35,6 +39,8 @@ async def entry_via_sms_or_call(
 
 
 async def enter_via_phone_call(web_context: WebContext, user: User) -> WebContext:
+    """Запрашивает звонок через смс-сервис"""
+
     try:
         code: str = await sms_service.send_call(phone=user.phone)
         if code:
@@ -46,11 +52,13 @@ async def enter_via_phone_call(web_context: WebContext, user: User) -> WebContex
         logger.exception(err)
         web_context.error = str(err)
         web_context.template = "entry_sms.html"
+        web_context.to_raise = PhoneNumberError
 
     return web_context
 
 
 async def enter_via_sms(web_context: WebContext, user: User) -> WebContext:
+    """Отправляет смску с помощью смс-сервиса"""
 
     result: dict = await send_sms(user.phone)
     if sms_message := result.get('sms_message'):
@@ -73,6 +81,7 @@ async def approve_sms_code_or_call_code(
         phone: str = None,
         check_call: bool = False
 ) -> WebContext:
+    """Проверяет код из смс/последние 4 цифры звонящего"""
 
     web_context = WebContext(context=context)
 
