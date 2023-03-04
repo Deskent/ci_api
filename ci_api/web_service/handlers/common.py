@@ -61,6 +61,7 @@ async def restore_password(
     email_errors: dict = await get_email_send_context(user.email, new_password)
     if email_errors:
         context.update(email_errors)
+
         return templates.TemplateResponse(
             "forget1.html", context=get_page_titles(context, "forget1.html"))
 
@@ -68,6 +69,7 @@ async def restore_password(
     user.password = await CRUD.user.get_hashed_password(new_password)
     await CRUD.user.save(user)
     context.update(success=f"Новый пароль выслан на почту {user.email}")
+
     return templates.TemplateResponse(
         "entry_sms.html", context=get_page_titles(context, "entry_sms.html"))
 
