@@ -93,8 +93,11 @@ class UserRegistration(Password2, NewProfile):
             )
 
 
-class UserLogin(Password):
+class UserEmail(BaseModel):
     email: EmailStr
+
+
+class UserLogin(Password, UserEmail):
 
     @classmethod
     def as_form(

@@ -1,12 +1,11 @@
-from fastapi import APIRouter, status, Request, Form
-from pydantic import EmailStr
+from fastapi import APIRouter, status, Request
 
 from config import logger
 from crud_class.crud import CRUD
 from database.models import User
 from exc.exceptions import UserNotFoundError, EmailError
 from misc.web_context_class import WebContext
-from schemas.user_schema import UserPhoneCode, TokenUser, UserSchema, PhoneNumber
+from schemas.user_schema import UserPhoneCode, TokenUser, UserSchema, PhoneNumber, UserEmail
 from schemas.user_schema import UserRegistration, UserPhoneLogin
 from services.emails import send_email_message, EmailException
 from services.user import register_new_user_web_context
@@ -186,14 +185,14 @@ async def verify_call_code(
 
 @router.post("/restore_password", response_model=UserSchema)
 async def restore_password(
-        email: EmailStr = Form(...)
+        user_email: UserEmail
 ):
     """
     Send new password to user email.
 
     :return: User as JSON if email correct
     """
-    user: User = await CRUD.user.get_by_email(email)
+    user: User = await CRUD.user.get_by_email(user_email.email)
     if not user:
         raise UserNotFoundError
 
