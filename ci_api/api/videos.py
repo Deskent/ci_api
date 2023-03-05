@@ -1,5 +1,3 @@
-import datetime
-
 from fastapi import APIRouter, status, Depends, Header
 
 from config import logger, site
@@ -35,7 +33,6 @@ async def get_all_videos_from_complex(
 
     result = videos[:]
     for video in result:
-        no_cache: str = str(int(datetime.datetime.utcnow().timestamp()))
-        video.file_name = site.SITE_URL + '/media/' + no_cache + video.file_name
+        video.file_name = site.SITE_URL + '/media/' + video.file_name
 
     return result
