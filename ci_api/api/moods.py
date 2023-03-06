@@ -5,6 +5,7 @@ from crud_class.crud import CRUD
 from database.models import User, Mood
 from schemas.user_schema import UserMood
 from services.depends import get_logged_user
+from config import logger
 
 router = APIRouter(prefix="/moods", tags=['Moods'])
 
@@ -37,7 +38,10 @@ async def get_user_mood(
     :return: Mood as JSON
     """
 
-    return await CRUD.mood.get_by_id(user.mood)
+    result: Mood = await CRUD.mood.get_by_id(user.mood)
+    logger.info(f"Mood: {result}")
+
+    return result
 
 
 @router.put(
