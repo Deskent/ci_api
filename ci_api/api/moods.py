@@ -32,7 +32,7 @@ async def get_all_moods():
 async def get_user_mood(
         user: User = Depends(get_logged_user),
 ):
-    """Return user mood info. Need authorization.
+    """Return user mood is exists or first Mood. Need authorization.
 
     :return: Mood as JSON
     """
