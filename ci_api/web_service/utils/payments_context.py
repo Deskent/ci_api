@@ -49,7 +49,7 @@ async def get_subscribe_by_rate_id(
     web_context.api_data.update(payload=api_data)
 
     rate: Rate = await CRUD.rate.get_by_id(rate_id)
-
+    logger.info(f"get_subscribe_by_rate_id: \nRate: {rate}")
     if await CRUD.payment.get_by_user_and_rate_id(user_id=user.id, rate_id=rate.id):
         web_context.error = SubscribeExistsError.detail
         web_context.template = "subscribe.html"
