@@ -27,6 +27,7 @@ async def get_all_moods():
 @router.get(
     "/get_user_mood",
     status_code=status.HTTP_200_OK,
+    response_model=Mood
 )
 async def get_user_mood(
         user: User = Depends(get_logged_user),
