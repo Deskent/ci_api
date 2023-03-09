@@ -138,7 +138,3 @@ class CiScheduler:
 
 
 ci_scheduler = CiScheduler(AsyncIOScheduler())
-
-
-if __name__ == '__main__':
-    print(today.weekday())
