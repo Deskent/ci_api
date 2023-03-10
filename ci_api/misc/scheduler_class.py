@@ -84,7 +84,7 @@ class CiScheduler:
 
     async def add_alarm(self, alarm: Alarm) -> None:
         if alarm.weekdays == 'all' or str(today.weekday()) in alarm.weekdays:
-            logger.debug(f"Today alarm job added: {alarm}")
+            logger.info(f"Today alarm job added: {alarm}")
             self.scheduler.add_job(
                 send_alarm_push,
                 'cron',
