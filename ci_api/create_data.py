@@ -224,6 +224,8 @@ async def create_fake_data(create_fake: bool = False):
         logger.debug("Create fake data to DB")
         if await CRUD.user.get_by_id(1, use_cache=False):
             return
+        if await CRUD.complex.get_first():
+            return
         await create_complexes()
         await create_users()
         await create_alarms()
@@ -269,3 +271,4 @@ if __name__ == '__main__':
     create_fake = False
     drop = True
     asyncio.run(prepare_data(create_fake, drop))
+    # asyncio.run(drop_db())
