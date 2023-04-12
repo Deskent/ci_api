@@ -407,6 +407,8 @@ class VideoCrud(BaseCrud):
             current_complex: Complex = await CRUD.complex.get_by_id(complex_id)
             if not current_complex:
                 raise ComplexNotFoundError
+            if current_complex.duration is None:
+                current_complex.duration = 0
             current_complex.duration += data['duration']
             current_complex.video_count += 1
             await self.save(current_complex)
