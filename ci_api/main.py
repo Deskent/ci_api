@@ -55,11 +55,13 @@ def get_application():
     @app.on_event("startup")
     async def on_startup():
         await CRUD.initialize()
-        await create_default_admin()
-        if settings.DEBUG:
+        if settings.RECREATE_DB:
             await recreate_db()
+        if settings.CREATE_FAKE_DATA:
             await create_fake_data()
             await create_default_data()
+        if settings.CREATE_ADMIN:
+            await create_default_admin()
         ci_scheduler.start()
         await ci_scheduler.run()
 
