@@ -435,7 +435,7 @@ class VideoCrud(BaseCrud):
     async def get_hello_video(self) -> Video:
         """Return hello video instance"""
 
-        query = select(self.model).where(self.model.complex_id.is_(None))
+        query = select(self.model).where(self.model.file_name == 'hello.mp4')
         return await get_first(query)
 
 
