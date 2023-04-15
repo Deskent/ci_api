@@ -49,7 +49,7 @@ class Settings(BaseSettings):
     TEMPLATES_DIR: Path = None
     LOGS_DIR: Path = None
     CREATE_FAKE_DATA: bool = False
-    CREATE_ADMIN: bool = False
+    CREATE_ADMIN: bool = True
     DEFAULT_ADMIN: dict = {'username': 'test', 'email': 'test@mail.ru', 'password': 'test'}
     RECREATE_DB: bool = False
     ECHO: bool = False

@@ -3,14 +3,14 @@ import platform
 import time
 
 import uvicorn
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
 from admin.utils import create_default_admin
 from admin.views import add_admin_views
-from config import settings, MAX_LEVEL, logger
+from config import settings, MAX_LEVEL, logger, templates
 from create_data import create_fake_data, recreate_db, create_default_data
 from crud_class.crud import CRUD
 from database.db import db
@@ -23,6 +23,7 @@ from web_service.router import router as web_router
 from web_service.utils.get_contexts import (
     get_base_context, get_browser_session_token, get_session_user, get_logged_user_context
 )
+from web_service.utils.title_context_func import get_page_titles
 
 if platform.system().lower() == "linux":
     os.environ['TZ'] = 'UTC'
@@ -58,8 +59,8 @@ def get_application():
         if settings.RECREATE_DB:
             await recreate_db()
         if settings.CREATE_FAKE_DATA:
-            await create_fake_data()
             await create_default_data()
+            await create_fake_data()
         if settings.CREATE_ADMIN:
             await create_default_admin()
         ci_scheduler.start()
@@ -103,17 +104,17 @@ def get_application():
 
         return web_context.web_render()
 
-    # @app.exception_handler(status.HTTP_500_INTERNAL_SERVER_ERROR)
-    # async def status_500_exception_handler(
-    #         request: Request, exc: Exception
-    # ):
-    #     context: dict = get_base_context({"request": request})
-    #     logger.exception(f"Status 500 error: \n{request.url}\n{exc}\n")
-    #     logger.exception(exc)
-    #
-    #     return templates.TemplateResponse(
-    #         "error_page.html", context=get_page_titles(context, "error_page.html")
-    #     )
+    @app.exception_handler(status.HTTP_500_INTERNAL_SERVER_ERROR)
+    async def status_500_exception_handler(
+            request: Request, exc: Exception
+    ):
+        context: dict = get_base_context({"request": request})
+        logger.exception(f"Status 500 error: \n{request.url}\n{exc}\n")
+        logger.exception(exc)
+
+        return templates.TemplateResponse(
+            "error_page.html", context=get_page_titles(context, "error_page.html")
+        )
 
     add_admin_views(app)
     app.add_middleware(SessionMiddleware, secret_key=settings.SECRET)

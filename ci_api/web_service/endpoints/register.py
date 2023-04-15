@@ -6,7 +6,7 @@ from services.user import register_new_user_web_context
 from misc.web_context_class import WebContext
 from web_service.utils.get_contexts import get_base_context
 
-router = APIRouter(tags=['web', 'register'])
+router = APIRouter(tags=['web', 'register'], include_in_schema=False)
 
 
 @router.get("/registration", response_class=HTMLResponse)
