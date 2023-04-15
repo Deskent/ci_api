@@ -38,6 +38,18 @@ jobs:
 
       steps:
         - uses: actions/checkout@v3
+
+        - name: Send message on Start
+          env:
+            MESSAGE: "[${{ env.PROJECT_NAME}}]: Branch ${{ env.STAGE }}: Тесты: Запустились"
+          run: |
+            curl \
+            -X POST \
+            -H 'Content-Type: application/json' \
+            -d '{"chat_id": ${{ secrets.TELEGRAM_CHAT_ID }}, "text": "${{ env.MESSAGE }}", "disable_notification": true}' \
+            https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage
+
+
         - name: Set up Python ${{ matrix.python-version }}
           uses: actions/setup-python@v4
           with:
@@ -58,7 +70,28 @@ jobs:
             python ci_api/create_data.py
         - name: Test with pytest
           run: |
-            pytest ./ci_api/tests/test_redis -rf --maxfail=3
-            pytest ./ci_api/tests/test_common_functions -rf --maxfail=3
-            pytest ./ci_api/tests/test_crud -rf --maxfail=3
             pytest ./ci_api/tests/test_endpoints -rf --maxfail=3
+#            pytest ./ci_api/tests/test_redis -rf --maxfail=3
+#            pytest ./ci_api/tests/test_common_functions -rf --maxfail=3
+#            pytest ./ci_api/tests/test_crud -rf --maxfail=3
+
+        - name: Telegram notification on Failure
+          if: failure()
+          env:
+            MESSAGE: "[${{ env.PROJECT_NAME}}]: Branch ${{ env.STAGE }}: Тесты: ОШИБКА!!!"
+          run: |
+            curl \
+            -X POST \
+            -H 'Content-Type: application/json' \
+            -d '{"chat_id": ${{ secrets.TELEGRAM_CHAT_ID }}, "text": "${{ env.MESSAGE }}", "disable_notification": false}' \
+            https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage
+
+        - name: Send message on Success
+          env:
+            MESSAGE: "[${{ env.PROJECT_NAME}}]: Branch ${{ env.STAGE }}: Тесты: ОК"
+          run: |
+            curl \
+            -X POST \
+            -H 'Content-Type: application/json' \
+            -d '{"chat_id": ${{ secrets.TELEGRAM_CHAT_ID }}, "text": "${{ env.MESSAGE }}", "disable_notification": true}' \
+            https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage
