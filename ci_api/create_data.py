@@ -268,7 +268,7 @@ async def prepare_data(create_fake: bool, drop: bool):
 
 
 if __name__ == '__main__':
-    create_fake = False
-    drop = False
+    create_fake = True
+    drop = True
     asyncio.run(prepare_data(create_fake, drop))
     # asyncio.run(drop_db())
