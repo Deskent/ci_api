@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 from pydantic import BaseModel
 
 from config import logger
-from exc.exceptions import AlarmNotFound
+from exc.exceptions import AlarmNotFound, InvalidPushToken
 from database.models import Alarm, User
 from misc.scheduler_class import ci_scheduler
 from schemas.alarms import AlarmCreate, AlarmFull, AlarmUpdate
@@ -37,6 +37,8 @@ async def create_alarm(
         ['all']
         default='all'
 
+    If user have not Push Token - returns error with code 400: Invalid push token
+
     :param sound_name: string - Name of sound for current alarm
 
     :param volume: int - Volume level 0 to 100 , default=50
@@ -48,6 +50,8 @@ async def create_alarm(
     :return: Alarm created information as JSON
     """
 
+    if not user.push_token:
+        raise InvalidPushToken
     payload: dict = data.dict()
     payload.update({"user_id": user.id})
     alarm: Alarm = await CRUD.alarm.create(payload)
