@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -74,6 +75,9 @@ async def create_notifications_for_not_viewed_users():
 async def send_alarm_push(user_id: int, text: str) -> None:
     user: User = await CRUD.user.get_by_id(user_id)
     if user:
+        if not user.push_token:
+            logger.warning(f'User: {user.email} have not push token')
+            return
         result: list = await send_push_messages(message=text, tokens=[user.push_token])
         logger.info(f"Alarms send: [{len(result)}]")
 
@@ -84,7 +88,6 @@ class CiScheduler:
         self.scheduler: AsyncIOScheduler = scheduler
 
     async def add_alarm(self, alarm: Alarm) -> None:
-        # TODO добавить чтоб отправлялось только в заданные дни недели
         if alarm.weekdays == 'all' or str(today.weekday()) in alarm.weekdays:
             logger.info(f"Today alarm job added: {alarm}")
             self.scheduler.add_job(
@@ -111,8 +114,8 @@ class CiScheduler:
         alarms: list[Alarm] = await CRUD.alarm.get_all_active_alarms()
         for alarm in alarms:
             await self.add_alarm(alarm)
+            await asyncio.sleep(1)
 
-    # TODO апдейтить
     async def update_alarms(self):
         self.scheduler.add_job(
             self.create_alarms,
