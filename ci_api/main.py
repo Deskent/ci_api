@@ -59,8 +59,8 @@ def get_application():
         if settings.RECREATE_DB:
             await recreate_db()
         if settings.CREATE_FAKE_DATA:
-            await create_fake_data()
             await create_default_data()
+            await create_fake_data()
         if settings.CREATE_ADMIN:
             await create_default_admin()
         ci_scheduler.start()
