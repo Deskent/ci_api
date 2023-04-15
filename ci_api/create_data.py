@@ -223,11 +223,11 @@ async def create_fake_data(create_fake: bool = False):
     if settings.CREATE_FAKE_DATA or create_fake:
         logger.debug("Create fake data to DB")
         if not await CRUD.user.get_by_id(1, use_cache=False):
-            await create_users()
             return
         if await CRUD.complex.get_first():
             return
         await create_complexes()
+        await create_users()
         await create_alarms()
         await create_notifications()
         await create_default_admin()
