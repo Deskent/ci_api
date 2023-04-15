@@ -201,9 +201,6 @@ class UploadVideo(BaseView):
     ):
         context = {"request": request}
         if request.method == "GET":
-            # TODO разобраться с формами
-            # TODO в выбор комплекс_ид вывести список всех комплексов
-
             return self.templates.TemplateResponse(
                 "upload_video.html",
                 context=context,
