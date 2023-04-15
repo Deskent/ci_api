@@ -50,8 +50,8 @@ async def create_alarm(
     :return: Alarm created information as JSON
     """
 
-    # if not user.push_token:
-    #     raise InvalidPushToken
+    if not user.push_token:
+        raise InvalidPushToken
     payload: dict = data.dict()
     payload.update({"user_id": user.id})
     alarm: Alarm = await CRUD.alarm.create(payload)
