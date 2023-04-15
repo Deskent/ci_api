@@ -234,7 +234,7 @@ async def create_fake_data(create_fake: bool = False):
         logger.debug("Create fake data to DB: OK")
 
 
-async def recreate_db(drop=False) -> None:
+async def recreate_db(drop: bool = False) -> None:
     """Drop and create tables in database"""
 
     if drop or settings.RECREATE_DB:
@@ -269,6 +269,6 @@ async def prepare_data(create_fake: bool, drop: bool):
 
 if __name__ == '__main__':
     create_fake = False
-    drop = False
+    drop = True
     asyncio.run(prepare_data(create_fake, drop))
     # asyncio.run(drop_db())
