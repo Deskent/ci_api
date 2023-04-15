@@ -9,7 +9,7 @@ from web_service.utils.get_contexts import get_user_browser_session, \
     get_profile_page_context
 from config import settings
 
-router = APIRouter(tags=['web', 'payments'])
+router = APIRouter(tags=['web', 'payments'], include_in_schema=False)
 
 
 @router.get("/payment_result", response_class=HTMLResponse)

@@ -13,5 +13,6 @@ class BaseTest:
         self.headers = setup_class.headers
         self.email_token = setup_class.email_token
         self.alarm_id = setup_class.alarm_id
+        self.push_token = setup_class.push_token
         self.user_id = None
         yield

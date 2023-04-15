@@ -80,6 +80,7 @@ class CreateEndpointUserData:
         self.email_token: str = ''
         self.token: str = ''
         self.alarm_id: int = 0
+        self.push_token: str = 'test_push_token'
 
     def create_user(self) -> dict:
         response = self.session.post(
@@ -112,6 +113,13 @@ class CreateEndpointUserData:
 
         return alarm_id
 
+    def create_push_token(self) -> None:
+        response = self.session.put(
+            self.base_url + "/users/set_push_token", headers=self.headers, json=self.push_token,
+            allow_redirects=True
+        )
+        assert response.status_code == 202
+
     # async def get_email_confirm_token(self) -> str:
     #     async for session in get_db_session():
     #         user = await User.get_by_email(session, self.user_create.email)
@@ -130,6 +138,7 @@ class CreateEndpointUserData:
         self.create_user()
         self.login_user()
         # self.get_email_confirm_token()
+        self.create_push_token()
         self.create_alarm()
 
 

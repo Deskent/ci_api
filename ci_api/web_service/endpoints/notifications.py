@@ -7,7 +7,7 @@ from database.models import User
 from web_service.utils.title_context_func import get_page_titles
 from web_service.utils.get_contexts import get_user_browser_session, get_logged_user_context
 
-router = APIRouter(tags=['web', 'notifications'])
+router = APIRouter(tags=['web', 'notifications'], include_in_schema=False)
 
 
 @router.get("/delete_notification/{notification_id}", response_class=HTMLResponse)

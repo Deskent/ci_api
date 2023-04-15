@@ -1,5 +1,7 @@
+import asyncio
 import datetime
 
+from apscheduler.job import Job
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from config import logger, settings
@@ -73,7 +75,11 @@ async def create_notifications_for_not_viewed_users():
 
 async def send_alarm_push(user_id: int, text: str) -> None:
     user: User = await CRUD.user.get_by_id(user_id)
+    logger.debug(f'Sending alarm for user: {user.email}')
     if user:
+        if not user.push_token:
+            logger.warning(f'User: {user.email} have not push token')
+            return
         result: list = await send_push_messages(message=text, tokens=[user.push_token])
         logger.info(f"Alarms send: [{len(result)}]")
 
@@ -84,20 +90,27 @@ class CiScheduler:
         self.scheduler: AsyncIOScheduler = scheduler
 
     async def add_alarm(self, alarm: Alarm) -> None:
-        # TODO добавить чтоб отправлялось только в заданные дни недели
         if alarm.weekdays == 'all' or str(today.weekday()) in alarm.weekdays:
-            logger.info(f"Today alarm job added: {alarm}")
+            job: Job = self.scheduler.get_job(str(alarm.id))
+            if job:
+                self.scheduler.remove_job(job_id=str(alarm.id))
+                logger.debug(f'Job deleted: {job}')
             self.scheduler.add_job(
                 send_alarm_push,
                 'cron',
+                id=str(alarm.id),
                 hour=alarm.alarm_time.hour,
                 minute=alarm.alarm_time.minute,
                 replace_existing=True,
                 timezone=datetime.timezone(datetime.timedelta(hours=3)),
-                kwargs={'text': alarm.text, 'user_id': alarm.user_id}
+                kwargs={
+                    'text': alarm.text,
+                    'user_id': alarm.user_id,
+                }
             )
+            logger.info(f"Today alarm job added: {alarm}")
 
-    async def create_notifications(self):
+    async def create_notifications(self) -> None:
         self.scheduler.add_job(
             create_notifications_for_not_viewed_users,
             'cron',
@@ -107,12 +120,12 @@ class CiScheduler:
             timezone=datetime.timezone(datetime.timedelta(hours=3))
         )
 
-    async def create_alarms(self):
+    async def create_alarms(self) -> None:
         alarms: list[Alarm] = await CRUD.alarm.get_all_active_alarms()
         for alarm in alarms:
             await self.add_alarm(alarm)
+            await asyncio.sleep(1)
 
-    # TODO апдейтить
     async def update_alarms(self):
         self.scheduler.add_job(
             self.create_alarms,

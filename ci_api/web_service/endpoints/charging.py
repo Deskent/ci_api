@@ -13,7 +13,7 @@ from services.utils import convert_seconds_to_time, convert_to_minutes
 from web_service.utils.get_contexts import get_logged_user_context, get_user_browser_session
 from web_service.utils.title_context_func import get_page_titles
 
-router = APIRouter(tags=['web', 'charging'])
+router = APIRouter(tags=['web', 'charging'], include_in_schema=False)
 
 
 @router.get(

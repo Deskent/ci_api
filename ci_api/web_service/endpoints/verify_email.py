@@ -8,7 +8,7 @@ from database.models import User
 from web_service.utils.title_context_func import get_page_titles
 from web_service.utils.get_contexts import get_base_context, get_logged_user_context
 
-router = APIRouter(tags=['web', 'check_email'])
+router = APIRouter(tags=['web', 'check_email'], include_in_schema=False)
 
 
 @router.get("/check_email", response_class=HTMLResponse)

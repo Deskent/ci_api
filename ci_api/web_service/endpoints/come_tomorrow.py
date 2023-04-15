@@ -5,7 +5,7 @@ from misc.web_context_class import WebContext
 from web_service.utils.get_contexts import get_logged_user_context
 
 
-router = APIRouter(tags=['web', 'tomorrow'])
+router = APIRouter(tags=['web', 'tomorrow'], include_in_schema=False)
 
 
 @router.get("/come_tomorrow", response_class=HTMLResponse)

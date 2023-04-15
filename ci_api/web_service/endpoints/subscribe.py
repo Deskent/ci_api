@@ -5,7 +5,7 @@ from web_service.utils.get_contexts import get_logged_user_context
 from web_service.utils.payments_context import (
     WebContext, get_subscribe_context, get_subscribe_by_rate_id, get_cancel_subscribe_context)
 
-router = APIRouter(tags=['web', 'subscribe'])
+router = APIRouter(tags=['web', 'subscribe'], include_in_schema=False)
 
 
 @router.get("/subscribe", response_class=HTMLResponse)

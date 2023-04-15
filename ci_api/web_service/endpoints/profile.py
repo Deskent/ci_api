@@ -9,7 +9,7 @@ from web_service.handlers.profile_web_contexts import get_edit_profile_web_conte
 from web_service.utils.get_contexts import get_logged_user_context, get_profile_page_context, \
     get_user_browser_session
 
-router = APIRouter(tags=['web', 'profile'])
+router = APIRouter(tags=['web', 'profile'], include_in_schema=False)
 
 
 @router.get("/profile", response_class=HTMLResponse)

@@ -6,7 +6,7 @@ from web_service.utils.title_context_func import get_page_titles
 from web_service.utils.get_contexts import get_base_context
 
 
-router = APIRouter(tags=['web', 'index'])
+router = APIRouter(tags=['web', 'index'], include_in_schema=False)
 
 
 @router.get("/", response_class=HTMLResponse)

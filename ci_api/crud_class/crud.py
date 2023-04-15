@@ -407,6 +407,8 @@ class VideoCrud(BaseCrud):
             current_complex: Complex = await CRUD.complex.get_by_id(complex_id)
             if not current_complex:
                 raise ComplexNotFoundError
+            if current_complex.duration is None:
+                current_complex.duration = 0
             current_complex.duration += data['duration']
             current_complex.video_count += 1
             await self.save(current_complex)
@@ -433,7 +435,7 @@ class VideoCrud(BaseCrud):
     async def get_hello_video(self) -> Video:
         """Return hello video instance"""
 
-        query = select(self.model).where(self.model.complex_id.is_(None))
+        query = select(self.model).where(self.model.file_name == 'hello.mp4')
         return await get_first(query)
 
 
