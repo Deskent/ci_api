@@ -7,6 +7,7 @@ from starlette.datastructures import FormData
 from admin.auth import authentication_backend
 from admin.utils import upload_file
 from config import logger, settings
+from crud_class.crud import CRUD
 from database.db import engine
 from database.models import (
     User, Video, Complex, Rate, Administrator, Payment, PaymentCheck, Avatar, Mood
@@ -164,6 +165,9 @@ class VideoView(ModelView, model=Video):
     column_formatters = {
         Video.duration: lambda m, a: convert_seconds_to_time(m.duration)
     }
+
+    async def on_model_delete(self, model: Video):
+        return await CRUD.video.delete(model)
 
 
 class RateView(ModelView, model=Rate):
