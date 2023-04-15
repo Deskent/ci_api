@@ -6,6 +6,8 @@ class TestAlarms(BaseTest):
     def test_get_alarm(self):
         response = self.session.get(
             self.base_url + f"/alarms/{self.alarm_id}", headers=self.headers)
+        if response.status_code != 200:
+            print(response.text)
         assert response.status_code == 200
 
     def test_get_alarm_without_headers(self):
@@ -14,6 +16,8 @@ class TestAlarms(BaseTest):
 
     def test_get_alarms_list(self):
         response = self.session.get(self.base_url + "/users/alarms/list", headers=self.headers)
+        if response.status_code != 200:
+            print(response.text)
         assert response.status_code == 200
         data: list = response.json()
         assert data is not None
