@@ -23,4 +23,4 @@ main_router.include_router(payments_router)
 main_router.include_router(rates_router)
 main_router.include_router(avatars_router)
 main_router.include_router(moods_router)
-main_router.include_router(web_api_router)  # TODO Удалить после выхода реакта
+main_router.include_router(web_api_router)

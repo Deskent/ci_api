@@ -6,7 +6,7 @@ from web_service.handlers.common import restore_password
 from web_service.utils.title_context_func import get_page_titles
 from web_service.utils.get_contexts import get_base_context
 
-router = APIRouter(tags=['web', 'recover'])
+router = APIRouter(tags=['web', 'recover'], include_in_schema=False)
 
 
 @router.get("/forget1", response_class=HTMLResponse)

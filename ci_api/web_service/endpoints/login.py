@@ -9,7 +9,7 @@ from web_service.handlers.enter_with_sms import approve_sms_code_or_call_code, e
 from web_service.utils.get_contexts import get_base_context, get_profile_page_context, \
     get_logged_user_context
 
-router = APIRouter(tags=['web', 'login'])
+router = APIRouter(tags=['web', 'login'], include_in_schema=False)
 
 
 @router.get("/entry", response_class=HTMLResponse)

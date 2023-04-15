@@ -12,7 +12,7 @@ from services.user import get_modal_window_first_entry
 from services.videos_methods import get_viewed_complex_response
 from web_service.utils.get_contexts import get_user_browser_session
 
-router = APIRouter(prefix="/web", tags=['WebApi'])
+router = APIRouter(prefix="/web", tags=['WebApi'], include_in_schema=False)
 
 
 @router.get(
