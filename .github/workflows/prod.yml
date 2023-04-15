@@ -1,4 +1,9 @@
 name: ci_api_tests
+
+env:
+  PROJECT_NAME: "CY_API"
+  STAGE: "main"
+
 on:
   push:
     branches: [ main ]
