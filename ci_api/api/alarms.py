@@ -84,6 +84,8 @@ async def update_alarm(
 
     alarm: Alarm = await get_alarm_or_raise(alarm_id, user)
     web_context: WebContext = await update_alarm_web_context({}, alarm, data)
+    updated_alarm: Alarm = await get_alarm_or_raise(alarm_id, user)
+    await ci_scheduler.add_alarm(updated_alarm)
     return web_context.api_render()
 
 
