@@ -140,6 +140,8 @@ def setup_class(
     test_data = CreateEndpointUserData(
         session=get_test_client_app, base_url=base_url, new_alarm=new_alarm
     )
-    test_data.create()
-    yield test_data
-    test_data.delete_user()
+    try:
+        test_data.create()
+        yield test_data
+    finally:
+        test_data.delete_user()

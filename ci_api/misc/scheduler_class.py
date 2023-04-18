@@ -75,8 +75,8 @@ async def create_notifications_for_not_viewed_users():
 
 async def send_alarm_push(user_id: int, text: str) -> None:
     user: User = await CRUD.user.get_by_id(user_id)
-    logger.debug(f'Sending alarm for user: {user.email}')
     if user:
+        logger.debug(f'Sending alarm for user: {user.email}')
         if not user.push_token:
             logger.warning(f'User: {user.email} have not push token')
             return

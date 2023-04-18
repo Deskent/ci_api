@@ -43,20 +43,3 @@ async def send_push_messages(message: str, tokens: list[str], extra=None) -> lis
         logger.exception(f'ValueError: {exc}')
 
     return []
-
-
-def send_push():
-    extra = {'url': 'mobile-ci:///AlarmWork'}
-    token = r"ExponentPushToken[Si28gRPdXFSFysUfoN03Ul]"
-    text = "Hello, Julia"
-    push = PushMessage(to=token, body=text, data=extra)
-    result = PushClient().publish(push)
-    print(result)
-
-
-if __name__ == '__main__':
-    # token = "ExponentPushToken[etDQ--NvdQf5GlgZIx9pQp]"
-    token = "ExponentPushToken[7e8B0BIU1dsaFV767ZcMQO]"
-    text = "Hello, Julia"
-    # asyncio.run(send_push_messages(message=text, tokens=tokens))
-    send_push()

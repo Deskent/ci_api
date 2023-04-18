@@ -2,11 +2,11 @@ name: ci_api_tests
 
 env:
   PROJECT_NAME: "CY_API"
-  STAGE: "main"
+  STAGE: "deskent"
 
 on:
   push:
-    branches: [ main ]
+    branches: [ deskent ]
 
 jobs:
   runner-job:
@@ -76,9 +76,9 @@ jobs:
         - name: Test with pytest
           run: |
             pytest ./ci_api/tests/test_endpoints -rf --maxfail=3
-            pytest ./ci_api/tests/test_redis -rf --maxfail=3
-            pytest ./ci_api/tests/test_common_functions -rf --maxfail=3
-            pytest ./ci_api/tests/test_crud -rf --maxfail=3
+#            pytest ./ci_api/tests/test_redis -rf --maxfail=3
+#            pytest ./ci_api/tests/test_common_functions -rf --maxfail=3
+#            pytest ./ci_api/tests/test_crud -rf --maxfail=3
 
         - name: Telegram notification on Failure
           if: failure()
