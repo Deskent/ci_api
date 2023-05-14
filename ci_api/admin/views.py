@@ -224,6 +224,39 @@ class UploadVideo(BaseView):
         )
 
 
+class UploadFreeVideo(BaseView):
+    name = "Загрузить бесплатное видео"
+
+    @expose("/upload_free", methods=["GET", "POST"])
+    async def upload_file(
+            self,
+            request: Request
+    ):
+        context = {"request": request}
+        if request.method == "GET":
+            return self.templates.TemplateResponse(
+                "upload_video.html",
+                context=context,
+            )
+
+        context.update({"result": "fail"})
+        try:
+            form: FormData = await request.form()
+            data = VideoUpload(**{k: v for k, v in form.items()})
+            logger.debug(f"Load file with data: {data}")
+            if video := await upload_file(file_form=data, free=True):
+                logger.debug("Load file with data: OK")
+                context.update(result="ok", video=video)
+
+        except pydantic.error_wrappers.ValidationError as err:
+            logger.exception(err)
+            logger.debug("Load file with data: FAIL")
+        return self.templates.TemplateResponse(
+            "upload_video.html",
+            context=context
+        )
+
+
 def add_admin_views(app: FastAPI) -> None:
     admin = Admin(
         app,
@@ -238,6 +271,7 @@ def add_admin_views(app: FastAPI) -> None:
     admin.add_view(ComplexView)
     admin.add_view(VideoView)
     admin.add_view(UploadVideo)
+    admin.add_view(UploadFreeVideo)
     admin.add_view(RateView)
     admin.add_view(AvatarView)
     admin.add_view(MoodView)
