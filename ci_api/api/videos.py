@@ -36,3 +36,29 @@ async def get_all_videos_from_complex(
         video.file_name = site.SITE_URL + '/media/' + video.file_name
 
     return result
+
+
+@router.get(
+    "/all_for/media_free/{complex_id}",
+    response_model=list[Video],
+    status_code=status.HTTP_200_OK
+)
+async def get_all_media_free_videos_from_complex(
+        complex_id: int
+):
+    """
+    Return list videos by complex id. For all users.
+
+    :param complex_id: int - Complex database ID
+
+    :return: List of videos as JSON
+
+    """
+
+    videos: list[Video] = await CRUD.video.get_all_by_complex_id(complex_id)
+
+    result = videos[:]
+    for video in result:
+        video.file_name = site.SITE_URL + '/media_free/' + video.file_name
+
+    return result
