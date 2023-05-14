@@ -47,7 +47,8 @@ def get_video_duration(video_path: str) -> int:
 
 
 async def upload_file(
-        file_form: VideoUpload
+        file_form: VideoUpload,
+        free: bool = False
 ) -> Video:
     """Check max videos in complex. Check video format. Save video file.
     Calculate video duration. Save row to database."""
@@ -74,6 +75,8 @@ async def upload_file(
 
     full_filename: str = f'{file_form.file_name}.mp4'
     file_path: Path = settings.MEDIA_DIR / full_filename
+    if free:
+        file_path: Path = settings.MEDIA_DIR / 'free' / full_filename
     if file_path.exists():
         error_text = f'File with name {full_filename} exists.'
         logger.warning(error_text)
