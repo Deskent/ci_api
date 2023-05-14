@@ -39,6 +39,22 @@ async def complex_data(
     return ComplexData(**complex_.dict(), videos=videos)
 
 
+@router.get(
+    "/free/{complex_id}",
+    response_model=ComplexData,
+)
+async def complex_data_free(
+        complex_id: int,
+):
+    """Return complex info for any user"""
+
+    if not (complex_ := await CRUD.complex.get_by_id(complex_id)):
+        raise ComplexNotFoundError
+    videos: list[Video] = await CRUD.video.get_all_by_complex_id(complex_id)
+
+    return ComplexData(**complex_.dict(), videos=videos)
+
+
 @router.post(
     "/set_viewed",
     status_code=status.HTTP_200_OK,
