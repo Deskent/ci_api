@@ -227,8 +227,8 @@ class UploadVideo(BaseView):
 class UploadFreeVideo(BaseView):
     name = "Загрузить бесплатное видео"
 
-    @expose("/upload_free", methods=["GET", "POST"])
-    async def upload_file(
+    @expose("/upload-free", methods=["GET", "POST"])
+    async def upload_free_file(
             self,
             request: Request
     ):
