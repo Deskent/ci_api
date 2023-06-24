@@ -53,7 +53,7 @@ class Settings(BaseSettings):
     DEFAULT_ADMIN: dict = {'username': 'test', 'email': 'test@mail.ru', 'password': 'test'}
     RECREATE_DB: bool = False
     ECHO: bool = False
-    STAGE: str = 'test'
+    STAGE: str = 'prod'
 
     class Config:
         env_file = '.env'

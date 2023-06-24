@@ -5,6 +5,7 @@
     git clone git@gitlab.cygenic.tech:cy_application/backend.git FOLDER_NAME
 
 Копируем переменные окружения в файл 'FOLDER_NAME/ci_api/.env'
+Описание необходимых переменных есть в файле FOLDER_NAME/ci_api/.env-template
 
 Переходим в папку
 
