@@ -1,3 +1,15 @@
+# Stack
+
+    Python 3.10
+
+    Docker
+
+    Postgres 14
+
+    Redis
+
+    FastAPI
+
 # Deploy
 
 Клонируем репозиторий
@@ -45,5 +57,16 @@ docker-compose.yml.
 
 # Nota bene
 
-Если будет запускаться больше одного воркера гуникорна (по умолчанию - один) - необходимо вынести планировщик
+1. Если будет запускаться больше одного воркера гуникорна (по умолчанию - один) - необходимо вынести планировщик
 в отдельный сервис, чтобы он не дублировался в каждом воркере.
+
+2. Для доступ к медиа файлам ИЗ ПРИЛОЖЕНИЙ ФРОНТЕНДА нужно передавать дополнительный заголово Media со значением
+
+    dNf1br7bGa9b9VAlvgjOIId!177y=3JEo0jbkbBsuwTvIWp=zM-Jzc1X7QuXSXJcgNYL/ag6I-SvJJIqVp7oHjJ
+
+Пример:
+
+    curl -X 'GET' \
+    'https://energy.qidoctor.ru/media/hello.mp4' \
+    -H 'accept: application/json' \
+    -H 'Media: dNf1br7bGa9b9VAlvgjOIId!177y=3JEo0jbkbBsuwTvIWp=zM-Jzc1X7QuXSXJcgNYL/ag6I-SvJJIqVp7oHjJ'
