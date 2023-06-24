@@ -1,4 +1,3 @@
-*.sh
 **/.idea
 spam
 **/logs
@@ -15,6 +14,10 @@ spam
 **.rdb
 # DS_Store
 **.DS_Store
+run-tests.sh
+start.sh
+wait_for.sh
+waiting_for.sh
 
 
 # Byte-compiled / optimized / DLL files

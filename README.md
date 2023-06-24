@@ -1,6 +1,37 @@
-Develop state:
-<img src="https://github.com/Deskent/ci_api/workflows/ci_api_tests/badge.svg?branch=develop"><br>
+# Deploy
 
-python 3.10
+Клонируем репозиторий
 
-project in progress
+    git clone git@gitlab.cygenic.tech:cy_application/backend.git FOLDER_NAME
+
+Копируем переменные окружения в файл 'FOLDER_NAME/ci_api/.env'
+
+Переходим в папку
+
+    cd FOLDER_NAME
+
+Запускаем приложение файлом restart.sh
+
+    . ./restart.sh
+
+# База данных
+
+Чтобы загрузить начальные данные (настроения, приветственное видео и прочие)
+в базу, нужен python3.10, с его помощью выполняем файл create_data.py
+
+    cd FOLDER_NAME/ci_api
+
+    python3.10 create_data.py
+
+Вся должна статика храниться в
+
+    /var/www/ci_api
+
+Если она будет в другом месте - нужно прописать в конфиге nginx и в файле
+docker-compose.yml
+
+# Nginx
+
+Конфиг находится в папке nginx
+
+    FOLDER_NAME/nginx/ci_api.conf
