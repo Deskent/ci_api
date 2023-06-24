@@ -1,0 +1,32 @@
+variables:
+  BASE_IMAGE: cygenic/cy-backend
+
+before_script:
+  - export COMMIT_DATE=$(git show -s --format=%cd --date=format:%Y%m%d $CI_COMMIT_SHA)
+  - export DOCKER_IMAGE_TAG="$CI_COMMIT_REF_SLUG-$COMMIT_DATE-$CI_PIPELINE_ID"
+  - export DOCKER_IMAGE="$BASE_IMAGE:$DOCKER_IMAGE_TAG"
+
+stages:
+  - Build and Store
+  - Cleanup
+
+Build and Store:
+  stage: Build and Store
+  script:
+    - docker login -u $DOCKER_USER -p $DOCKER_SECRET
+    - docker build --no-cache --tag $DOCKER_IMAGE ./ci_api
+    - docker tag $DOCKER_IMAGE $BASE_IMAGE:latest
+    - docker push $DOCKER_IMAGE && docker push $BASE_IMAGE:latest
+  after_script:
+    - docker logout
+  only:
+    - develop
+  tags:
+    - docker
+
+Cleanup:
+  stage: Cleanup
+  script:
+    - docker rmi $DOCKER_IMAGE $BASE_IMAGE:latest --force || true
+  tags:
+    - docker
