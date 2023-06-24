@@ -7,14 +7,6 @@
 Копируем переменные окружения в файл 'FOLDER_NAME/ci_api/.env'
 Описание необходимых переменных есть в файле FOLDER_NAME/ci_api/.env-template
 
-Переходим в папку
-
-    cd FOLDER_NAME
-
-Запускаем приложение файлом restart.sh
-
-    . ./restart.sh
-
 # База данных
 
 Чтобы загрузить начальные данные (настроения, приветственное видео и прочие)
@@ -36,3 +28,13 @@ docker-compose.yml
 Конфиг находится в папке nginx
 
     FOLDER_NAME/nginx/ci_api.conf
+
+# Start
+
+Переходим в папку
+
+    cd FOLDER_NAME
+
+Запускаем контейнеры
+
+    . ./restart.sh
