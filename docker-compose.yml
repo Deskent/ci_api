@@ -60,16 +60,3 @@ services:
       - ci_postgres
       - redis
     restart: on-failure
-
-#  pgadmin:
-#    container_name: pgadmin
-#    image: dpage/pgadmin4:6.10
-#    environment:
-#      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-#      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
-#    ports:
-#      - 5004:80
-#    restart: on-failure
-#    depends_on:
-#      - ci_postgres
-#      - app
