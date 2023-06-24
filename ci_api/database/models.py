@@ -101,6 +101,7 @@ class User(SQLModel, table=True):
     is_verified: Optional[bool] = Field(default=False, description='Верифицирован ли телефон')
     is_email_verified: Optional[bool] = Field(default=False, description='Верифицировал ли емэйл')
     is_active: Optional[bool] = Field(default=False, description='Есть ли подписка')
+    is_registered: Optional[bool] = Field(default=True, description='Зарегистрирован ли')
     email_code: Optional[str] = Field(nullable=True, default=None, description="Код верификации")
     sms_message: Optional[str] = Field(nullable=True, default=None, description="Сообщение из смс")
     sms_call_code: Optional[str] = Field(nullable=True, default=None, description="Код из звонка")

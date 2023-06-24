@@ -1,8 +1,8 @@
-"""auto
+"""empty message
 
-Revision ID: 6e0697620dfe
+Revision ID: e2a4ae309b5a
 Revises: 
-Create Date: 2022-11-27 14:36:41.708939
+Create Date: 2023-06-24 11:50:14.696947
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ import sqlmodel
 
 
 # revision identifiers, used by Alembic.
-revision = '6e0697620dfe'
+revision = 'e2a4ae309b5a'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -29,16 +29,30 @@ def upgrade():
     )
     op.create_index(op.f('ix_admins_email'), 'admins', ['email'], unique=True)
     op.create_index(op.f('ix_admins_id'), 'admins', ['id'], unique=False)
-    op.create_table('complexes',
+    op.create_table('avatars',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
-    sa.Column('description', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
-    sa.Column('next_complex_id', sa.Integer(), nullable=True),
-    sa.Column('duration', sa.Integer(), nullable=True),
-    sa.Column('video_count', sa.Integer(), nullable=True),
+    sa.Column('file_name', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_avatars_id'), 'avatars', ['id'], unique=False)
+    op.create_table('complexes',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('number', sa.Integer(), nullable=True),
+    sa.Column('name', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
+    sa.Column('description', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
+    sa.Column('duration', sa.Integer(), nullable=True),
+    sa.Column('video_count', sa.Integer(), nullable=True),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('number')
+    )
     op.create_index(op.f('ix_complexes_id'), 'complexes', ['id'], unique=False)
+    op.create_table('moods',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('code', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
+    sa.Column('name', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_moods_id'), 'moods', ['id'], unique=False)
     op.create_table('rates',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
@@ -48,6 +62,8 @@ def upgrade():
     )
     op.create_index(op.f('ix_rates_id'), 'rates', ['id'], unique=False)
     op.create_table('users',
+    sa.Column('expired_at', sa.TIMESTAMP(timezone=True), nullable=True),
+    sa.Column('last_entry', sa.TIMESTAMP(timezone=True), nullable=True),
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('username', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('last_name', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
@@ -55,18 +71,25 @@ def upgrade():
     sa.Column('email', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('phone', sqlmodel.sql.sqltypes.AutoString(length=13), nullable=False),
     sa.Column('password', sqlmodel.sql.sqltypes.AutoString(length=256), nullable=False),
-    sa.Column('gender', sa.Boolean(), nullable=False),
+    sa.Column('gender', sa.Boolean(), nullable=True),
     sa.Column('level', sa.Integer(), nullable=False),
     sa.Column('progress', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=False),
-    sa.Column('expired_at', sa.DateTime(), nullable=True),
     sa.Column('is_verified', sa.Boolean(), nullable=True),
+    sa.Column('is_email_verified', sa.Boolean(), nullable=True),
     sa.Column('is_active', sa.Boolean(), nullable=True),
+    sa.Column('is_registered', sa.Boolean(), nullable=True),
+    sa.Column('email_code', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('sms_message', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('sms_call_code', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
+    sa.Column('push_token', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
+    sa.Column('mood', sa.Integer(), nullable=True),
+    sa.Column('avatar', sa.Integer(), nullable=True),
     sa.Column('rate_id', sa.Integer(), nullable=False),
     sa.Column('current_complex', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['avatar'], ['avatars.id'], ),
     sa.ForeignKeyConstraint(['current_complex'], ['complexes.id'], ),
+    sa.ForeignKeyConstraint(['mood'], ['moods.id'], ),
     sa.ForeignKeyConstraint(['rate_id'], ['rates.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('phone')
@@ -79,6 +102,7 @@ def upgrade():
     sa.Column('name', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('description', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('duration', sa.Integer(), nullable=True),
+    sa.Column('number', sa.Integer(), nullable=True),
     sa.Column('complex_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['complex_id'], ['complexes.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -99,18 +123,76 @@ def upgrade():
     op.create_index(op.f('ix_alarms_id'), 'alarms', ['id'], unique=False)
     op.create_table('notifications',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('notification_time', sa.Time(), nullable=False),
     sa.Column('text', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_notifications_id'), 'notifications', ['id'], unique=False)
+    op.create_table('payment_checks',
+    sa.Column('date', sa.TIMESTAMP(timezone=True), nullable=True),
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('order_id', sa.Integer(), nullable=False),
+    sa.Column('sum', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('currency', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('customer_phone', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('customer_email', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('payment_type', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('payment_status', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('rate_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['rate_id'], ['rates.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('order_id')
+    )
+    op.create_index(op.f('ix_payment_checks_id'), 'payment_checks', ['id'], unique=False)
+    op.create_table('payments',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('payment_id', sa.Integer(), nullable=False),
+    sa.Column('payment_sign', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('rate_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['rate_id'], ['rates.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('payment_id'),
+    sa.UniqueConstraint('payment_sign')
+    )
+    op.create_index(op.f('ix_payments_id'), 'payments', ['id'], unique=False)
+    op.create_table('viewed_complexes',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('viewed_at', sa.DateTime(), nullable=True),
+    sa.Column('complex_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['complex_id'], ['complexes.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_viewed_complexes_id'), 'viewed_complexes', ['id'], unique=False)
+    op.create_table('viewed_videos',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('video_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['video_id'], ['videos.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_viewed_videos_id'), 'viewed_videos', ['id'], unique=False)
     # ### end Alembic commands ###
 
 
 def downgrade():
     # ### commands auto generated by Alembic - please adjust! ###
+    op.drop_index(op.f('ix_viewed_videos_id'), table_name='viewed_videos')
+    op.drop_table('viewed_videos')
+    op.drop_index(op.f('ix_viewed_complexes_id'), table_name='viewed_complexes')
+    op.drop_table('viewed_complexes')
+    op.drop_index(op.f('ix_payments_id'), table_name='payments')
+    op.drop_table('payments')
+    op.drop_index(op.f('ix_payment_checks_id'), table_name='payment_checks')
+    op.drop_table('payment_checks')
     op.drop_index(op.f('ix_notifications_id'), table_name='notifications')
     op.drop_table('notifications')
     op.drop_index(op.f('ix_alarms_id'), table_name='alarms')
@@ -122,8 +204,12 @@ def downgrade():
     op.drop_table('users')
     op.drop_index(op.f('ix_rates_id'), table_name='rates')
     op.drop_table('rates')
+    op.drop_index(op.f('ix_moods_id'), table_name='moods')
+    op.drop_table('moods')
     op.drop_index(op.f('ix_complexes_id'), table_name='complexes')
     op.drop_table('complexes')
+    op.drop_index(op.f('ix_avatars_id'), table_name='avatars')
+    op.drop_table('avatars')
     op.drop_index(op.f('ix_admins_id'), table_name='admins')
     op.drop_index(op.f('ix_admins_email'), table_name='admins')
     op.drop_table('admins')

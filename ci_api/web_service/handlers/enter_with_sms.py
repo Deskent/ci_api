@@ -133,6 +133,7 @@ async def update_user_token_to_web_context(
         web_context: WebContext
 ) -> WebContext:
     """Если нет ошибок - возвращает ответ в формате схемы TokenUser"""
+
     if web_context.to_raise:
         return web_context
     user: User = web_context.context.get('user')

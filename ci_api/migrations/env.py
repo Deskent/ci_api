@@ -10,11 +10,12 @@ from alembic import context
 from sqlmodel import SQLModel
 
 from database.db import DATABASE_URL
+from database.models import *
+
 
 sys.path = ['', '..'] + sys.path[1:]
 config = context.config
 config.set_main_option('sqlalchemy.url', DATABASE_URL)
-
 fileConfig(config.config_file_name)
 
 target_metadata = SQLModel.metadata

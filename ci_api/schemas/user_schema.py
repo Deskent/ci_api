@@ -65,6 +65,7 @@ class NewProfile(PhoneNumber):
 class UserRegistration(Password2, NewProfile):
     gender: bool = True
     test: bool = False
+    is_registered: bool = True
 
     @classmethod
     def as_form(
@@ -77,7 +78,7 @@ class UserRegistration(Password2, NewProfile):
             gender: str = Form(...),
             password: str = Form(...),
             password2: str = Form(...),
-            test: bool = False
+            test: bool = False,
     ):
         if password == password2:
             return cls(

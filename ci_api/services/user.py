@@ -92,18 +92,19 @@ async def register_new_user_web_context(
         return web_context
 
     data: dict = user_data.dict()
-    if user_data.test:
-        data['sms_message'] = "1234"
-    else:
-        result: dict = await send_sms(user_data.phone)
-        if sms_message := result.get('sms_message'):
-            logger.debug(f"Sms_message code: {sms_message}")
-            data['sms_message'] = sms_message
-        elif error := result.get('error'):
-            web_context.error = error
-            web_context.template = "registration.html"
-            web_context.to_raise = SmsServiceError
-            return web_context
+    if user_data.is_registered:
+        if user_data.test:
+            data['sms_message'] = "1234"
+        else:
+            result: dict = await send_sms(user_data.phone)
+            if sms_message := result.get('sms_message'):
+                logger.debug(f"Sms_message code: {sms_message}")
+                data['sms_message'] = sms_message
+            elif error := result.get('error'):
+                web_context.error = error
+                web_context.template = "registration.html"
+                web_context.to_raise = SmsServiceError
+                return web_context
 
     first_complex: Complex = await CRUD.complex.get_first()
     if first_complex:

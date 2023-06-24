@@ -40,8 +40,11 @@ async def register(
 
     :param gender: bool - True = male, False - female
 
+    :param is_registered: bool - False - Ss user registered flag
+
     :return: User created information as JSON
     """
+
     web_context: WebContext = await register_new_user_web_context(context={}, user_data=user_data)
 
     return web_context.api_render()
@@ -91,6 +94,7 @@ async def login(
 
      :return: Authorization token as JSON and user as JSON
     """
+
     web_context: WebContext = await user_login_via_phone(context={}, form_data=user_data)
     web_context: WebContext = await update_user_token_to_web_context(web_context)
 
