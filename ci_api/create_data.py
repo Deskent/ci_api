@@ -245,6 +245,7 @@ async def recreate_db(drop: bool = False) -> None:
 async def create_default_data():
 
     videos: list[Video] = await CRUD.video.get_all(False)
+    await create_default_admin()
     if not videos:
         if not await CRUD.complex.get_all(False):
             await create_complexes(dd.complex_data)
